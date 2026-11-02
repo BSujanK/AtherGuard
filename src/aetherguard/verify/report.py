@@ -291,8 +291,9 @@ def markdown(result: dict) -> str:
     lines = [
         "# Verification baseline (phase 7, W0)",
         "",
-        "v3 against two simple models that raise the same alert burden: three 3-day rain cuts fitted to v3's development shares "
-        "(`rain_3d`), and a static map (season-mean v3 risk) alerted at v3's shares of the evaluated set (`susceptibility`). "
+        "v3 against two simple models: three 3-day rain cuts fitted to v3's development shares (`rain_3d`), and a static map "
+        "(season-mean v3 risk) alerted at v3's shares of the evaluated set (`susceptibility`). Both are burden-matched to v3 on "
+        "the development seasons; on 2018 only `susceptibility` is (see the caveats below). "
         "POD is the share of events whose highest level within tolerance reached the level; precision is the share of alert "
         "cell-days that an event lies within tolerance of. `tolerant` is 10 km and 1 day, `cell_exact` the same cell and day. "
         "Intervals are 95% percentile bootstraps (days resampled for precision, events for POD).",
@@ -308,8 +309,11 @@ def markdown(result: dict) -> str:
         "2018 (all cells) is the primary tolerant measurement.",
         "- The rain baseline's cuts are fitted on the development universe-sample cell-days and applied unchanged to 2018; on the "
         "development panels they are applied to the data they were fitted on.",
+        "- On 2018 `rain_3d` keeps its development cuts and raises fewer alerts than v3 (see the shares table), so its POD "
+        "there is not burden-matched.",
         "- `susceptibility` is the static map (season-mean v3 risk): each day the scored cells of highest mean risk are alerted, "
-        "with no rain.",
+        "with no rain. It is computed from v3's risk over the same season it is scored on (hindsight), so it is an optimistic "
+        "baseline.",
         "",
         f"## 2018 ({y18['cells']:,} cells, {y18['days']} days, {y18['events']} events)",
         "",

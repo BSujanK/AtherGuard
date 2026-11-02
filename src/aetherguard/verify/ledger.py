@@ -179,11 +179,14 @@ def live_levels(live_root: Path, lead: int = 0) -> tuple[np.ndarray, np.ndarray,
 # --------------------------------------------------------------------------------------------------- the ledger
 
 def _without_ground_truth(scores: dict) -> dict:
-    """With no event in the lead's days nothing can verify an alert, so precision is unknown (NaN), not 0 of N."""
+    """With no event in the lead's days nothing can verify an alert, so precision is unknown (NaN), not 0 of N.
+
+    `verified_alert_cell_days` is unknown too: an event just outside the window can still verify an alert beside it.
+    """
     if scores["events"]:
         return scores
     return {**scores, "precision": math.nan, "precision_ci": [math.nan, math.nan],
-            "events_per_1000_alert_cell_days": math.nan}
+            "verified_alert_cell_days": math.nan, "events_per_1000_alert_cell_days": math.nan}
 
 
 def ledger(live_root: Path, reported_dir: Path, today: date, tol: Tolerance = Tolerance()) -> dict:
@@ -251,9 +254,10 @@ def markdown(result: dict) -> str:
         for level in LEVELS:
             s = entry["levels"][str(level)]
             precision = f"{_pct(s['precision'], 3)} {_interval(s['precision_ci'], 3)}" if s["events"] else "n/a"
+            verified = f"{s['verified_alert_cell_days']:,}" if s["events"] else "n/a"
             lines.append(
                 f"| {LEVEL_NAMES[level]} | {s['events']} | {s['hits']} | {_pct(s['pod'])} {_interval(s['pod_ci'])} | "
-                f"{s['alert_cell_days']:,} | {s['verified_alert_cell_days']:,} | "
+                f"{s['alert_cell_days']:,} | {verified} | "
                 f"{precision} | {_pct(s['alert_share'], 2)} |")
         lines.append("")
     return "\n".join(lines)

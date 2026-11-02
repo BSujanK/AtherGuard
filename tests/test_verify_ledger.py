@@ -171,6 +171,7 @@ def test_the_ledger_works_with_no_reported_events(live_root, tmp_path):
     for entry in out["leads"].values():
         for scores in entry["levels"].values():
             assert np.isnan(scores["precision"]) and np.isnan(scores["events_per_1000_alert_cell_days"])
+            assert np.isnan(scores["verified_alert_cell_days"])
             assert np.isnan(scores["precision_ci"]).all() and np.isnan(scores["pod"])
     assert out["leads"]["0"]["levels"]["1"]["alert_cell_days"] == 2
 
@@ -186,7 +187,7 @@ def test_the_markdown_does_not_show_a_precision_without_events(live_root, tmp_pa
     empty.mkdir()
     none = markdown(ledger(live_root, empty, today=date(2026, 11, 2)))
     some = markdown(ledger(live_root, reported, today=date(2026, 11, 2)))
-    assert "No reported events yet" in none and "0.000%" not in none
+    assert "No reported events yet" in none and "0.000%" not in none and "nan" not in none
     assert "No reported events yet" not in some and "50.000%" in some
 
 
@@ -198,6 +199,7 @@ def test_a_lead_whose_days_hold_no_event_prints_na_precision(live_root, tmp_path
     lead0, lead2 = out["leads"]["0"], out["leads"]["2"]
     assert lead0["events_outside_window"] == 1 and lead0["levels"]["1"]["events"] == 0
     assert lead0["levels"]["1"]["alert_cell_days"] == 2 and np.isnan(lead0["levels"]["1"]["precision"])
+    assert np.isnan(lead0["levels"]["1"]["verified_alert_cell_days"])
     assert lead2["levels"]["3"]["events"] == 1 and lead2["levels"]["3"]["precision"] == 0.0
 
     def cell(lead: str, level: str) -> str:

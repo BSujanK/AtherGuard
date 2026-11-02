@@ -8,7 +8,7 @@ count of cells, because a cell is narrower in kilometres towards the poles.
 Two views of the same rule:
 
 * per event: the highest published level of any panel cell-day within tolerance (`Match.event_level`), -1 when the panel
-  has no cell-day within tolerance, so the event could not have been alerted and is not a miss;
+  has no cell-day within tolerance: the system had no view of the event, and scores count it as a miss;
 * per cell-day: whether some event lies within tolerance of it (`Match.alert_verified`), which is what makes an alert a
   hit rather than a false alarm.
 

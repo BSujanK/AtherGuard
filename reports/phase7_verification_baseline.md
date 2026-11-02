@@ -1,6 +1,6 @@
 # Verification baseline (phase 7, W0)
 
-v3 against two simple models that raise the same alert burden: three 3-day rain cuts fitted to v3's development shares (`rain_3d`), and a static map (season-mean v3 risk) alerted at v3's shares of the evaluated set (`susceptibility`). POD is the share of events whose highest level within tolerance reached the level; precision is the share of alert cell-days that an event lies within tolerance of. `tolerant` is 10 km and 1 day, `cell_exact` the same cell and day. Intervals are 95% percentile bootstraps (days resampled for precision, events for POD).
+v3 against two simple models: three 3-day rain cuts fitted to v3's development shares (`rain_3d`), and a static map (season-mean v3 risk) alerted at v3's shares of the evaluated set (`susceptibility`). Both are burden-matched to v3 on the development seasons; on 2018 only `susceptibility` is (see the caveats below). POD is the share of events whose highest level within tolerance reached the level; precision is the share of alert cell-days that an event lies within tolerance of. `tolerant` is 10 km and 1 day, `cell_exact` the same cell and day. Intervals are 95% percentile bootstraps (days resampled for precision, events for POD).
 
 ## Reading this report
 
@@ -8,7 +8,8 @@ v3 against two simple models that raise the same alert burden: three 3-day rain 
 - Development panels hold every event cell and a seeded sample of universe cells. Alert cell-days, precision and alert share are counted on the universe-sample cells only (a random sample, so unbiased) and are not scaled up to the full universe; POD is over all development events.
 - Tolerant matching on development panels only sees the panel cells, so the tolerant development POD is a lower bound. 2018 (all cells) is the primary tolerant measurement.
 - The rain baseline's cuts are fitted on the development universe-sample cell-days and applied unchanged to 2018; on the development panels they are applied to the data they were fitted on.
-- `susceptibility` is the static map (season-mean v3 risk): each day the scored cells of highest mean risk are alerted, with no rain.
+- On 2018 `rain_3d` keeps its development cuts and raises fewer alerts than v3 (see the shares table), so its POD there is not burden-matched.
+- `susceptibility` is the static map (season-mean v3 risk): each day the scored cells of highest mean risk are alerted, with no rain. It is computed from v3's risk over the same season it is scored on (hindsight), so it is an optimistic baseline.
 
 ## 2018 (36,792 cells, 122 days, 56 events)
 

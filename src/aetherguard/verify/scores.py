@@ -68,7 +68,11 @@ def _per_day(levels: np.ndarray, m: Match, min_level: int) -> tuple[np.ndarray, 
 
 
 def level_scores(levels: np.ndarray, scored: np.ndarray, m: Match, min_level: int) -> dict:
-    """Detection and precision of `levels` (cells x days) at `min_level` against the matched events `m`."""
+    """Detection and precision of `levels` (cells x days) at `min_level` against the matched events `m`.
+
+    `alert_share` is alert cell-days over scored cell-days, and its numerator includes alerts on unscored rows (held
+    levels), unlike `baselines.realised_shares`, which counts scored rows only.
+    """
     levels, scored = _check(levels, scored, m)
     alert = levels >= min_level
     alert_cell_days = int(alert.sum())
@@ -88,7 +92,11 @@ def level_scores(levels: np.ndarray, scored: np.ndarray, m: Match, min_level: in
 
 
 def bootstrap_scores(levels: np.ndarray, scored: np.ndarray, m: Match, min_level: int, boot: dict = BOOTSTRAP) -> dict:
-    """`level_scores` plus percentile intervals: `pod_ci` resamples events, `precision_ci` and `alert_cell_days_ci` days."""
+    """`level_scores` plus percentile intervals: `pod_ci` resamples events, `precision_ci` and `alert_cell_days_ci` days.
+
+    A replicate whose drawn days hold no alert has no precision, so it is dropped from `precision_ci`; the number kept is
+    `precision_ci_replicates` (of `boot["n"]`), which shows how thin the interval is when alerts are rare.
+    """
     out = level_scores(levels, scored, m, min_level)
     rng = np.random.default_rng(boot["seed"])
     n_days = np.shape(levels)[1]
@@ -103,8 +111,10 @@ def bootstrap_scores(levels: np.ndarray, scored: np.ndarray, m: Match, min_level
             precision_reps = verified_reps / alert_reps
         out["alert_cell_days_ci"] = _interval(alert_reps.astype(np.float64), boot["level"])
         out["precision_ci"] = _interval(precision_reps, boot["level"])
+        out["precision_ci_replicates"] = int(np.isfinite(precision_reps).sum())
     else:
         out["alert_cell_days_ci"] = out["precision_ci"] = [math.nan, math.nan]
+        out["precision_ci_replicates"] = 0
     hit = m.event_level >= min_level
     if len(hit):
         pod_reps = hit[rng.integers(0, len(hit), (boot["n"], len(hit)))].mean(axis=1)

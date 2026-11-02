@@ -1,4 +1,6 @@
+import json
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -7,7 +9,7 @@ import pytest
 from aetherguard import grid
 from aetherguard.verify.baselines import realised_shares, susceptibility_baseline
 from aetherguard.verify.matching import CELL_EXACT, Tolerance
-from aetherguard.verify.report import model_table, susceptibility_levels
+from aetherguard.verify.report import markdown, model_table, susceptibility_levels
 
 A = grid.latlon_to_cell(30.025, 78.025)
 C = A + 1  # 4.8 km east of A
@@ -88,3 +90,10 @@ def test_susceptibility_levels_ranks_among_the_universe_and_extends_to_the_other
     assert levels[:, 0].tolist() == [2, 0, 2]
     assert levels[:, 1].tolist() == [2, 0, 2]
     assert realised_shares(levels[universe], scored[universe]) == pytest.approx((0.5, 0.5, 0.0))
+
+
+def test_the_baseline_markdown_states_what_is_and_is_not_burden_matched():
+    result = json.loads((Path(__file__).parents[1] / "reports" / "phase7_verification_baseline.json").read_text("utf-8"))
+    text = markdown(result)
+    assert "raise the same alert burden" not in text
+    assert "not burden-matched" in text and "(hindsight)" in text and "optimistic baseline" in text

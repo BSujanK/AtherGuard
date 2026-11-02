@@ -92,7 +92,7 @@ def test_tolerance_rejects_negative_values():
         Tolerance(days=-1)
 
 
-def test_an_event_with_no_panel_cell_within_the_distance_is_unscored():
+def test_an_event_with_no_panel_cell_within_the_distance_has_event_level_minus_one():
     far = grid.latlon_to_cell(45.025, 78.025)
     m = match(ZERO_LEVELS, CELLS, DAYS, one_event(far, 1), Tolerance())
     assert m.event_level.tolist() == [-1]

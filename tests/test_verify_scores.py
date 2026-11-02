@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from aetherguard.live.backtest import BOOTSTRAP
 from aetherguard.verify.matching import Match
 from aetherguard.verify.scores import bootstrap_scores, level_scores, paired_change
 
@@ -73,6 +74,7 @@ def test_bootstrap_is_seeded_and_brackets_the_point():
     assert a == b and a["precision_ci"][0] <= a["precision"] <= a["precision_ci"][1]
     assert a["pod_ci"][0] <= a["pod"] <= a["pod_ci"][1]
     assert a["alert_cell_days_ci"][0] <= a["alert_cell_days"] <= a["alert_cell_days_ci"][1]
+    assert 0 < a["precision_ci_replicates"] <= BOOTSTRAP["n"]
 
 
 def test_bootstrap_seed_changes_the_interval():
@@ -87,6 +89,7 @@ def test_bootstrap_intervals_are_nan_when_the_denominator_is_empty():
     assert all(math.isnan(x) for x in s["pod_ci"])
     s = bootstrap_scores(LEVELS, SCORED, MATCH, 4)
     assert all(math.isnan(x) for x in s["precision_ci"]) and s["alert_cell_days_ci"] == [0.0, 0.0]
+    assert s["precision_ci_replicates"] == 0
 
 
 def test_bootstrap_with_no_days_has_nan_day_intervals():
@@ -94,6 +97,7 @@ def test_bootstrap_with_no_days_has_nan_day_intervals():
     m = Match(np.zeros(0, dtype=np.int8), np.zeros((4, 0), dtype=bool), EVENTS.iloc[:0], 0, np.zeros(0, dtype=int))
     s = bootstrap_scores(none, none.astype(bool), m, 1)
     assert math.isnan(s["precision_ci"][0]) and math.isnan(s["alert_cell_days_ci"][1]) and math.isnan(s["alert_share"])
+    assert s["precision_ci_replicates"] == 0
 
 
 def test_paired_change_of_identical_levels_is_zero():
