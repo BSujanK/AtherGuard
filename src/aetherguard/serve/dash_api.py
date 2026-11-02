@@ -1,7 +1,9 @@
 """Dashboard API (prefix /api): compact typed-array payloads for the React app, read from the replay store and live runs.
 
   GET /api/mode                       live | replay | none, the set shown, its latest date and dates, the forecast leads
-                                      each date can show, the alert thresholds of the model that scored it, and the next run
+                                      each date can show, the alert thresholds of the model that scored it (pooled and per
+                                      region), the share of cells the newest day scored and the last day that scored any, and
+                                      the next run
   GET /api/grid?date=&lead=&set=      all cells of a day and lead as base64 typed arrays (little-endian), with a flag
                                       byte per cell: 1 raised by the blind rule, 2 held by hysteresis, 4 gauges untrusted,
                                       8 capped by the rain trigger, 16 ensemble disagrees;
@@ -248,26 +250,74 @@ def _valid_thresholds(value) -> dict | None:
     return {**{key: float(value[key]) for key in THRESHOLD_KEYS}, "source": value.get("source")}
 
 
+def _newest_live_model(live_dir: Path) -> dict:
+    """The `model` entry of the newest live run's run.json; {} when there is no run or it cannot be read."""
+    runs = _run_dates(live_dir)
+    summary = run_summary(live_dir, runs[-1]) if runs else None
+    model = (summary or {}).get("model")
+    return model if isinstance(model, dict) else {}
+
+
+def _valid_regional_thresholds(value) -> dict[str, dict] | None:
+    """{region: thresholds} for the regions of `value` that hold usable thresholds (`_valid_thresholds`), else None."""
+    if not isinstance(value, dict):
+        return None
+    found = {str(region): t for region, entry in value.items() if (t := _valid_thresholds(entry))}
+    return found or None
+
+
 def served_thresholds(store: ReplayStore, live_dir: Path, shown: dict) -> dict | None:
-    """The alert thresholds (calibrated risk) of the model behind the set `shown` by resolve_mode: a live set reads
+    """The pooled alert thresholds (calibrated risk) of the model behind the set `shown` by resolve_mode: a live set reads
     them from the newest live run's run.json (`model.thresholds`), anything else from the replay store manifest, which
     records the card the store was built with. None when neither holds usable thresholds."""
     if shown["mode"] == "none":
         return None
     if shown["set"] == LIVE_SET:
-        runs = _run_dates(live_dir)
-        if runs:
-            try:
-                summary = json.loads((live_dir / runs[-1] / "run.json").read_text(encoding="utf-8"))
-                found = _valid_thresholds(summary["model"]["thresholds"])
-            except (OSError, ValueError, KeyError, TypeError):
-                found = None
-            if found:
-                return found
+        found = _valid_thresholds(_newest_live_model(live_dir).get("thresholds"))
+        if found:
+            return found
     try:
         return _valid_thresholds(store.manifest.get("thresholds"))
     except StoreError:
         return None
+
+
+def served_regional_thresholds(store: ReplayStore, live_dir: Path, shown: dict) -> dict[str, dict] | None:
+    """{region: thresholds} the cells of each region are levelled against: a live set reads the newest live run's run.json
+    (`model.thresholds_by_region`), a replay set the manifest's `thresholds_by_region` when it has one. None when there
+    are none (the pooled `served_thresholds` then apply to every cell)."""
+    if shown["mode"] == "none":
+        return None
+    if shown["set"] == LIVE_SET:
+        return _valid_regional_thresholds(_newest_live_model(live_dir).get("thresholds_by_region"))
+    try:
+        return _valid_regional_thresholds(store.manifest.get("thresholds_by_region"))
+    except StoreError:
+        return None
+
+
+def _lead0_counts(live_dir: Path, day: str) -> tuple[int, int] | None:
+    """(n_scored, n_cells) of lead 0 in the run.json of `day`; None when the run has none or they are not whole numbers."""
+    lead0 = (((run_summary(live_dir, day) or {}).get("leads") or {}).get("0"))
+    counts = (lead0.get("n_scored"), lead0.get("n_cells")) if isinstance(lead0, dict) else (None, None)
+    if not all(isinstance(n, int) and not isinstance(n, bool) and n >= 0 for n in counts):
+        return None
+    return counts
+
+
+def served_scored_status(live_dir: Path, shown: dict) -> dict:
+    """How much of the domain the newest day of a live set has a risk score for: `scored_share` (n_scored / n_cells of
+    lead 0, from its run.json) and `last_scored_date`, the newest live date at or before it with n_scored > 0 (the day its
+    held levels trace back to). Both None for a replay set, a day without a usable run.json or an empty domain."""
+    none = {"scored_share": None, "last_scored_date": None}
+    if shown["set"] != LIVE_SET or not shown["latest_date"]:
+        return none
+    counts = _lead0_counts(live_dir, shown["latest_date"])
+    if counts is None or counts[1] == 0:
+        return none
+    last = next((day for day in reversed(shown["dates"]) if day <= shown["latest_date"]
+                 and (found := _lead0_counts(live_dir, day)) is not None and found[0] > 0), None)
+    return {"scored_share": counts[0] / counts[1], "last_scored_date": last}
 
 
 def available_leads(shown: dict, live_dir: Path) -> dict[str, list[int]]:
@@ -286,6 +336,8 @@ def mode(request: Request) -> dict:
     shown = resolve_mode(store, config.live_dir)
     return {**shown, "leads": available_leads(shown, config.live_dir),
             "thresholds": served_thresholds(store, config.live_dir, shown),
+            "thresholds_by_region": served_regional_thresholds(store, config.live_dir, shown),
+            **served_scored_status(config.live_dir, shown),
             "next_run": next_run_after(datetime.now(IST), run_time)}
 
 

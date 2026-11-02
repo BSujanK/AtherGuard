@@ -6,6 +6,7 @@ import { describeOdds, describePlace, describeRisk, MODEL_ESTIMATE, oddsOptions,
 import { CONFIDENCES, type Grid, LEVELS, type Places } from '../../data/types'
 import { LEVEL_HEX } from '../../scene/levelColors'
 import { findCell } from '../../scene/riskTexture'
+import { watchForCell } from '../../data/thresholds'
 import { useMapState } from '../../state/map'
 import styles from './MapPanels.module.css'
 
@@ -54,10 +55,9 @@ export default function HoverCard({ grid }: { grid: Grid | undefined }) {
   }, [hover])
 
   const mode = useMode().data
-  const watch = mode?.thresholds?.watch
   const places = usePlaces().data
   const today = mode?.mode === 'live' && grid !== undefined && mode.latest_date === grid.date
-  const info = hover && grid ? describeCell(grid, hover.cell, watch, places, today) : null
+  const info = hover && grid ? describeCell(grid, hover.cell, watchForCell(mode, hover.cell), places, today) : null
   if (!hover || !info) return null
 
   return (

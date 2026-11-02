@@ -6,6 +6,9 @@ import { useStreamStatus } from '../data/stream'
 import { CONFIDENCES, LEVELS } from '../data/types'
 import styles from './StatusStrip.module.css'
 
+/** Below this share of the domain scored, the day counts as having no new risk scores. */
+const NO_SCORES_BELOW = 0.5
+
 const LEVEL_CLASS = ['normal', 'watch', 'warning', 'emergency'] as const
 
 export default function StatusStrip() {
@@ -21,6 +24,7 @@ export default function StatusStrip() {
   )
 
   const data = mode.data
+  const unscored = data?.mode === 'live' && data.scored_share != null && data.scored_share < NO_SCORES_BELOW
   const badge = mode.isError ? 'unreachable' : data ? data.mode : 'loading'
 
   return (
@@ -47,6 +51,13 @@ export default function StatusStrip() {
           </span>
         )}
       </div>
+
+      {unscored && (
+        <p className={styles.notice} role="status" data-testid="no-scores-notice">
+          No new risk scores for {formatDate(latest ?? null)}: satellite rain not yet available.
+          {data.last_scored_date ? ` Levels are held from ${formatDate(data.last_scored_date)}.` : ' Levels are held from earlier days.'}
+        </p>
+      )}
 
       {levels && confidences && (
         <div className={styles.group}>

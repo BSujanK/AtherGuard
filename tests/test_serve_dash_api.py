@@ -77,9 +77,10 @@ def write_run(live_dir, day, leads=(0, 1), freshness=None, rain_column="rain_acc
 # ---- mode ----------------------------------------------------------------------------------------------------------
 
 def mode_of(client):
-    """/api/mode without its time-dependent `next_run`, the `thresholds` and the `leads` (each covered by its own tests)."""
+    """/api/mode without its time-dependent `next_run`, the `thresholds`, the `leads` and the scored status (each covered by
+    its own tests)."""
     body = client.get("/api/mode").json()
-    for key in ("next_run", "thresholds", "leads"):
+    for key in ("next_run", "thresholds", "thresholds_by_region", "leads", "scored_share", "last_scored_date"):
         body.pop(key)
     return body
 
@@ -179,6 +180,101 @@ def test_mode_thresholds_are_null_without_data_or_a_manifest_entry(tmp_path):
     del manifest["thresholds"]
     (store / alert_store.MANIFEST_FILE).write_text(json.dumps(manifest))
     assert make_client(store, tmp_path).get("/api/mode").json()["thresholds"] is None
+
+
+BY_REGION = {"himalaya": {"watch": 2.78e-6, "warning": 1.38e-5, "emergency": 4.92e-5, "source": "card.alert_levels risk_by_region[himalaya]"},
+             "western_ghats": {"watch": 3.81e-6, "warning": 1.37e-5, "emergency": 2.56e-5, "source": "card.alert_levels risk_by_region[western_ghats]"}}
+POOLED = {"watch": 3.01e-6, "warning": 1.18e-5, "emergency": 4.81e-5, "source": "card.alert_levels"}
+
+
+def write_model(folder, **model):
+    (folder / "run.json").write_text(json.dumps({"model": model}))
+
+
+def test_mode_serves_the_thresholds_of_each_region_from_the_newest_run_summary(built, tmp_path):
+    client = make_client(built[1], tmp_path)
+    write_model(write_run(tmp_path / "live", "2024-07-09"), thresholds=POOLED, thresholds_by_region={"himalaya": {**BY_REGION["himalaya"], "watch": 9.0}})
+    write_model(write_run(tmp_path / "live", "2024-07-10"), thresholds=POOLED, thresholds_by_region=BY_REGION)
+    body = client.get("/api/mode").json()
+    assert body["thresholds_by_region"] == BY_REGION
+    assert body["thresholds"] == POOLED
+
+
+def test_mode_drops_a_region_whose_thresholds_are_unusable(built, tmp_path):
+    client = make_client(built[1], tmp_path)
+    bad = {"watch": 0, "warning": 1, "emergency": 2, "source": "x"}
+    write_model(write_run(tmp_path / "live", "2024-07-10"), thresholds=POOLED,
+                thresholds_by_region={**BY_REGION, "himalaya": bad, "elsewhere": "no"})
+    assert client.get("/api/mode").json()["thresholds_by_region"] == {"western_ghats": BY_REGION["western_ghats"]}
+
+
+@pytest.mark.parametrize("model", [{}, {"thresholds_by_region": None}, {"thresholds_by_region": []}, {"thresholds_by_region": {"himalaya": 3}}])
+def test_mode_thresholds_by_region_are_null_without_usable_ones(built, tmp_path, model):
+    client = make_client(built[1], tmp_path)
+    write_model(write_run(tmp_path / "live", "2024-07-10"), thresholds=POOLED, **model)
+    assert client.get("/api/mode").json()["thresholds_by_region"] is None
+
+
+def test_mode_thresholds_by_region_of_a_replay_set_are_null_unless_the_manifest_has_them(built, tmp_path):
+    assert make_client(built[1], tmp_path).get("/api/mode").json()["thresholds_by_region"] is None
+    _, store = build_store(tmp_path, {"case_a": SETS["case_a"]})
+    manifest = json.loads((store / alert_store.MANIFEST_FILE).read_text())
+    manifest["thresholds_by_region"] = BY_REGION
+    (store / alert_store.MANIFEST_FILE).write_text(json.dumps(manifest))
+    assert make_client(store, tmp_path).get("/api/mode").json()["thresholds_by_region"] == BY_REGION
+
+
+def test_mode_thresholds_by_region_are_null_without_data(tmp_path):
+    assert make_client(tmp_path / "nothing", tmp_path).get("/api/mode").json()["thresholds_by_region"] is None
+
+
+def write_scored(live_dir, day, n_scored, n_cells=100):
+    folder = write_run(live_dir, day)
+    (folder / "run.json").write_text(json.dumps({"leads": {"0": {"n_cells": n_cells, "n_scored": n_scored}}}))
+
+
+def test_mode_reports_the_share_of_cells_scored_on_the_shown_date(built, tmp_path):
+    client = make_client(built[1], tmp_path)
+    write_scored(tmp_path / "live", "2024-07-09", 80)
+    write_scored(tmp_path / "live", "2024-07-10", 25)
+    body = client.get("/api/mode").json()
+    assert body["scored_share"] == 0.25
+    assert body["last_scored_date"] == "2024-07-10"
+
+
+def test_mode_last_scored_date_skips_days_that_scored_nothing(built, tmp_path):
+    client = make_client(built[1], tmp_path)
+    write_scored(tmp_path / "live", "2024-07-08", 100)
+    write_scored(tmp_path / "live", "2024-07-09", 0)
+    write_scored(tmp_path / "live", "2024-07-10", 0)
+    body = client.get("/api/mode").json()
+    assert body["scored_share"] == 0.0
+    assert body["last_scored_date"] == "2024-07-08"
+
+
+def test_mode_last_scored_date_is_null_when_no_day_scored_anything(built, tmp_path):
+    client = make_client(built[1], tmp_path)
+    write_scored(tmp_path / "live", "2024-07-10", 0)
+    body = client.get("/api/mode").json()
+    assert (body["scored_share"], body["last_scored_date"]) == (0.0, None)
+
+
+@pytest.mark.parametrize("summary", [None, "{half", json.dumps({}), json.dumps({"leads": {"0": {"n_cells": 0, "n_scored": 0}}}),
+                                     json.dumps({"leads": {"0": {"n_cells": "x", "n_scored": 1}}})])
+def test_mode_scored_status_is_null_without_a_usable_summary(built, tmp_path, summary):
+    client = make_client(built[1], tmp_path)
+    folder = write_run(tmp_path / "live", "2024-07-10")
+    if summary is not None:
+        (folder / "run.json").write_text(summary)
+    body = client.get("/api/mode").json()
+    assert (body["scored_share"], body["last_scored_date"]) == (None, None)
+
+
+def test_mode_scored_status_is_null_for_a_replay_set_and_without_data(client, tmp_path):
+    body = client.get("/api/mode").json()
+    assert (body["scored_share"], body["last_scored_date"]) == (None, None)
+    body = make_client(tmp_path / "nothing", tmp_path).get("/api/mode").json()
+    assert (body["scored_share"], body["last_scored_date"]) == (None, None)
 
 
 IST = dash_api.IST

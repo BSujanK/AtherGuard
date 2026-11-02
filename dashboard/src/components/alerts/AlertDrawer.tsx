@@ -17,7 +17,8 @@ import {
   oddsWhen,
   type RiskText,
 } from '../../data/summary'
-import { type CellDetail, LEVELS, type PlaceLabel, type Thresholds } from '../../data/types'
+import { type CellDetail, LEVELS, type PlaceLabel } from '../../data/types'
+import { type ScopedThresholds, thresholdsFor } from '../../data/thresholds'
 import { LEVEL_HEX } from '../../scene/levelColors'
 import { REGION_LABELS, type RegionName } from '../../scene/geo'
 import EmptyState from '../EmptyState'
@@ -55,15 +56,19 @@ function regionLabel(region: string | null): string {
 
 function LevelSection({
   detail,
-  thresholds,
+  scoped,
   risk,
   today,
+  heldFrom,
 }: {
   detail: CellDetail
-  thresholds: Thresholds | null | undefined
+  scoped: ScopedThresholds
   risk: RiskText
   today: boolean
+  /** The date the level of a cell without a score is held from, when known. */
+  heldFrom: string | null
 }) {
+  const { thresholds, scope } = scoped
   const held = detail.rawLevel !== '' && detail.rawLevel !== detail.levelName
   const isCapped = detail.reasonCodes.includes('no_recent_rain')
   const odds = describeOdds(detail.risk, oddsWhen(detail.issuedDate, detail.lead, today), {
@@ -114,7 +119,7 @@ function LevelSection({
       )}
       {thresholds ? (
         <p className={styles.muted}>
-          Thresholds, per 100k cell-days: Watch <span className="num">{formatPer100k(thresholds.watch)}</span>, Warning{' '}
+          {scope} thresholds, per 100k cell-days: Watch <span className="num">{formatPer100k(thresholds.watch)}</span>, Warning{' '}
           <span className="num">{formatPer100k(thresholds.warning)}</span>, Emergency{' '}
           <span className="num">{formatPer100k(thresholds.emergency)}</span>.
         </p>
@@ -128,7 +133,10 @@ function LevelSection({
             return (
               <li key={code}>
                 <strong>{label}</strong>
-                <span>{text}</span>
+                <span>
+                  {text}
+                  {code === 'model_input_missing' && heldFrom && ` The level is held from ${formatDate(heldFrom)}, the last day with a risk score.`}
+                </span>
               </li>
             )
           })}
@@ -255,7 +263,7 @@ function SourcesSection({ detail }: { detail: CellDetail }) {
   )
 }
 
-function HistorySection({ cell, date, set, thresholds }: { cell: number; date: string; set: string | null; thresholds: Thresholds | null | undefined }) {
+function HistorySection({ cell, date, set, scoped }: { cell: number; date: string; set: string | null; scoped: ScopedThresholds }) {
   const history = useCellHistory(cell, date, set)
   let body: ReactNode
   if (history.isPending) body = <Loading what="the last 30 days" />
@@ -276,10 +284,11 @@ function HistorySection({ cell, date, set, thresholds }: { cell: number; date: s
           source had no value that day.
           {history.data.forecast.length > 0 &&
             ` The dashed line is the D+1 to D+${history.data.forecast.length} forecast of the run of ${formatDayMonth(history.data.issuedDate ?? history.data.dates[days - 1] ?? null)}.`}
+          {scoped.thresholds && ` The horizontal lines are the ${scoped.scope} Watch, Warning and Emergency thresholds.`}
         </p>
         <Suspense fallback={<Loading what="charts" />}>
           <RainHistory history={history.data} />
-          <RiskTrend history={history.data} thresholds={thresholds} />
+          <RiskTrend history={history.data} thresholds={scoped.thresholds} />
         </Suspense>
       </>
     )
@@ -320,7 +329,6 @@ interface AlertDrawerProps {
   /** The leads the run of `date` published, for the switch. */
   leads: readonly number[]
   onLeadChange: (lead: number) => void
-  thresholds: Thresholds | null | undefined
   onClose: () => void
   onSelectCell: (cell: number) => void
   /** Element to focus on close when the one that opened the drawer is gone. */
@@ -336,7 +344,6 @@ export default function AlertDrawer({
   lead,
   leads,
   onLeadChange,
-  thresholds,
   onClose,
   onSelectCell,
   returnFocus,
@@ -347,9 +354,12 @@ export default function AlertDrawer({
   const places = usePlaces().data
   useDialog(panel, onClose, returnFocus)
 
-  const risk = describeRisk(detail.data?.risk, thresholds?.watch)
   const mode = useMode().data
+  const scoped = thresholdsFor(mode, detail.data?.region)
+  const risk = describeRisk(detail.data?.risk, scoped.thresholds?.watch)
   const today = mode?.mode === 'live' && mode.latest_date === date
+  const lastScored = mode?.last_scored_date
+  const heldFrom = today && !detail.data?.forecast && lastScored && lastScored !== date ? lastScored : null
   const label: PlaceLabel | null = cell !== null ? (places?.lookup(cell) ?? detail.data?.place ?? null) : null
   const where = cell !== null ? describePlace(cell, label, places?.farKm) : null
   const target = date !== null && lead > 0 ? addDays(date, lead) : date
@@ -390,7 +400,7 @@ export default function AlertDrawer({
             Some detail is missing: {d.detailMissing}.
           </p>
         )}
-        <LevelSection detail={d} thresholds={thresholds} risk={risk} today={today} />
+        <LevelSection detail={d} scoped={scoped} risk={risk} today={today} heldFrom={heldFrom} />
         <ConfidenceSection detail={d} />
         <Section id="drawer-why" title="Why the model says this">
           {d.shap.length > 0 ? (
@@ -410,7 +420,7 @@ export default function AlertDrawer({
           )}
         </Section>
         <SourcesSection detail={d} />
-        <HistorySection cell={d.cell} date={d.date} set={set} thresholds={thresholds} />
+        <HistorySection cell={d.cell} date={d.date} set={set} scoped={scoped} />
         <NeighbourhoodSection cell={d.cell} date={d.date} lead={lead} onSelect={onSelectCell} />
       </>
     )

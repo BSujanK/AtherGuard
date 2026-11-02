@@ -237,6 +237,82 @@ describe('the detail drawer', () => {
     expect(within(reasons).queryByText(/risk_above/)).toBeNull()
   })
 
+  describe('thresholds of the cell\u2019s region', () => {
+    const regional = {
+      ...mode,
+      thresholds: { watch: 3.01e-6, warning: 1.18e-5, emergency: 4.81e-5, source: 'card.alert_levels' },
+      thresholds_by_region: {
+        himalaya: { watch: 2.782e-6, warning: 1.3766e-5, emergency: 4.9227e-5, source: 'card.alert_levels risk_by_region[himalaya]' },
+        western_ghats: { watch: 3.8085e-6, warning: 1.3681e-5, emergency: 2.5643e-5, source: 'card.alert_levels risk_by_region[western_ghats]' },
+      },
+    }
+    const serve = (over: Record<string, unknown>, modeBody: Record<string, unknown> = regional) =>
+      server.use(
+        http.get('*/api/mode', () => HttpResponse.json(modeBody)),
+        http.get('*/risk/cell/:id', ({ request }) =>
+          new URL(request.url).searchParams.get('lead') ? undefined : HttpResponse.json({ ...cellBody, risk: 2.5642648636983134e-5, ...over }),
+        ),
+      )
+
+    it('shows a Western Ghats cell the Western Ghats figures, and the multiple of its Watch threshold', async () => {
+      serve({})
+      renderAlerts(`/alerts-why?cell=${CELL}&date=2024-07-30`)
+      const dialog = await screen.findByRole('dialog')
+      await within(dialog).findByText('2.6 per 100k cell-days')
+      expect(dialog).toHaveTextContent('Western Ghats thresholds, per 100k cell-days: Watch 0.38, Warning 1.4, Emergency 2.6.')
+      expect(dialog).not.toHaveTextContent('Emergency 4.8')
+      expect(dialog).toHaveTextContent('6.7× Watch threshold')
+      expect(await within(dialog).findByText(/The horizontal lines are the Western Ghats Watch, Warning and Emergency thresholds\./)).toBeInTheDocument()
+    })
+
+    it('shows a Himalaya cell the Himalaya figures', async () => {
+      serve({ region: 'himalaya' })
+      renderAlerts(`/alerts-why?cell=${CELL}&date=2024-07-30`)
+      const dialog = await screen.findByRole('dialog')
+      await within(dialog).findByText('2.6 per 100k cell-days')
+      expect(dialog).toHaveTextContent('Himalaya thresholds, per 100k cell-days: Watch 0.28, Warning 1.4, Emergency 4.9.')
+      expect(dialog).toHaveTextContent('9.2× Watch threshold')
+    })
+
+    it('labels the pooled thresholds all-India when the API has none per region', async () => {
+      serve({}, { ...regional, thresholds_by_region: null })
+      renderAlerts(`/alerts-why?cell=${CELL}&date=2024-07-30`)
+      const dialog = await screen.findByRole('dialog')
+      await within(dialog).findByText('2.6 per 100k cell-days')
+      expect(dialog).toHaveTextContent('All-India thresholds, per 100k cell-days: Watch 0.3, Warning 1.2, Emergency 4.8.')
+    })
+  })
+
+  describe('a day without risk scores', () => {
+    const liveMode = { ...mode, mode: 'live', set: 'live', leads: { '2024-07-30': [0] }, scored_share: 0, last_scored_date: '2024-07-28' }
+    const unscored = { risk: null, risk_lo: null, risk_hi: null, risk_per_100k: null, reason_codes: ['model_input_missing'] }
+    const serve = (modeBody: Record<string, unknown>) =>
+      server.use(
+        http.get('*/api/mode', () => HttpResponse.json(modeBody)),
+        http.get('*/risk/cell/:id', ({ request }) =>
+          new URL(request.url).searchParams.get('lead') ? undefined : HttpResponse.json({ ...cellBody, ...unscored }),
+        ),
+      )
+
+    it('names the date the held level comes from', async () => {
+      serve(liveMode)
+      renderAlerts(`/alerts-why?cell=${CELL}&date=2024-07-30`)
+      const dialog = await screen.findByRole('dialog')
+      const reasons = await within(dialog).findByRole('list', { name: 'Why this level' })
+      expect(reasons).toHaveTextContent('No risk score today')
+      expect(reasons).toHaveTextContent('The level is held from 28 Jul 2024, the last day with a risk score.')
+    })
+
+    it('adds no date when the last scored day is unknown', async () => {
+      serve({ ...liveMode, last_scored_date: null })
+      renderAlerts(`/alerts-why?cell=${CELL}&date=2024-07-30`)
+      const dialog = await screen.findByRole('dialog')
+      const reasons = await within(dialog).findByRole('list', { name: 'Why this level' })
+      expect(reasons).toHaveTextContent('No risk score today')
+      expect(reasons).not.toHaveTextContent('The level is held from')
+    })
+  })
+
   it('explains the confidence with its causes, including a cause it has no wording for', async () => {
     renderAlerts(link)
     const dialog = await screen.findByRole('dialog')

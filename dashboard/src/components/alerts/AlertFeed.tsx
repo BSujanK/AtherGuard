@@ -1,7 +1,8 @@
 import { Fragment, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { usePlaces } from '../../data/hooks'
 import { describeOdds, describePlace, describeRisk, formatCount, MODEL_ESTIMATE, oddsOptions, oddsWhen, spokenRisk } from '../../data/summary'
-import { CERTAINTY, LEVELS } from '../../data/types'
+import { watchAt } from '../../data/thresholds'
+import { CERTAINTY, LEVELS, type ModeResponse } from '../../data/types'
 import { LEVEL_HEX } from '../../scene/levelColors'
 import { REGION_LABELS, type RegionFilter } from '../../scene/geo'
 import {
@@ -39,8 +40,8 @@ const DIRECTION_WORDS: Record<SortKey, Record<'asc' | 'desc', string>> = {
 
 interface AlertFeedProps {
   source: FeedSource
-  /** Watch threshold risk for the "times Watch" figure; null when the API does not report one. */
-  watch: number | null | undefined
+  /** The API's thresholds, for the "times Watch" figure of each cell (its region's Watch threshold); none without them. */
+  mode: Pick<ModeResponse, 'thresholds' | 'thresholds_by_region'> | undefined
   /** Cells that have just reached Watch or above (highlighted for a few seconds). */
   fresh: ReadonlySet<number>
   /** The live run's own day is shown ("today" in the probability line); a replay day or an older run is named by date. */
@@ -51,7 +52,7 @@ interface AlertFeedProps {
 }
 
 /** The cells of the day as a sortable, filterable, searchable list that renders only the rows in view. */
-export default function AlertFeed({ source, watch, fresh, today = false, announcement, onOpen }: AlertFeedProps) {
+export default function AlertFeed({ source, mode, fresh, today = false, announcement, onOpen }: AlertFeedProps) {
   const { grid } = source
   const [levels, setLevels] = useState<readonly boolean[]>(DEFAULT_LEVELS)
   const [region, setRegion] = useState<RegionFilter>('all')
@@ -258,7 +259,7 @@ export default function AlertFeed({ source, watch, fresh, today = false, announc
               {Array.from({ length: end - start }, (_, k) => {
                 const i = start + k
                 const row = rowAt(source, order[i]!)
-                const risk = describeRisk(row.risk, watch)
+                const risk = describeRisk(row.risk, watchAt(mode, row.lat, row.lon))
                 const oddsFor = oddsOptions(row.flags)
                 const odds = describeOdds(row.risk, oddsWhen(grid.date, grid.lead, today), oddsFor)
                 const level = LEVELS[row.level as 0 | 1 | 2 | 3]

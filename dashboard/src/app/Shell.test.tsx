@@ -120,6 +120,51 @@ describe('Shell with replay data', () => {
   })
 })
 
+describe('Shell on a day without risk scores', () => {
+  const live = {
+    mode: 'live' as const,
+    set: 'live',
+    latest_date: '2026-11-01',
+    dates: ['2026-10-31', '2026-11-01'],
+    scored_share: 0,
+    last_scored_date: '2026-10-31',
+    next_run: NEXT_RUN,
+  }
+
+  it('warns that the levels are held, naming both dates', async () => {
+    server.use(...apiHandlers(live))
+    renderApp()
+    const strip = screen.getByRole('banner', { name: 'Data status' })
+    const notice = await within(strip).findByTestId('no-scores-notice')
+    expect(notice).toHaveTextContent(
+      'No new risk scores for 1 Nov 2026: satellite rain not yet available. Levels are held from 31 Oct 2026.',
+    )
+    expect(notice).toHaveAttribute('role', 'status')
+    await settled()
+  })
+
+  it('does not name a source day when no day was ever scored', async () => {
+    server.use(...apiHandlers({ ...live, last_scored_date: null }))
+    renderApp()
+    const notice = await within(screen.getByRole('banner', { name: 'Data status' })).findByTestId('no-scores-notice')
+    expect(notice).toHaveTextContent('No new risk scores for 1 Nov 2026: satellite rain not yet available. Levels are held from earlier days.')
+    await settled()
+  })
+
+  it.each([0.5, 0.99, null])('shows no warning when the share scored is %s', async (share) => {
+    server.use(...apiHandlers({ ...live, scored_share: share }))
+    renderApp()
+    await settled()
+    expect(screen.queryByTestId('no-scores-notice')).toBeNull()
+  })
+
+  it('shows no warning without a share, as for a replay set or an older API', async () => {
+    renderApp()
+    await settled()
+    expect(screen.queryByTestId('no-scores-notice')).toBeNull()
+  })
+})
+
 describe('Shell without data', () => {
   it('shows a plain empty state when the mode is none', async () => {
     server.use(...apiHandlers(noDataMode))

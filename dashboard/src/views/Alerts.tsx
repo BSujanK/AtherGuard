@@ -99,7 +99,6 @@ export default function Alerts() {
 
   const options = date !== null && !dates.includes(date) ? [date, ...[...dates].reverse()] : [...dates].reverse()
   const counts = source ? [1, 2, 3].map((l) => countLevel(source.grid.level, l)) : null
-  const thresholds = mode.data.thresholds
 
   let feed
   if (dateMissing) {
@@ -141,7 +140,7 @@ export default function Alerts() {
     feed = (
       <AlertFeed
         source={source}
-        watch={thresholds?.watch}
+        mode={mode.data}
         fresh={fresh}
         today={mode.data.mode === 'live' && date === latest}
         announcement={announcement}
@@ -204,7 +203,6 @@ export default function Alerts() {
           lead={lead}
           leads={leads}
           onLeadChange={setLead}
-          thresholds={thresholds}
           onClose={close}
           onSelectCell={open}
           returnFocus={() => document.querySelector<HTMLElement>('[data-feed] button[tabindex="0"]')}

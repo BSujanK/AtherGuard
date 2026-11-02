@@ -13,6 +13,7 @@ import {
   rainSourceName,
   spokenRisk,
 } from '../../data/summary'
+import { watchForCell } from '../../data/thresholds'
 import { CONFIDENCES, LEVELS } from '../../data/types'
 import { LEVEL_HEX } from '../../scene/levelColors'
 import type { MapModel } from '../../scene/useMapModel'
@@ -85,7 +86,6 @@ export function AlertList({ model }: { model: MapModel }) {
   const today = mode?.mode === 'live' && mode.latest_date === grid.date
   const total = alertCount(grid, visible)
   const top = topAlerts(grid, visible, LIST_LENGTH)
-  const watch = model.mode?.thresholds?.watch
   return (
     <details className={styles.panel}>
       <summary className={styles.summary}>
@@ -100,7 +100,7 @@ export function AlertList({ model }: { model: MapModel }) {
         <ol className={styles.alerts} aria-label="Top alerts">
           {top.map((a) => {
             const where = describePlace(a.cell, places?.lookup(a.cell), places?.farKm)
-            const risk = describeRisk(a.risk, watch)
+            const risk = describeRisk(a.risk, watchForCell(model.mode, a.cell))
             const oddsFor = oddsOptions(a.flags)
             const odds = describeOdds(a.risk, oddsWhen(grid.date, grid.lead, today), oddsFor)
             const label = `Cell ${a.cell}, ${where.primary}, ${LEVELS[a.level as 0 | 1 | 2 | 3]}, risk ${spokenRisk(risk)}, ${CONFIDENCES[a.confidence as 0 | 1 | 2]} confidence`

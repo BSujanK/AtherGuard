@@ -72,6 +72,15 @@
   font-weight: 500;
 }
 
+.notice {
+  flex-basis: 100%;
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 3px solid var(--warn);
+  color: var(--text);
+  font-weight: 500;
+}
+
 .counts {
   display: flex;
   flex-wrap: wrap;
