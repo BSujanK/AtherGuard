@@ -8,25 +8,31 @@ Names. The query and every candidate name (`name`, `asciiname`, each of the comm
 (accents dropped, lower case, apostrophes removed, any other punctuation a single space) and must then be equal. There is no
 fuzzy matching: "Mundakkai" and "Mundakai" are different places here.
 
-Messy place text ("Kavalappara, near Pothukal (Muthappan Hill)", "Pakshep village"). The whole text is tried first, then each
-comma / semicolon / bracket segment left to right, each as written, without a leading "near" and without a trailing generic
-word (village, hamlet, town, area). The first query with a match in the state decides, even when that match is ambiguous: an
-ambiguous first segment is not replaced by a later, more distant one.
+Messy place text ("Kavalappara, near Pothukal (Muthappan Hill)", "Pakshep village"). The queries are, in order: the whole
+text, then each comma / semicolon / bracket segment left to right, each as written and without a trailing generic word
+(village, hamlet, town, area). A query that starts with "near" is never used, so "near Gangtok" never places an event in
+Gangtok. The whole text and the first segment name the place and are good to 5 km; a match on a later segment (a locality
+the place lies in or beside) is good to 15 km only. Segment queries shorter than 3 characters are ignored. The first query
+with candidates in the state (and district) decides, even when it is ambiguous.
 
 State. Required. Written variants (J&K, Uttaranchal) are mapped to the GeoNames admin1 name by `STATE_ALIASES`; a state that
 is not in the table (a state outside the study domain, or a typo) returns None. Only places of that state are candidates.
 
-Feature classes. Populated places (class P) are tried first; only when none of that name exists in the state do the other
-named features follow, class by class: S spots (bridge, temple), T terrain (pass, hill), H water, L areas, R roads.
+District. Optional. When given it is applied to all candidates of the state, of every feature class, before the class is
+chosen, so a same-name populated place in another district cannot hide the right one. A candidate matches when its district
+equals the given one ASCII-folded (without a trailing "district", and also without a bracketed part), differs by an edit
+distance of at most 2 ("Waynad"), or is listed in `DISTRICT_ALIASES` ("Kullu" is "Kulu" in GeoNames). When no candidate of a
+query matches, that query has no result; if no query has one the answer is None: a district that disagrees with every
+candidate is evidence against them, not noise.
+
+Feature classes. Populated places (class P) are tried first; only when none of that name remains do the other named
+features follow, class by class: S spots (bridge, temple), T terrain (pass, hill), H water, L areas, R roads.
 Administrative divisions (class A) are never matched.
 
-District. Optional evidence, compared ASCII-folded and without a trailing "district". When it matches some of the candidates
-only those are kept; when it matches none of them (reports spell districts differently from GeoNames) it is ignored and the
-state-only rules apply, so a district spelling difference alone never rejects a place.
-
-Result. One candidate: its coordinates with accuracy 5 km. Several candidates in one district: their centroid with accuracy
-equal to the distance to the farthest one (never below 5 km, the accuracy of a single match). Candidates in different districts
-(or one with no district recorded beside one with): None, the report is ambiguous.
+Result. One candidate: its coordinates with the query's accuracy (5 or 15 km). Several candidates in one district: their
+centroid with accuracy equal to the distance to the farthest one (never below the query's accuracy), but None when that
+spread exceeds 10 km. Candidates in different districts (or one with no district recorded beside one with): None, the
+report is ambiguous.
 
 CLI-free; the table is built on first use from https://download.geonames.org/export/dump/IN.zip (CC BY 4.0) and cached as
 `<data>/raw/geonames/geonames_in_all.parquet`; both files are recorded in the data manifest. Attribution: GeoNames (CC BY 4.0).
@@ -56,7 +62,11 @@ TABLE_NAME = "geonames_in_all.parquet"
 PLACE_COLUMNS = ["geonameid", "name", "asciiname", "alternatenames", "feature_class", "feature_code", "lat", "lon",
                  "population", "district", "state"]
 
-SINGLE_MATCH_KM = 5.0
+NAMED_PLACE_KM = 5.0                                   # accuracy of a match on the whole text or its first segment
+LOCALITY_KM = 15.0                                     # accuracy of a match on a later segment
+MAX_SPREAD_KM = 10.0                                   # several matches further apart than this are not one place
+MIN_SEGMENT_CHARS = 3
+MAX_DISTRICT_EDITS = 2
 FEATURE_ORDER = ("P", "S", "T", "H", "L", "R")         # populated places first, then the other named features
 GENERIC_WORDS = ("village", "hamlet", "town", "area")  # dropped from the end of a place text
 STATE_ALIASES = {                                      # folded spelling -> GeoNames admin1 name
@@ -67,6 +77,10 @@ STATE_ALIASES = {                                      # folded spelling -> GeoN
     "assam": "Assam", "meghalaya": "Meghalaya", "nagaland": "Nagaland", "manipur": "Manipur", "mizoram": "Mizoram",
     "tripura": "Tripura", "kerala": "Kerala", "karnataka": "Karnataka", "goa": "Goa", "maharashtra": "Maharashtra",
     "tamil nadu": "Tamil Nadu", "tamilnadu": "Tamil Nadu",
+}
+DISTRICT_ALIASES = {                                   # folded district in a report -> folded GeoNames district names
+    "kullu": {"kulu"}, "mumbai": {"mumbai", "mumbai suburban", "mumbai city"}, "gurugram": {"gurgaon"},
+    "shivamogga": {"shimoga"}, "tehri": {"tehri garhwal"}, "pauri garhwal": {"garhwal"},
 }
 IN_SOURCE_LABEL = "GeoNames India dump (all features)"
 TABLE_SOURCE_LABEL = "GeoNames India places: every feature with district and state names"
@@ -96,25 +110,49 @@ def _district_key(district: str | None) -> str:
     return re.sub(r" district$", "", fold(district))
 
 
-def candidate_queries(place: str) -> list[str]:
-    """The folded names to look up for the place text of a report, most specific first (see the module docstring)."""
-    queries: list[str] = []
+def _given_districts(district: str | None) -> list[str]:
+    """The folded spellings of a district as a report gives it: as written, and without a bracketed part."""
+    keys = [_district_key(district), _district_key(re.sub(r"\(.*?\)", " ", district or ""))]
+    return [key for i, key in enumerate(keys) if key and key not in keys[:i]]
 
-    def add(key: str) -> None:
-        if key and key not in queries:
-            queries.append(key)
 
-    def variants(key: str) -> None:
-        key = re.sub(r"^(near|nr) ", "", key)
-        add(key)
+def _edit_distance_within(a: str, b: str, limit: int) -> bool:
+    if abs(len(a) - len(b)) > limit:
+        return False
+    previous = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        current = [i]
+        for j, cb in enumerate(b, 1):
+            current.append(min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (ca != cb)))
+        previous = current
+    return previous[-1] <= limit
+
+
+def _district_matches(given: list[str], candidate: str) -> bool:
+    if not candidate:
+        return False
+    return any(candidate == key or candidate in DISTRICT_ALIASES.get(key, ()) or
+               _edit_distance_within(candidate, key, MAX_DISTRICT_EDITS) for key in given)
+
+
+def candidate_queries(place: str) -> list[tuple[str, float]]:
+    """(folded name, accuracy_km) to look up for the place text of a report, most specific first (see the module docstring)."""
+    queries: dict[str, float] = {}
+
+    def add(key: str, accuracy: float, segment: bool) -> None:
+        if key and not key.startswith("near ") and not (segment and len(key) < MIN_SEGMENT_CHARS):
+            queries.setdefault(key, accuracy)
+
+    def variants(key: str, accuracy: float, segment: bool) -> None:
+        add(key, accuracy, segment)
         for word in GENERIC_WORDS:
             if key.endswith(" " + word):
-                add(key[: -len(word) - 1])
+                add(key[: -len(word) - 1], accuracy, segment)
 
-    variants(fold(place))
-    for segment in re.split(r"[,;()\[\]]", str(place)):
-        variants(fold(segment))
-    return queries
+    variants(fold(place), NAMED_PLACE_KM, False)
+    for i, segment in enumerate(re.split(r"[,;()\[\]]", str(place))):
+        variants(fold(segment), NAMED_PLACE_KM if i == 0 else LOCALITY_KM, True)
+    return list(queries.items())
 
 
 # --- the place index ---------------------------------------------------------------------------------------------
@@ -170,40 +208,42 @@ def _haversine_km(lat, lon, lat0: float, lon0: float) -> np.ndarray:
     return 2 * EARTH_RADIUS_KM * np.arcsin(np.sqrt(a))
 
 
-def _resolve(index: _Index, rows: np.ndarray, district_key: str) -> tuple[float, float, float] | None:
-    if district_key:
-        in_district = rows[index.district[rows] == district_key]
-        if len(in_district):
-            rows = in_district
+def _resolve(index: _Index, rows: np.ndarray, accuracy_km: float) -> tuple[float, float, float] | None:
     if len(set(index.district[rows])) > 1:
         return None
     lat, lon = index.lat[rows], index.lon[rows]
     if len(rows) == 1:
-        return float(lat[0]), float(lon[0]), SINGLE_MATCH_KM
+        return float(lat[0]), float(lon[0]), accuracy_km
     centre_lat, centre_lon = float(lat.mean()), float(lon.mean())
-    farthest = float(_haversine_km(lat, lon, centre_lat, centre_lon).max())
-    return centre_lat, centre_lon, max(farthest, SINGLE_MATCH_KM)
+    spread = float(_haversine_km(lat, lon, centre_lat, centre_lon).max())
+    if spread > MAX_SPREAD_KM:
+        return None
+    return centre_lat, centre_lon, max(spread, accuracy_km)
 
 
 def geocode(place: str, district: str | None, state: str, places: pd.DataFrame) -> tuple[float, float, float] | None:
-    """(lat, lon, accuracy_km) of the place a report names, or None when it is unknown, in another state or ambiguous.
+    """(lat, lon, accuracy_km) of the place a report names, or None when it is unknown, in another state or district,
+    ambiguous, or its candidates are spread over more than 10 km.
 
-    Matching, state, feature classes, the optional district and the accuracy follow the module docstring; `places` is the
-    table of `load_places()`."""
+    Matching, state, district, feature classes and the accuracy follow the module docstring; `places` is the table of
+    `load_places()`."""
     canonical = canonical_state(state)
     if canonical is None:
         return None
     index = _index(places)
-    state_key, district_key = fold(canonical), _district_key(district)
-    for query in candidate_queries(place):
+    state_key, given = fold(canonical), _given_districts(district)
+    for query, accuracy_km in candidate_queries(place):
         rows = index.by_name.get(query)
         if rows is None:
             continue
         rows = rows[index.state[rows] == state_key]
+        if given and len(rows):
+            matching = {d: _district_matches(given, d) for d in set(index.district[rows])}
+            rows = rows[[matching[d] for d in index.district[rows]]]
         for feature_class in FEATURE_ORDER:
             tier = rows[index.feature_class[rows] == feature_class]
             if len(tier):
-                return _resolve(index, tier, district_key)
+                return _resolve(index, tier, accuracy_km)
     return None
 
 
