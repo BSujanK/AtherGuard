@@ -1,0 +1,83 @@
+{
+  "leads": {
+    "1": {
+      "lo": 0.1762242466211319,
+      "hi": 4.237882137298584,
+      "raw_lo": 0.1762242466211319,
+      "raw_hi": 4.237882137298584,
+      "n": 149308
+    },
+    "2": {
+      "lo": 0.17573727667331696,
+      "hi": 3.671823501586914,
+      "raw_lo": 0.17573727667331696,
+      "raw_hi": 3.671823501586914,
+      "n": 154529
+    },
+    "3": {
+      "lo": 0.15050876140594482,
+      "hi": 5.916541576385498,
+      "raw_lo": 0.15050876140594482,
+      "raw_hi": 5.916541576385498,
+      "n": 149695
+    }
+  },
+  "quantiles": [
+    10,
+    90
+  ],
+  "fallback": {
+    "leads": {
+      "1": {
+        "lo": 0.1762242466211319,
+        "hi": 4.097658634185791,
+        "raw_lo": 0.1762242466211319,
+        "raw_hi": 4.097658634185791,
+        "n": 575662
+      },
+      "2": {
+        "lo": 0.1762242466211319,
+        "hi": 5.674587726593018,
+        "raw_lo": 0.1762242466211319,
+        "raw_hi": 5.674587726593018,
+        "n": 579003
+      },
+      "3": {
+        "lo": 0.16901765763759613,
+        "hi": 5.916541576385498,
+        "raw_lo": 0.16901765763759613,
+        "raw_hi": 5.916541576385498,
+        "n": 587259
+      }
+    },
+    "source": "gfs raw, June-September 2021-2024"
+  },
+  "configuration": {
+    "version": 1,
+    "leads": {
+      "1": {
+        "source": "gfs",
+        "mapped": false
+      },
+      "2": {
+        "source": "ecmwf_ens_mean",
+        "mapped": false
+      },
+      "3": {
+        "source": "ecmwf_ens_mean",
+        "mapped": true
+      }
+    },
+    "fallback": {
+      "source": "gfs",
+      "mapped": false
+    },
+    "maps_file": "data/processed/rain/forecast_maps.json",
+    "report": "reports/phase6_forecast_selection.md"
+  },
+  "issue_days": "June-September 2024",
+  "sample_cells": 2536,
+  "seed": 20261015,
+  "generated_utc": "2026-10-24T08:38:15Z",
+  "report": "reports/phase6_forecast_selection.md"
+}

@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "leads": {
+    "1": {
+      "source": "gfs",
+      "mapped": false
+    },
+    "2": {
+      "source": "ecmwf_ens_mean",
+      "mapped": false
+    },
+    "3": {
+      "source": "ecmwf_ens_mean",
+      "mapped": true
+    }
+  },
+  "fallback": {
+    "source": "gfs",
+    "mapped": false
+  },
+  "maps_file": "data/processed/rain/forecast_maps.json",
+  "report": "reports/phase6_forecast_selection.md",
+  "derivation": {
+    "decision": {
+      "1": {
+        "chosen": "gfs",
+        "eligible": [],
+        "reason": "no candidate beats GFS by more than the bootstrap SE of the difference without lowering Warning+ recall"
+      },
+      "2": {
+        "chosen": "ecmwf_ens_mean",
+        "eligible": [
+          "ecmwf_ens_mean"
+        ],
+        "reason": "agreement 0.8036 vs GFS 0.7967 (+0.0068, bootstrap SE 0.0020); Warning+ recall 0.797 vs 0.745"
+      },
+      "3": {
+        "chosen": "ecmwf_ens_mean+map",
+        "eligible": [
+          "ecmwf_hres",
+          "ecmwf_ens_mean",
+          "ecmwf_ens_mean+map"
+        ],
+        "reason": "agreement 0.7863 vs GFS 0.7726 (+0.0137, bootstrap SE 0.0026); Warning+ recall 0.707 vs 0.705"
+      }
+    }
+  }
+}

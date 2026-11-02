@@ -1,0 +1,1072 @@
+{
+  "created_utc": "2026-10-15T13:04:21Z",
+  "config": "configs/hazard_v3.yaml",
+  "incumbent": "v3_selected",
+  "frozen_v2": "v2_selected",
+  "protocol": "protocol v2: year-blocked CV over 2007-2017, pooled OOF FA@90 on the weighted universe, bootstrap of positives as events and universe rows iid within year-region strata",
+  "bootstrap": {
+    "n": 2000,
+    "seed": 31337,
+    "level": 0.95
+  },
+  "reproduction": {
+    "v3_selected": {
+      "name": "imerg_core",
+      "model_dir": "data/processed/hazard/model_v3_live",
+      "recomputed_fa_at_90": 0.19554142779163688,
+      "reported_fa_at_90": 0.19554142779163688,
+      "abs_difference": 0.0,
+      "n_trees": 315,
+      "reported_n_trees": 315
+    },
+    "v2_selected": {
+      "name": "drop_src",
+      "model_dir": "data/processed/hazard/model",
+      "recomputed_fa_at_90": 0.18840519557842542,
+      "reported_fa_at_90": 0.18840519557842542,
+      "abs_difference": 0.0,
+      "n_trees": 118,
+      "reported_n_trees": 118
+    }
+  },
+  "rows": {
+    "positives": 789,
+    "universe": 399272,
+    "matched": 8240,
+    "identical_to_frozen_v2": true
+  },
+  "candidates": [
+    {
+      "name": "v3_selected",
+      "family": "lightgbm",
+      "description": "selected v3-live configuration (reproduced)",
+      "n_inputs": 26,
+      "hp": {
+        "num_leaves": 7,
+        "min_data_in_leaf": 40,
+        "feature_fraction": 0.5,
+        "lambda_l2": 0,
+        "learning_rate": 0.05
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 315,
+      "adoptable": true,
+      "parents": null,
+      "columns": [
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy",
+        "irain_acc_1",
+        "irain_acc_3",
+        "irain_acc_5",
+        "irain_acc_7",
+        "irain_acc_14",
+        "irain_acc_30",
+        "irain_acc_60",
+        "irain_acc_90",
+        "irain_max1d_7",
+        "irain_max1d_30",
+        "irain_wetdays_30",
+        "irain_days_since_10mm",
+        "irain_share1_3",
+        "irain_acc3_vs_clim",
+        "irain_acc7_vs_clim",
+        "irain_acc30_vs_clim"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.11185889977258454,
+          "lo": 0.09624302709513682,
+          "hi": 0.12561620942296187,
+          "se": 0.0075148515689170475
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.19554142779163688,
+          "lo": 0.1679492295501935,
+          "hi": 0.23482366691325304,
+          "se": 0.017813584014420413
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.27888222052618117,
+          "lo": 0.2527831666951377,
+          "hi": 0.32555239155283033,
+          "se": 0.020263901292069907
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.07731305449936629,
+          "lo": 0.058301647655259824,
+          "hi": 0.09885931558935361,
+          "se": 0.010305242151734742
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.30038022813688214,
+          "lo": 0.26996197718631176,
+          "hi": 0.3358681875792142,
+          "se": 0.017411744268040402
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6261089987325729,
+          "lo": 0.5918884664131813,
+          "hi": 0.6615969581749049,
+          "se": 0.017440868328731374
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7782002534854245,
+          "lo": 0.7490494296577946,
+          "hi": 0.8060836501901141,
+          "se": 0.014770903595941163
+        },
+        "pr_auc": {
+          "value": 0.005326744155254767,
+          "lo": 0.001462071939481135,
+          "hi": 0.014202552392422489,
+          "se": 0.0033030635698535395
+        }
+      },
+      "logloss": 0.21463198017177268
+    },
+    {
+      "name": "v2_selected",
+      "family": "frozen_v2",
+      "description": "frozen v2 configuration (reproduced from configs/hazard.yaml)",
+      "n_inputs": 30,
+      "hp": {
+        "num_leaves": 15,
+        "min_data_in_leaf": 40,
+        "feature_fraction": 0.5,
+        "lambda_l2": 0,
+        "learning_rate": 0.05
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 118,
+      "adoptable": false,
+      "parents": null,
+      "columns": [
+        "rain_acc_1",
+        "rain_acc_3",
+        "rain_acc_5",
+        "rain_acc_7",
+        "rain_acc_14",
+        "rain_acc_30",
+        "rain_max1d_7",
+        "rain_max1d_30",
+        "rain_wetdays_30",
+        "rain_days_since_10mm",
+        "rain_share1_3",
+        "rain_acc3_vs_clim",
+        "rain_acc7_vs_clim",
+        "rain_acc30_vs_clim",
+        "wet_top",
+        "wet_root",
+        "wet_top_chg3",
+        "wet_top_chg7",
+        "wet_root_chg3",
+        "wet_root_chg7",
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.1115273292477639,
+          "lo": 0.09817032527367495,
+          "hi": 0.1289228644358405,
+          "se": 0.008218462435309494
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.18840519557842542,
+          "lo": 0.17256076353722008,
+          "hi": 0.2127896009466676,
+          "se": 0.010937069374494221
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.28796190299852364,
+          "lo": 0.24121255712690565,
+          "hi": 0.3514012799292864,
+          "se": 0.03254066036784021
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.07984790874524715,
+          "lo": 0.06080481622306723,
+          "hi": 0.10012674271229405,
+          "se": 0.01013621462340569
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.27629911280101394,
+          "lo": 0.24461343472750316,
+          "hi": 0.30798479087452474,
+          "se": 0.01620157495333417
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.5880861850443599,
+          "lo": 0.5525982256020279,
+          "hi": 0.6223067173637515,
+          "se": 0.01806752734405613
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7743979721166033,
+          "lo": 0.7452471482889734,
+          "hi": 0.8035487959442332,
+          "se": 0.014966023680327017
+        },
+        "pr_auc": {
+          "value": 0.00019732658144172046,
+          "lo": 0.00013676549691041617,
+          "hi": 0.007925244046196083,
+          "se": 0.00258060201609689
+        }
+      },
+      "logloss": 0.22251814927634514
+    },
+    {
+      "name": "lgb_iclim_add",
+      "family": "lightgbm",
+      "description": "LightGBM, imerg_core plus the climatology-normalised rain group iclim",
+      "n_inputs": 32,
+      "hp": {
+        "num_leaves": 7,
+        "min_data_in_leaf": 40,
+        "feature_fraction": 0.5,
+        "lambda_l2": 0,
+        "learning_rate": 0.05
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 332,
+      "adoptable": true,
+      "parents": null,
+      "columns": [
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy",
+        "irain_acc_1",
+        "irain_acc_3",
+        "irain_acc_5",
+        "irain_acc_7",
+        "irain_acc_14",
+        "irain_acc_30",
+        "irain_acc_60",
+        "irain_acc_90",
+        "irain_max1d_7",
+        "irain_max1d_30",
+        "irain_wetdays_30",
+        "irain_days_since_10mm",
+        "irain_share1_3",
+        "irain_acc3_vs_clim",
+        "irain_acc7_vs_clim",
+        "irain_acc30_vs_clim",
+        "iclim_pct_1",
+        "iclim_pct_3",
+        "iclim_pct_7",
+        "iclim_acc1_over_map",
+        "iclim_acc3_over_map",
+        "iclim_acc7_over_map"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.1091132089558303,
+          "lo": 0.09625289811495572,
+          "hi": 0.12297875430540225,
+          "se": 0.007952227595373155
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.18979550891627914,
+          "lo": 0.17044126919578687,
+          "hi": 0.22075973051713385,
+          "se": 0.013889466961009383
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.27474886594406633,
+          "lo": 0.25313820736966075,
+          "hi": 0.34193594290802093,
+          "se": 0.02189388672781502
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.08491761723700887,
+          "lo": 0.06590621039290241,
+          "hi": 0.10773130544993663,
+          "se": 0.010517598052820216
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.3231939163498099,
+          "lo": 0.2864385297845374,
+          "hi": 0.3574144486692015,
+          "se": 0.017805960894086616
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6362484157160964,
+          "lo": 0.6007604562737643,
+          "hi": 0.6679657794676804,
+          "se": 0.017145508453588768
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7807351077313055,
+          "lo": 0.7503168567807351,
+          "hi": 0.8098859315589354,
+          "se": 0.014841963707154238
+        },
+        "pr_auc": {
+          "value": 0.0015274638329374744,
+          "lo": 0.00018533991655346767,
+          "hi": 0.011597622376818661,
+          "se": 0.003074698881569443
+        }
+      },
+      "logloss": 0.21524334807066867,
+      "paired_vs_v3": {
+        "fa_a": 0.18979550891627914,
+        "fa_b": 0.19554142779163688,
+        "point_difference": -0.005745918875357747,
+        "mean_difference": -0.002956479641181759,
+        "se": 0.008459187422962774,
+        "ci_lo": -0.019623416403148037,
+        "ci_hi": 0.01267562823221443,
+        "level": 0.95,
+        "n_boot": 2000,
+        "excludes_zero": false,
+        "share_a_better": 0.6135,
+        "share_tied": 0.0
+      }
+    },
+    {
+      "name": "lgb_iclim_swap",
+      "family": "lightgbm",
+      "description": "LightGBM, imerg_core with irain_acc*_vs_clim replaced by iclim",
+      "n_inputs": 29,
+      "hp": {
+        "num_leaves": 7,
+        "min_data_in_leaf": 40,
+        "feature_fraction": 0.5,
+        "lambda_l2": 0,
+        "learning_rate": 0.05
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 352,
+      "adoptable": true,
+      "parents": null,
+      "columns": [
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy",
+        "irain_acc_1",
+        "irain_acc_3",
+        "irain_acc_5",
+        "irain_acc_7",
+        "irain_acc_14",
+        "irain_acc_30",
+        "irain_acc_60",
+        "irain_acc_90",
+        "irain_max1d_7",
+        "irain_max1d_30",
+        "irain_wetdays_30",
+        "irain_days_since_10mm",
+        "irain_share1_3",
+        "iclim_pct_1",
+        "iclim_pct_3",
+        "iclim_pct_7",
+        "iclim_acc1_over_map",
+        "iclim_acc3_over_map",
+        "iclim_acc7_over_map"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.10745635751985493,
+          "lo": 0.09415850810914105,
+          "hi": 0.11968239661122364,
+          "se": 0.007318904948572001
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.18830685864959634,
+          "lo": 0.16631262956686013,
+          "hi": 0.22805797396058786,
+          "se": 0.01552901742684967
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.2896918532883447,
+          "lo": 0.2497392207967578,
+          "hi": 0.3551976272894206,
+          "se": 0.0211776330227439
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.07984790874524715,
+          "lo": 0.059569074778200254,
+          "hi": 0.09885931558935361,
+          "se": 0.010063724442698905
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.33713561470215464,
+          "lo": 0.3041825095057034,
+          "hi": 0.3726235741444867,
+          "se": 0.017113031671508912
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6400506970849176,
+          "lo": 0.6045627376425855,
+          "hi": 0.6717363751584284,
+          "se": 0.017173089807632894
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7896070975918885,
+          "lo": 0.7604562737642585,
+          "hi": 0.8174904942965779,
+          "se": 0.014528723484536304
+        },
+        "pr_auc": {
+          "value": 0.0027414995231454338,
+          "lo": 0.0001767075769985012,
+          "hi": 0.01031280220676709,
+          "se": 0.002540495104217175
+        }
+      },
+      "logloss": 0.2169253967620521,
+      "paired_vs_v3": {
+        "fa_a": 0.18830685864959634,
+        "fa_b": 0.19554142779163688,
+        "point_difference": -0.007234569142040542,
+        "mean_difference": -0.00529672580444612,
+        "se": 0.008286903989058922,
+        "ci_lo": -0.02185826311681749,
+        "ci_hi": 0.010327245629124729,
+        "level": 0.95,
+        "n_boot": 2000,
+        "excludes_zero": false,
+        "share_a_better": 0.74,
+        "share_tied": 0.0
+      }
+    },
+    {
+      "name": "cb_d4_l2_3",
+      "family": "catboost",
+      "description": "CatBoost {'depth': 4, 'l2_leaf_reg': 3, 'learning_rate': 0.1}",
+      "n_inputs": 26,
+      "hp": {
+        "depth": 4,
+        "l2_leaf_reg": 3,
+        "learning_rate": 0.1
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 329,
+      "adoptable": true,
+      "parents": null,
+      "columns": [
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy",
+        "irain_acc_1",
+        "irain_acc_3",
+        "irain_acc_5",
+        "irain_acc_7",
+        "irain_acc_14",
+        "irain_acc_30",
+        "irain_acc_60",
+        "irain_acc_90",
+        "irain_max1d_7",
+        "irain_max1d_30",
+        "irain_wetdays_30",
+        "irain_days_since_10mm",
+        "irain_share1_3",
+        "irain_acc3_vs_clim",
+        "irain_acc7_vs_clim",
+        "irain_acc30_vs_clim"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.11160601878009269,
+          "lo": 0.09760573008253717,
+          "hi": 0.1233406097936153,
+          "se": 0.007378187032405906
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.20032561449563957,
+          "lo": 0.17692945726466874,
+          "hi": 0.23288354984061058,
+          "se": 0.013602843773656802
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.30435975372332214,
+          "lo": 0.26681930823737904,
+          "hi": 0.35537731021613195,
+          "se": 0.019703341614948692
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.08111533586818757,
+          "lo": 0.062103929024081114,
+          "hi": 0.10266159695817491,
+          "se": 0.010088842944392532
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.33713561470215464,
+          "lo": 0.302915082382763,
+          "hi": 0.3700887198986058,
+          "se": 0.01701363448726603
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6337135614702155,
+          "lo": 0.6007604562737643,
+          "hi": 0.6679340937896071,
+          "se": 0.017258305099376082
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7807351077313055,
+          "lo": 0.7515842839036755,
+          "hi": 0.8073510773130546,
+          "se": 0.014814243503944948
+        },
+        "pr_auc": {
+          "value": 0.00144332833411999,
+          "lo": 0.0001460606988097499,
+          "hi": 0.007801814915948918,
+          "se": 0.0021067003132507417
+        }
+      },
+      "logloss": 0.21340808980136794,
+      "paired_vs_v3": {
+        "fa_a": 0.20032561449563957,
+        "fa_b": 0.19554142779163688,
+        "point_difference": 0.004784186704002685,
+        "mean_difference": 0.004738362349328992,
+        "se": 0.011901858073633736,
+        "ci_lo": -0.020982453384012285,
+        "ci_hi": 0.026774251915101428,
+        "level": 0.95,
+        "n_boot": 2000,
+        "excludes_zero": false,
+        "share_a_better": 0.321,
+        "share_tied": 0.0
+      }
+    },
+    {
+      "name": "cb_d4_l2_10",
+      "family": "catboost",
+      "description": "CatBoost {'depth': 4, 'l2_leaf_reg': 10, 'learning_rate': 0.1}",
+      "n_inputs": 26,
+      "hp": {
+        "depth": 4,
+        "l2_leaf_reg": 10,
+        "learning_rate": 0.1
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 583,
+      "adoptable": true,
+      "parents": null,
+      "columns": [
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy",
+        "irain_acc_1",
+        "irain_acc_3",
+        "irain_acc_5",
+        "irain_acc_7",
+        "irain_acc_14",
+        "irain_acc_30",
+        "irain_acc_60",
+        "irain_acc_90",
+        "irain_max1d_7",
+        "irain_max1d_30",
+        "irain_wetdays_30",
+        "irain_days_since_10mm",
+        "irain_share1_3",
+        "irain_acc3_vs_clim",
+        "irain_acc7_vs_clim",
+        "irain_acc30_vs_clim"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.11323560779101444,
+          "lo": 0.09970174918850813,
+          "hi": 0.1290159097258116,
+          "se": 0.007622359887891977
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.20028572219836416,
+          "lo": 0.1747096019095803,
+          "hi": 0.24345842526045447,
+          "se": 0.016546701248470966
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.30871987213660557,
+          "lo": 0.2618559622672524,
+          "hi": 0.37544828546134207,
+          "se": 0.026465404577705652
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.07858048162230671,
+          "lo": 0.062103929024081114,
+          "hi": 0.10392902408111533,
+          "se": 0.010690905131862147
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.33079847908745247,
+          "lo": 0.29784537389100124,
+          "hi": 0.3650190114068441,
+          "se": 0.017069563836423045
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6489226869455006,
+          "lo": 0.614702154626109,
+          "hi": 0.6818757921419518,
+          "se": 0.016915893291948696
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7731305449936628,
+          "lo": 0.7427122940430925,
+          "hi": 0.8010139416983524,
+          "se": 0.014909120542090912
+        },
+        "pr_auc": {
+          "value": 0.00019117303399975917,
+          "lo": 0.0001538656653922752,
+          "hi": 0.009041256333319979,
+          "se": 0.0025817244170541907
+        }
+      },
+      "logloss": 0.21240398625211457,
+      "paired_vs_v3": {
+        "fa_a": 0.20028572219836416,
+        "fa_b": 0.19554142779163688,
+        "point_difference": 0.004744294406727273,
+        "mean_difference": 0.006711013076294264,
+        "se": 0.011331115054700526,
+        "ci_lo": -0.015390205692598033,
+        "ci_hi": 0.028372675068116218,
+        "level": 0.95,
+        "n_boot": 2000,
+        "excludes_zero": false,
+        "share_a_better": 0.2875,
+        "share_tied": 0.0
+      }
+    },
+    {
+      "name": "cb_d6_l2_3",
+      "family": "catboost",
+      "description": "CatBoost {'depth': 6, 'l2_leaf_reg': 3, 'learning_rate': 0.1}",
+      "n_inputs": 26,
+      "hp": {
+        "depth": 6,
+        "l2_leaf_reg": 3,
+        "learning_rate": 0.1
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 254,
+      "adoptable": true,
+      "parents": null,
+      "columns": [
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy",
+        "irain_acc_1",
+        "irain_acc_3",
+        "irain_acc_5",
+        "irain_acc_7",
+        "irain_acc_14",
+        "irain_acc_30",
+        "irain_acc_60",
+        "irain_acc_90",
+        "irain_max1d_7",
+        "irain_max1d_30",
+        "irain_wetdays_30",
+        "irain_days_since_10mm",
+        "irain_share1_3",
+        "irain_acc3_vs_clim",
+        "irain_acc7_vs_clim",
+        "irain_acc30_vs_clim"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.11388624440823902,
+          "lo": 0.09772868011230763,
+          "hi": 0.12919995945334609,
+          "se": 0.008991989173005754
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.20772964404416722,
+          "lo": 0.18112875254682415,
+          "hi": 0.2309595949955745,
+          "se": 0.013818886594909933
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.3268636122944079,
+          "lo": 0.2648909215579378,
+          "hi": 0.3853833012599298,
+          "se": 0.027761809298227278
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.08871989860583017,
+          "lo": 0.06840937896070981,
+          "hi": 0.11410012674271212,
+          "se": 0.011788164975072584
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.3282636248415716,
+          "lo": 0.2953105196451204,
+          "hi": 0.36248415716096327,
+          "se": 0.01711514332013152
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6514575411913816,
+          "lo": 0.6172370088719898,
+          "hi": 0.6831432192648923,
+          "se": 0.01706577049776258
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7769328263624842,
+          "lo": 0.7477820025348543,
+          "hi": 0.8060836501901141,
+          "se": 0.01482963133255914
+        },
+        "pr_auc": {
+          "value": 0.004003218028983648,
+          "lo": 0.00019514141954077378,
+          "hi": 0.009123992070302048,
+          "se": 0.0023140277743184056
+        }
+      },
+      "logloss": 0.21539544699130414,
+      "paired_vs_v3": {
+        "fa_a": 0.20772964404416722,
+        "fa_b": 0.19554142779163688,
+        "point_difference": 0.012188216252530332,
+        "mean_difference": 0.012726487096658875,
+        "se": 0.012063693707287668,
+        "ci_lo": -0.013671445321453615,
+        "ci_hi": 0.033920664085650296,
+        "level": 0.95,
+        "n_boot": 2000,
+        "excludes_zero": false,
+        "share_a_better": 0.1375,
+        "share_tied": 0.0
+      }
+    },
+    {
+      "name": "cb_d6_l2_10",
+      "family": "catboost",
+      "description": "CatBoost {'depth': 6, 'l2_leaf_reg': 10, 'learning_rate': 0.1}",
+      "n_inputs": 26,
+      "hp": {
+        "depth": 6,
+        "l2_leaf_reg": 10,
+        "learning_rate": 0.1
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 259,
+      "adoptable": true,
+      "parents": null,
+      "columns": [
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy",
+        "irain_acc_1",
+        "irain_acc_3",
+        "irain_acc_5",
+        "irain_acc_7",
+        "irain_acc_14",
+        "irain_acc_30",
+        "irain_acc_60",
+        "irain_acc_90",
+        "irain_max1d_7",
+        "irain_max1d_30",
+        "irain_wetdays_30",
+        "irain_days_since_10mm",
+        "irain_share1_3",
+        "irain_acc3_vs_clim",
+        "irain_acc7_vs_clim",
+        "irain_acc30_vs_clim"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.10671574676312556,
+          "lo": 0.09319052937559766,
+          "hi": 0.12029365966241581,
+          "se": 0.008336001013654509
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.20068811784102186,
+          "lo": 0.1736247435572616,
+          "hi": 0.22479300124382703,
+          "se": 0.013348702553130682
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.2785638452094932,
+          "lo": 0.2551519300862887,
+          "hi": 0.3355420599558207,
+          "se": 0.023369492859755803
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.08491761723700887,
+          "lo": 0.06717363751584284,
+          "hi": 0.11026615969581749,
+          "se": 0.010953536733870485
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.3320659062103929,
+          "lo": 0.3003485424588087,
+          "hi": 0.36755386565272496,
+          "se": 0.017223359875968843
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6463878326996197,
+          "lo": 0.6134347275031685,
+          "hi": 0.6793726235741443,
+          "se": 0.016943044118298542
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7870722433460076,
+          "lo": 0.7591888466413181,
+          "hi": 0.8149556400506971,
+          "se": 0.01444992940747256
+        },
+        "pr_auc": {
+          "value": 0.0040438579560220615,
+          "lo": 0.00026015495350105444,
+          "hi": 0.01179648390737131,
+          "se": 0.0029642501820196293
+        }
+      },
+      "logloss": 0.2122878867361211,
+      "paired_vs_v3": {
+        "fa_a": 0.20068811784102186,
+        "fa_b": 0.19554142779163688,
+        "point_difference": 0.005146690049384978,
+        "mean_difference": 0.0053834111111753565,
+        "se": 0.012106573046105377,
+        "ci_lo": -0.019652299542728457,
+        "ci_hi": 0.02738353491420713,
+        "level": 0.95,
+        "n_boot": 2000,
+        "excludes_zero": false,
+        "share_a_better": 0.338,
+        "share_tied": 0.0
+      }
+    },
+    {
+      "name": "blend_rank",
+      "family": "blend",
+      "description": "within-fold rank average of lgb_iclim_swap and cb_d4_l2_10; a ranking score, so it needs a reference distribution and cannot be scored on a single live day",
+      "n_inputs": null,
+      "hp": {},
+      "neg_mix": null,
+      "n_trees": null,
+      "adoptable": false,
+      "parents": [
+        "lgb_iclim_swap",
+        "cb_d4_l2_10"
+      ],
+      "columns": [],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.10048556683755692,
+          "lo": 0.08972384562701284,
+          "hi": 0.11399664459490721,
+          "se": 0.00626976287043343
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.18963967620222166,
+          "lo": 0.1607703077766448,
+          "hi": 0.21048838223220065,
+          "se": 0.013469155671110514
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.26523558034455863,
+          "lo": 0.2372734377179635,
+          "hi": 0.3252647299785474,
+          "se": 0.02149304151258691
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.08871989860583017,
+          "lo": 0.0697084917617237,
+          "hi": 0.11153358681875793,
+          "se": 0.010797688228135089
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.3548795944233207,
+          "lo": 0.320659062103929,
+          "hi": 0.39036755386565275,
+          "se": 0.017709212377901764
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6603295310519645,
+          "lo": 0.6261089987325729,
+          "hi": 0.6932826362484157,
+          "se": 0.016851933506076184
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7997465145754119,
+          "lo": 0.7718631178707225,
+          "hi": 0.8276299112801014,
+          "se": 0.01416518955810513
+        },
+        "pr_auc": {
+          "value": 0.0027885503943533125,
+          "lo": 0.0002014505523773008,
+          "hi": 0.010391168995175979,
+          "se": 0.002688512811385634
+        }
+      },
+      "logloss": null,
+      "paired_vs_v3": {
+        "fa_a": 0.18963967620222166,
+        "fa_b": 0.19554142779163688,
+        "point_difference": -0.005901751589415222,
+        "mean_difference": -0.007670446457344257,
+        "se": 0.008955202519483499,
+        "ci_lo": -0.027240401826303447,
+        "ci_hi": 0.008104352162387096,
+        "level": 0.95,
+        "n_boot": 2000,
+        "excludes_zero": false,
+        "share_a_better": 0.7865,
+        "share_tied": 0.0
+      }
+    }
+  ],
+  "v3_vs_v2": {
+    "fa_a": 0.19554142779163688,
+    "fa_b": 0.18840519557842542,
+    "point_difference": 0.007136232213211469,
+    "mean_difference": 0.005860875605861518,
+    "se": 0.014884393657575526,
+    "ci_lo": -0.020297950223664464,
+    "ci_hi": 0.038420589121901855,
+    "level": 0.95,
+    "n_boot": 2000,
+    "excludes_zero": false,
+    "share_a_better": 0.3745,
+    "share_tied": 0.0,
+    "better_than_v2": false
+  },
+  "adoption": {
+    "rule": "a challenger replaces the selected v3 configuration only if its pooled OOF FA@90 is lower by MORE than the bootstrap SE of the paired difference",
+    "incumbent_fa_at_90": 0.19554142779163688,
+    "evaluated": [
+      {
+        "name": "lgb_iclim_add",
+        "adoptable": true,
+        "adopt": false,
+        "gain": 0.005745918875357747,
+        "se": 0.008459187422962774,
+        "gain_over_se": 0.6792518699562372
+      },
+      {
+        "name": "lgb_iclim_swap",
+        "adoptable": true,
+        "adopt": false,
+        "gain": 0.007234569142040542,
+        "se": 0.008286903989058922,
+        "gain_over_se": 0.8730123037013869
+      },
+      {
+        "name": "cb_d4_l2_3",
+        "adoptable": true,
+        "adopt": false,
+        "gain": -0.004784186704002685,
+        "se": 0.011901858073633736,
+        "gain_over_se": -0.40196973232281485
+      },
+      {
+        "name": "cb_d4_l2_10",
+        "adoptable": true,
+        "adopt": false,
+        "gain": -0.004744294406727273,
+        "se": 0.011331115054700526,
+        "gain_over_se": -0.41869616395424214
+      },
+      {
+        "name": "cb_d6_l2_3",
+        "adoptable": true,
+        "adopt": false,
+        "gain": -0.012188216252530332,
+        "se": 0.012063693707287668,
+        "gain_over_se": -1.010322091082886
+      },
+      {
+        "name": "cb_d6_l2_10",
+        "adoptable": true,
+        "adopt": false,
+        "gain": -0.005146690049384978,
+        "se": 0.012106573046105377,
+        "gain_over_se": -0.4251153509572754
+      },
+      {
+        "name": "blend_rank",
+        "adoptable": false,
+        "adopt": false,
+        "gain": 0.005901751589415222,
+        "se": 0.008955202519483499,
+        "gain_over_se": 0.6590304994861927
+      }
+    ],
+    "adopted": null
+  },
+  "multiple_comparisons": {
+    "n_challengers": 7,
+    "note": "7 challenger candidates were compared with the same development rows; the chance that the best of them looks better than it is grows with that number. The single look at test_2018 is the check."
+  },
+  "susceptibility_probe": {
+    "probed_utc": "2026-10-15",
+    "obtainable": true,
+    "used": false,
+    "source_url": "https://gpm.nasa.gov/sites/default/files/downloads/global-landslide-susceptibility-map-2-27-23.tif",
+    "reference_page": "https://gpm.nasa.gov/landslides/projects.html",
+    "size_bytes": 33493474,
+    "login_required": false,
+    "licence": "NASA open data (public NASA product; licence terms not reviewed in detail)",
+    "reason_skipped": "LHASA v1 susceptibility weights and thresholds are tuned against NASA's own landslide inventory (Global Landslide Catalog / COOLR). This project's labels are built from those same catalogs (nasa_glc.csv, coolr_reports, coolr_events), so the map is derived from this project's own landslide labels and would leak them into the features. No file was downloaded and no manifest row was written.",
+    "summary": "Obtainable without login (direct GeoTIFF, 33.5 MB, https://gpm.nasa.gov/sites/default/files/downloads/global-landslide-susceptibility-map-2-27-23.tif) but NOT used: NASA LHASA susceptibility is derived from the NASA Global Landslide Catalog / COOLR inventory, the same catalogs that supply this project's positive labels (leakage). Candidate imerg_core+susc was therefore not run; nothing was downloaded."
+  },
+  "seconds": 757.7736133000001
+}

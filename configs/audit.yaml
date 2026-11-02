@@ -1,0 +1,25 @@
+reference_point:
+  name: wayanad_meppadi
+  lat: 11.55
+  lon: 76.13
+event_dates: ["2024-07-28", "2024-07-29", "2024-07-30", "2024-07-31"]
+# Secondary source (press / papers); to be checked against a primary source before it is quoted.
+reported_local_gauge_48h_mm: 572
+ghcnd:
+  countries: ["IN", "NP"]
+  first_year_max: 2015
+  last_year_min: 2024
+  upland_min_elev_m: 500
+catalog:
+  max_accuracy_km: 5.0
+  manual_files:
+    nasa_glc: "raw/manual/nasa_glc.csv"
+    hma_ls_cat: "raw/manual/hma_ls_cat_v2.csv"
+disk:
+  min_free_gb: 100
+# Free-tier limits from https://open-meteo.com/en/pricing (checked 2026-09-30): 10,000 calls/day;
+# a call is weighted by max(1, days/14) * max(1, variables/10).
+open_meteo:
+  free_calls_per_day: 10000
+  days_per_call_unit: 14
+  vars_per_call_unit: 10

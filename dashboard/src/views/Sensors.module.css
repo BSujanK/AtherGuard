@@ -1,0 +1,107 @@
+.view {
+  display: grid;
+  gap: var(--sp-4);
+  max-width: 90rem;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.head p {
+  margin-top: var(--sp-1);
+  color: var(--text-2);
+}
+
+.date {
+  display: grid;
+  gap: var(--sp-1);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+.date select {
+  min-width: 11rem;
+  padding: var(--sp-2) var(--sp-3);
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.provenance {
+  margin-top: calc(-1 * var(--sp-2));
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.layout {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'health'
+    'latency'
+    'map'
+    'faults';
+}
+
+@media (min-width: 1240px) {
+  .layout {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-areas:
+      'map health'
+      'map latency'
+      'faults faults';
+    align-items: start;
+  }
+}
+
+.card {
+  display: grid;
+  gap: var(--sp-3);
+  align-content: start;
+  min-width: 0;
+  padding: var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.card h2 {
+  font-size: var(--fs-md);
+}
+
+.hint {
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+.counts b {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* An empty state inside a card is not a second card. */
+.card > section[role='status'] {
+  max-width: none;
+  padding: 0;
+  background: none;
+  border: 0;
+}

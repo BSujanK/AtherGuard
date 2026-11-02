@@ -1,0 +1,4840 @@
+{
+  "created_utc": "2026-10-24T15:51:39Z",
+  "spec": "docs/superpowers/specs/2026-10-14-aetherguard-live-global-design.md section 15",
+  "labels": {
+    "positive_cell_days": 909,
+    "records": 945,
+    "low_terrain": 154,
+    "implausible": 16,
+    "flagged_any_record": 31,
+    "flagged_all_records": 31,
+    "flagged_all_records_not_low_terrain": 15,
+    "by_split": {
+      "test_2018": 85,
+      "train": 591,
+      "validation": 233
+    },
+    "implausible_by_split": {
+      "test_2018": 2,
+      "train": 11,
+      "validation": 3
+    },
+    "implausible_by_region": {
+      "himalaya": 3,
+      "western_ghats": 13
+    },
+    "low_terrain_by_region": {
+      "himalaya": 70,
+      "western_ghats": 84
+    },
+    "records_by_field": {
+      "category": {
+        "low_terrain": {
+          "landslide": 142,
+          "mudslide": 14,
+          "other": 1,
+          "rock_fall": 4
+        },
+        "other": {
+          "complex": 2,
+          "debris_flow": 10,
+          "landslide": 682,
+          "mudslide": 46,
+          "other": 1,
+          "riverbank_collapse": 2,
+          "rock_fall": 37,
+          "rotational_slide": 1,
+          "translational_slide": 2,
+          "unknown": 1
+        }
+      },
+      "trigger": {
+        "low_terrain": {
+          "continuous_rain": 29,
+          "downpour": 75,
+          "monsoon": 9,
+          "rain": 48
+        },
+        "other": {
+          "continuous_rain": 185,
+          "downpour": 369,
+          "monsoon": 45,
+          "rain": 181,
+          "tropical_cyclone": 4
+        }
+      },
+      "accuracy": {
+        "low_terrain": {
+          "1km": 64,
+          "5km": 88,
+          "exact": 9
+        },
+        "other": {
+          "1km": 222,
+          "5km": 529,
+          "exact": 33
+        }
+      },
+      "setting": {
+        "low_terrain": {
+          "above_road": 28,
+          "below_road": 2,
+          "deforested_slope": 1,
+          "engineered_slope": 1,
+          "mine": 2,
+          "natural_slope": 10,
+          "other": 1,
+          "retaining_wall": 4,
+          "unknown": 101,
+          "urban": 11
+        },
+        "other": {
+          "above_river": 9,
+          "above_road": 242,
+          "below_road": 10,
+          "deforested_slope": 13,
+          "engineered_slope": 2,
+          "mine": 2,
+          "natural_slope": 51,
+          "other": 1,
+          "retaining_wall": 6,
+          "unknown": 430,
+          "urban": 18
+        }
+      },
+      "source": {
+        "low_terrain": {
+          "coolr_reports": 87,
+          "hma": 74
+        },
+        "other": {
+          "coolr_reports": 82,
+          "hma": 702
+        }
+      }
+    },
+    "records_flagged_by_flag": {
+      "low_terrain": {
+        "setting": 7,
+        "category": 1,
+        "geocode": 2,
+        "structure": 10
+      },
+      "other": {
+        "setting": 10,
+        "category": 4,
+        "geocode": 1,
+        "structure": 9
+      }
+    },
+    "records_accuracy_km": {
+      "low_terrain": {
+        "0.0": 9,
+        "1.0": 64,
+        "5.0": 88
+      },
+      "other": {
+        "0.0": 33,
+        "1.0": 222,
+        "5.0": 529
+      }
+    },
+    "records_coarser_than_cell": 0,
+    "cell_km": 5.55975,
+    "implausible_by_reasons": {
+      "category": 1,
+      "geocode": 2,
+      "setting": 3,
+      "setting;structure": 4,
+      "structure": 6
+    },
+    "not_in_domain": 40,
+    "scopes": {
+      "development_in_domain": {
+        "positives": 789,
+        "low_terrain": 103,
+        "implausible": 9,
+        "low_terrain_by_region": {
+          "himalaya": 46,
+          "western_ghats": 57
+        },
+        "positives_by_region": {
+          "himalaya": 682,
+          "western_ghats": 107
+        }
+      },
+      "test_2018_in_domain": {
+        "positives": 80,
+        "low_terrain": 11,
+        "implausible": 2,
+        "low_terrain_by_region": {
+          "himalaya": 6,
+          "western_ghats": 5
+        },
+        "positives_by_region": {
+          "himalaya": 48,
+          "western_ghats": 32
+        }
+      },
+      "out_of_domain": {
+        "positives": 40,
+        "low_terrain": 40,
+        "implausible": 5,
+        "low_terrain_by_region": {
+          "himalaya": 18,
+          "western_ghats": 22
+        },
+        "positives_by_region": {
+          "himalaya": 18,
+          "western_ghats": 22
+        }
+      }
+    },
+    "low_terrain_top_cells": {
+      "distinct_cells": 116,
+      "cell_days": 154,
+      "top": [
+        {
+          "cell_id": 23235435,
+          "cell_days": 9
+        },
+        {
+          "cell_id": 21835060,
+          "cell_days": 8
+        },
+        {
+          "cell_id": 20575097,
+          "cell_days": 6
+        },
+        {
+          "cell_id": 23225434,
+          "cell_days": 5
+        },
+        {
+          "cell_id": 23225435,
+          "cell_days": 3
+        },
+        {
+          "cell_id": 23235436,
+          "cell_days": 3
+        },
+        {
+          "cell_id": 20015132,
+          "cell_days": 2
+        },
+        {
+          "cell_id": 21805057,
+          "cell_days": 2
+        }
+      ]
+    },
+    "examples": [
+      {
+        "cell_id": 19695140,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2013-11-13",
+        "slope_mean": 4.528789520263672,
+        "elev_mean": 45.67045593261719,
+        "text": "Karakkamandapam, Kerala | Train services between Kanyakumari and Thiru_va__nanthapuram were cancelled following a landslide on the track at Nemom on Wednesday. The landslide, caused by heavy rain last night, was said to have partially covered the railway track. According to southern railway sources, Mumbai-bound Island express from Kanyakumari, Kan_yaku_mari-Thiruvana_ntha_puram passenger train, t"
+      },
+      {
+        "cell_id": 19915130,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2011-08-07",
+        "slope_mean": 2.6817948818206787,
+        "elev_mean": 11.99089527130127,
+        "text": "Kottayam | KOTTAYAM: Heavy rain continued to wreak havoc in\uf8ff the district on Sunday. One person died and four houses were completely damaged in the downpour and landslides.  Over 40 houses were partially damaged. The deceased is Tijo Jose, 24,\uf8ff a guest lecturer of KE College, Mannanam. He lost his life while taking bath in the Pannakam River.  The roads in the Kanjirappally and Mundakkayam areas w"
+      },
+      {
+        "cell_id": 19975127,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2010-09-24",
+        "slope_mean": 4.288518905639648,
+        "elev_mean": 29.540542602539062,
+        "text": "rail line between Mulanthuruthy and Piravom near Mulanthruth, Kerala | Train services in the Kottayam-Ernakulam route have been cancelled after mud caved in on the Thiruvananthapuram-Mangalore Express early on Friday morning in between Mulanthuruthy and Piravom.  Around a dozen passengers were injured after they panicked and jumped out of the train. Passenger trains linking Ernakulam with Kottayam"
+      },
+      {
+        "cell_id": 20255124,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "1km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2009-09-19",
+        "slope_mean": 3.497607707977295,
+        "elev_mean": 33.64251708984375,
+        "text": "Nilambur, Malappuram, Kerala State | Heavy rain in parts of Malappuaram has caused landslide near Nilambur. An Anganvadi building collapsed and several tribal colonies are reported to be isolated. Four houses were destroyed and there was extensive damage to agriculture. | Nilambur, Malappuram, Kerala State | "
+      },
+      {
+        "cell_id": 20575100,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2010-11-11",
+        "slope_mean": 3.017885684967041,
+        "elev_mean": 24.352764129638672,
+        "text": "Bantwal Cross (BC) road flyover, NH48, between Mangalore and Beltangady(Belthangady) and Puttur, Bantwal, Karnataka | Bantwal, Nov 12: Heavy rains on Thursday a good part of mud to cave in near the Bantwal Cross (BC) Road flyover which is under construction on NH48 as part of four-laning work,  this work is likely to be further delayed.  Traffic  between Mangalore and Beltangady and Puttur, was di"
+      },
+      {
+        "cell_id": 21085076,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "rain",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "geocode",
+        "implausible": true,
+        "n_records": 1,
+        "date": "2007-07-28",
+        "slope_mean": 3.951934814453125,
+        "elev_mean": 34.052886962890625,
+        "text": "Vasco | closest to predicted location of Alibag (383.81 km) | Vasco | "
+      },
+      {
+        "cell_id": 21805057,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "1km|5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 2,
+        "date": "2013-07-10",
+        "slope_mean": 0.9613651037216187,
+        "elev_mean": 8.459068298339844,
+        "text": "Debram Chawl, Antop Hill Near Sheikh Mistry Dargah Road, Central Mumbai | The toll in Wednesday's major landslide in Antop Hill in central Mumbai shot up to five, with three more bodies of people belonging to one family being recovered from the debris early Thursday, officials said. A hillock in the vicinity of the Sheikh Mistry Dargah Road here suddenly collapsed, coming down on five tenements of"
+      },
+      {
+        "cell_id": 21825057,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2010-06-25",
+        "slope_mean": 2.391674041748047,
+        "elev_mean": 31.966297149658203,
+        "text": "Jeevandaya lane(?), Vijay Nagar, Ghatopar(Ghatkopar) | There were a couple of minor incidents of slab-collapses \u2014 one in Goregaon and another in Ghatkopar. No one was injured in both incidents. | Jeevandaya lane(?), Vijay Nagar, Ghatopar(Ghatkopar) | "
+      },
+      {
+        "cell_id": 21835060,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2013-07-24",
+        "slope_mean": 6.9994001388549805,
+        "elev_mean": 45.82162857055664,
+        "text": "National Highway 4, Navi Mumbai, Maharashtra | A nearly one km-long stretch of the Mumbra bypass on the outskirts of the city caved in on Wednesday morning due to incessant rains and has been closed for vehicular traffic, police said. \u00d2Due to heavy rains, around one km-long stretch of the Mumbra bypass has developed huge craters and has been badly damaged. As a precautionary measure, the traffic o"
+      },
+      {
+        "cell_id": 21835060,
+        "split": "validation",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "1km",
+        "settings": "above_road",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2016-06-21",
+        "slope_mean": 6.9994001388549805,
+        "elev_mean": 45.82162857055664,
+        "text": "Parsik Tunnel between Thane and Kalyan railway stations, India | Also, a landslide was witnessed between Thane and Kalyan railway stations in the morning. A protection wall built by the authorities of Thane Municipal Corporation(TMC) between the stations was damaged, and authorities rushed to the spot to repair it. \u201cProblem persisted in the Parsik Tunnel between Thane and Kalyan railway stations, "
+      },
+      {
+        "cell_id": 21925058,
+        "split": "train",
+        "region": "western_ghats",
+        "sources": "coolr_reports",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "1km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2012-09-04",
+        "slope_mean": 6.3602375984191895,
+        "elev_mean": 69.34566497802734,
+        "text": "Varai, Maharashtra | The heavy trains over two days triggered a landslide on the Mumbai-Ahmedabad highway at Varai village near Manor on Tuesday morning, affecting traffic for over three hours. | Varai, Maharashtra | "
+      },
+      {
+        "cell_id": 22955459,
+        "split": "train",
+        "region": "himalaya",
+        "sources": "hma",
+        "categories": "landslide",
+        "triggers": "continuous_rain",
+        "accuracies": "5km",
+        "settings": "urban",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2015-07-22",
+        "slope_mean": 1.2025933265686035,
+        "elev_mean": 24.449867248535156,
+        "text": "Lakhipur | Five persons of a family were buried alive when a huge hillock collapsed on their house in Cachar district on Wednesday. The incident took place in the wee hours at Lakhipur are when a huge hillock slipped into the house where Zubeda Khatun along with he | Lakhipur | "
+      },
+      {
+        "cell_id": 22965478,
+        "split": "train",
+        "region": "himalaya",
+        "sources": "hma",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2010-10-08",
+        "slope_mean": 4.047476768493652,
+        "elev_mean": 797.2382202148438,
+        "text": "Tharon(?) and Langol Tarung villages, Thangmeiband constituency, Imphal, Manipur | On the other hand, landslides that occurred along the Langol foothill range following incessant rainfall during the last few days had affected residents of Tharon and Langol Tarung villages.  A team of Thangmeiband Assembly Constituency Development Forum | Tharon(?) and Langol Tarung villages, Thangmeiband constitue"
+      },
+      {
+        "cell_id": 23225434,
+        "split": "train",
+        "region": "himalaya",
+        "sources": "hma",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2012-06-02",
+        "slope_mean": 4.970117092132568,
+        "elev_mean": 82.43543243408203,
+        "text": "Guwahati, Assam | South Assam's Barrak valley has been cut off from the rest of the country due to heavy landslides. Northeast Frontier Railway sources said heavy rain have caused landslide in five places between Haranjao and Mailongdifa railway stations. A \"small\" track | Guwahati, Assam | "
+      },
+      {
+        "cell_id": 23225434,
+        "split": "train",
+        "region": "himalaya",
+        "sources": "hma",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2012-06-22",
+        "slope_mean": 4.970117092132568,
+        "elev_mean": 82.43543243408203,
+        "text": "Lalunggaon near Gorchuk area | On June 22, three people including two children of a family were killed in a landslide incident at Lalunggaon near Gorchuk area in the city.Thousands of families live at the bottom of 18 hills in the city. These families have allegedly encroached on the | Lalunggaon near Gorchuk area | "
+      },
+      {
+        "cell_id": 23225435,
+        "split": "train",
+        "region": "himalaya",
+        "sources": "hma",
+        "categories": "landslide",
+        "triggers": "continuous_rain",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2014-06-26",
+        "slope_mean": 2.8019964694976807,
+        "elev_mean": 68.34131622314453,
+        "text": "Narakasur | At least eight people, including three members of a family, were killed here due to landslides and flash floods triggered by incessant rain since Thursday night, officials said Friday. Four persons were killed due to landslides in two places while anothe | Narakasur | "
+      },
+      {
+        "cell_id": 23225435,
+        "split": "validation",
+        "region": "himalaya",
+        "sources": "hma",
+        "categories": "landslide",
+        "triggers": "continuous_rain",
+        "accuracies": "1km",
+        "settings": "urban",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2017-07-10",
+        "slope_mean": 2.8019964694976807,
+        "elev_mean": 68.34131622314453,
+        "text": "Landslide damages house | Temporary house near Srimanta Sankar Academy damaged by landslides amid storms and flooding throughout Assam State | Dispur, Kamrup Metropolitan, Assam | "
+      },
+      {
+        "cell_id": 23235433,
+        "split": "train",
+        "region": "himalaya",
+        "sources": "hma",
+        "categories": "rock_fall",
+        "triggers": "rain",
+        "accuracies": "1km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2015-09-01",
+        "slope_mean": 2.6333892345428467,
+        "elev_mean": 57.11366271972656,
+        "text": "Maligaon | The incessant rains that lashed Guwahati and its adjoining areas are likely to result in landslide soon. Local residents in Amingaon, Thirteenth Mile, Nineth Mile, Maligaon areas fear the tragic rerun of landslide incidents in near future. The district a | Maligaon | "
+      },
+      {
+        "cell_id": 23535308,
+        "split": "train",
+        "region": "himalaya",
+        "sources": "hma",
+        "categories": "landslide",
+        "triggers": "downpour",
+        "accuracies": "5km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2010-08-23",
+        "slope_mean": 4.35666036605835,
+        "elev_mean": 1341.326416015625,
+        "text": "Khadkha Tole(?), Chittapol(Chitpol) VDC(?), Bhaktapur district | 2010-08-24 11:58 AM  BHAKTAPUR: A woman was buried alive by a landslide at Khadkha Tole, Chittapol VDC in Bhaktapur on Tuesday at 5 am.  According to Shree Ram Bhandari, Inspector of Metropolitan Police Range, Jagati she was heading to the temple to offe | Khadkha Tole(?), Chittapol(Chitpol) VDC(?), Bhaktapur district | "
+      },
+      {
+        "cell_id": 24825091,
+        "split": "train",
+        "region": "himalaya",
+        "sources": "hma",
+        "categories": "landslide",
+        "triggers": "continuous_rain",
+        "accuracies": "1km",
+        "settings": "unknown",
+        "reasons": "",
+        "implausible": false,
+        "n_records": 1,
+        "date": "2015-03-15",
+        "slope_mean": 3.0624635219573975,
+        "elev_mean": 1618.28515625,
+        "text": "Shirpora | As a result of continuous rains and snowfall during the past few days several areas in Baramulla district including Larridora, Bandibala, Dodhbugh, Nilsar, Hajibal, Shirpora and others have witnessed landslides and earth sinking. | Shirpora | "
+      }
+    ]
+  },
+  "development": {
+    "created_utc": "2026-10-24T15:51:09Z",
+    "development": {
+      "positives": 789,
+      "universe_rows": 399272,
+      "matched_rows": 8240,
+      "folds": [
+        [
+          2007,
+          2008
+        ],
+        [
+          2009,
+          2010
+        ],
+        [
+          2011,
+          2012
+        ],
+        [
+          2013,
+          2014
+        ],
+        [
+          2015
+        ],
+        [
+          2016
+        ],
+        [
+          2017
+        ]
+      ],
+      "implausible_positives_in_audit": 16
+    },
+    "frozen_reference": "data/processed/hazard/model_v3_live",
+    "reproduction": {
+      "recomputed_fa_at_90": 0.19554142779163688,
+      "reported_fa_at_90": 0.19554142779163688,
+      "abs_difference": 0.0,
+      "n_trees": 315,
+      "reported_n_trees": 315
+    },
+    "candidates": {
+      "C0": {
+        "description": "v3-live refit (reference): the 26 imerg_core inputs with the v3 monotone constraints",
+        "n_inputs": 26,
+        "columns": [
+          "stat_elev_mean",
+          "stat_elev_std",
+          "stat_relief",
+          "stat_slope_mean",
+          "stat_slope_p90",
+          "stat_slope_max",
+          "stat_curvature_mean",
+          "stat_aspect_sin",
+          "stat_aspect_cos",
+          "stat_twi_proxy",
+          "irain_acc_1",
+          "irain_acc_3",
+          "irain_acc_5",
+          "irain_acc_7",
+          "irain_acc_14",
+          "irain_acc_30",
+          "irain_acc_60",
+          "irain_acc_90",
+          "irain_max1d_7",
+          "irain_max1d_30",
+          "irain_wetdays_30",
+          "irain_days_since_10mm",
+          "irain_share1_3",
+          "irain_acc3_vs_clim",
+          "irain_acc7_vs_clim",
+          "irain_acc30_vs_clim"
+        ],
+        "constraints": {
+          "stat_elev_mean": 0,
+          "stat_elev_std": 0,
+          "stat_relief": 1,
+          "stat_slope_mean": 1,
+          "stat_slope_p90": 1,
+          "stat_slope_max": 1,
+          "stat_curvature_mean": 0,
+          "stat_aspect_sin": 0,
+          "stat_aspect_cos": 0,
+          "stat_twi_proxy": 0,
+          "irain_acc_1": 1,
+          "irain_acc_3": 1,
+          "irain_acc_5": 1,
+          "irain_acc_7": 1,
+          "irain_acc_14": 1,
+          "irain_acc_30": 1,
+          "irain_acc_60": 1,
+          "irain_acc_90": 1,
+          "irain_max1d_7": 1,
+          "irain_max1d_30": 1,
+          "irain_wetdays_30": 1,
+          "irain_days_since_10mm": -1,
+          "irain_share1_3": 0,
+          "irain_acc3_vs_clim": 1,
+          "irain_acc7_vs_clim": 1,
+          "irain_acc30_vs_clim": 1
+        },
+        "drop_implausible_positives": false,
+        "positives_dropped": 0
+      },
+      "C1": {
+        "description": "C0 plus stat_elev_mean constrained non-decreasing (C0 already carries the rain, slope and relief constraints)",
+        "n_inputs": 26,
+        "columns": [
+          "stat_elev_mean",
+          "stat_elev_std",
+          "stat_relief",
+          "stat_slope_mean",
+          "stat_slope_p90",
+          "stat_slope_max",
+          "stat_curvature_mean",
+          "stat_aspect_sin",
+          "stat_aspect_cos",
+          "stat_twi_proxy",
+          "irain_acc_1",
+          "irain_acc_3",
+          "irain_acc_5",
+          "irain_acc_7",
+          "irain_acc_14",
+          "irain_acc_30",
+          "irain_acc_60",
+          "irain_acc_90",
+          "irain_max1d_7",
+          "irain_max1d_30",
+          "irain_wetdays_30",
+          "irain_days_since_10mm",
+          "irain_share1_3",
+          "irain_acc3_vs_clim",
+          "irain_acc7_vs_clim",
+          "irain_acc30_vs_clim"
+        ],
+        "constraints": {
+          "stat_elev_mean": 1,
+          "stat_elev_std": 0,
+          "stat_relief": 1,
+          "stat_slope_mean": 1,
+          "stat_slope_p90": 1,
+          "stat_slope_max": 1,
+          "stat_curvature_mean": 0,
+          "stat_aspect_sin": 0,
+          "stat_aspect_cos": 0,
+          "stat_twi_proxy": 0,
+          "irain_acc_1": 1,
+          "irain_acc_3": 1,
+          "irain_acc_5": 1,
+          "irain_acc_7": 1,
+          "irain_acc_14": 1,
+          "irain_acc_30": 1,
+          "irain_acc_60": 1,
+          "irain_acc_90": 1,
+          "irain_max1d_7": 1,
+          "irain_max1d_30": 1,
+          "irain_wetdays_30": 1,
+          "irain_days_since_10mm": -1,
+          "irain_share1_3": 0,
+          "irain_acc3_vs_clim": 1,
+          "irain_acc7_vs_clim": 1,
+          "irain_acc30_vs_clim": 1
+        },
+        "drop_implausible_positives": false,
+        "positives_dropped": 0
+      },
+      "C2": {
+        "description": "C0 without stat_elev_mean (the C1 constraint set minus the elevation input)",
+        "n_inputs": 25,
+        "columns": [
+          "stat_elev_std",
+          "stat_relief",
+          "stat_slope_mean",
+          "stat_slope_p90",
+          "stat_slope_max",
+          "stat_curvature_mean",
+          "stat_aspect_sin",
+          "stat_aspect_cos",
+          "stat_twi_proxy",
+          "irain_acc_1",
+          "irain_acc_3",
+          "irain_acc_5",
+          "irain_acc_7",
+          "irain_acc_14",
+          "irain_acc_30",
+          "irain_acc_60",
+          "irain_acc_90",
+          "irain_max1d_7",
+          "irain_max1d_30",
+          "irain_wetdays_30",
+          "irain_days_since_10mm",
+          "irain_share1_3",
+          "irain_acc3_vs_clim",
+          "irain_acc7_vs_clim",
+          "irain_acc30_vs_clim"
+        ],
+        "constraints": {
+          "stat_elev_std": 0,
+          "stat_relief": 1,
+          "stat_slope_mean": 1,
+          "stat_slope_p90": 1,
+          "stat_slope_max": 1,
+          "stat_curvature_mean": 0,
+          "stat_aspect_sin": 0,
+          "stat_aspect_cos": 0,
+          "stat_twi_proxy": 0,
+          "irain_acc_1": 1,
+          "irain_acc_3": 1,
+          "irain_acc_5": 1,
+          "irain_acc_7": 1,
+          "irain_acc_14": 1,
+          "irain_acc_30": 1,
+          "irain_acc_60": 1,
+          "irain_acc_90": 1,
+          "irain_max1d_7": 1,
+          "irain_max1d_30": 1,
+          "irain_wetdays_30": 1,
+          "irain_days_since_10mm": -1,
+          "irain_share1_3": 0,
+          "irain_acc3_vs_clim": 1,
+          "irain_acc7_vs_clim": 1,
+          "irain_acc30_vs_clim": 1
+        },
+        "drop_implausible_positives": false,
+        "positives_dropped": 0
+      },
+      "C3": {
+        "description": "C2 trained without the physically implausible positives of the label audit (training only)",
+        "n_inputs": 25,
+        "columns": [
+          "stat_elev_std",
+          "stat_relief",
+          "stat_slope_mean",
+          "stat_slope_p90",
+          "stat_slope_max",
+          "stat_curvature_mean",
+          "stat_aspect_sin",
+          "stat_aspect_cos",
+          "stat_twi_proxy",
+          "irain_acc_1",
+          "irain_acc_3",
+          "irain_acc_5",
+          "irain_acc_7",
+          "irain_acc_14",
+          "irain_acc_30",
+          "irain_acc_60",
+          "irain_acc_90",
+          "irain_max1d_7",
+          "irain_max1d_30",
+          "irain_wetdays_30",
+          "irain_days_since_10mm",
+          "irain_share1_3",
+          "irain_acc3_vs_clim",
+          "irain_acc7_vs_clim",
+          "irain_acc30_vs_clim"
+        ],
+        "constraints": {
+          "stat_elev_std": 0,
+          "stat_relief": 1,
+          "stat_slope_mean": 1,
+          "stat_slope_p90": 1,
+          "stat_slope_max": 1,
+          "stat_curvature_mean": 0,
+          "stat_aspect_sin": 0,
+          "stat_aspect_cos": 0,
+          "stat_twi_proxy": 0,
+          "irain_acc_1": 1,
+          "irain_acc_3": 1,
+          "irain_acc_5": 1,
+          "irain_acc_7": 1,
+          "irain_acc_14": 1,
+          "irain_acc_30": 1,
+          "irain_acc_60": 1,
+          "irain_acc_90": 1,
+          "irain_max1d_7": 1,
+          "irain_max1d_30": 1,
+          "irain_wetdays_30": 1,
+          "irain_days_since_10mm": -1,
+          "irain_share1_3": 0,
+          "irain_acc3_vs_clim": 1,
+          "irain_acc7_vs_clim": 1,
+          "irain_acc30_vs_clim": 1
+        },
+        "drop_implausible_positives": true,
+        "positives_dropped": 9
+      }
+    },
+    "evaluation": {
+      "reference": "C0",
+      "bootstrap": {
+        "n": 2000,
+        "seed": 31337,
+        "level": 0.95
+      },
+      "candidates": {
+        "C0": {
+          "n_inputs": 26,
+          "n_trees": 315,
+          "fold_best_iterations": [
+            999,
+            352,
+            142,
+            316,
+            257,
+            315,
+            151
+          ],
+          "seconds": 12.086518299998716,
+          "fa_at_90": {
+            "value": 0.19554142779163688,
+            "lo": 0.1679492295501935,
+            "hi": 0.23482366691325304,
+            "se": 0.017813584014420413
+          },
+          "thresholds": {
+            "plain_recall_90": {
+              "raw": 0.023544591340721576,
+              "risk": 3.5184754426479534e-06,
+              "oof_recall": 0.9011406844106464,
+              "oof_fa_share": 0.19554142779163688,
+              "risk_by_region": {
+                "himalaya": 3.891687360804679e-06,
+                "western_ghats": 3.8084629480536887e-06
+              }
+            },
+            "recall_first": {
+              "raw": 0.01818187353910516,
+              "risk": 3.0146490326518273e-06,
+              "oof_recall": 0.917617237008872,
+              "oof_fa_share": 0.22775767116167064,
+              "risk_by_region": {
+                "himalaya": 2.782149847271763e-06,
+                "western_ghats": 3.8084629480536887e-06
+              }
+            },
+            "watch": {
+              "raw": 0.01818187353910516,
+              "risk": 3.0146490326518273e-06,
+              "oof_recall": 0.917617237008872,
+              "oof_fa_share": 0.22775767116167064,
+              "risk_by_region": {
+                "himalaya": 2.782149847271763e-06,
+                "western_ghats": 3.8084629480536887e-06
+              }
+            },
+            "warning": {
+              "raw": 0.0745739551465618,
+              "risk": 1.1842377470857583e-05,
+              "oof_recall": 0.7503168567807351,
+              "oof_fa_share": 0.08301972080714515,
+              "risk_by_region": {
+                "himalaya": 1.3765576493023059e-05,
+                "western_ghats": 1.3681137059859508e-05
+              }
+            },
+            "emergency": {
+              "raw": 0.2020321932634162,
+              "risk": 4.814709609428837e-05,
+              "oof_recall": 0.5006337135614702,
+              "oof_fa_share": 0.026041727389528844,
+              "risk_by_region": {
+                "himalaya": 4.9226520385570795e-05,
+                "western_ghats": 2.5642648636983134e-05
+              }
+            }
+          },
+          "levels": {
+            "watch": {
+              "events": 724,
+              "recall": 0.917617237008872,
+              "fa_share": 0.22775767116102377,
+              "cell_days": 33418809.02657727,
+              "low_cell_days": 2635631.446211592,
+              "low_share": 0.07886670779067949,
+              "lowrain_share": 0.44986864767758394,
+              "precision_per_1000": 0.02166444649251917,
+              "low_alert_rate": 0.0713881802814609,
+              "other_alert_rate": 0.2803374873965854,
+              "low_precision_per_1000": 0.03376799898480759,
+              "other_precision_per_1000": 0.02062814985042414,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.01818187353910516,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.8986058301647655,
+                  "hi": 0.9366286438529785,
+                  "se": 0.009905046496184577
+                },
+                "fa_share": {
+                  "lo": 0.22596708279233405,
+                  "hi": 0.22951807357290463,
+                  "se": 0.0009090747300892169
+                },
+                "cell_days": {
+                  "lo": 33156084.119461067,
+                  "hi": 33677113.4790225,
+                  "se": 133385.36428076084
+                },
+                "low_share": {
+                  "lo": 0.07685122836709925,
+                  "hi": 0.08092371260923968,
+                  "se": 0.001041158490308023
+                },
+                "lowrain_share": {
+                  "lo": 0.4454386605324211,
+                  "hi": 0.4544657635458886,
+                  "se": 0.002284151158148762
+                },
+                "precision_per_1000": {
+                  "lo": 0.021169847004726725,
+                  "hi": 0.022137178485880787,
+                  "se": 0.0002491899765781827
+                }
+              }
+            },
+            "warning": {
+              "events": 592,
+              "recall": 0.7503168567807351,
+              "fa_share": 0.08301972080691727,
+              "cell_days": 12181784.732897265,
+              "low_cell_days": 822853.620030921,
+              "low_share": 0.06754787069983109,
+              "lowrain_share": 0.19689018774227657,
+              "precision_per_1000": 0.04859714836376042,
+              "low_alert_rate": 0.02228764672559011,
+              "other_alert_rate": 0.1034439735592112,
+              "low_precision_per_1000": 0.09236150653034023,
+              "other_precision_per_1000": 0.045426809518681124,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.0745739551465618,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.7198986058301647,
+                  "hi": 0.7782319391634979,
+                  "se": 0.015092324123027615
+                },
+                "fa_share": {
+                  "lo": 0.08185085819865538,
+                  "hi": 0.0842186413822741,
+                  "se": 0.0006077683225057945
+                },
+                "cell_days": {
+                  "lo": 12010267.968081577,
+                  "hi": 12357708.272901677,
+                  "se": 89175.59528825435
+                },
+                "low_share": {
+                  "lo": 0.06440160930965007,
+                  "hi": 0.07060148024512496,
+                  "se": 0.0015389394280561498
+                },
+                "lowrain_share": {
+                  "lo": 0.19103085642320428,
+                  "hi": 0.20308084461681172,
+                  "se": 0.003092301797955169
+                },
+                "precision_per_1000": {
+                  "lo": 0.046540075033773706,
+                  "hi": 0.05057414596341184,
+                  "se": 0.0010437260682642857
+                }
+              }
+            },
+            "emergency": {
+              "events": 395,
+              "recall": 0.5006337135614702,
+              "fa_share": 0.02604172738945288,
+              "cell_days": 3821406.4096416486,
+              "low_cell_days": 274825.35799570836,
+              "low_share": 0.07191733318453297,
+              "lowrain_share": 0.051515390389566165,
+              "precision_per_1000": 0.10336508543121457,
+              "low_alert_rate": 0.00744386406176594,
+              "other_alert_rate": 0.03229814785270623,
+              "low_precision_per_1000": 0.21468179075717364,
+              "other_precision_per_1000": 0.09473912906743386,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.2020321932634162,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.46514575411913817,
+                  "hi": 0.5348542458808618,
+                  "se": 0.017636894491405774
+                },
+                "fa_share": {
+                  "lo": 0.02533830547248061,
+                  "hi": 0.026762599020778786,
+                  "se": 0.0003583583685336288
+                },
+                "cell_days": {
+                  "lo": 3718186.151554704,
+                  "hi": 3927159.6531719025,
+                  "se": 52580.564957076254
+                },
+                "low_share": {
+                  "lo": 0.066477456236362,
+                  "hi": 0.07743775970956862,
+                  "se": 0.0028380814736607184
+                },
+                "lowrain_share": {
+                  "lo": 0.04576309046597045,
+                  "hi": 0.05807673579620487,
+                  "se": 0.003068527574823848
+                },
+                "precision_per_1000": {
+                  "lo": 0.09551215406267119,
+                  "hi": 0.11095063436115335,
+                  "se": 0.0039180713722070295
+                }
+              }
+            }
+          },
+          "at_reference_thresholds": {
+            "watch": {
+              "events": 724,
+              "recall": 0.917617237008872,
+              "fa_share": 0.22775767116102377,
+              "cell_days": 33418809.02657727,
+              "low_cell_days": 2635631.446211592,
+              "low_share": 0.07886670779067949,
+              "lowrain_share": 0.44986864767758394,
+              "precision_per_1000": 0.02166444649251917,
+              "low_alert_rate": 0.0713881802814609,
+              "other_alert_rate": 0.2803374873965854,
+              "low_precision_per_1000": 0.03376799898480759,
+              "other_precision_per_1000": 0.02062814985042414,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.01818187353910516
+            },
+            "warning": {
+              "events": 592,
+              "recall": 0.7503168567807351,
+              "fa_share": 0.08301972080691727,
+              "cell_days": 12181784.732897265,
+              "low_cell_days": 822853.620030921,
+              "low_share": 0.06754787069983109,
+              "lowrain_share": 0.19689018774227657,
+              "precision_per_1000": 0.04859714836376042,
+              "low_alert_rate": 0.02228764672559011,
+              "other_alert_rate": 0.1034439735592112,
+              "low_precision_per_1000": 0.09236150653034023,
+              "other_precision_per_1000": 0.045426809518681124,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.0745739551465618
+            },
+            "emergency": {
+              "events": 395,
+              "recall": 0.5006337135614702,
+              "fa_share": 0.02604172738945288,
+              "cell_days": 3821406.4096416486,
+              "low_cell_days": 274825.35799570836,
+              "low_share": 0.07191733318453297,
+              "lowrain_share": 0.051515390389566165,
+              "precision_per_1000": 0.10336508543121457,
+              "low_alert_rate": 0.00744386406176594,
+              "other_alert_rate": 0.03229814785270623,
+              "low_precision_per_1000": 0.21468179075717364,
+              "other_precision_per_1000": 0.09473912906743386,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.2020321932634162
+            }
+          },
+          "by_region_warning": {
+            "himalaya": {
+              "events": 523,
+              "recall": 0.7668621700879765,
+              "fa_share": 0.09178265423832158,
+              "cell_days": 10521667.046344146,
+              "low_cell_days": 310379.9418981503,
+              "low_share": 0.029499122195279386,
+              "lowrain_share": 0.21198603071711106,
+              "precision_per_1000": 0.04970695211095103,
+              "low_alert_rate": 0.01441384696203954,
+              "other_alert_rate": 0.10968285503836941,
+              "low_precision_per_1000": 0.11598687653538264,
+              "other_precision_per_1000": 0.047692322722760395,
+              "low_base_events_per_1000": 0.0021362107235376416,
+              "other_base_events_per_1000": 0.006831489026885766
+            },
+            "western_ghats": {
+              "events": 69,
+              "recall": 0.6448598130841121,
+              "fa_share": 0.05172228559912839,
+              "cell_days": 1660117.6865531197,
+              "low_cell_days": 512473.6781327707,
+              "low_share": 0.3086971979660147,
+              "lowrain_share": 0.1012141794377774,
+              "precision_per_1000": 0.04156331840742194,
+              "low_alert_rate": 0.033307225751231476,
+              "other_alert_rate": 0.06868307401158506,
+              "low_precision_per_1000": 0.07805278925884049,
+              "other_precision_per_1000": 0.025269159937423843,
+              "low_base_events_per_1000": 0.003704603668109431,
+              "other_base_events_per_1000": 0.0029923510037804515
+            }
+          },
+          "ece": {
+            "crossfit_per_region": {
+              "ece_deciles": 4.326630046354306e-06,
+              "mean_predicted": 9.497477749269725e-06,
+              "base_rate": 5.377351886056081e-06,
+              "deciles": [
+                {
+                  "bin": 0,
+                  "population_share": 0.11340741156179536,
+                  "population": 16639961.597299218,
+                  "positives": 3,
+                  "mean_risk": 0.0,
+                  "observed_rate": 1.8028887761897966e-07,
+                  "risk_min": 0.0,
+                  "risk_max": 0.0
+                },
+                {
+                  "bin": 1,
+                  "population_share": 0.10058814770311526,
+                  "population": 14759025.815621056,
+                  "positives": 5,
+                  "mean_risk": 1.0663080237013732e-07,
+                  "observed_rate": 3.387757472927492e-07,
+                  "risk_min": 5.898182002201731e-08,
+                  "risk_max": 1.2541058226502123e-07
+                },
+                {
+                  "bin": 2,
+                  "population_share": 0.09501298678720507,
+                  "population": 13940997.590993438,
+                  "positives": 0,
+                  "mean_risk": 1.2882144000965008e-07,
+                  "observed_rate": 0.0,
+                  "risk_min": 1.266113610936202e-07,
+                  "risk_max": 1.3080523488076065e-07
+                },
+                {
+                  "bin": 3,
+                  "population_share": 0.11096314358861492,
+                  "population": 16281320.793782875,
+                  "positives": 1,
+                  "mean_risk": 1.5724518736376255e-07,
+                  "observed_rate": 6.14200784239726e-08,
+                  "risk_min": 1.3180354936609819e-07,
+                  "risk_max": 1.7294296155183392e-07
+                },
+                {
+                  "bin": 4,
+                  "population_share": 0.08343253734778033,
+                  "population": 12241829.685671022,
+                  "positives": 2,
+                  "mean_risk": 2.1232242220648144e-07,
+                  "observed_rate": 1.6337427095077023e-07,
+                  "risk_min": 1.7739321485127943e-07,
+                  "risk_max": 2.6857164371513065e-07
+                },
+                {
+                  "bin": 5,
+                  "population_share": 0.09818401832309807,
+                  "population": 14406274.438903261,
+                  "positives": 14,
+                  "mean_risk": 5.955367353494928e-07,
+                  "observed_rate": 9.717987852705248e-07,
+                  "risk_min": 2.720452271244076e-07,
+                  "risk_max": 8.284064113677229e-07
+                },
+                {
+                  "bin": 6,
+                  "population_share": 0.1036547346299831,
+                  "population": 15208977.789615769,
+                  "positives": 16,
+                  "mean_risk": 1.1532438663678934e-06,
+                  "observed_rate": 1.0520102153692614e-06,
+                  "risk_min": 8.393871419030253e-07,
+                  "risk_max": 1.6271048333362534e-06
+                },
+                {
+                  "bin": 7,
+                  "population_share": 0.09803513722871206,
+                  "population": 14384429.520136226,
+                  "positives": 44,
+                  "mean_risk": 2.829378101482609e-06,
+                  "observed_rate": 3.0588630531649548e-06,
+                  "risk_min": 1.6296300182787317e-06,
+                  "risk_max": 4.015474203107132e-06
+                },
+                {
+                  "bin": 8,
+                  "population_share": 0.09701473229773763,
+                  "population": 14234708.2750141,
+                  "positives": 94,
+                  "mean_risk": 6.6342322140532954e-06,
+                  "observed_rate": 6.603577550303319e-06,
+                  "risk_min": 4.019316227302656e-06,
+                  "risk_max": 9.34526935496309e-06
+                },
+                {
+                  "bin": 9,
+                  "population_share": 0.09970715053439953,
+                  "population": 14629759.492963025,
+                  "positives": 610,
+                  "mean_risk": 8.364837498438986e-05,
+                  "observed_rate": 4.16958324088248e-05,
+                  "risk_min": 9.623997948890297e-06,
+                  "risk_max": 1.0
+                }
+              ]
+            },
+            "crossfit_pooled": {
+              "ece_deciles": 2.3962971327641177e-06,
+              "mean_predicted": 7.42989942321268e-06,
+              "deciles": [
+                {
+                  "bin": 0,
+                  "population_share": 0.10480910909882551,
+                  "population": 15378356.021311523,
+                  "positives": 6,
+                  "mean_risk": 4.8915309221532025e-08,
+                  "observed_rate": 3.901587394442633e-07,
+                  "risk_min": 0.0,
+                  "risk_max": 9.552732039103473e-08
+                },
+                {
+                  "bin": 1,
+                  "population_share": 0.09826505468954636,
+                  "population": 14418164.684947459,
+                  "positives": 1,
+                  "mean_risk": 1.0673195168132579e-07,
+                  "observed_rate": 6.935695505295473e-08,
+                  "risk_min": 9.989561561561436e-08,
+                  "risk_max": 1.0917317404640981e-07
+                },
+                {
+                  "bin": 2,
+                  "population_share": 0.11081923823059421,
+                  "population": 16260205.95131375,
+                  "positives": 2,
+                  "mean_risk": 1.229308612786657e-07,
+                  "observed_rate": 1.2299967208216135e-07,
+                  "risk_min": 1.0995948151226138e-07,
+                  "risk_max": 1.323642841368282e-07
+                },
+                {
+                  "bin": 3,
+                  "population_share": 0.11849877711633497,
+                  "population": 17387003.84206837,
+                  "positives": 0,
+                  "mean_risk": 1.3513780964828982e-07,
+                  "observed_rate": 0.0,
+                  "risk_min": 1.349230202373553e-07,
+                  "risk_max": 1.3534973177612923e-07
+                },
+                {
+                  "bin": 4,
+                  "population_share": 0.07895961873092294,
+                  "population": 11585530.48100242,
+                  "positives": 1,
+                  "mean_risk": 2.069975679226355e-07,
+                  "observed_rate": 8.63145629489964e-08,
+                  "risk_min": 1.377445182133256e-07,
+                  "risk_max": 2.1215354502125933e-07
+                },
+                {
+                  "bin": 5,
+                  "population_share": 0.104474166316289,
+                  "population": 15329210.776199685,
+                  "positives": 16,
+                  "mean_risk": 7.140761280629915e-07,
+                  "observed_rate": 1.0437588884120369e-06,
+                  "risk_min": 2.3071387425317114e-07,
+                  "risk_max": 8.627939326263094e-07
+                },
+                {
+                  "bin": 6,
+                  "population_share": 0.09032891736289503,
+                  "population": 13253716.801622868,
+                  "positives": 14,
+                  "mean_risk": 1.2244006467801168e-06,
+                  "observed_rate": 1.0563074652602924e-06,
+                  "risk_min": 8.739266777035846e-07,
+                  "risk_max": 1.7182545661753808e-06
+                },
+                {
+                  "bin": 7,
+                  "population_share": 0.10273557405598216,
+                  "population": 15074111.854123313,
+                  "positives": 46,
+                  "mean_risk": 2.9609536068990206e-06,
+                  "observed_rate": 3.051589403419303e-06,
+                  "risk_min": 1.8766726790741908e-06,
+                  "risk_max": 3.6078885884790923e-06
+                },
+                {
+                  "bin": 8,
+                  "population_share": 0.09766421783624649,
+                  "population": 14330005.524734987,
+                  "positives": 117,
+                  "mean_risk": 7.219279241765776e-06,
+                  "observed_rate": 8.164686314882894e-06,
+                  "risk_min": 3.621547417019563e-06,
+                  "risk_max": 1.0677564950276927e-05
+                },
+                {
+                  "bin": 9,
+                  "population_share": 0.09344532656418018,
+                  "population": 13710979.062675625,
+                  "positives": 586,
+                  "mean_risk": 6.606902472808956e-05,
+                  "observed_rate": 4.27394715812253e-05,
+                  "risk_min": 1.1049076028967353e-05,
+                  "risk_max": 1.0
+                }
+              ],
+              "per_year": {
+                "2007": {
+                  "positives": 8,
+                  "population": 12325327.999999998,
+                  "mean_predicted": 8.495481758068374e-06,
+                  "observed": 6.490699476719809e-07
+                },
+                "2008": {
+                  "positives": 8,
+                  "population": 13465880.0,
+                  "mean_predicted": 2.6585111548350076e-05,
+                  "observed": 5.94094110448036e-07
+                },
+                "2009": {
+                  "positives": 32,
+                  "population": 13429112.0,
+                  "mean_predicted": 4.633818226679509e-06,
+                  "observed": 2.382882799696659e-06
+                },
+                "2010": {
+                  "positives": 111,
+                  "population": 13429191.0,
+                  "mean_predicted": 6.3371753449054016e-06,
+                  "observed": 8.265576087196913e-06
+                },
+                "2011": {
+                  "positives": 79,
+                  "population": 13429159.0,
+                  "mean_predicted": 5.682479193737545e-06,
+                  "observed": 5.882721323055301e-06
+                },
+                "2012": {
+                  "positives": 47,
+                  "population": 13465919.0,
+                  "mean_predicted": 5.5065024963609075e-06,
+                  "observed": 3.4902927902655586e-06
+                },
+                "2013": {
+                  "positives": 97,
+                  "population": 13429177.000000004,
+                  "mean_predicted": 5.800434150829924e-06,
+                  "observed": 7.223078525214164e-06
+                },
+                "2014": {
+                  "positives": 51,
+                  "population": 13429130.999999998,
+                  "mean_predicted": 5.077931707251641e-06,
+                  "observed": 3.797714088871425e-06
+                },
+                "2015": {
+                  "positives": 127,
+                  "population": 13429207.000000002,
+                  "mean_predicted": 4.017226866091131e-06,
+                  "observed": 9.45699921075012e-06
+                },
+                "2016": {
+                  "positives": 106,
+                  "population": 13465978.0,
+                  "mean_predicted": 4.270518319383462e-06,
+                  "observed": 7.87168967601165e-06
+                },
+                "2017": {
+                  "positives": 123,
+                  "population": 13429203.0,
+                  "mean_predicted": 5.371358968125962e-06,
+                  "observed": 9.159143696018297e-06
+                }
+              }
+            }
+          },
+          "pr_auc": 0.005326744155254767
+        },
+        "C1": {
+          "n_inputs": 26,
+          "n_trees": 220,
+          "fold_best_iterations": [
+            9,
+            710,
+            337,
+            279,
+            220,
+            125,
+            188
+          ],
+          "seconds": 7.549725700000636,
+          "fa_at_90": {
+            "value": 0.23268468785481256,
+            "lo": 0.20501130279639146,
+            "hi": 0.25524048151577416,
+            "se": 0.01297454918856576
+          },
+          "thresholds": {
+            "plain_recall_90": {
+              "raw": 0.022235364051622818,
+              "risk": 4.450832756326813e-06,
+              "oof_recall": 0.9011406844106464,
+              "oof_fa_share": 0.23268468785481256,
+              "risk_by_region": {
+                "himalaya": 4.15754023290578e-06,
+                "western_ghats": 4.7456553357442154e-06
+              }
+            },
+            "recall_first": {
+              "raw": 0.019639562683237213,
+              "risk": 4.2722606506522754e-06,
+              "oof_recall": 0.917617237008872,
+              "oof_fa_share": 0.2507499200126302,
+              "risk_by_region": {
+                "himalaya": 3.926289808865373e-06,
+                "western_ghats": 4.7456553357442154e-06
+              }
+            },
+            "watch": {
+              "raw": 0.019639562683237213,
+              "risk": 4.2722606506522754e-06,
+              "oof_recall": 0.917617237008872,
+              "oof_fa_share": 0.2507499200126302,
+              "risk_by_region": {
+                "himalaya": 3.926289808865373e-06,
+                "western_ghats": 4.7456553357442154e-06
+              }
+            },
+            "warning": {
+              "raw": 0.06513813171920384,
+              "risk": 1.4031888113437746e-05,
+              "oof_recall": 0.7503168567807351,
+              "oof_fa_share": 0.10142935228204353,
+              "risk_by_region": {
+                "himalaya": 1.3944407032955423e-05,
+                "western_ghats": 1.3544838039729518e-05
+              }
+            },
+            "emergency": {
+              "raw": 0.16759470773254834,
+              "risk": 4.558510087088807e-05,
+              "oof_recall": 0.5006337135614702,
+              "oof_fa_share": 0.03241416108735553,
+              "risk_by_region": {
+                "himalaya": 4.53593997469677e-05,
+                "western_ghats": 3.0983099604731253e-05
+              }
+            }
+          },
+          "levels": {
+            "watch": {
+              "events": 724,
+              "recall": 0.917617237008872,
+              "fa_share": 0.2507499200118594,
+              "cell_days": 36792381.13562041,
+              "low_cell_days": 2903172.445027871,
+              "low_share": 0.07890689200914956,
+              "lowrain_share": 0.4426754842773318,
+              "precision_per_1000": 0.019677987062899336,
+              "low_alert_rate": 0.07863474166379363,
+              "other_alert_rate": 0.3086236172135411,
+              "low_precision_per_1000": 0.029622766690035312,
+              "other_precision_per_1000": 0.018826051851045595,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.019639562683237213,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.8973384030418251,
+                  "hi": 0.9353929024081113,
+                  "se": 0.010040398622161124
+                },
+                "fa_share": {
+                  "lo": 0.24895101345312906,
+                  "hi": 0.25269513276691363,
+                  "se": 0.0009425129740534301
+                },
+                "cell_days": {
+                  "lo": 36528426.454626486,
+                  "hi": 37077783.51214403,
+                  "se": 138291.60576398345
+                },
+                "low_share": {
+                  "lo": 0.07676851859065786,
+                  "hi": 0.08099972995777323,
+                  "se": 0.001079148388365105
+                },
+                "lowrain_share": {
+                  "lo": 0.43856336394752,
+                  "hi": 0.4471755428079705,
+                  "se": 0.0022045400244706075
+                },
+                "precision_per_1000": {
+                  "lo": 0.019201196241297177,
+                  "hi": 0.020096532187224837,
+                  "se": 0.00022781558622577233
+                }
+              }
+            },
+            "warning": {
+              "events": 592,
+              "recall": 0.7503168567807351,
+              "fa_share": 0.10142935228174937,
+              "cell_days": 14882965.45185069,
+              "low_cell_days": 886328.0717932042,
+              "low_share": 0.05955319016634482,
+              "lowrain_share": 0.19370860720494956,
+              "precision_per_1000": 0.03977701902992627,
+              "low_alert_rate": 0.024006902887974274,
+              "other_alert_rate": 0.12746514374231246,
+              "low_precision_per_1000": 0.07446452628592695,
+              "other_precision_per_1000": 0.03758045491336717,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.06513813171920384,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.7198986058301647,
+                  "hi": 0.779467680608365,
+                  "se": 0.015353947039401315
+                },
+                "fa_share": {
+                  "lo": 0.10010609207908491,
+                  "hi": 0.10265117058985679,
+                  "se": 0.0006566377864826588
+                },
+                "cell_days": {
+                  "lo": 14688806.294017484,
+                  "hi": 15062256.47094794,
+                  "se": 96346.38281865252
+                },
+                "low_share": {
+                  "lo": 0.05680664266799386,
+                  "hi": 0.06226911824553903,
+                  "se": 0.0013923280137750204
+                },
+                "lowrain_share": {
+                  "lo": 0.188219094609722,
+                  "hi": 0.19926402880192218,
+                  "se": 0.002767794937551792
+                },
+                "precision_per_1000": {
+                  "lo": 0.03807339215087562,
+                  "hi": 0.04134930983904919,
+                  "se": 0.0008495160385087313
+                }
+              }
+            },
+            "emergency": {
+              "events": 395,
+              "recall": 0.5006337135614702,
+              "fa_share": 0.03241416108725467,
+              "cell_days": 4756411.277112428,
+              "low_cell_days": 229867.1113733425,
+              "low_share": 0.048327845928599476,
+              "lowrain_share": 0.03880739351777917,
+              "precision_per_1000": 0.08304580428120605,
+              "low_alert_rate": 0.006226134086799564,
+              "other_alert_rate": 0.04122251559963531,
+              "low_precision_per_1000": 0.17401358446199525,
+              "other_precision_per_1000": 0.0784262755430414,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.16759470773254834,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.46514575411913817,
+                  "hi": 0.5361216730038023,
+                  "se": 0.017714573006723685
+                },
+                "fa_share": {
+                  "lo": 0.0315895440565063,
+                  "hi": 0.03317926056575538,
+                  "se": 0.0004036803598529283
+                },
+                "cell_days": {
+                  "lo": 4635410.009648794,
+                  "hi": 4868665.267684264,
+                  "se": 59230.71420407187
+                },
+                "low_share": {
+                  "lo": 0.04407557744676675,
+                  "hi": 0.052831391089802324,
+                  "se": 0.0022591293496770967
+                },
+                "lowrain_share": {
+                  "lo": 0.034272433521603446,
+                  "hi": 0.043765964197540655,
+                  "se": 0.002468259386979127
+                },
+                "precision_per_1000": {
+                  "lo": 0.07713393976695487,
+                  "hi": 0.08920259554270378,
+                  "se": 0.0031086062739410117
+                }
+              }
+            }
+          },
+          "at_reference_thresholds": {
+            "watch": {
+              "events": 733,
+              "recall": 0.9290240811153359,
+              "fa_share": 0.262291002700014,
+              "cell_days": 38485772.75849959,
+              "low_cell_days": 3108741.0045249835,
+              "low_share": 0.08077636959591561,
+              "lowrain_share": 0.45578134456751107,
+              "precision_per_1000": 0.019045999273539775,
+              "low_alert_rate": 0.08420273008898634,
+              "other_alert_rate": 0.3221729844999532,
+              "low_precision_per_1000": 0.02830727933652563,
+              "other_precision_per_1000": 0.01823216838782791,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.01818187353910516
+            },
+            "warning": {
+              "events": 564,
+              "recall": 0.714828897338403,
+              "fa_share": 0.08910299423536185,
+              "cell_days": 13074334.127262844,
+              "low_cell_days": 767645.9880279589,
+              "low_share": 0.05871396436375672,
+              "lowrain_share": 0.16399597224928467,
+              "precision_per_1000": 0.04313795215191394,
+              "low_alert_rate": 0.02079230397119819,
+              "other_alert_rate": 0.1120750456030564,
+              "low_precision_per_1000": 0.08337176380536104,
+              "other_precision_per_1000": 0.040628314810867164,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.0745739551465618
+            },
+            "emergency": {
+              "events": 337,
+              "recall": 0.42712294043092525,
+              "fa_share": 0.02438988206900453,
+              "cell_days": 3578978.933838265,
+              "low_cell_days": 170365.07748259188,
+              "low_share": 0.047601587109618544,
+              "lowrain_share": 0.029732625358108947,
+              "precision_per_1000": 0.0941609342300837,
+              "low_alert_rate": 0.004614474031440866,
+              "other_alert_rate": 0.031041702615048343,
+              "low_precision_per_1000": 0.1937016698940074,
+              "other_precision_per_1000": 0.0891858135919867,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.2020321932634162
+            }
+          },
+          "by_region_warning": {
+            "himalaya": {
+              "events": 528,
+              "recall": 0.7741935483870968,
+              "fa_share": 0.11443195322237265,
+              "cell_days": 13117985.468934432,
+              "low_cell_days": 477694.60228350153,
+              "low_share": 0.03641524099982895,
+              "lowrain_share": 0.20947161059260702,
+              "precision_per_1000": 0.04025008270137146,
+              "low_alert_rate": 0.022183833303784015,
+              "other_alert_rate": 0.13577359803800346,
+              "low_precision_per_1000": 0.07326856915001992,
+              "other_precision_per_1000": 0.039002267052310434,
+              "low_base_events_per_1000": 0.0021362107235376416,
+              "other_base_events_per_1000": 0.006831489026885766
+            },
+            "western_ghats": {
+              "events": 64,
+              "recall": 0.5981308411214953,
+              "fa_share": 0.05498964534371812,
+              "cell_days": 1764979.9829162587,
+              "low_cell_days": 408633.4695097024,
+              "low_share": 0.23152300505670406,
+              "lowrain_share": 0.07655212305922192,
+              "precision_per_1000": 0.03626103447034761,
+              "low_alert_rate": 0.026558334211542578,
+              "other_alert_rate": 0.0811732970173245,
+              "low_precision_per_1000": 0.07586260625492879,
+              "other_precision_per_1000": 0.024330065859879905,
+              "low_base_events_per_1000": 0.003704603668109431,
+              "other_base_events_per_1000": 0.0029923510037804515
+            }
+          },
+          "ece": {
+            "crossfit_per_region": {
+              "ece_deciles": 7.1243632703508265e-06,
+              "mean_predicted": 1.2110542199561596e-05,
+              "base_rate": 5.377351886056081e-06,
+              "deciles": [
+                {
+                  "bin": 0,
+                  "population_share": 0.11433442619367869,
+                  "population": 16775979.937390598,
+                  "positives": 9,
+                  "mean_risk": 8.325472776154457e-08,
+                  "observed_rate": 5.364813282794076e-07,
+                  "risk_min": 0.0,
+                  "risk_max": 1.2897815057208438e-07
+                },
+                {
+                  "bin": 1,
+                  "population_share": 0.09767126151152532,
+                  "population": 14331039.024076287,
+                  "positives": 1,
+                  "mean_risk": 1.5107415718342237e-07,
+                  "observed_rate": 6.977861118932062e-08,
+                  "risk_min": 1.435826161103612e-07,
+                  "risk_max": 1.651817764342426e-07
+                },
+                {
+                  "bin": 2,
+                  "population_share": 0.1407772303601275,
+                  "population": 20655860.80051089,
+                  "positives": 0,
+                  "mean_risk": 1.6940503487070452e-07,
+                  "observed_rate": 0.0,
+                  "risk_min": 1.666986240267613e-07,
+                  "risk_max": 1.7190112572953685e-07
+                },
+                {
+                  "bin": 3,
+                  "population_share": 0.061812129991618725,
+                  "population": 9069526.013715252,
+                  "positives": 0,
+                  "mean_risk": 1.7680420614279994e-07,
+                  "observed_rate": 0.0,
+                  "risk_min": 1.7680420614279994e-07,
+                  "risk_max": 1.7680420614279994e-07
+                },
+                {
+                  "bin": 4,
+                  "population_share": 0.08723860690186339,
+                  "population": 12800283.937861577,
+                  "positives": 10,
+                  "mean_risk": 3.3751651484424587e-07,
+                  "observed_rate": 7.812326701926743e-07,
+                  "risk_min": 1.8657719265648635e-07,
+                  "risk_max": 4.0095424029237134e-07
+                },
+                {
+                  "bin": 5,
+                  "population_share": 0.09887850156539374,
+                  "population": 14508174.079523224,
+                  "positives": 8,
+                  "mean_risk": 5.138863312597157e-07,
+                  "observed_rate": 5.514132899253785e-07,
+                  "risk_min": 4.085324553864309e-07,
+                  "risk_max": 7.830073352327268e-07
+                },
+                {
+                  "bin": 6,
+                  "population_share": 0.10522536644202272,
+                  "population": 15439432.331130592,
+                  "positives": 19,
+                  "mean_risk": 1.3196151304814837e-06,
+                  "observed_rate": 1.2306151931305285e-06,
+                  "risk_min": 8.024551385246027e-07,
+                  "risk_max": 2.392154459809443e-06
+                },
+                {
+                  "bin": 7,
+                  "population_share": 0.0970104901724464,
+                  "population": 14234085.839487657,
+                  "positives": 71,
+                  "mean_risk": 3.943471313897451e-06,
+                  "observed_rate": 4.9880266847228445e-06,
+                  "risk_min": 2.74977133148885e-06,
+                  "risk_max": 4.710780715922446e-06
+                },
+                {
+                  "bin": 8,
+                  "population_share": 0.09737409331369669,
+                  "population": 14287436.341220655,
+                  "positives": 101,
+                  "mean_risk": 7.069306671584648e-06,
+                  "observed_rate": 7.069147857450472e-06,
+                  "risk_min": 4.9446470877300715e-06,
+                  "risk_max": 1.239462930265843e-05
+                },
+                {
+                  "bin": 9,
+                  "population_share": 0.09967789355005643,
+                  "population": 14625466.695083257,
+                  "positives": 570,
+                  "mean_risk": 0.00010796226862149969,
+                  "observed_rate": 3.897311531204818e-05,
+                  "risk_min": 1.2407160348599041e-05,
+                  "risk_max": 1.0
+                }
+              ]
+            },
+            "crossfit_pooled": {
+              "ece_deciles": 4.871821663667218e-06,
+              "mean_predicted": 9.784101619136832e-06,
+              "deciles": [
+                {
+                  "bin": 0,
+                  "population_share": 0.10710956825270465,
+                  "population": 15715896.147206102,
+                  "positives": 9,
+                  "mean_risk": 9.632737858506284e-08,
+                  "observed_rate": 5.726685844510354e-07,
+                  "risk_min": 0.0,
+                  "risk_max": 1.5283671862916068e-07
+                },
+                {
+                  "bin": 1,
+                  "population_share": 0.16863838992752464,
+                  "population": 24743853.100781232,
+                  "positives": 2,
+                  "mean_risk": 1.6986425954616711e-07,
+                  "observed_rate": 8.082815525351039e-08,
+                  "risk_min": 1.6137057982545712e-07,
+                  "risk_max": 1.728997183700975e-07
+                },
+                {
+                  "bin": 2,
+                  "population_share": 0.08876578144857908,
+                  "population": 13024362.112824,
+                  "positives": 0,
+                  "mean_risk": 1.82641648592523e-07,
+                  "observed_rate": 0.0,
+                  "risk_min": 1.7417308304494742e-07,
+                  "risk_max": 1.8401759936170096e-07
+                },
+                {
+                  "bin": 3,
+                  "population_share": 0.07868425489308599,
+                  "population": 11545127.092684435,
+                  "positives": 0,
+                  "mean_risk": 1.8852100183322573e-07,
+                  "observed_rate": 0.0,
+                  "risk_min": 1.885210018332257e-07,
+                  "risk_max": 1.885210018332257e-07
+                },
+                {
+                  "bin": 4,
+                  "population_share": 0.0696150026319708,
+                  "population": 10214420.331433892,
+                  "positives": 12,
+                  "mean_risk": 4.395270609954977e-07,
+                  "observed_rate": 1.174809691654372e-06,
+                  "risk_min": 3.2738038186550564e-07,
+                  "risk_max": 4.897915961791992e-07
+                },
+                {
+                  "bin": 5,
+                  "population_share": 0.10243183732343976,
+                  "population": 15029545.387996085,
+                  "positives": 4,
+                  "mean_risk": 6.014610331963765e-07,
+                  "observed_rate": 2.6614244787435496e-07,
+                  "risk_min": 5.156383452236395e-07,
+                  "risk_max": 6.582473728603073e-07
+                },
+                {
+                  "bin": 6,
+                  "population_share": 0.08767379676135702,
+                  "population": 12864138.164406694,
+                  "positives": 23,
+                  "mean_risk": 1.4039055137258035e-06,
+                  "observed_rate": 1.787916120462531e-06,
+                  "risk_min": 6.809970325291528e-07,
+                  "risk_max": 2.1575979307041057e-06
+                },
+                {
+                  "bin": 7,
+                  "population_share": 0.098218001057755,
+                  "population": 14411260.633299015,
+                  "positives": 70,
+                  "mean_risk": 3.873313529591776e-06,
+                  "observed_rate": 4.857312748772044e-06,
+                  "risk_min": 2.2041834150074087e-06,
+                  "risk_max": 4.8356296004583165e-06
+                },
+                {
+                  "bin": 8,
+                  "population_share": 0.10134381883834886,
+                  "population": 14869903.389649246,
+                  "positives": 102,
+                  "mean_risk": 7.109198221510742e-06,
+                  "observed_rate": 6.859493120244542e-06,
+                  "risk_min": 4.905613479506042e-06,
+                  "risk_max": 1.1517953665610403e-05
+                },
+                {
+                  "bin": 9,
+                  "population_share": 0.09751954886748959,
+                  "population": 14308778.6397193,
+                  "positives": 567,
+                  "mean_risk": 8.61150196283924e-05,
+                  "observed_rate": 3.96260235954788e-05,
+                  "risk_min": 1.1824460835896074e-05,
+                  "risk_max": 1.0
+                }
+              ],
+              "per_year": {
+                "2007": {
+                  "positives": 8,
+                  "population": 12325327.999999998,
+                  "mean_predicted": 8.46931973877582e-06,
+                  "observed": 6.490699476719809e-07
+                },
+                "2008": {
+                  "positives": 8,
+                  "population": 13465880.0,
+                  "mean_predicted": 6.863409867011581e-06,
+                  "observed": 5.94094110448036e-07
+                },
+                "2009": {
+                  "positives": 32,
+                  "population": 13429112.0,
+                  "mean_predicted": 4.543021331535892e-06,
+                  "observed": 2.382882799696659e-06
+                },
+                "2010": {
+                  "positives": 111,
+                  "population": 13429191.0,
+                  "mean_predicted": 6.438905106952431e-06,
+                  "observed": 8.265576087196913e-06
+                },
+                "2011": {
+                  "positives": 79,
+                  "population": 13429159.0,
+                  "mean_predicted": 8.010184765390373e-06,
+                  "observed": 5.882721323055301e-06
+                },
+                "2012": {
+                  "positives": 47,
+                  "population": 13465919.0,
+                  "mean_predicted": 4.922607224712701e-05,
+                  "observed": 3.4902927902655586e-06
+                },
+                "2013": {
+                  "positives": 97,
+                  "population": 13429177.000000004,
+                  "mean_predicted": 5.508896989480631e-06,
+                  "observed": 7.223078525214164e-06
+                },
+                "2014": {
+                  "positives": 51,
+                  "population": 13429130.999999998,
+                  "mean_predicted": 4.628020864886505e-06,
+                  "observed": 3.797714088871425e-06
+                },
+                "2015": {
+                  "positives": 127,
+                  "population": 13429207.000000002,
+                  "mean_predicted": 4.048742308208592e-06,
+                  "observed": 9.45699921075012e-06
+                },
+                "2016": {
+                  "positives": 106,
+                  "population": 13465978.0,
+                  "mean_predicted": 4.371714557978475e-06,
+                  "observed": 7.87168967601165e-06
+                },
+                "2017": {
+                  "positives": 123,
+                  "population": 13429203.0,
+                  "mean_predicted": 5.323639262201624e-06,
+                  "observed": 9.159143696018297e-06
+                }
+              }
+            }
+          },
+          "pr_auc": 0.005212856278352855,
+          "fa_diff_vs_reference": {
+            "fa_a": 0.23268468785481256,
+            "fa_b": 0.19554142779163688,
+            "point_difference": 0.03714326006317567,
+            "mean_difference": 0.0336165057328621,
+            "se": 0.011083826209154674,
+            "ci_lo": 0.010861187042190574,
+            "ci_hi": 0.05545256178755973,
+            "level": 0.95,
+            "n_boot": 2000,
+            "excludes_zero": true,
+            "share_a_better": 0.001,
+            "share_tied": 0.0
+          },
+          "low_share_diff_vs_reference": {
+            "value": -0.007994680533486273,
+            "lo": -0.010676106297540995,
+            "hi": -0.005188513759677641,
+            "se": 0.0013543561196696645
+          }
+        },
+        "C2": {
+          "n_inputs": 25,
+          "n_trees": 374,
+          "fold_best_iterations": [
+            13,
+            378,
+            422,
+            458,
+            85,
+            163,
+            374
+          ],
+          "seconds": 12.314067400000567,
+          "fa_at_90": {
+            "value": 0.23085586906148828,
+            "lo": 0.2081971404912162,
+            "hi": 0.258495266792411,
+            "se": 0.014493594421398538
+          },
+          "thresholds": {
+            "plain_recall_90": {
+              "raw": 0.020213761274111522,
+              "risk": 3.578394312080573e-06,
+              "oof_recall": 0.9011406844106464,
+              "oof_fa_share": 0.23085586906148828,
+              "risk_by_region": {
+                "himalaya": 3.461488607206986e-06,
+                "western_ghats": 4.381949507689266e-06
+              }
+            },
+            "recall_first": {
+              "raw": 0.017108721617016594,
+              "risk": 3.578394312080573e-06,
+              "oof_recall": 0.917617237008872,
+              "oof_fa_share": 0.2534609389645791,
+              "risk_by_region": {
+                "himalaya": 3.1246419825891353e-06,
+                "western_ghats": 4.381949507689266e-06
+              }
+            },
+            "watch": {
+              "raw": 0.017108721617016594,
+              "risk": 3.578394312080573e-06,
+              "oof_recall": 0.917617237008872,
+              "oof_fa_share": 0.2534609389645791,
+              "risk_by_region": {
+                "himalaya": 3.1246419825891353e-06,
+                "western_ghats": 4.381949507689266e-06
+              }
+            },
+            "warning": {
+              "raw": 0.05817601086198595,
+              "risk": 1.2325484343129198e-05,
+              "oof_recall": 0.7503168567807351,
+              "oof_fa_share": 0.10726602407898206,
+              "risk_by_region": {
+                "himalaya": 1.2863240349385072e-05,
+                "western_ghats": 8.853007088647225e-06
+              }
+            },
+            "emergency": {
+              "raw": 0.1657535015405222,
+              "risk": 3.85217222198411e-05,
+              "oof_recall": 0.5006337135614702,
+              "oof_fa_share": 0.03282572897919557,
+              "risk_by_region": {
+                "himalaya": 4.0446297025095145e-05,
+                "western_ghats": 3.195992559669957e-05
+              }
+            }
+          },
+          "levels": {
+            "watch": {
+              "events": 724,
+              "recall": 0.917617237008872,
+              "fa_share": 0.2534609389637561,
+              "cell_days": 37190159.447021805,
+              "low_cell_days": 3013662.663320388,
+              "low_share": 0.08103387315704888,
+              "lowrain_share": 0.4535666848455875,
+              "precision_per_1000": 0.019467515352585507,
+              "low_alert_rate": 0.08162745736922422,
+              "other_alert_rate": 0.311239904046531,
+              "low_precision_per_1000": 0.029200348489914763,
+              "other_precision_per_1000": 0.01860928005655936,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.017108721617016594,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.8973384030418251,
+                  "hi": 0.9366286438529785,
+                  "se": 0.009766105953864228
+                },
+                "fa_share": {
+                  "lo": 0.25156002342908074,
+                  "hi": 0.25538366503805426,
+                  "se": 0.0009511312820572983
+                },
+                "cell_days": {
+                  "lo": 36911237.79642692,
+                  "hi": 37472265.97169007,
+                  "se": 139556.04745092374
+                },
+                "low_share": {
+                  "lo": 0.07904345207273013,
+                  "hi": 0.08313246287692291,
+                  "se": 0.0010535141380812161
+                },
+                "lowrain_share": {
+                  "lo": 0.44945926392659913,
+                  "hi": 0.4579612923807166,
+                  "se": 0.0021670872265216828
+                },
+                "precision_per_1000": {
+                  "lo": 0.019024020704488536,
+                  "hi": 0.019888573944110966,
+                  "se": 0.0002206604440913259
+                }
+              }
+            },
+            "warning": {
+              "events": 592,
+              "recall": 0.7503168567807351,
+              "fa_share": 0.10726602407865388,
+              "cell_days": 15739359.852912512,
+              "low_cell_days": 991876.5675931475,
+              "low_share": 0.0630188633376728,
+              "lowrain_share": 0.22015608397001002,
+              "precision_per_1000": 0.03761271141471821,
+              "low_alert_rate": 0.02686576809746095,
+              "other_alert_rate": 0.13430297761939036,
+              "low_precision_per_1000": 0.06553234759615977,
+              "other_precision_per_1000": 0.03573491081862159,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.05817601086198595,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.7198986058301647,
+                  "hi": 0.779467680608365,
+                  "se": 0.015336732999241653
+                },
+                "fa_share": {
+                  "lo": 0.10590373430145342,
+                  "hi": 0.10853582646140579,
+                  "se": 0.0006775275481403671
+                },
+                "cell_days": {
+                  "lo": 15539481.622367267,
+                  "hi": 15925673.132146152,
+                  "se": 99411.06442083942
+                },
+                "low_share": {
+                  "lo": 0.06028175547381299,
+                  "hi": 0.0657435897783638,
+                  "se": 0.0014083738659216763
+                },
+                "lowrain_share": {
+                  "lo": 0.21458603420381953,
+                  "hi": 0.22557052078433318,
+                  "se": 0.0028071819437835493
+                },
+                "precision_per_1000": {
+                  "lo": 0.03599715389709345,
+                  "hi": 0.039138051436002255,
+                  "se": 0.000808096617476353
+                }
+              }
+            },
+            "emergency": {
+              "events": 395,
+              "recall": 0.5006337135614702,
+              "fa_share": 0.032825728979088246,
+              "cell_days": 4816799.191747276,
+              "low_cell_days": 261164.10023651476,
+              "low_share": 0.05421942867869035,
+              "lowrain_share": 0.05455078452954196,
+              "precision_per_1000": 0.08200466415057574,
+              "low_alert_rate": 0.0070738379971632325,
+              "other_alert_rate": 0.0414874420197744,
+              "low_precision_per_1000": 0.17996347873783564,
+              "other_precision_per_1000": 0.07638891021989089,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.1657535015405222,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.4664131812420786,
+                  "hi": 0.5348859315589352,
+                  "se": 0.01766396781007685
+                },
+                "fa_share": {
+                  "lo": 0.03201548668863302,
+                  "hi": 0.0336067010336677,
+                  "se": 0.0003988708874731871
+                },
+                "cell_days": {
+                  "lo": 4697903.279557766,
+                  "hi": 4931393.85978964,
+                  "se": 58525.009644165984
+                },
+                "low_share": {
+                  "lo": 0.049736997872942244,
+                  "hi": 0.05859845151599503,
+                  "se": 0.002321931696465231
+                },
+                "lowrain_share": {
+                  "lo": 0.04917047823353425,
+                  "hi": 0.06030363622560977,
+                  "se": 0.0028918119200837937
+                },
+                "precision_per_1000": {
+                  "lo": 0.07605364905960874,
+                  "hi": 0.08822990600677798,
+                  "se": 0.0030563115443718735
+                }
+              }
+            }
+          },
+          "at_reference_thresholds": {
+            "watch": {
+              "events": 718,
+              "recall": 0.9100126742712294,
+              "fa_share": 0.24525605545717133,
+              "cell_days": 35986279.64001243,
+              "low_cell_days": 2876547.7052649483,
+              "low_share": 0.07993456767524733,
+              "lowrain_share": 0.4440454284831596,
+              "precision_per_1000": 0.01995204859136564,
+              "low_alert_rate": 0.07791358934757182,
+              "other_alert_rate": 0.3015250467476701,
+              "low_precision_per_1000": 0.029549310044267443,
+              "other_precision_per_1000": 0.01911824599629842,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.01818187353910516
+            },
+            "warning": {
+              "events": 553,
+              "recall": 0.7008871989860583,
+              "fa_share": 0.08545495401171305,
+              "cell_days": 12539058.967979798,
+              "low_cell_days": 762494.2544885263,
+              "low_share": 0.06080952776724789,
+              "lowrain_share": 0.17173846866985354,
+              "precision_per_1000": 0.04410219310812408,
+              "low_alert_rate": 0.020652765158514913,
+              "other_alert_rate": 0.1072472961351839,
+              "low_precision_per_1000": 0.08000060281230344,
+              "other_precision_per_1000": 0.041777887862014904,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.0745739551465618
+            },
+            "emergency": {
+              "events": 340,
+              "recall": 0.4309252217997465,
+              "fa_share": 0.024210122956866593,
+              "cell_days": 3552606.5091901943,
+              "low_cell_days": 188251.5690760407,
+              "low_share": 0.05298970448572197,
+              "lowrain_share": 0.04206569935421643,
+              "precision_per_1000": 0.09570437905815297,
+              "low_alert_rate": 0.005098943925101958,
+              "other_alert_rate": 0.03063864372544374,
+              "low_precision_per_1000": 0.22310571012045527,
+              "other_precision_per_1000": 0.08857567209893995,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.2020321932634162
+            }
+          },
+          "by_region_warning": {
+            "himalaya": {
+              "events": 523,
+              "recall": 0.7668621700879765,
+              "fa_share": 0.12005317070078653,
+              "cell_days": 13762346.654430151,
+              "low_cell_days": 533701.0238343971,
+              "low_share": 0.03877979804138974,
+              "lowrain_share": 0.2346468104330106,
+              "precision_per_1000": 0.038002239961863214,
+              "low_alert_rate": 0.024784735875609944,
+              "other_alert_rate": 0.1420933136257472,
+              "low_precision_per_1000": 0.05995866331695352,
+              "other_precision_per_1000": 0.037116422475207515,
+              "low_base_events_per_1000": 0.0021362107235376416,
+              "other_base_events_per_1000": 0.006831489026885766
+            },
+            "western_ghats": {
+              "events": 69,
+              "recall": 0.6448598130841121,
+              "fa_share": 0.061595827445132284,
+              "cell_days": 1977013.1984823574,
+              "low_cell_days": 458175.5437587503,
+              "low_share": 0.23175138340526308,
+              "lowrain_share": 0.11928351467637727,
+              "precision_per_1000": 0.03490113270511671,
+              "low_alert_rate": 0.0297782245622228,
+              "other_alert_rate": 0.09089790761383465,
+              "low_precision_per_1000": 0.07202479584413603,
+              "other_precision_per_1000": 0.02370233572234628,
+              "low_base_events_per_1000": 0.003704603668109431,
+              "other_base_events_per_1000": 0.0029923510037804515
+            }
+          },
+          "ece": {
+            "crossfit_per_region": {
+              "ece_deciles": 1.114802225188154e-05,
+              "mean_predicted": 1.6106826324592764e-05,
+              "base_rate": 5.377351886056081e-06,
+              "deciles": [
+                {
+                  "bin": 0,
+                  "population_share": 0.11265038610815375,
+                  "population": 16528885.307812303,
+                  "positives": 4,
+                  "mean_risk": 7.615897301586425e-09,
+                  "observed_rate": 2.420005902097595e-07,
+                  "risk_min": 0.0,
+                  "risk_max": 6.146474183687226e-08
+                },
+                {
+                  "bin": 1,
+                  "population_share": 0.10676649517711376,
+                  "population": 15665557.96626671,
+                  "positives": 1,
+                  "mean_risk": 1.2938566588873227e-07,
+                  "observed_rate": 6.383430466717758e-08,
+                  "risk_min": 6.70612977886244e-08,
+                  "risk_max": 1.3559878919656723e-07
+                },
+                {
+                  "bin": 2,
+                  "population_share": 0.09922983697878439,
+                  "population": 14559724.570855446,
+                  "positives": 8,
+                  "mean_risk": 2.4368020565410195e-07,
+                  "observed_rate": 5.494609435135741e-07,
+                  "risk_min": 1.6415452407726925e-07,
+                  "risk_max": 2.804347403633446e-07
+                },
+                {
+                  "bin": 3,
+                  "population_share": 0.0945527315820266,
+                  "population": 13873465.594331939,
+                  "positives": 3,
+                  "mean_risk": 3.215138841773124e-07,
+                  "observed_rate": 2.16240129735548e-07,
+                  "risk_min": 3.003462966811535e-07,
+                  "risk_max": 3.280248181640934e-07
+                },
+                {
+                  "bin": 4,
+                  "population_share": 0.10373264530052224,
+                  "population": 15220409.410777897,
+                  "positives": 3,
+                  "mean_risk": 3.7078957777749657e-07,
+                  "observed_rate": 1.9710376501933227e-07,
+                  "risk_min": 3.384281739069012e-07,
+                  "risk_max": 4.2206682113031965e-07
+                },
+                {
+                  "bin": 5,
+                  "population_share": 0.08810432139318886,
+                  "population": 12927307.874759663,
+                  "positives": 11,
+                  "mean_risk": 6.524542703705091e-07,
+                  "observed_rate": 8.509118918315006e-07,
+                  "risk_min": 4.261540260199606e-07,
+                  "risk_max": 1.0795870936829945e-06
+                },
+                {
+                  "bin": 6,
+                  "population_share": 0.09704230546781371,
+                  "population": 14238754.011399526,
+                  "positives": 29,
+                  "mean_risk": 1.7155101170652534e-06,
+                  "observed_rate": 2.036695063120175e-06,
+                  "risk_min": 1.1008664529255095e-06,
+                  "risk_max": 2.1405553345416524e-06
+                },
+                {
+                  "bin": 7,
+                  "population_share": 0.09998495899685927,
+                  "population": 14670521.574411036,
+                  "positives": 56,
+                  "mean_risk": 3.4320855220830947e-06,
+                  "observed_rate": 3.817178531517083e-06,
+                  "risk_min": 2.316525385830102e-06,
+                  "risk_max": 4.653162719169434e-06
+                },
+                {
+                  "bin": 8,
+                  "population_share": 0.1013526397412805,
+                  "population": 14871197.65678627,
+                  "positives": 125,
+                  "mean_risk": 7.760668940560634e-06,
+                  "observed_rate": 8.405509958571356e-06,
+                  "risk_min": 4.703448295839883e-06,
+                  "risk_max": 1.2886310868826842e-05
+                },
+                {
+                  "bin": 9,
+                  "population_share": 0.09658367925660505,
+                  "population": 14171461.0325992,
+                  "positives": 549,
+                  "mean_risk": 0.00015163461147532824,
+                  "observed_rate": 3.873983061711933e-05,
+                  "risk_min": 1.296272319810105e-05,
+                  "risk_max": 1.0
+                }
+              ]
+            },
+            "crossfit_pooled": {
+              "ece_deciles": 1.855450730486335e-06,
+              "mean_predicted": 6.810994572212469e-06,
+              "deciles": [
+                {
+                  "bin": 0,
+                  "population_share": 0.12382540453118913,
+                  "population": 18168565.420856588,
+                  "positives": 8,
+                  "mean_risk": 8.718353523290479e-08,
+                  "observed_rate": 4.40320950756872e-07,
+                  "risk_min": 0.0,
+                  "risk_max": 1.2773660931403885e-07
+                },
+                {
+                  "bin": 1,
+                  "population_share": 0.08572593171740563,
+                  "population": 12578333.214968512,
+                  "positives": 2,
+                  "mean_risk": 1.5371542122036689e-07,
+                  "observed_rate": 1.5900357907675343e-07,
+                  "risk_min": 1.2810925344257325e-07,
+                  "risk_max": 1.9342294239597104e-07
+                },
+                {
+                  "bin": 2,
+                  "population_share": 0.09880072745979025,
+                  "population": 14496762.496174842,
+                  "positives": 1,
+                  "mean_risk": 2.2528507662413073e-07,
+                  "observed_rate": 6.898091903374032e-08,
+                  "risk_min": 2.1217245324946214e-07,
+                  "risk_max": 2.392340455709571e-07
+                },
+                {
+                  "bin": 3,
+                  "population_share": 0.10874536252741424,
+                  "population": 15955911.799960572,
+                  "positives": 0,
+                  "mean_risk": 2.4654679474716486e-07,
+                  "observed_rate": 0.0,
+                  "risk_min": 2.42558139751312e-07,
+                  "risk_max": 2.5006912711362547e-07
+                },
+                {
+                  "bin": 4,
+                  "population_share": 0.08481574727579644,
+                  "population": 12444784.323002186,
+                  "positives": 13,
+                  "mean_risk": 4.862598525289156e-07,
+                  "observed_rate": 1.044614326981271e-06,
+                  "risk_min": 2.58150586001562e-07,
+                  "risk_max": 6.020145125624636e-07
+                },
+                {
+                  "bin": 5,
+                  "population_share": 0.10554575225924052,
+                  "population": 15486441.672254134,
+                  "positives": 9,
+                  "mean_risk": 7.433612021486214e-07,
+                  "observed_rate": 5.811535141816734e-07,
+                  "risk_min": 6.254983011097723e-07,
+                  "risk_max": 1.098686354840568e-06
+                },
+                {
+                  "bin": 6,
+                  "population_share": 0.09459312699682543,
+                  "population": 13879392.70388034,
+                  "positives": 25,
+                  "mean_risk": 1.593117446400469e-06,
+                  "observed_rate": 1.8012315476173974e-06,
+                  "risk_min": 1.1107803587175283e-06,
+                  "risk_max": 2.101542999179731e-06
+                },
+                {
+                  "bin": 7,
+                  "population_share": 0.1001131699067282,
+                  "population": 14689333.61313247,
+                  "positives": 58,
+                  "mean_risk": 3.4314382587892818e-06,
+                  "observed_rate": 3.948443239667945e-06,
+                  "risk_min": 2.1017250862999533e-06,
+                  "risk_max": 4.8423757380694816e-06
+                },
+                {
+                  "bin": 8,
+                  "population_share": 0.09892569690867946,
+                  "population": 14515098.92411827,
+                  "positives": 119,
+                  "mean_risk": 7.71409280937755e-06,
+                  "observed_rate": 8.198359558009609e-06,
+                  "risk_min": 4.9506582384252734e-06,
+                  "risk_max": 1.2059221658691021e-05
+                },
+                {
+                  "bin": 9,
+                  "population_share": 0.09890908041866404,
+                  "population": 14512660.831652083,
+                  "positives": 554,
+                  "mean_risk": 5.420027388481506e-05,
+                  "observed_rate": 3.8173564891127834e-05,
+                  "risk_min": 1.2092339975198769e-05,
+                  "risk_max": 1.0
+                }
+              ],
+              "per_year": {
+                "2007": {
+                  "positives": 8,
+                  "population": 12325327.999999998,
+                  "mean_predicted": 8.369007122778801e-06,
+                  "observed": 6.490699476719809e-07
+                },
+                "2008": {
+                  "positives": 8,
+                  "population": 13465880.0,
+                  "mean_predicted": 6.8587063559442354e-06,
+                  "observed": 5.94094110448036e-07
+                },
+                "2009": {
+                  "positives": 32,
+                  "population": 13429112.0,
+                  "mean_predicted": 4.530775944239764e-06,
+                  "observed": 2.382882799696659e-06
+                },
+                "2010": {
+                  "positives": 111,
+                  "population": 13429191.0,
+                  "mean_predicted": 6.398436206966726e-06,
+                  "observed": 8.265576087196913e-06
+                },
+                "2011": {
+                  "positives": 79,
+                  "population": 13429159.0,
+                  "mean_predicted": 5.815062550395192e-06,
+                  "observed": 5.882721323055301e-06
+                },
+                "2012": {
+                  "positives": 47,
+                  "population": 13465919.0,
+                  "mean_predicted": 5.542732390691859e-06,
+                  "observed": 3.4902927902655586e-06
+                },
+                "2013": {
+                  "positives": 97,
+                  "population": 13429177.000000004,
+                  "mean_predicted": 1.886120010594788e-05,
+                  "observed": 7.223078525214164e-06
+                },
+                "2014": {
+                  "positives": 51,
+                  "population": 13429130.999999998,
+                  "mean_predicted": 5.040393471907307e-06,
+                  "observed": 3.797714088871425e-06
+                },
+                "2015": {
+                  "positives": 127,
+                  "population": 13429207.000000002,
+                  "mean_predicted": 4.021863204847837e-06,
+                  "observed": 9.45699921075012e-06
+                },
+                "2016": {
+                  "positives": 106,
+                  "population": 13465978.0,
+                  "mean_predicted": 4.325608050130954e-06,
+                  "observed": 7.87168967601165e-06
+                },
+                "2017": {
+                  "positives": 123,
+                  "population": 13429203.0,
+                  "mean_predicted": 5.295361714060301e-06,
+                  "observed": 9.159143696018297e-06
+                }
+              }
+            }
+          },
+          "pr_auc": 0.0026948110107612357,
+          "fa_diff_vs_reference": {
+            "fa_a": 0.23085586906148828,
+            "fa_b": 0.19554142779163688,
+            "point_difference": 0.03531444126985139,
+            "mean_difference": 0.03480021146489319,
+            "se": 0.011639859699311124,
+            "ci_lo": 0.011121377619700466,
+            "ci_hi": 0.057572754768457225,
+            "level": 0.95,
+            "n_boot": 2000,
+            "excludes_zero": true,
+            "share_a_better": 0.0025,
+            "share_tied": 0.0
+          },
+          "low_share_diff_vs_reference": {
+            "value": -0.004529007362158291,
+            "lo": -0.007218490458161051,
+            "hi": -0.0016938320854620365,
+            "se": 0.0014076845085989396
+          }
+        },
+        "C3": {
+          "n_inputs": 25,
+          "n_trees": 173,
+          "fold_best_iterations": [
+            998,
+            432,
+            173,
+            364,
+            70,
+            108,
+            149
+          ],
+          "seconds": 13.257127699998819,
+          "fa_at_90": {
+            "value": 0.23413745995114332,
+            "lo": 0.20740949951574175,
+            "hi": 0.25596842699777395,
+            "se": 0.01334900085351031
+          },
+          "thresholds": {
+            "plain_recall_90": {
+              "raw": 0.02292998937333579,
+              "risk": 4.21413152748224e-06,
+              "oof_recall": 0.9011406844106464,
+              "oof_fa_share": 0.23413745995114332,
+              "risk_by_region": {
+                "himalaya": 4.111956929106888e-06,
+                "western_ghats": 4.528758167617373e-06
+              }
+            },
+            "recall_first": {
+              "raw": 0.020509913330918204,
+              "risk": 4.21413152748224e-06,
+              "oof_recall": 0.917617237008872,
+              "oof_fa_share": 0.25143491439688226,
+              "risk_by_region": {
+                "himalaya": 4.111956929106888e-06,
+                "western_ghats": 4.528758167617373e-06
+              }
+            },
+            "watch": {
+              "raw": 0.020509913330918204,
+              "risk": 4.21413152748224e-06,
+              "oof_recall": 0.917617237008872,
+              "oof_fa_share": 0.25143491439688226,
+              "risk_by_region": {
+                "himalaya": 4.111956929106888e-06,
+                "western_ghats": 4.528758167617373e-06
+              }
+            },
+            "warning": {
+              "raw": 0.060373962691298064,
+              "risk": 1.1787868687063164e-05,
+              "oof_recall": 0.7503168567807351,
+              "oof_fa_share": 0.11137328030264639,
+              "risk_by_region": {
+                "himalaya": 1.2119022564083804e-05,
+                "western_ghats": 1.1090121718783645e-05
+              }
+            },
+            "emergency": {
+              "raw": 0.15853492868652108,
+              "risk": 2.975159408750756e-05,
+              "oof_recall": 0.5006337135614702,
+              "oof_fa_share": 0.0352624734526141,
+              "risk_by_region": {
+                "himalaya": 3.267605047969376e-05,
+                "western_ghats": 2.4166073169418883e-05
+              }
+            }
+          },
+          "levels": {
+            "watch": {
+              "events": 724,
+              "recall": 0.917617237008872,
+              "fa_share": 0.25143491439614024,
+              "cell_days": 36892887.96140561,
+              "low_cell_days": 2793185.3249880094,
+              "low_share": 0.07571067160451132,
+              "lowrain_share": 0.4381172984094655,
+              "precision_per_1000": 0.019624378572840134,
+              "low_alert_rate": 0.07565565277588013,
+              "other_alert_rate": 0.3105405519981564,
+              "low_precision_per_1000": 0.02935716411883698,
+              "other_precision_per_1000": 0.01882714365122822,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.020509913330918204,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.8960709759188846,
+                  "hi": 0.935361216730038,
+                  "se": 0.00994626564694007
+                },
+                "fa_share": {
+                  "lo": 0.24958364213087933,
+                  "hi": 0.25335553123011,
+                  "se": 0.0009452104848125477
+                },
+                "cell_days": {
+                  "lo": 36621250.4437819,
+                  "hi": 37174677.96461262,
+                  "se": 138687.4780853234
+                },
+                "low_share": {
+                  "lo": 0.07366890250285328,
+                  "hi": 0.07778554797915702,
+                  "se": 0.001035320071381878
+                },
+                "lowrain_share": {
+                  "lo": 0.43400671389178697,
+                  "hi": 0.4424071621030511,
+                  "se": 0.0021486666733786914
+                },
+                "precision_per_1000": {
+                  "lo": 0.01916198011744933,
+                  "hi": 0.020034240674803545,
+                  "se": 0.000224603494515535
+                }
+              }
+            },
+            "warning": {
+              "events": 592,
+              "recall": 0.7503168567807351,
+              "fa_share": 0.11137328030233813,
+              "cell_days": 16342003.166787894,
+              "low_cell_days": 906866.386830285,
+              "low_share": 0.05549297583501413,
+              "lowrain_share": 0.205345585887135,
+              "precision_per_1000": 0.03622566915193914,
+              "low_alert_rate": 0.024563199535084037,
+              "other_alert_rate": 0.14056532829397841,
+              "low_precision_per_1000": 0.0661618964726594,
+              "other_precision_per_1000": 0.03446681474768642,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.060373962691298064,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.7198986058301647,
+                  "hi": 0.779467680608365,
+                  "se": 0.01532026963932999
+                },
+                "fa_share": {
+                  "lo": 0.10998600158094744,
+                  "hi": 0.11270177351621459,
+                  "se": 0.0006953936787334174
+                },
+                "cell_days": {
+                  "lo": 16138436.046022879,
+                  "hi": 16536927.221019763,
+                  "se": 102032.65181495794
+                },
+                "low_share": {
+                  "lo": 0.052896503083709745,
+                  "hi": 0.05796245033389443,
+                  "se": 0.0013084646968628843
+                },
+                "lowrain_share": {
+                  "lo": 0.20001661441245722,
+                  "hi": 0.21067906778872778,
+                  "se": 0.002730352673502979
+                },
+                "precision_per_1000": {
+                  "lo": 0.03468849261774762,
+                  "hi": 0.03770599052072655,
+                  "se": 0.0007740952687195874
+                }
+              }
+            },
+            "emergency": {
+              "events": 395,
+              "recall": 0.5006337135614702,
+              "fa_share": 0.0352624734525095,
+              "cell_days": 5174334.169979741,
+              "low_cell_days": 217453.1927297163,
+              "low_share": 0.042025347723254544,
+              "lowrain_share": 0.037038417273329474,
+              "precision_per_1000": 0.07633832431845941,
+              "low_alert_rate": 0.005889893197200075,
+              "other_alert_rate": 0.04514152429060884,
+              "low_precision_per_1000": 0.17015156013822796,
+              "other_precision_per_1000": 0.07222283561841968,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.15853492868652108,
+              "bootstrap": {
+                "recall": {
+                  "lo": 0.4664131812420786,
+                  "hi": 0.5361216730038023,
+                  "se": 0.017734018297314018
+                },
+                "fa_share": {
+                  "lo": 0.03441560783504515,
+                  "hi": 0.036066200853290487,
+                  "se": 0.00041771041125801696
+                },
+                "cell_days": {
+                  "lo": 5050085.145346321,
+                  "hi": 5292280.1502355235,
+                  "se": 61289.358469303595
+                },
+                "low_share": {
+                  "lo": 0.03808729879951591,
+                  "hi": 0.046049686456073616,
+                  "se": 0.002014486036533976
+                },
+                "lowrain_share": {
+                  "lo": 0.0327184417855839,
+                  "hi": 0.041642075642501546,
+                  "se": 0.0023226294261048633
+                },
+                "precision_per_1000": {
+                  "lo": 0.07073106987540079,
+                  "hi": 0.08220742844823789,
+                  "se": 0.002843443726296279
+                }
+              }
+            }
+          },
+          "at_reference_thresholds": {
+            "watch": {
+              "events": 733,
+              "recall": 0.9290240811153359,
+              "fa_share": 0.2701151232808921,
+              "cell_days": 39633778.555613324,
+              "low_cell_days": 3141468.2557409923,
+              "low_share": 0.07926239612337105,
+              "lowrain_share": 0.4592486311343461,
+              "precision_per_1000": 0.018494325464615217,
+              "low_alert_rate": 0.08508917379616068,
+              "other_alert_rate": 0.3323296482975107,
+              "low_precision_per_1000": 0.02737573421053551,
+              "other_precision_per_1000": 0.0177297626454268,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.01818187353910516
+            },
+            "warning": {
+              "events": 561,
+              "recall": 0.7110266159695817,
+              "fa_share": 0.09069416109697709,
+              "cell_days": 13307797.465418965,
+              "low_cell_days": 695915.2334445135,
+              "low_share": 0.052293795066605656,
+              "lowrain_share": 0.15536499693784397,
+              "precision_per_1000": 0.0421557362484505,
+              "low_alert_rate": 0.01884941926048165,
+              "other_alert_rate": 0.11485439951814608,
+              "low_precision_per_1000": 0.08334348382190492,
+              "other_precision_per_1000": 0.03988302386179616,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.0745739551465618
+            },
+            "emergency": {
+              "events": 323,
+              "recall": 0.4093789607097592,
+              "fa_share": 0.023802435166921137,
+              "cell_days": 3492770.9083095137,
+              "low_cell_days": 141067.71524518245,
+              "low_share": 0.04038848208153985,
+              "lowrain_share": 0.023780497107029286,
+              "precision_per_1000": 0.0924767207696226,
+              "low_alert_rate": 0.0038209316034273776,
+              "other_alert_rate": 0.03052342628338907,
+              "low_precision_per_1000": 0.21975261984019884,
+              "other_precision_per_1000": 0.08711988597446059,
+              "low_base_events_per_1000": 0.0027898371676963844,
+              "other_base_events_per_1000": 0.0062472925626988855,
+              "raw_threshold": 0.2020321932634162
+            }
+          },
+          "by_region_warning": {
+            "himalaya": {
+              "events": 527,
+              "recall": 0.7727272727272727,
+              "fa_share": 0.1252728640678416,
+              "cell_days": 14360689.700606963,
+              "low_cell_days": 483722.9711258239,
+              "low_share": 0.033683825861468134,
+              "lowrain_share": 0.21971103902169764,
+              "precision_per_1000": 0.036697401795244285,
+              "low_alert_rate": 0.02246378691609726,
+              "other_alert_rate": 0.1490571477026875,
+              "low_precision_per_1000": 0.06408626807168191,
+              "other_precision_per_1000": 0.03574268135602466,
+              "low_base_events_per_1000": 0.0021362107235376416,
+              "other_base_events_per_1000": 0.006831489026885766
+            },
+            "western_ghats": {
+              "events": 65,
+              "recall": 0.6074766355140186,
+              "fa_share": 0.06172993589930236,
+              "cell_days": 1981313.4661809306,
+              "low_cell_days": 423143.4157044611,
+              "low_share": 0.21356712248066873,
+              "lowrain_share": 0.10122384119838879,
+              "precision_per_1000": 0.03280652007341896,
+              "low_alert_rate": 0.02750137982377369,
+              "other_alert_rate": 0.09325183429207802,
+              "low_precision_per_1000": 0.06853468333359267,
+              "other_precision_per_1000": 0.023104025128060725,
+              "low_base_events_per_1000": 0.003704603668109431,
+              "other_base_events_per_1000": 0.0029923510037804515
+            }
+          },
+          "ece": {
+            "crossfit_per_region": {
+              "ece_deciles": 1.448730296574989e-06,
+              "mean_predicted": 6.297906649148138e-06,
+              "base_rate": 5.377351886056081e-06,
+              "deciles": [
+                {
+                  "bin": 0,
+                  "population_share": 0.11515202645295614,
+                  "population": 16895944.203655206,
+                  "positives": 9,
+                  "mean_risk": 8.061496866937458e-08,
+                  "observed_rate": 5.326722136104696e-07,
+                  "risk_min": 0.0,
+                  "risk_max": 1.3183941003926424e-07
+                },
+                {
+                  "bin": 1,
+                  "population_share": 0.09517340932425405,
+                  "population": 13964535.954312367,
+                  "positives": 2,
+                  "mean_risk": 1.491944794807616e-07,
+                  "observed_rate": 1.4321993989226567e-07,
+                  "risk_min": 1.3526419844291622e-07,
+                  "risk_max": 1.99078862822901e-07
+                },
+                {
+                  "bin": 2,
+                  "population_share": 0.12125528047846217,
+                  "population": 17791458.09648116,
+                  "positives": 3,
+                  "mean_risk": 2.0976419646014175e-07,
+                  "observed_rate": 1.6862024369960704e-07,
+                  "risk_min": 2.001620164805834e-07,
+                  "risk_max": 2.2650188434569514e-07
+                },
+                {
+                  "bin": 3,
+                  "population_share": 0.12947244750751433,
+                  "population": 18997140.705042984,
+                  "positives": 2,
+                  "mean_risk": 2.380432382550276e-07,
+                  "observed_rate": 1.0527900124828152e-07,
+                  "risk_min": 2.3092692246502595e-07,
+                  "risk_max": 2.4160891082943416e-07
+                },
+                {
+                  "bin": 4,
+                  "population_share": 0.04344933495262567,
+                  "population": 6375202.952641076,
+                  "positives": 2,
+                  "mean_risk": 2.583813014893377e-07,
+                  "observed_rate": 3.137155028408081e-07,
+                  "risk_min": 2.4919199825736103e-07,
+                  "risk_max": 2.950680833081443e-07
+                },
+                {
+                  "bin": 5,
+                  "population_share": 0.09668142274876944,
+                  "population": 14185802.669834599,
+                  "positives": 9,
+                  "mean_risk": 4.928949933651746e-07,
+                  "observed_rate": 6.344371347514971e-07,
+                  "risk_min": 3.063249759011767e-07,
+                  "risk_max": 9.086567061957109e-07
+                },
+                {
+                  "bin": 6,
+                  "population_share": 0.0991560403351858,
+                  "population": 14548896.589701967,
+                  "positives": 26,
+                  "mean_risk": 1.4756544271567217e-06,
+                  "observed_rate": 1.7870771051052338e-06,
+                  "risk_min": 9.099700927685461e-07,
+                  "risk_max": 2.546550926665477e-06
+                },
+                {
+                  "bin": 7,
+                  "population_share": 0.10115809475269333,
+                  "population": 14842652.598804493,
+                  "positives": 64,
+                  "mean_risk": 3.8728506751313355e-06,
+                  "observed_rate": 4.311897726768523e-06,
+                  "risk_min": 2.6352381044225495e-06,
+                  "risk_max": 4.985892820462571e-06
+                },
+                {
+                  "bin": 8,
+                  "population_share": 0.0995947848581272,
+                  "population": 14613272.382361647,
+                  "positives": 132,
+                  "mean_risk": 7.821609438098642e-06,
+                  "observed_rate": 9.032884390721766e-06,
+                  "risk_min": 5.012848875747425e-06,
+                  "risk_max": 1.2436534642309028e-05
+                },
+                {
+                  "bin": 9,
+                  "population_share": 0.09890715859149683,
+                  "population": 14512378.847164497,
+                  "positives": 540,
+                  "mean_risk": 4.895709569534482e-05,
+                  "observed_rate": 3.720961295780312e-05,
+                  "risk_min": 1.2832970199915966e-05,
+                  "risk_max": 0.08178328930490882
+                }
+              ]
+            },
+            "crossfit_pooled": {
+              "ece_deciles": 1.2219589417387766e-06,
+              "mean_predicted": 6.200216873192002e-06,
+              "deciles": [
+                {
+                  "bin": 0,
+                  "population_share": 0.10109353646899681,
+                  "population": 14833180.13711432,
+                  "positives": 9,
+                  "mean_risk": 8.95263753589425e-08,
+                  "observed_rate": 6.067478394252738e-07,
+                  "risk_min": 0.0,
+                  "risk_max": 1.3371330191133956e-07
+                },
+                {
+                  "bin": 1,
+                  "population_share": 0.09931375470011496,
+                  "population": 14572037.590274317,
+                  "positives": 1,
+                  "mean_risk": 1.6843967104439277e-07,
+                  "observed_rate": 6.862458278775103e-08,
+                  "risk_min": 1.5168867946620538e-07,
+                  "risk_max": 1.8057775023528956e-07
+                },
+                {
+                  "bin": 2,
+                  "population_share": 0.13633120876504426,
+                  "population": 20003508.122822598,
+                  "positives": 0,
+                  "mean_risk": 1.904036981604954e-07,
+                  "observed_rate": 0.0,
+                  "risk_min": 1.8759961326309845e-07,
+                  "risk_max": 1.9206091777601827e-07
+                },
+                {
+                  "bin": 3,
+                  "population_share": 0.0658342700512153,
+                  "population": 9659683.70455205,
+                  "positives": 1,
+                  "mean_risk": 1.9659696760772466e-07,
+                  "observed_rate": 1.0352305837185516e-07,
+                  "risk_min": 1.931501281518236e-07,
+                  "risk_max": 1.9659706089026276e-07
+                },
+                {
+                  "bin": 4,
+                  "population_share": 0.10709383594997089,
+                  "population": 15713587.789142773,
+                  "positives": 10,
+                  "mean_risk": 3.905452387162634e-07,
+                  "observed_rate": 6.363919007032532e-07,
+                  "risk_min": 2.997652797336308e-07,
+                  "risk_max": 4.0959719215546077e-07
+                },
+                {
+                  "bin": 5,
+                  "population_share": 0.09798680600308624,
+                  "population": 14377338.010625402,
+                  "positives": 6,
+                  "mean_risk": 5.71363655697861e-07,
+                  "observed_rate": 4.1732342910528856e-07,
+                  "risk_min": 4.1122393227873474e-07,
+                  "risk_max": 6.873443594460527e-07
+                },
+                {
+                  "bin": 6,
+                  "population_share": 0.09314168065442223,
+                  "population": 13666425.922732694,
+                  "positives": 25,
+                  "mean_risk": 1.4016613833080484e-06,
+                  "observed_rate": 1.8293005165611786e-06,
+                  "risk_min": 7.521268198159794e-07,
+                  "risk_max": 2.603055321397927e-06
+                },
+                {
+                  "bin": 7,
+                  "population_share": 0.10481533202001463,
+                  "population": 15379269.093639137,
+                  "positives": 65,
+                  "mean_risk": 3.900721473478583e-06,
+                  "observed_rate": 4.22646873555805e-06,
+                  "risk_min": 2.6644390329465885e-06,
+                  "risk_max": 5.149596905264605e-06
+                },
+                {
+                  "bin": 8,
+                  "population_share": 0.09570712161430235,
+                  "population": 14042846.109602936,
+                  "positives": 121,
+                  "mean_risk": 8.126013762085743e-06,
+                  "observed_rate": 8.616486932606663e-06,
+                  "risk_min": 5.2589029333972255e-06,
+                  "risk_max": 1.1794223913585669e-05
+                },
+                {
+                  "bin": 9,
+                  "population_share": 0.09868245377485943,
+                  "population": 14479408.519493774,
+                  "positives": 551,
+                  "mean_risk": 4.7836266796105384e-05,
+                  "observed_rate": 3.8054040623149984e-05,
+                  "risk_min": 1.200633364277235e-05,
+                  "risk_max": 1.0
+                }
+              ],
+              "per_year": {
+                "2007": {
+                  "positives": 8,
+                  "population": 12325327.999999998,
+                  "mean_predicted": 8.569235742567376e-06,
+                  "observed": 6.490699476719809e-07
+                },
+                "2008": {
+                  "positives": 8,
+                  "population": 13465880.0,
+                  "mean_predicted": 6.839042378416697e-06,
+                  "observed": 5.94094110448036e-07
+                },
+                "2009": {
+                  "positives": 32,
+                  "population": 13429112.0,
+                  "mean_predicted": 4.53412343601514e-06,
+                  "observed": 2.382882799696659e-06
+                },
+                "2010": {
+                  "positives": 111,
+                  "population": 13429191.0,
+                  "mean_predicted": 6.412681214011609e-06,
+                  "observed": 8.265576087196913e-06
+                },
+                "2011": {
+                  "positives": 79,
+                  "population": 13429159.0,
+                  "mean_predicted": 5.6861216790373745e-06,
+                  "observed": 5.882721323055301e-06
+                },
+                "2012": {
+                  "positives": 47,
+                  "population": 13465919.0,
+                  "mean_predicted": 5.389390667670175e-06,
+                  "observed": 3.4902927902655586e-06
+                },
+                "2013": {
+                  "positives": 97,
+                  "population": 13429177.000000004,
+                  "mean_predicted": 1.2508339416966766e-05,
+                  "observed": 7.223078525214164e-06
+                },
+                "2014": {
+                  "positives": 51,
+                  "population": 13429130.999999998,
+                  "mean_predicted": 4.668331961234327e-06,
+                  "observed": 3.797714088871425e-06
+                },
+                "2015": {
+                  "positives": 127,
+                  "population": 13429207.000000002,
+                  "mean_predicted": 4.089957588738292e-06,
+                  "observed": 9.45699921075012e-06
+                },
+                "2016": {
+                  "positives": 106,
+                  "population": 13465978.0,
+                  "mean_predicted": 4.378768283324625e-06,
+                  "observed": 7.87168967601165e-06
+                },
+                "2017": {
+                  "positives": 123,
+                  "population": 13429203.0,
+                  "mean_predicted": 5.3265774952439406e-06,
+                  "observed": 9.159143696018297e-06
+                }
+              }
+            }
+          },
+          "pr_auc": 0.0026518542733533885,
+          "fa_diff_vs_reference": {
+            "fa_a": 0.23413745995114332,
+            "fa_b": 0.19554142779163688,
+            "point_difference": 0.03859603215950644,
+            "mean_difference": 0.03645437090416626,
+            "se": 0.011839835084999476,
+            "ci_lo": 0.012821662812721454,
+            "ci_hi": 0.05975290876371629,
+            "level": 0.95,
+            "n_boot": 2000,
+            "excludes_zero": true,
+            "share_a_better": 0.0005,
+            "share_tied": 0.0
+          },
+          "low_share_diff_vs_reference": {
+            "value": -0.012054894864816965,
+            "lo": -0.014695437585703372,
+            "hi": -0.009378973839406814,
+            "se": 0.0013691205756081047
+          }
+        }
+      }
+    },
+    "selection": {
+      "rule": "spec 15.5",
+      "reference": "C0",
+      "reference_warning_low_share": 0.06754787069983109,
+      "candidates": [
+        {
+          "candidate": "C1",
+          "fa_at_90": 0.23268468785481256,
+          "fa_difference": 0.03714326006317567,
+          "fa_difference_ci": [
+            0.010861187042190574,
+            0.05545256178755973
+          ],
+          "not_worse_than_reference": false,
+          "warning_low_share": 0.05955319016634482,
+          "lower_low_share": true,
+          "eligible": false
+        },
+        {
+          "candidate": "C2",
+          "fa_at_90": 0.23085586906148828,
+          "fa_difference": 0.03531444126985139,
+          "fa_difference_ci": [
+            0.011121377619700466,
+            0.057572754768457225
+          ],
+          "not_worse_than_reference": false,
+          "warning_low_share": 0.0630188633376728,
+          "lower_low_share": true,
+          "eligible": false
+        },
+        {
+          "candidate": "C3",
+          "fa_at_90": 0.23413745995114332,
+          "fa_difference": 0.03859603215950644,
+          "fa_difference_ci": [
+            0.012821662812721454,
+            0.05975290876371629
+          ],
+          "not_worse_than_reference": false,
+          "warning_low_share": 0.05549297583501413,
+          "lower_low_share": true,
+          "eligible": false
+        }
+      ],
+      "selected": null,
+      "result": "no challenger adopted"
+    },
+    "model_dir": null,
+    "seconds": 307.3688452999995
+  },
+  "heldout_2018": {
+    "created_utc": "2026-10-24T15:51:31Z",
+    "skipped": true,
+    "reason": "the pre-declared selection (spec 15.5) named no candidate: test_2018 was not read and no selected-candidate replay was made",
+    "selection": "no challenger adopted"
+  },
+  "replay": {
+    "protocol": {
+      "days": [
+        "2026-10-09",
+        "2026-10-10",
+        "2026-10-11",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15",
+        "2026-10-16",
+        "2026-10-17",
+        "2026-10-18",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-24"
+      ],
+      "report_from": "2026-10-16",
+      "written_to_data_live": false,
+      "candidates": [
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "frozen": "data/processed/hazard/model_v3_live"
+    },
+    "v3_replay_check": {
+      "cell_days_equal_to_published": 588672,
+      "cell_days": 588672,
+      "per_day_equal": [
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792,
+        36792
+      ],
+      "from_report_start": 0
+    },
+    "levels_per_day": {
+      "published": [
+        {
+          "Normal": 23649,
+          "Watch": 9653,
+          "Warning": 2621,
+          "Emergency": 869
+        },
+        {
+          "Normal": 21909,
+          "Watch": 9021,
+          "Warning": 3535,
+          "Emergency": 2327
+        },
+        {
+          "Normal": 22354,
+          "Watch": 8755,
+          "Warning": 3421,
+          "Emergency": 2262
+        },
+        {
+          "Normal": 22702,
+          "Watch": 9164,
+          "Warning": 3197,
+          "Emergency": 1729
+        },
+        {
+          "Normal": 24341,
+          "Watch": 8853,
+          "Warning": 2409,
+          "Emergency": 1189
+        },
+        {
+          "Normal": 25037,
+          "Watch": 9416,
+          "Warning": 2121,
+          "Emergency": 218
+        },
+        {
+          "Normal": 25187,
+          "Watch": 9300,
+          "Warning": 1851,
+          "Emergency": 454
+        },
+        {
+          "Normal": 24733,
+          "Watch": 8875,
+          "Warning": 1745,
+          "Emergency": 1439
+        },
+        {
+          "Normal": 25454,
+          "Watch": 8365,
+          "Warning": 1670,
+          "Emergency": 1303
+        },
+        {
+          "Normal": 28652,
+          "Watch": 6006,
+          "Warning": 1455,
+          "Emergency": 679
+        },
+        {
+          "Normal": 30511,
+          "Watch": 4601,
+          "Warning": 1085,
+          "Emergency": 595
+        },
+        {
+          "Normal": 31668,
+          "Watch": 3837,
+          "Warning": 840,
+          "Emergency": 447
+        },
+        {
+          "Normal": 31830,
+          "Watch": 3570,
+          "Warning": 905,
+          "Emergency": 487
+        },
+        {
+          "Normal": 32645,
+          "Watch": 2762,
+          "Warning": 524,
+          "Emergency": 861
+        },
+        {
+          "Normal": 33194,
+          "Watch": 1852,
+          "Warning": 603,
+          "Emergency": 1143
+        },
+        {
+          "Normal": 33132,
+          "Watch": 1711,
+          "Warning": 914,
+          "Emergency": 1035
+        }
+      ],
+      "v3_live": [
+        {
+          "Normal": 23649,
+          "Watch": 9653,
+          "Warning": 2621,
+          "Emergency": 869
+        },
+        {
+          "Normal": 21909,
+          "Watch": 9021,
+          "Warning": 3535,
+          "Emergency": 2327
+        },
+        {
+          "Normal": 22354,
+          "Watch": 8755,
+          "Warning": 3421,
+          "Emergency": 2262
+        },
+        {
+          "Normal": 22702,
+          "Watch": 9164,
+          "Warning": 3197,
+          "Emergency": 1729
+        },
+        {
+          "Normal": 24341,
+          "Watch": 8853,
+          "Warning": 2409,
+          "Emergency": 1189
+        },
+        {
+          "Normal": 25037,
+          "Watch": 9416,
+          "Warning": 2121,
+          "Emergency": 218
+        },
+        {
+          "Normal": 25187,
+          "Watch": 9300,
+          "Warning": 1851,
+          "Emergency": 454
+        },
+        {
+          "Normal": 24733,
+          "Watch": 8875,
+          "Warning": 1745,
+          "Emergency": 1439
+        },
+        {
+          "Normal": 25454,
+          "Watch": 8365,
+          "Warning": 1670,
+          "Emergency": 1303
+        },
+        {
+          "Normal": 28652,
+          "Watch": 6006,
+          "Warning": 1455,
+          "Emergency": 679
+        },
+        {
+          "Normal": 30511,
+          "Watch": 4601,
+          "Warning": 1085,
+          "Emergency": 595
+        },
+        {
+          "Normal": 31668,
+          "Watch": 3837,
+          "Warning": 840,
+          "Emergency": 447
+        },
+        {
+          "Normal": 31830,
+          "Watch": 3570,
+          "Warning": 905,
+          "Emergency": 487
+        },
+        {
+          "Normal": 32645,
+          "Watch": 2762,
+          "Warning": 524,
+          "Emergency": 861
+        },
+        {
+          "Normal": 33194,
+          "Watch": 1852,
+          "Warning": 603,
+          "Emergency": 1143
+        },
+        {
+          "Normal": 33132,
+          "Watch": 1711,
+          "Warning": 914,
+          "Emergency": 1035
+        }
+      ],
+      "C1": [
+        {
+          "Normal": 24725,
+          "Watch": 8752,
+          "Warning": 2749,
+          "Emergency": 566
+        },
+        {
+          "Normal": 22663,
+          "Watch": 8375,
+          "Warning": 4013,
+          "Emergency": 1741
+        },
+        {
+          "Normal": 23107,
+          "Watch": 8077,
+          "Warning": 3946,
+          "Emergency": 1662
+        },
+        {
+          "Normal": 23794,
+          "Watch": 8267,
+          "Warning": 3451,
+          "Emergency": 1280
+        },
+        {
+          "Normal": 25538,
+          "Watch": 8024,
+          "Warning": 2292,
+          "Emergency": 938
+        },
+        {
+          "Normal": 26410,
+          "Watch": 8285,
+          "Warning": 1955,
+          "Emergency": 142
+        },
+        {
+          "Normal": 26526,
+          "Watch": 7926,
+          "Warning": 1892,
+          "Emergency": 448
+        },
+        {
+          "Normal": 25501,
+          "Watch": 8054,
+          "Warning": 2042,
+          "Emergency": 1195
+        },
+        {
+          "Normal": 26031,
+          "Watch": 7889,
+          "Warning": 1922,
+          "Emergency": 950
+        },
+        {
+          "Normal": 29227,
+          "Watch": 5567,
+          "Warning": 1594,
+          "Emergency": 404
+        },
+        {
+          "Normal": 31107,
+          "Watch": 4050,
+          "Warning": 1244,
+          "Emergency": 391
+        },
+        {
+          "Normal": 32284,
+          "Watch": 3337,
+          "Warning": 933,
+          "Emergency": 238
+        },
+        {
+          "Normal": 32410,
+          "Watch": 3189,
+          "Warning": 950,
+          "Emergency": 243
+        },
+        {
+          "Normal": 33156,
+          "Watch": 2399,
+          "Warning": 658,
+          "Emergency": 579
+        },
+        {
+          "Normal": 33334,
+          "Watch": 1823,
+          "Warning": 912,
+          "Emergency": 723
+        },
+        {
+          "Normal": 33156,
+          "Watch": 1829,
+          "Warning": 1135,
+          "Emergency": 672
+        }
+      ],
+      "C2": [
+        {
+          "Normal": 24342,
+          "Watch": 8398,
+          "Warning": 3273,
+          "Emergency": 779
+        },
+        {
+          "Normal": 22406,
+          "Watch": 7955,
+          "Warning": 4499,
+          "Emergency": 1932
+        },
+        {
+          "Normal": 22958,
+          "Watch": 7661,
+          "Warning": 4268,
+          "Emergency": 1905
+        },
+        {
+          "Normal": 23316,
+          "Watch": 8000,
+          "Warning": 3913,
+          "Emergency": 1563
+        },
+        {
+          "Normal": 24853,
+          "Watch": 7910,
+          "Warning": 2869,
+          "Emergency": 1160
+        },
+        {
+          "Normal": 25536,
+          "Watch": 8427,
+          "Warning": 2548,
+          "Emergency": 281
+        },
+        {
+          "Normal": 25652,
+          "Watch": 8080,
+          "Warning": 2543,
+          "Emergency": 517
+        },
+        {
+          "Normal": 24982,
+          "Watch": 7977,
+          "Warning": 2557,
+          "Emergency": 1276
+        },
+        {
+          "Normal": 25611,
+          "Watch": 7791,
+          "Warning": 2282,
+          "Emergency": 1108
+        },
+        {
+          "Normal": 28793,
+          "Watch": 5560,
+          "Warning": 1824,
+          "Emergency": 615
+        },
+        {
+          "Normal": 30676,
+          "Watch": 4094,
+          "Warning": 1478,
+          "Emergency": 544
+        },
+        {
+          "Normal": 31928,
+          "Watch": 3287,
+          "Warning": 1200,
+          "Emergency": 377
+        },
+        {
+          "Normal": 32065,
+          "Watch": 3096,
+          "Warning": 1223,
+          "Emergency": 408
+        },
+        {
+          "Normal": 32849,
+          "Watch": 2372,
+          "Warning": 864,
+          "Emergency": 707
+        },
+        {
+          "Normal": 33147,
+          "Watch": 1628,
+          "Warning": 1127,
+          "Emergency": 890
+        },
+        {
+          "Normal": 33056,
+          "Watch": 1536,
+          "Warning": 1338,
+          "Emergency": 862
+        }
+      ],
+      "C3": [
+        {
+          "Normal": 24746,
+          "Watch": 8219,
+          "Warning": 3007,
+          "Emergency": 820
+        },
+        {
+          "Normal": 22741,
+          "Watch": 7607,
+          "Warning": 4181,
+          "Emergency": 2263
+        },
+        {
+          "Normal": 23250,
+          "Watch": 7263,
+          "Warning": 4005,
+          "Emergency": 2274
+        },
+        {
+          "Normal": 23726,
+          "Watch": 7570,
+          "Warning": 3726,
+          "Emergency": 1770
+        },
+        {
+          "Normal": 25303,
+          "Watch": 7525,
+          "Warning": 2784,
+          "Emergency": 1180
+        },
+        {
+          "Normal": 26137,
+          "Watch": 7988,
+          "Warning": 2413,
+          "Emergency": 254
+        },
+        {
+          "Normal": 26279,
+          "Watch": 7670,
+          "Warning": 2316,
+          "Emergency": 527
+        },
+        {
+          "Normal": 25414,
+          "Watch": 7696,
+          "Warning": 2161,
+          "Emergency": 1521
+        },
+        {
+          "Normal": 26012,
+          "Watch": 7489,
+          "Warning": 1917,
+          "Emergency": 1374
+        },
+        {
+          "Normal": 29170,
+          "Watch": 5282,
+          "Warning": 1434,
+          "Emergency": 906
+        },
+        {
+          "Normal": 31058,
+          "Watch": 3801,
+          "Warning": 1081,
+          "Emergency": 852
+        },
+        {
+          "Normal": 32305,
+          "Watch": 2977,
+          "Warning": 898,
+          "Emergency": 612
+        },
+        {
+          "Normal": 32437,
+          "Watch": 2811,
+          "Warning": 925,
+          "Emergency": 619
+        },
+        {
+          "Normal": 33175,
+          "Watch": 2146,
+          "Warning": 613,
+          "Emergency": 858
+        },
+        {
+          "Normal": 33364,
+          "Watch": 1542,
+          "Warning": 759,
+          "Emergency": 1127
+        },
+        {
+          "Normal": 33198,
+          "Watch": 1493,
+          "Warning": 950,
+          "Emergency": 1151
+        }
+      ]
+    },
+    "thresholds_by_region": {
+      "v3_live": {
+        "himalaya": {
+          "watch": 2.782149847271763e-06,
+          "warning": 1.3765576493023059e-05,
+          "emergency": 4.9226520385570795e-05,
+          "source": "card.alert_levels risk_by_region[himalaya]"
+        },
+        "western_ghats": {
+          "watch": 3.8084629480536887e-06,
+          "warning": 1.3681137059859508e-05,
+          "emergency": 2.5642648636983134e-05,
+          "source": "card.alert_levels risk_by_region[western_ghats]"
+        }
+      },
+      "C1": {
+        "himalaya": {
+          "watch": 3.926289808865373e-06,
+          "warning": 1.3944407032955423e-05,
+          "emergency": 4.53593997469677e-05,
+          "source": "card.alert_levels risk_by_region[himalaya]"
+        },
+        "western_ghats": {
+          "watch": 4.7456553357442154e-06,
+          "warning": 1.3544838039729518e-05,
+          "emergency": 3.0983099604731253e-05,
+          "source": "card.alert_levels risk_by_region[western_ghats]"
+        }
+      },
+      "C2": {
+        "himalaya": {
+          "watch": 3.1246419825891353e-06,
+          "warning": 1.2863240349385072e-05,
+          "emergency": 4.0446297025095145e-05,
+          "source": "card.alert_levels risk_by_region[himalaya]"
+        },
+        "western_ghats": {
+          "watch": 4.381949507689266e-06,
+          "warning": 8.853007088647225e-06,
+          "emergency": 3.195992559669957e-05,
+          "source": "card.alert_levels risk_by_region[western_ghats]"
+        }
+      },
+      "C3": {
+        "himalaya": {
+          "watch": 4.111956929106888e-06,
+          "warning": 1.2119022564083804e-05,
+          "emergency": 3.267605047969376e-05,
+          "source": "card.alert_levels risk_by_region[himalaya]"
+        },
+        "western_ghats": {
+          "watch": 4.528758167617373e-06,
+          "warning": 1.1090121718783645e-05,
+          "emergency": 2.4166073169418883e-05,
+          "source": "card.alert_levels risk_by_region[western_ghats]"
+        }
+      }
+    },
+    "last_day_classes": {
+      "flat_cell_watch_plus (slope_mean < 5 deg)": {
+        "published": 773,
+        "v3_live": 773,
+        "C1": 871,
+        "C2": 908,
+        "C3": 825
+      },
+      "low_elevation_watch_plus (elev_mean < 100 m)": {
+        "published": 760,
+        "v3_live": 760,
+        "C1": 639,
+        "C2": 658,
+        "C3": 639
+      },
+      "low_terrain_warning_plus": {
+        "published": 565,
+        "v3_live": 565,
+        "C1": 352,
+        "C2": 524,
+        "C3": 465
+      },
+      "low_rain_warning_plus (irain_acc_3 < 20 mm)": {
+        "published": 55,
+        "v3_live": 55,
+        "C1": 71,
+        "C2": 115,
+        "C3": 103
+      }
+    },
+    "areas": {
+      "kanyakumari": {
+        "published": {
+          "Normal": 0,
+          "Watch": 0,
+          "Warning": 0,
+          "Emergency": 1
+        },
+        "v3_live": {
+          "Normal": 0,
+          "Watch": 0,
+          "Warning": 0,
+          "Emergency": 1
+        },
+        "C1": {
+          "Normal": 0,
+          "Watch": 0,
+          "Warning": 1,
+          "Emergency": 0
+        },
+        "C2": {
+          "Normal": 0,
+          "Watch": 0,
+          "Warning": 1,
+          "Emergency": 0
+        },
+        "C3": {
+          "Normal": 0,
+          "Watch": 0,
+          "Warning": 1,
+          "Emergency": 0
+        }
+      },
+      "jammu": {
+        "published": {
+          "Normal": 62,
+          "Watch": 17,
+          "Warning": 16,
+          "Emergency": 0
+        },
+        "v3_live": {
+          "Normal": 62,
+          "Watch": 17,
+          "Warning": 16,
+          "Emergency": 0
+        },
+        "C1": {
+          "Normal": 69,
+          "Watch": 13,
+          "Warning": 13,
+          "Emergency": 0
+        },
+        "C2": {
+          "Normal": 66,
+          "Watch": 18,
+          "Warning": 11,
+          "Emergency": 0
+        },
+        "C3": {
+          "Normal": 67,
+          "Watch": 12,
+          "Warning": 16,
+          "Emergency": 0
+        }
+      },
+      "manipur": {
+        "published": {
+          "Normal": 55,
+          "Watch": 26,
+          "Warning": 4,
+          "Emergency": 0
+        },
+        "v3_live": {
+          "Normal": 55,
+          "Watch": 26,
+          "Warning": 4,
+          "Emergency": 0
+        },
+        "C1": {
+          "Normal": 56,
+          "Watch": 25,
+          "Warning": 4,
+          "Emergency": 0
+        },
+        "C2": {
+          "Normal": 55,
+          "Watch": 22,
+          "Warning": 8,
+          "Emergency": 0
+        },
+        "C3": {
+          "Normal": 56,
+          "Watch": 24,
+          "Warning": 5,
+          "Emergency": 0
+        }
+      },
+      "south_ghats": {
+        "published": {
+          "Normal": 0,
+          "Watch": 20,
+          "Warning": 109,
+          "Emergency": 272
+        },
+        "v3_live": {
+          "Normal": 0,
+          "Watch": 20,
+          "Warning": 109,
+          "Emergency": 272
+        },
+        "C1": {
+          "Normal": 1,
+          "Watch": 22,
+          "Warning": 133,
+          "Emergency": 245
+        },
+        "C2": {
+          "Normal": 0,
+          "Watch": 20,
+          "Warning": 116,
+          "Emergency": 265
+        },
+        "C3": {
+          "Normal": 0,
+          "Watch": 10,
+          "Warning": 70,
+          "Emergency": 321
+        }
+      }
+    },
+    "area_cells": {
+      "kanyakumari": [
+        {
+          "cell_id": 19625150,
+          "lat": 8.125,
+          "lon": 77.52500000000003,
+          "slope_mean": 2.8445348739624023,
+          "elev_mean": 31.039886474609375,
+          "acc_3": 82.8550033569336,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        }
+      ],
+      "jammu": [
+        {
+          "cell_id": 24615097,
+          "lat": 33.075,
+          "lon": 74.875,
+          "slope_mean": 18.29454803466797,
+          "elev_mean": 770.6023559570312,
+          "acc_3": 16.27499771118164,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24625092,
+          "lat": 33.125,
+          "lon": 74.625,
+          "slope_mean": 14.183269500732422,
+          "elev_mean": 790.562744140625,
+          "acc_3": 13.610000610351562,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24625093,
+          "lat": 33.125,
+          "lon": 74.67500000000001,
+          "slope_mean": 26.39381217956543,
+          "elev_mean": 1031.414306640625,
+          "acc_3": 13.610000610351562,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24625094,
+          "lat": 33.125,
+          "lon": 74.72500000000002,
+          "slope_mean": 27.841209411621094,
+          "elev_mean": 1287.9722900390625,
+          "acc_3": 19.220001220703125,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24625095,
+          "lat": 33.125,
+          "lon": 74.775,
+          "slope_mean": 31.117982864379883,
+          "elev_mean": 1000.5615234375,
+          "acc_3": 19.220001220703125,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Watch",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24635092,
+          "lat": 33.17500000000001,
+          "lon": 74.625,
+          "slope_mean": 21.2309627532959,
+          "elev_mean": 1308.1690673828125,
+          "acc_3": 13.610000610351562,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Watch",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24635093,
+          "lat": 33.17500000000001,
+          "lon": 74.67500000000001,
+          "slope_mean": 25.65073013305664,
+          "elev_mean": 1303.6962890625,
+          "acc_3": 13.610000610351562,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24635094,
+          "lat": 33.17500000000001,
+          "lon": 74.72500000000002,
+          "slope_mean": 24.7512264251709,
+          "elev_mean": 956.2669067382812,
+          "acc_3": 19.220001220703125,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24645092,
+          "lat": 33.22500000000001,
+          "lon": 74.625,
+          "slope_mean": 23.611042022705078,
+          "elev_mean": 1486.1646728515625,
+          "acc_3": 14.800000190734863,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Watch",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24645093,
+          "lat": 33.22500000000001,
+          "lon": 74.67500000000001,
+          "slope_mean": 25.64129066467285,
+          "elev_mean": 1172.0552978515625,
+          "acc_3": 14.800000190734863,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24655092,
+          "lat": 33.275000000000006,
+          "lon": 74.625,
+          "slope_mean": 24.079307556152344,
+          "elev_mean": 1599.417236328125,
+          "acc_3": 14.800000190734863,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Watch",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 24655093,
+          "lat": 33.275000000000006,
+          "lon": 74.67500000000001,
+          "slope_mean": 27.31454086303711,
+          "elev_mean": 1804.42138671875,
+          "acc_3": 14.800000190734863,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Watch",
+            "C2": "Watch",
+            "C3": "Watch"
+          }
+        }
+      ],
+      "manipur": [
+        {
+          "cell_id": 22805465,
+          "lat": 24.025000000000006,
+          "lon": 93.27500000000003,
+          "slope_mean": 23.406211853027344,
+          "elev_mean": 807.1458129882812,
+          "acc_3": 24.96500015258789,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 22825466,
+          "lat": 24.125,
+          "lon": 93.32499999999999,
+          "slope_mean": 19.553741455078125,
+          "elev_mean": 690.214111328125,
+          "acc_3": 20.166248321533203,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 22825467,
+          "lat": 24.125,
+          "lon": 93.375,
+          "slope_mean": 21.05893325805664,
+          "elev_mean": 1031.114013671875,
+          "acc_3": 20.166248321533203,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Watch"
+          }
+        },
+        {
+          "cell_id": 22835464,
+          "lat": 24.17500000000001,
+          "lon": 93.22500000000002,
+          "slope_mean": 19.37882423400879,
+          "elev_mean": 1059.961181640625,
+          "acc_3": 17.888124465942383,
+          "levels": {
+            "published": "Warning",
+            "v3_live": "Warning",
+            "C1": "Watch",
+            "C2": "Watch",
+            "C3": "Watch"
+          }
+        },
+        {
+          "cell_id": 22805464,
+          "lat": 24.025000000000006,
+          "lon": 93.22500000000002,
+          "slope_mean": 23.198575973510742,
+          "elev_mean": 879.12158203125,
+          "acc_3": 24.96500015258789,
+          "levels": {
+            "published": "Watch",
+            "v3_live": "Watch",
+            "C1": "Watch",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 22815464,
+          "lat": 24.075000000000003,
+          "lon": 93.22500000000002,
+          "slope_mean": 27.393142700195312,
+          "elev_mean": 769.2889404296875,
+          "acc_3": 24.96500015258789,
+          "levels": {
+            "published": "Watch",
+            "v3_live": "Watch",
+            "C1": "Warning",
+            "C2": "Warning",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 22815465,
+          "lat": 24.075000000000003,
+          "lon": 93.27500000000003,
+          "slope_mean": 21.489484786987305,
+          "elev_mean": 719.3565063476562,
+          "acc_3": 24.96500015258789,
+          "levels": {
+            "published": "Watch",
+            "v3_live": "Watch",
+            "C1": "Watch",
+            "C2": "Warning",
+            "C3": "Watch"
+          }
+        },
+        {
+          "cell_id": 22815466,
+          "lat": 24.075000000000003,
+          "lon": 93.32499999999999,
+          "slope_mean": 19.147930145263672,
+          "elev_mean": 626.7528686523438,
+          "acc_3": 26.2449951171875,
+          "levels": {
+            "published": "Watch",
+            "v3_live": "Watch",
+            "C1": "Watch",
+            "C2": "Warning",
+            "C3": "Watch"
+          }
+        },
+        {
+          "cell_id": 22815467,
+          "lat": 24.075000000000003,
+          "lon": 93.375,
+          "slope_mean": 21.76824378967285,
+          "elev_mean": 885.119873046875,
+          "acc_3": 26.2449951171875,
+          "levels": {
+            "published": "Watch",
+            "v3_live": "Watch",
+            "C1": "Watch",
+            "C2": "Watch",
+            "C3": "Warning"
+          }
+        },
+        {
+          "cell_id": 22825462,
+          "lat": 24.125,
+          "lon": 93.125,
+          "slope_mean": 23.877098083496094,
+          "elev_mean": 670.4970092773438,
+          "acc_3": 16.729999542236328,
+          "levels": {
+            "published": "Watch",
+            "v3_live": "Watch",
+            "C1": "Watch",
+            "C2": "Watch",
+            "C3": "Watch"
+          }
+        },
+        {
+          "cell_id": 22825463,
+          "lat": 24.125,
+          "lon": 93.17500000000001,
+          "slope_mean": 23.752635955810547,
+          "elev_mean": 1003.7354736328125,
+          "acc_3": 16.729999542236328,
+          "levels": {
+            "published": "Watch",
+            "v3_live": "Watch",
+            "C1": "Watch",
+            "C2": "Watch",
+            "C3": "Watch"
+          }
+        },
+        {
+          "cell_id": 22825464,
+          "lat": 24.125,
+          "lon": 93.22500000000002,
+          "slope_mean": 23.324621200561523,
+          "elev_mean": 931.6470947265625,
+          "acc_3": 17.888124465942383,
+          "levels": {
+            "published": "Watch",
+            "v3_live": "Watch",
+            "C1": "Watch",
+            "C2": "Watch",
+            "C3": "Watch"
+          }
+        }
+      ],
+      "south_ghats": [
+        {
+          "cell_id": 19815144,
+          "lat": 9.075000000000003,
+          "lon": 77.22500000000002,
+          "slope_mean": 17.00264549255371,
+          "elev_mean": 466.0842590332031,
+          "acc_3": 59.50937271118164,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Warning",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19825142,
+          "lat": 9.125,
+          "lon": 77.125,
+          "slope_mean": 17.69063377380371,
+          "elev_mean": 307.2718505859375,
+          "acc_3": 55.051876068115234,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Emergency",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19825144,
+          "lat": 9.125,
+          "lon": 77.22500000000002,
+          "slope_mean": 23.017698287963867,
+          "elev_mean": 933.3652954101562,
+          "acc_3": 55.70437240600586,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Warning",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19835144,
+          "lat": 9.175000000000011,
+          "lon": 77.22500000000002,
+          "slope_mean": 21.553546905517578,
+          "elev_mean": 1182.1697998046875,
+          "acc_3": 55.70437240600586,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Emergency",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19835145,
+          "lat": 9.175000000000011,
+          "lon": 77.27500000000003,
+          "slope_mean": 24.237354278564453,
+          "elev_mean": 1050.8824462890625,
+          "acc_3": 55.70437240600586,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Emergency",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19835146,
+          "lat": 9.175000000000011,
+          "lon": 77.32499999999999,
+          "slope_mean": 19.15815544128418,
+          "elev_mean": 542.5232543945312,
+          "acc_3": 67.34562683105469,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Warning",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19845142,
+          "lat": 9.225000000000009,
+          "lon": 77.125,
+          "slope_mean": 19.07398223876953,
+          "elev_mean": 905.7821044921875,
+          "acc_3": 49.65250015258789,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Warning",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19845143,
+          "lat": 9.225000000000009,
+          "lon": 77.17500000000001,
+          "slope_mean": 14.605793952941895,
+          "elev_mean": 1194.355224609375,
+          "acc_3": 49.65250015258789,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Emergency",
+            "C2": "Warning",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19845144,
+          "lat": 9.225000000000009,
+          "lon": 77.22500000000002,
+          "slope_mean": 14.548746109008789,
+          "elev_mean": 1257.8731689453125,
+          "acc_3": 55.80562210083008,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Emergency",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19845145,
+          "lat": 9.225000000000009,
+          "lon": 77.27500000000003,
+          "slope_mean": 21.304269790649414,
+          "elev_mean": 1198.96240234375,
+          "acc_3": 55.80562210083008,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Emergency",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19845146,
+          "lat": 9.225000000000009,
+          "lon": 77.32499999999999,
+          "slope_mean": 13.940173149108887,
+          "elev_mean": 423.04058837890625,
+          "acc_3": 55.28499984741211,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Warning",
+            "C2": "Emergency",
+            "C3": "Emergency"
+          }
+        },
+        {
+          "cell_id": 19855144,
+          "lat": 9.275000000000006,
+          "lon": 77.22500000000002,
+          "slope_mean": 14.660197257995605,
+          "elev_mean": 1238.7933349609375,
+          "acc_3": 55.80562210083008,
+          "levels": {
+            "published": "Emergency",
+            "v3_live": "Emergency",
+            "C1": "Emergency",
+            "C2": "Warning",
+            "C3": "Emergency"
+          }
+        }
+      ]
+    },
+    "area_cell_counts": {
+      "kanyakumari": 1,
+      "jammu": 95,
+      "manipur": 85,
+      "south_ghats": 401
+    },
+    "transitions_last_day": {
+      "C1": {
+        "Normal->Watch": 309,
+        "Normal->Warning": 2,
+        "Watch->Normal": 327,
+        "Watch->Warning": 174,
+        "Watch->Emergency": 3,
+        "Warning->Normal": 8,
+        "Warning->Watch": 288,
+        "Warning->Emergency": 23,
+        "Emergency->Watch": 25,
+        "Emergency->Warning": 364
+      },
+      "C2": {
+        "Normal->Watch": 366,
+        "Normal->Warning": 13,
+        "Watch->Normal": 297,
+        "Watch->Warning": 435,
+        "Watch->Emergency": 8,
+        "Warning->Normal": 6,
+        "Warning->Watch": 185,
+        "Warning->Emergency": 97,
+        "Emergency->Watch": 14,
+        "Emergency->Warning": 264
+      },
+      "C3": {
+        "Normal->Watch": 281,
+        "Normal->Warning": 4,
+        "Watch->Normal": 339,
+        "Watch->Warning": 346,
+        "Watch->Emergency": 18,
+        "Warning->Normal": 12,
+        "Warning->Watch": 186,
+        "Warning->Emergency": 263,
+        "Emergency->Watch": 18,
+        "Emergency->Warning": 147
+      }
+    },
+    "leads_last_day": {
+      "v3_equals_published": {
+        "1": 36792,
+        "2": 36792,
+        "3": 36792
+      },
+      "counts": {
+        "v3_live": {
+          "1": {
+            "Normal": 32050,
+            "Watch": 3243,
+            "Warning": 827,
+            "Emergency": 672
+          },
+          "2": {
+            "Normal": 33228,
+            "Watch": 1850,
+            "Warning": 520,
+            "Emergency": 1194
+          },
+          "3": {
+            "Normal": 33328,
+            "Watch": 2199,
+            "Warning": 432,
+            "Emergency": 833
+          }
+        },
+        "C1": {
+          "1": {
+            "Normal": 32681,
+            "Watch": 2727,
+            "Warning": 1091,
+            "Emergency": 293
+          },
+          "2": {
+            "Normal": 33327,
+            "Watch": 1836,
+            "Warning": 811,
+            "Emergency": 818
+          },
+          "3": {
+            "Normal": 33320,
+            "Watch": 2280,
+            "Warning": 663,
+            "Emergency": 529
+          }
+        },
+        "C2": {
+          "1": {
+            "Normal": 31417,
+            "Watch": 3505,
+            "Warning": 1334,
+            "Emergency": 536
+          },
+          "2": {
+            "Normal": 32158,
+            "Watch": 2727,
+            "Warning": 907,
+            "Emergency": 1000
+          },
+          "3": {
+            "Normal": 33033,
+            "Watch": 2329,
+            "Warning": 714,
+            "Emergency": 716
+          }
+        },
+        "C3": {
+          "1": {
+            "Normal": 31691,
+            "Watch": 3413,
+            "Warning": 872,
+            "Emergency": 816
+          },
+          "2": {
+            "Normal": 32507,
+            "Watch": 2478,
+            "Warning": 577,
+            "Emergency": 1230
+          },
+          "3": {
+            "Normal": 33235,
+            "Watch": 2229,
+            "Warning": 465,
+            "Emergency": 863
+          }
+        }
+      },
+      "published": {
+        "1": {
+          "Normal": 32050,
+          "Watch": 3243,
+          "Warning": 827,
+          "Emergency": 672
+        },
+        "2": {
+          "Normal": 33228,
+          "Watch": 1850,
+          "Warning": 520,
+          "Emergency": 1194
+        },
+        "3": {
+          "Normal": 33328,
+          "Watch": 2199,
+          "Warning": 432,
+          "Emergency": 833
+        }
+      }
+    },
+    "seconds": 195.145131199999
+  }
+}

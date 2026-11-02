@@ -1,0 +1,186 @@
+.panel {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.note {
+  color: var(--text-2);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+.meta b {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.tag {
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+
+.updated {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-left: auto;
+  padding: 2px var(--sp-2);
+  border-radius: 999px;
+  color: var(--text-2);
+  transition:
+    background var(--dur-slow) var(--ease-out),
+    color var(--dur-slow) var(--ease-out);
+}
+
+.updated[data-flash='true'] {
+  color: var(--text);
+  background: color-mix(in srgb, var(--neon-cyan) 22%, transparent);
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neon-cyan);
+}
+
+.updated[data-flash='true'] .pulse {
+  background: var(--neon-cyan);
+  animation: ping 1.2s var(--ease-out) 2;
+}
+
+@keyframes ping {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--neon-cyan) 70%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .updated[data-flash='true'] .pulse {
+    animation: none;
+  }
+}
+
+.warn {
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 3px solid var(--flame-orange);
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.table th,
+.table td {
+  padding: var(--sp-2) var(--sp-1);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+
+.table thead th {
+  color: var(--text-2);
+  font-weight: 500;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.table tbody th {
+  font-weight: 500;
+}
+
+.table tbody tr:last-child th,
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.name {
+  display: block;
+  color: var(--text);
+}
+
+.error {
+  display: block;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-2);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.latency,
+.table td.num {
+  white-space: nowrap;
+}
+
+.expected {
+  display: block;
+  color: var(--text-3);
+  font-size: 0.75rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  white-space: nowrap;
+}
+
+.mark {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  background: var(--neon-cyan);
+  border-radius: 50%;
+}
+
+.badge[data-status='late'] .mark {
+  background: var(--flame-orange);
+  border-radius: 0;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.badge[data-status='failed'] .mark {
+  background: var(--fire-red);
+  border-radius: 2px;
+}
+
+.badge[data-status='unknown'] .mark {
+  background: transparent;
+  border: 1.5px solid var(--text-3);
+}
+
+.reason {
+  display: block;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.explain {
+  display: block;
+  margin-top: var(--sp-2);
+}
+
+.foot {
+  color: var(--text-3);
+  font-size: 0.8125rem;
+}

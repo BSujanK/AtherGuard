@@ -1,0 +1,144 @@
+# Aspect ablation for the accuracy hardening (reports/phase6_accuracy_hardening.md): a copy of configs/hazard_v3.yaml
+# (which is frozen with the v3-live model and must not change) whose `challengers` section names one candidate,
+# imerg_core without stat_aspect_sin / stat_aspect_cos, paired against the selected v3 configuration on OOF FA@90:
+#   python -m aetherguard.hazard.challengers --config configs/hazard_v3_aspect_ablation.yaml --only lgb_no_aspect
+# Its OOF scores and report go to their own directory and stem, so the Task 5 challenger results stay untouched.
+# AetherGuard v3-live (Stage A, docs/superpowers/specs/2026-10-14-aetherguard-live-global-design.md section 4): the
+# protocol-v2 configuration below trained on features that exist every day (NASA IMERG rain `irain`, antecedent
+# precipitation `iapi`, neighbourhood rain `inbr`, plus the terrain `stat` group), written to its own model directory
+# (the frozen v2 model is never touched) with per-region calibration. Train with
+#   python -m aetherguard.hazard.train --config configs/hazard_v3.yaml
+# Phase 3b/3c, protocol v2 (docs/phase3-design.md "Protocol v2"): every choice (hyper-parameters, number of trees,
+# feature groups, calibration, alert thresholds) is made by year-blocked cross-validation on the 2007-2017
+# development rows (train + validation splits); test_2018 is never read by model code until the single frozen
+# evaluation. Changing anything here changes the trained model: retrain with `python -m aetherguard.hazard.train`.
+model_dir: model_v3_live          # under data/processed/hazard/; v2's `model` is frozen
+cv_report_stem: phase6_v3_cv_report   # reports/<stem>.{md,json}; v2's phase3_hazard_cv_report is frozen
+evaluation_report_stem: phase6_live_model_report
+groups: [irain, stat]             # base input groups: the stage-1 `imerg_core` candidate (the grid is run on it)
+seed: 20261001
+extra_groups:                     # feature groups stored in separate, manifest-checked parquet files
+  integ:
+    subdir: integ
+    suffix: integ
+    columns_file: integ_columns.json
+    manifest_file: integ_manifest.json
+  corr:
+    subdir: corrector
+    suffix: corr
+    columns_file: corrector_columns.json
+    manifest_file: corrector_manifest.json
+  irain:                          # IMERG features (aetherguard.features.imerg_build writes exactly these files)
+    subdir: imerg
+    suffix: irain
+    columns_file: irain_columns.json
+    manifest_file: irain_manifest.json
+  iapi:
+    subdir: imerg
+    suffix: iapi
+    columns_file: iapi_columns.json
+    manifest_file: iapi_manifest.json
+  inbr:
+    subdir: imerg
+    suffix: inbr
+    columns_file: inbr_columns.json
+    manifest_file: inbr_manifest.json
+  iclim:                          # challenger group (aetherguard.features.imerg_clim); not part of the selected model
+    subdir: imerg
+    suffix: iclim
+    columns_file: iclim_columns.json
+    manifest_file: iclim_manifest.json
+meta_columns:                     # loaded columns that are never model inputs (station presence correlates with the label)
+  - integ_n_st_100km
+  - integ_dist_nearest_km
+  - integ_n_flagged_100km_7d
+presence_column: integ_n_st_100km # metrics of integ candidates are also reported with / without a nearby station
+monotone:                         # fnmatch patterns over feature names; every other feature is unconstrained
+  increasing:
+    - "rain_acc_*"
+    - "rain_max1d_*"
+    - "rain_acc*_vs_clim"
+    - "rain_wetdays_30"
+    - "src_imd_acc_*"
+    - "src_chi_acc_*"
+    - "stat_slope_mean"
+    - "stat_slope_p90"
+    - "stat_slope_max"
+    - "stat_relief"
+    - "irain_acc_*"
+    - "irain_max1d_*"
+    - "irain_acc*_vs_clim"
+    - "irain_wetdays_30"
+    - "iapi_*"
+    - "inbr_*"
+    - "iclim_*"
+  decreasing:                     # assumption: more days since a 10 mm day never raises risk
+    - "rain_days_since_10mm"
+    - "irain_days_since_10mm"
+training:
+  universe_negatives: 20000       # universe negatives drawn for neg_mix=matched_plus_universe
+  learning_rate: 0.05
+  max_rounds: 1000
+  early_stopping_rounds: 100      # on the held-out fold's weighted log-loss (positives + matched negatives)
+  fixed:
+    objective: binary
+    min_sum_hessian_in_leaf: 0.001
+    max_bin: 255
+    deterministic: true
+    force_row_wise: true
+    verbosity: -1
+cv:
+  folds: [[2007, 2008], [2009, 2010], [2011, 2012], [2013, 2014], [2015], [2016], [2017]]
+grid:                             # regularised grid; every combination is cross-validated
+  num_leaves: [7, 15]
+  min_data_in_leaf: [40, 80]
+  feature_fraction: [0.5, 0.8]
+  lambda_l2: [0, 5]
+neg_mix:
+  default: matched_only
+  extra_candidate: matched_plus_universe   # one extra candidate at the best grid point
+group_stages:                     # greedy; a later stage with `add_groups` extends the previous stage's winner
+  - candidates:
+      - {name: imerg_core, groups: [irain, stat]}
+      - {name: imerg_core_noelev, groups: [irain, stat], exclude: [stat_elev_mean, stat_elev_std]}
+  - candidates:
+      - {name: "+iapi", add_groups: [iapi]}
+      - {name: "+inbr", add_groups: [inbr]}
+      - {name: "+iapi+inbr", add_groups: [iapi, inbr]}
+recall_first:
+  recall: 0.9
+  percentile: 5                   # the highest threshold whose bootstrap 5th-percentile OOF recall is >= recall
+alert_levels:                     # Phase 4: Watch = recall-first threshold
+  warning_recall: 0.75
+  emergency_recall: 0.5
+ensemble:
+  members: 20
+  seed: 7000
+operating_points:
+  recalls: [0.8, 0.9, 0.95]
+  fa_shares: [0.001, 0.01, 0.05, 0.1]
+  headline_recall: 0.9
+bootstrap:
+  n: 2000
+  seed: 31337
+  level: 0.95
+min_positives_warning: 100
+calibration:
+  per_region: true                # isotonic per region (himalaya, western_ghats) with the pooled calibrator as fallback
+  min_region_positives: 25        # a region with fewer OOF positives uses the pooled calibrator
+  deciles: 10
+  tail_edges: [0.9, 0.99, 0.999]
+challengers:                      # accuracy hardening, Task 4: one candidate (not read by training)
+  oof_dir: challengers_aspect     # under data/processed/hazard: saved OOF scores of the incumbents and the candidate
+  report_stem: phase6_aspect_ablation   # reports/<stem>.{md,json}
+  lightgbm:
+    - name: lgb_no_aspect
+      groups: [irain, stat]
+      exclude: [stat_aspect_sin, stat_aspect_cos]
+      description: "LightGBM, imerg_core without the aspect inputs stat_aspect_sin and stat_aspect_cos"
+  catboost:                       # unused here (only lgb_no_aspect is run); kept because the harness reads it
+    thread_count: 6
+    learning_rate: 0.1
+    grid:
+      depth: [4, 6]
+      l2_leaf_reg: [3, 10]

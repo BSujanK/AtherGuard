@@ -1,0 +1,61 @@
+# v3.1 challenger study (docs/superpowers/specs/2026-10-14-aetherguard-live-global-design.md section 15, written before
+# any CV or 2018 number of the study):
+#   python -m aetherguard.hazard.v31_challenger labels   # Step 1: label audit, no model
+#   python -m aetherguard.hazard.v31_challenger dev      # Steps 2-3: cross-validation of C0..C3 and the pre-declared selection
+#   python -m aetherguard.hazard.v31_challenger heldout  # Step 4: the selected candidate on test_2018 (one look) and the live replay
+#   python -m aetherguard.hazard.v31_challenger report   # reports/phase6_v31_challenger.{md,json}
+# Everything that is not a candidate setting comes from the frozen v3-live configuration named by `base_config` (folds,
+# seeds, hyper-parameters, 20-member ensemble, per-region isotonic calibration, bootstrap, alert levels): that file is
+# never edited here, so every candidate is trained and scored exactly as v3-live was.
+base_config: configs/hazard_v3.yaml
+output_dir: v31_challenger              # under data/processed/hazard: OOF scores, selection, models/<candidate>
+replay_dir: v31_replay                  # under data/processed/alerts: the offline live replay (never data/live)
+report_stem: phase6_v31_challenger      # reports/<stem>.{md,json}
+reference: C0                           # the v3-live refit every candidate is compared with
+candidates:
+  C0:
+    description: "v3-live refit (reference): the 26 imerg_core inputs with the v3 monotone constraints"
+  C1:
+    description: "C0 plus stat_elev_mean constrained non-decreasing (C0 already carries the rain, slope and relief constraints)"
+    increasing_extra: [stat_elev_mean]
+  C2:
+    description: "C0 without stat_elev_mean (the C1 constraint set minus the elevation input)"
+    exclude: [stat_elev_mean]
+  C3:
+    description: "C2 trained without the physically implausible positives of the label audit (training only)"
+    exclude: [stat_elev_mean]
+    drop_implausible_positives: true
+tie_order: [C1, C2, C3]                 # fewer changes first
+low_terrain:                            # a cell is low-terrain when either test holds (own-cell static terrain)
+  slope_mean_below_deg: 5.0
+  elev_mean_below_m: 100.0
+low_rain_column: irain_acc_3
+low_rain_mm: 20.0                       # a Warning+ cell-day is "low-rain" when `low_rain_column` is under this
+label_rule:                             # the pre-declared physically-implausible-label rule (spec 15.2); catalog fields only
+  engineered_settings: [retaining_wall, engineered_slope, mine]
+  non_hillslope_categories: [riverbank_collapse, other, unknown, snow_avalanche]
+  geocode_distance_pattern: 'closest to predicted location of [^()]*\(([0-9.]+) km\)'
+  geocode_min_km: 25.0
+  structure_patterns:
+    - 'retaining wall'
+    - 'guard wall'
+    - 'compound wall'
+    - 'factory wall'
+    - '\bquarry\b'
+    - '\bmining\b'
+    - '\bmine\b'
+    - 'construction site'
+    - '\bembankment\b'
+  example_rows: 20
+  example_seed: 20261024
+adoption:                               # spec 15.5, applied to the selected candidate on test_2018 against frozen v3
+  max_warning_events_lost: 1
+replay:                                 # spec 15.6
+  first_day: "2026-10-09"               # the chain is seeded from the first stored live day, as the section 14 replay
+  report_from: "2026-10-16"
+  last_day: "2026-10-24"
+  kanyakumari_cell: 19625150
+  boxes:                                # lat, lon, half width in degrees
+    jammu: [33.1, 74.7, 0.25]
+    manipur: [24.1, 93.3, 0.25]
+  south_ghats: {lat: [9.0, 10.5], lon: [76.8, 77.6]}

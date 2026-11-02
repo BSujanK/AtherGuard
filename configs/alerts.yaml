@@ -1,0 +1,30 @@
+# Phase 4 alert engine (docs/phase4-design.md). Structural parameters only: every numeric threshold that depends
+# on data (dis_ratio range, heavy-rain level, station-agreement tolerance) is DERIVED from the development period
+# 2007-2017 by `python -m aetherguard.alerts.config` into data/processed/alerts/alert_config.json, and the
+# Watch / Warning / Emergency risk thresholds are read by name from the hazard model card.
+hysteresis:
+  exit_factor: 0.8                # a cell steps down only after `exit_days` consecutive days below exit_factor x its level threshold
+  exit_days: 2
+stations:
+  radius_km: 100.0                # "nearby" stations (same radius as the integ_ features)
+  ood_window_days: 90             # trailing window of the station out-of-distribution guard (Phase 2 ruling)
+  ood_multiple: 3.0               # flag rate above ood_multiple x the engine target -> station state `uncertain`
+  ood_min_observed_days: 30       # fewer observed days in the window: no verdict (rate too noisy)
+  engine_target_flag_rate: 0.01   # integrity.model.HEADLINE_FPR (asserted equal in the tests)
+v1_card_fallback:                 # operating points of the v1 card used when it carries no named Watch/Warning/Emergency
+  watch: {recall: 0.9}
+  warning: {fa_share: 0.05}
+  emergency: {fa_share: 0.01}
+derivation:                       # how alert_config.json is derived (development period only)
+  dev_splits: [train, validation]
+  dev_end: "2017-12-31"
+  dis_ratio_percentiles: [5, 95]  # src_dis_ratio_3 outside this development range = "sources disagree strongly"
+  heavy_rain_universe_percentile: 95   # heavy rain = heavier than 95% of development cell-days (acc_1 and acc_3 separately)
+  station_agree_abs_percentile: 50     # absolute station-minus-grid tolerance = the typical (median) development discrepancy
+  station_agree_rel_percentile: 50     # relative tolerance (median), measured on days with >= station_agree_rel_min_mm
+  station_agree_rel_min_mm: 10.0
+evaluation:
+  lead_days: 7                    # an event is detected by a Watch+ alert on the event day or the 7 days before
+  flap_window_days: 3             # an alert that switches off and on again within this many days is one flap
+cost_loss:
+  ratios: [0.1, 0.02, 0.005]      # C/L = 1/10, 1/50, 1/200

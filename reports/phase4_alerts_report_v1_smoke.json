@@ -1,0 +1,525 @@
+{
+  "created_utc": "2026-10-03T11:38:24Z",
+  "provisional": "v1 hazard model smoke check (not the frozen protocol-v2 model)",
+  "thresholds": {
+    "watch": 1.3968260452484318e-05,
+    "warning": 3.6802547923869156e-05,
+    "emergency": 0.00010891070261627073,
+    "source": "v1_card_fallback (watch: recall=0.9, warning: fa_share=0.05, emergency: fa_share=0.01)"
+  },
+  "model": {
+    "card_path": "data/processed/hazard/model_v1/card.json",
+    "card_sha256": "6a1fc4d4a21e990e4905a462151d5f75f143a8d12c7ea18b3613b359edc3dd07",
+    "n_columns": 43
+  },
+  "alert_config": {
+    "exit_factor": 0.8,
+    "exit_days": 2,
+    "radius_km": 100.0,
+    "ood_window_days": 90,
+    "ood_multiple": 3.0,
+    "ood_min_observed_days": 30,
+    "engine_target_flag_rate": 0.01,
+    "dis_ratio_lo": 0.12478674203157425,
+    "dis_ratio_hi": 13.471030235290527,
+    "heavy_acc1_mm": 32.51171875,
+    "heavy_acc3_mm": 79.05380249023438,
+    "agree_abs_mm": 3.0,
+    "agree_rel": 0.6834401487021482
+  },
+  "store_created_utc": "2026-10-03T11:35:06Z",
+  "evaluation": {
+    "lead_days": 7,
+    "flap_window_days": 3
+  },
+  "sections": {
+    "test_2018": {
+      "universe_set": "universe_test_2018",
+      "samples_set": "test_2018_samples",
+      "operating_view": {
+        "n_positives_in_domain": 80,
+        "n_out_of_domain": 5,
+        "base_rate": 6.329547519264164e-06,
+        "per_level": {
+          "Watch": {
+            "alerts_per_1000_cell_days": 250.29218032954168,
+            "recall_in_domain": 0.85,
+            "recall_all": 0.8
+          },
+          "Warning": {
+            "alerts_per_1000_cell_days": 63.55248907499198,
+            "recall_in_domain": 0.5625,
+            "recall_all": 0.5294117647058824
+          },
+          "Emergency": {
+            "alerts_per_1000_cell_days": 8.00567809165603,
+            "recall_in_domain": 0.2,
+            "recall_all": 0.18823529411764706
+          }
+        },
+        "cost_loss": {
+          "base_rate": 6.329547519264164e-06,
+          "operating_points": {
+            "watch": {
+              "threshold": 1.3968260452484318e-05,
+              "alerts_per_1000_cell_days": 180.5981625324345,
+              "recall": 0.7875,
+              "implied_cost_ratio": 1.3968260452484318e-05,
+              "cost_ratio": 1.3968260452484318e-05,
+              "expense": 3.8676710193367755e-06,
+              "relative_expense": 0.6110501592041777
+            },
+            "warning": {
+              "threshold": 3.6802547923869156e-05,
+              "alerts_per_1000_cell_days": 63.23271937823277,
+              "recall": 0.5625,
+              "implied_cost_ratio": 3.6802547923869156e-05,
+              "cost_ratio": 3.6802547923869156e-05,
+              "expense": 5.0963022249520534e-06,
+              "relative_expense": 0.8051605915654014
+            },
+            "emergency": {
+              "threshold": 0.00010891070261627073,
+              "alerts_per_1000_cell_days": 7.929539734791697,
+              "recall": 0.2,
+              "implied_cost_ratio": 0.00010891070261627073,
+              "cost_ratio": 0.00010891070261627073,
+              "expense": 5.927249759351133e-06,
+              "relative_expense": 0.9364413082153777
+            }
+          },
+          "ratios": [
+            {
+              "cost_loss": 0.1,
+              "threshold": 0.1,
+              "alerts_per_1000_cell_days": 0.0021941681466559823,
+              "recall": 0.0,
+              "implied_cost_ratio": 0.1,
+              "cost_ratio": 0.1,
+              "expense": 6.548964333929762e-06,
+              "relative_expense": 1.0346654818528176
+            },
+            {
+              "cost_loss": 0.02,
+              "threshold": 0.02,
+              "alerts_per_1000_cell_days": 0.0021941681466559823,
+              "recall": 0.0,
+              "implied_cost_ratio": 0.02,
+              "cost_ratio": 0.02,
+              "expense": 6.373430882197284e-06,
+              "relative_expense": 1.0069330963705636
+            },
+            {
+              "cost_loss": 0.005,
+              "threshold": 0.005,
+              "alerts_per_1000_cell_days": 0.0021941681466559823,
+              "recall": 0.0,
+              "implied_cost_ratio": 0.005,
+              "cost_ratio": 0.005,
+              "expense": 6.340518359997445e-06,
+              "relative_expense": 1.001733274092641
+            }
+          ]
+        }
+      },
+      "event_detection_same_day": {
+        "n_events": 80,
+        "n_detected": 68,
+        "detection_rate": 0.85,
+        "n_with_history": 2,
+        "median_lead_days": 0.0,
+        "mean_lead_days": 0.029411764705882353,
+        "n_lead_at_least_1_day": 2,
+        "detected_by_level": {
+          "Watch": 68,
+          "Warning": 45,
+          "Emergency": 16
+        },
+        "lead_days": 7
+      },
+      "level_and_confidence_mix_universe": {
+        "level": {
+          "Normal": 0.7487136703631224,
+          "Watch": 0.18718058056099152,
+          "Warning": 0.055945764296586216,
+          "Emergency": 0.008159984779299849
+        },
+        "confidence": {
+          "High": 0.7666170819743423,
+          "Degraded": 0.23305979560774082,
+          "Insufficient": 0.00032312241791693843
+        }
+      },
+      "blind_escalations_universe": {
+        "n_blind": 4997,
+        "n_escalated": 1439,
+        "n_cell_days": 200000,
+        "n_cells_escalated": 1144,
+        "n_coinciding_event": 0,
+        "n_events_covered": 0
+      },
+      "positives_blind_escalated": 0,
+      "note": "the sample files hold the event day only, so lead time is 0 by construction; the universe rows are random cell-days (not consecutive), so flapping and area per day do not apply"
+    },
+    "window_2023": {
+      "set": "window_2023_samples",
+      "window": [
+        "2023-06-16",
+        "2023-07-31"
+      ],
+      "window_detection": {
+        "n_positive_cells": 24,
+        "n_detected": 24,
+        "detection_rate": 1.0,
+        "n_other_cells": 4069,
+        "other_cells_alerted_any_day": 0.8994839026787909,
+        "other_cell_days_alerted": 0.5385897613984848,
+        "note": "false alerts are an upper bound: the inventory is partial"
+      },
+      "alerted_area_sampled_cells": {
+        "n_days": 46,
+        "cells_per_day_mean": 4093.0,
+        "watch_share_mean": 0.5410191312845898,
+        "watch_share_max": 0.6608844368433912,
+        "warning_share_mean": 0.2478887602375211,
+        "watch_km2_mean": 60382.59477912677,
+        "watch_km2_max": 73843.68988317726,
+        "warning_km2_mean": 27600.23986534902,
+        "total_km2_mean": 111747.8130569887,
+        "peak_day": "2023-06-27"
+      },
+      "flapping": {
+        "with_hysteresis": {
+          "cell_days": 188278,
+          "n_changes": 31095,
+          "n_flaps": 3132,
+          "changes_per_1000_cell_days": 165.15471802334847,
+          "flaps_per_1000_cell_days": 16.63497593983365
+        },
+        "without_hysteresis": {
+          "cell_days": 188278,
+          "n_changes": 46166,
+          "n_flaps": 5983,
+          "changes_per_1000_cell_days": 245.20124496754798,
+          "flaps_per_1000_cell_days": 31.777477984682225
+        }
+      },
+      "blind_escalations": {
+        "n_blind": 10920,
+        "n_escalated": 1913,
+        "n_cell_days": 188278,
+        "n_cells_escalated": 827,
+        "n_coinciding_event": null,
+        "n_events_covered": null,
+        "n_escalated_in_positive_cells": 1
+      },
+      "level_and_confidence_mix": {
+        "level": {
+          "Normal": 0.4589808687154102,
+          "Watch": 0.2931303710470687,
+          "Warning": 0.19401629505305984,
+          "Emergency": 0.053872465184461274
+        },
+        "confidence": {
+          "High": 0.6829688014531703,
+          "Degraded": 0.31632479631183674,
+          "Insufficient": 0.000706402234992936
+        }
+      },
+      "note": "window events have no dates, so detection is window-level; the table holds the sampled cells (positive cells and controls), so area is the sampled share, not a region total"
+    },
+    "kerala_2018": {
+      "set": "case_kerala_2018_samples",
+      "n_cells": 8048,
+      "dates": [
+        "2018-08-01",
+        "2018-08-20"
+      ],
+      "alerted_area": {
+        "n_days": 20,
+        "cells_per_day_mean": 8048.0,
+        "watch_share_mean": 0.4325608846918489,
+        "watch_share_max": 0.6484840954274353,
+        "warning_share_mean": 0.1708312624254473,
+        "watch_km2_mean": 104026.72268670631,
+        "watch_km2_max": 155021.2526778812,
+        "warning_km2_mean": 41392.82312267372,
+        "total_km2_mean": 239425.87347259172,
+        "peak_day": "2018-08-17"
+      },
+      "flapping": {
+        "with_hysteresis": {
+          "cell_days": 160960,
+          "n_changes": 18780,
+          "n_flaps": 1955,
+          "changes_per_1000_cell_days": 116.67495029821073,
+          "flaps_per_1000_cell_days": 12.145874751491053
+        },
+        "without_hysteresis": {
+          "cell_days": 160960,
+          "n_changes": 29387,
+          "n_flaps": 4347,
+          "changes_per_1000_cell_days": 182.57331013916502,
+          "flaps_per_1000_cell_days": 27.006709741550697
+        }
+      },
+      "blind_escalations": {
+        "n_blind": 18705,
+        "n_escalated": 8584,
+        "n_cell_days": 160960,
+        "n_cells_escalated": 1291,
+        "n_coinciding_event": 0,
+        "n_events_covered": 0
+      },
+      "level_and_confidence_mix": {
+        "level": {
+          "Normal": 0.567439115308151,
+          "Watch": 0.2617296222664016,
+          "Warning": 0.12238444333996024,
+          "Emergency": 0.04844681908548708
+        },
+        "confidence": {
+          "High": 0.7403640656063618,
+          "Degraded": 0.2594744035785288,
+          "Insufficient": 0.00016153081510934393
+        }
+      },
+      "event_detection": {
+        "n_events": 23,
+        "n_detected": 23,
+        "detection_rate": 1.0,
+        "n_with_history": 23,
+        "median_lead_days": 7.0,
+        "mean_lead_days": 6.608695652173913,
+        "n_lead_at_least_1_day": 23,
+        "detected_by_level": {
+          "Watch": 23,
+          "Warning": 19,
+          "Emergency": 13
+        },
+        "lead_days": 7
+      },
+      "events": [
+        {
+          "cell_id": 20405115,
+          "date": "2018-08-05",
+          "detected": true,
+          "lead_days": 4,
+          "days_available": 5
+        },
+        {
+          "cell_id": 19945134,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20035135,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20115127,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20345115,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20565111,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20305120,
+          "date": "2018-08-09",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20375119,
+          "date": "2018-08-09",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20385120,
+          "date": "2018-08-09",
+          "detected": true,
+          "lead_days": 1,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19945137,
+          "date": "2018-08-15",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19965134,
+          "date": "2018-08-15",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20235117,
+          "date": "2018-08-15",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20495114,
+          "date": "2018-08-15",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19965138,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20065129,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20065137,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20375118,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20485114,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20025142,
+          "date": "2018-08-17",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20485114,
+          "date": "2018-08-17",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19955142,
+          "date": "2018-08-18",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20565112,
+          "date": "2018-08-18",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19925142,
+          "date": "2018-08-19",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        }
+      ]
+    },
+    "wayanad_2024": {
+      "set": "case_wayanad_2024_samples",
+      "n_cells": 140,
+      "dates": [
+        "2024-07-15",
+        "2024-08-05"
+      ],
+      "alerted_area": {
+        "n_days": 22,
+        "cells_per_day_mean": 140.0,
+        "watch_share_mean": 0.7431818181818183,
+        "watch_share_max": 0.9714285714285714,
+        "warning_share_mean": 0.46525974025974026,
+        "watch_km2_mean": 3150.2621954160145,
+        "watch_km2_max": 4117.305309272912,
+        "warning_km2_mean": 1972.5672521692568,
+        "total_km2_mean": 4238.352106091462,
+        "peak_day": "2024-07-31"
+      },
+      "flapping": {
+        "with_hysteresis": {
+          "cell_days": 3080,
+          "n_changes": 630,
+          "n_flaps": 61,
+          "changes_per_1000_cell_days": 204.54545454545453,
+          "flaps_per_1000_cell_days": 19.805194805194805
+        },
+        "without_hysteresis": {
+          "cell_days": 3080,
+          "n_changes": 914,
+          "n_flaps": 99,
+          "changes_per_1000_cell_days": 296.75324675324674,
+          "flaps_per_1000_cell_days": 32.142857142857146
+        }
+      },
+      "blind_escalations": {
+        "n_blind": 83,
+        "n_escalated": 69,
+        "n_cell_days": 3080,
+        "n_cells_escalated": 45,
+        "n_coinciding_event": null,
+        "n_events_covered": null
+      },
+      "level_and_confidence_mix": {
+        "level": {
+          "Normal": 0.25681818181818183,
+          "Watch": 0.2779220779220779,
+          "Warning": 0.261038961038961,
+          "Emergency": 0.20422077922077922
+        },
+        "confidence": {
+          "High": 0.9668831168831169,
+          "Degraded": 0.033116883116883114,
+          "Insufficient": 0.0
+        }
+      },
+      "note": "no landslide label exists for this case (no NASA record), so no detection statistics"
+    }
+  }
+}

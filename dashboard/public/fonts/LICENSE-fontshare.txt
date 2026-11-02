@@ -1,0 +1,13 @@
+Clash Display and Satoshi
+Designed by the Indian Type Foundry (ITF), distributed through Fontshare (https://www.fontshare.com).
+Licence: ITF Free Font License (ITF FFL) - free for personal and commercial use, including
+self-hosting on the web. Redistribution of the font files as a standalone font product and
+modification of the font software are not permitted.
+
+The full licence text is published by Fontshare and applies to the five woff2 files in this directory:
+  https://www.fontshare.com/licenses/itf-ffl
+
+Files and source (downloaded 2026-10-15 from the Fontshare CSS API,
+https://api.fontshare.com/v2/css?f[]=clash-display@600,700 and f[]=satoshi@400,500,700):
+  ClashDisplay-600.woff2, ClashDisplay-700.woff2
+  Satoshi-400.woff2, Satoshi-500.woff2, Satoshi-700.woff2

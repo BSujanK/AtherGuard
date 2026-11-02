@@ -1,0 +1,6 @@
+# Phase 1 Task 5b: feature store (docs/phase1-design.md D5/D6, docs/phase3-design.md).
+# Changing anything here, or the train split bounds in splits.yaml, means rebuilding with --force.
+climatology:
+  split: train       # rain climatology uses ONLY the days of this split's date range (2007-2015)
+chunk_rows: 100000   # rows gathered at once (memory ~ rows x 31 days x 2 sources, float64 working copies)
+pixel_chunk: 4000    # pixels per climatology block

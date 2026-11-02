@@ -1,0 +1,57 @@
+.view {
+  display: grid;
+  gap: var(--sp-4);
+  max-width: 90rem;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.head p {
+  margin-top: var(--sp-1);
+  color: var(--text-2);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-3) var(--sp-5);
+}
+
+.attribution {
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.date {
+  display: grid;
+  gap: var(--sp-1);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+.date select {
+  min-width: 11rem;
+  padding: var(--sp-2) var(--sp-3);
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.provenance {
+  margin-top: calc(-1 * var(--sp-2));
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.hint {
+  color: var(--text-2);
+}

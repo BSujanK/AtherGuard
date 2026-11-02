@@ -1,0 +1,93 @@
+# Stage A live-run configuration (docs/superpowers/specs/2026-10-14-aetherguard-live-global-design.md).
+# One top-level section per concern; source sections (gfs, imerg, ...) are added by their own tasks.
+# Access paths come from reports/phase6_live_sources_probe.md (measured on 2026-10-14).
+
+# Same box as configs/ingest.yaml (tests/test_ingest_gfs.py asserts they stay equal).
+domain_bbox:
+  lat_min: 8.0
+  lat_max: 36.0
+  lon_min: 72.0
+  lon_max: 98.0
+
+# Shared 0.1 degree domain grid of the IMERG store and of every forecast product regridded onto it.
+# Arrays are (rows, cols); pixel values are at cell CENTRES; rows run south -> north, columns west -> east.
+#   lat(row) = lat_first + step * row      lon(col) = lon_first + step * col
+# This is the global IMERG lattice (centres -89.95 + 0.1 k, -179.95 + 0.1 k) cropped to domain_bbox.
+domain_grid:
+  step: 0.1
+  lat_first: 8.05
+  lon_first: 72.05
+  rows: 280
+  cols: 260
+
+# NOAA GFS 0.25 degree APCP -> IMD-day totals for D+1..D+3 on domain_grid.
+# IMD day X = (03:00 UTC X-1, 03:00 UTC X]. APCP is a running accumulation that resets every 6 h; each file also
+# carries the cumulative 0-H message, which is the one used.
+gfs:
+  cycle_hours: [0, 6, 12, 18]
+  complete_when_hour: 96            # a cycle counts as published when its f096 file exists
+  lead_days: [1, 2, 3]
+  live:                             # NOMADS grib filter: server-side domain crop, last ~10 days only
+    filter_url: "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p25.pl"
+    listing_url: "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod"
+    forecast_hours: {first: 3, last: 96, step: 3}
+    request_pause_s: 0.6            # NOMADS asks for at most 120 requests per minute
+  archive:                          # AWS Open Data bucket noaa-gfs-bdp-pds: global files, APCP via .idx byte ranges
+    bucket: "noaa-gfs-bdp-pds"
+    base_url: "https://noaa-gfs-bdp-pds.s3.amazonaws.com"
+    key_template: "gfs.{ymd}/{hh}/{atmos}gfs.t{hh}z.pgrb2.0p25.f{fff}"
+    atmos_from: "2021-03-23"        # earlier cycles have no 'atmos/' directory level
+    cycle_hour: 0
+    start: "2021-06-01"
+    end: "2024-09-30"
+    months: [6, 7, 8, 9]            # monsoon season only
+    workers: 6
+
+# ECMWF IFS open data (HRES `oper` and the 51-member ensemble `enfo`), total precipitation -> IMD-day totals for D+1..D+3
+# on domain_grid (aetherguard.ingest.ecmwf; spec section 12). CC BY 4.0, anonymous HTTPS, byte ranges from the `.index` files.
+ecmwf:
+  live:                             # data.ecmwf.int holds the last few days
+    base_url: "https://data.ecmwf.int/forecasts"
+  archive:                          # two public copies of the same files (from 2023); the first with a readable .index is used
+    base_urls:
+      - "https://storage.googleapis.com/ecmwf-open-data"            # Google Cloud: parallel-friendly, gaps in 2023-06/07 and 2024 scda
+      - "https://ecmwf-forecasts.s3.eu-central-1.amazonaws.com"     # AWS: complete, throttles bursts (HTTP 503 SlowDown)
+    publication_base_url: "https://ecmwf-forecasts.s3.eu-central-1.amazonaws.com"   # the original; Last-Modified = publication time
+    ifs_layout_from: "2024-02-28"   # <ymd>/<hh>z/ifs/0p25/ from here (0.25 degree), <ymd>/<hh>z/0p4-beta/ before (0.4 degree)
+    cycle: {day_offset: -1, hour: 12}   # the cycle the archive evaluation uses for issue day D: the 12Z run of D-1 (complete on the Google copy)
+    windows:                        # June-September 2023 (fit season of the bias correction) and 2024 (held-out season)
+      - {start: "2023-06-01", end: "2023-09-30"}
+      - {start: "2024-06-01", end: "2024-09-30"}
+    workers: 3                      # issue days in parallel
+    members_pool: 16                # parallel member downloads inside a day
+  cycles:                           # live run: newest first, each only when its last needed step is published
+    - {day_offset: 0, hour: 0}
+    - {day_offset: -1, hour: 18}
+    - {day_offset: -1, hour: 12}
+
+# NASA GPM IMERG V07 daily rain (UTC days, mm/day), 0.1 degree, cropped to domain_grid.
+# Discovery through CMR (file names carry a version letter, V07B old / V07C new: names and URLs always come from
+# CMR); data through the Hyrax cloud OPeNDAP DAP4 subset of the granule (about 125-220 KB, about 3 s per day with a
+# session). Files hold (time, lon, lat) arrays; the store keeps (day, row = lat south -> north, col = lon west -> east).
+# Auth: Earthdata login from the user's netrc; the GES DISC application must be approved on the account.
+imerg:
+  history_start: "2006-10-01"
+  workers: 6                        # politeness cap for the OPeNDAP server
+  cmr_url: "https://cmr.earthdata.nasa.gov/search/granules.json"
+  cmr_page_size: 2000
+  precipitation_variable: "precipitation"
+  fill_value: -9999.900390625       # any negative value is treated as no data (NaN)
+  retries: 3                        # per download, transport failures and HTTP 429/5xx
+  backoff_s: 2.0
+  abort_after: 30                   # consecutive failed days before a build stops asking (credentials, outage)
+  runs:
+    late:                           # model rain; published about 14.5 h after the UTC day ends
+      short_name: "GPM_3IMERGDL"
+      concept_id: "C2723754859-GES_DISC"
+    early:                          # same-morning value for the current UTC day (about 4.5 h); backtest windows
+      short_name: "GPM_3IMERGDE"
+      concept_id: "C2723754850-GES_DISC"
+  early_windows:                    # built when `imerg_build --run early` is given no --start / --end
+    - {start: "2018-06-01", end: "2018-09-30"}
+    - {start: "2023-05-01", end: "2023-08-15"}
+    - {start: "2024-06-01", end: "2024-08-15"}

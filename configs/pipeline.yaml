@@ -1,0 +1,194 @@
+# End-to-end pipeline: ordered stages, each a module CLI run as `<python> -m <module> <args>` from the project root.
+# Module names live HERE so they can change without touching the runner. Verified against each module's argparse
+# (no invented flags). Paths use {data} (the data root, AETHERGUARD_DATA_DIR overrides it) and {reports} (reports/).
+#
+# Stage keys
+#   module / args       the CLI to run (a stage may list several `steps`, run in order, instead)
+#   verify              optional {module, args}: a CLI that exits 0 when the frozen outputs are intact; run BEFORE the
+#                       build, exit 0 means the stage is reported 'reused' and the build is skipped
+#   frozen_manifest     optional {path, dir}: a JSON manifest {files: {name: {sha256}}}; checksum-verified in-process
+#                       (used by `status`, and by `run` as the reuse test when the stage has no `verify`)
+#   marker              outputs whose presence means the stage is complete (idempotent ingest / report stages): reused
+#                       unless --force; a stage without verify, manifest or marker is always run
+#   outputs             paths shown by `status` (present / missing)
+#   network             true: needs the internet. `run --offline` skips it unless it is reusable
+#   offline_args        extra args that make a network-capable CLI work offline (used with --offline)
+#   default             false: only run when named with --only or --include
+#   optional            true: a module that does not exist (yet) is skipped with a note instead of failing the run
+python: ".venv/Scripts/python"
+log_dir: "logs/pipeline"
+stages:
+  - name: audit
+    module: aetherguard.audit.run
+    args: []
+    default: false
+    network: true
+    outputs: ["{reports}/phase0_data_audit.json"]
+  - name: labels
+    module: aetherguard.events.build
+    args: []
+    marker: ["{data}/processed/labels/events.parquet", "{data}/processed/labels/label_report.json"]
+    outputs: ["{data}/processed/labels/events.parquet"]
+  - name: splits
+    module: aetherguard.splits.build
+    args: []
+    verify: {module: aetherguard.splits.verify, args: []}
+    frozen_manifest: {path: "{data}/processed/splits/splits_manifest.json", dir: "{data}/processed/splits"}
+    outputs: ["{data}/processed/splits/splits_manifest.json"]
+  - name: imd
+    module: aetherguard.ingest.imd_build
+    args: []
+    network: true
+    marker: ["{data}/processed/rain/imd_index.json"]
+    outputs: ["{data}/processed/rain/imd_index.json"]
+  - name: chirps
+    module: aetherguard.ingest.chirps_build
+    args: []
+    network: true
+    marker: ["{data}/processed/rain/chirps_index.json"]
+    outputs: ["{data}/processed/rain/chirps_index.json"]
+  - name: power
+    module: aetherguard.ingest.power_build
+    args: []
+    network: true
+    marker: ["{data}/processed/rain/power_wetness.npz", "{data}/processed/rain/power_index.json"]
+    outputs: ["{data}/processed/rain/power_wetness.npz"]
+  - name: terrain
+    module: aetherguard.ingest.terrain_build
+    args: []
+    network: true
+    offline_args: ["--skip-download"]
+    marker: ["{data}/processed/terrain/cell_terrain.parquet", "{data}/processed/terrain/terrain_report.json"]
+    outputs: ["{data}/processed/terrain/cell_terrain.parquet"]
+  - name: regions
+    module: aetherguard.features.regions_build
+    args: []
+    network: true
+    offline_args: ["--skip-download"]
+    marker: ["{data}/processed/features/cell_regions.parquet", "{data}/processed/features/cell_regions_report.json"]
+    outputs: ["{data}/processed/features/cell_regions.parquet"]
+  - name: samples
+    module: aetherguard.features.samples_build
+    args: []
+    verify: {module: aetherguard.features.samples_verify, args: []}
+    frozen_manifest: {path: "{data}/processed/features/samples/samples_manifest.json", dir: "{data}/processed/features/samples"}
+    outputs: ["{data}/processed/features/samples/samples_manifest.json"]
+  - name: features
+    module: aetherguard.features.features_build
+    args: []
+    verify: {module: aetherguard.features.features_verify, args: []}
+    frozen_manifest: {path: "{data}/processed/features/features_manifest.json", dir: "{data}/processed/features"}
+    outputs: ["{data}/processed/features/features_manifest.json"]
+  - name: integrity_2a
+    module: aetherguard.integrity.baseline_report
+    args: []
+    marker: ["{reports}/phase2a_baselines.json", "{data}/processed/integrity/station_splits.json"]
+    outputs: ["{reports}/phase2a_baselines.json", "{data}/processed/integrity/station_splits.json"]
+  - name: engine_data
+    module: aetherguard.integrity.engine_data
+    args: []
+    marker: ["{data}/processed/integrity/features_2007_report.json", "{data}/processed/integrity/fault_dataset_2007.parquet"]
+    outputs: ["{data}/processed/integrity/fault_dataset_2007.parquet"]
+  - name: day_basis
+    module: aetherguard.integrity.day_basis
+    args: []
+    marker: ["{reports}/phase2b_day_basis.json"]
+    outputs: ["{reports}/phase2b_day_basis.json"]
+  - name: integrity_engine
+    module: aetherguard.integrity.engine_report
+    args: []
+    marker: ["{reports}/phase2_integrity_report.json", "{data}/processed/integrity/engine_outputs_2007_oof.parquet"]
+    outputs: ["{reports}/phase2_integrity_report.json", "{data}/processed/integrity/engine_outputs_2007_oof.parquet"]
+  - name: integ_features
+    module: aetherguard.integrity.hazard_features
+    args: []
+    frozen_manifest: {path: "{data}/processed/features/integ/integ_manifest.json", dir: "{data}/processed/features/integ"}
+    outputs: ["{data}/processed/features/integ/integ_manifest.json"]
+  - name: corrector
+    module: aetherguard.corrector.report
+    args: []
+    frozen_manifest: {path: "{data}/processed/features/corrector/corrector_manifest.json", dir: "{data}/processed/features/corrector"}
+    outputs: ["{reports}/phase3_corrector_report.json", "{data}/processed/features/corrector/corrector_manifest.json"]
+  - name: hazard_train
+    module: aetherguard.hazard.train
+    args: []
+    marker: ["{data}/processed/hazard/model/card.json"]
+    outputs: ["{data}/processed/hazard/model/card.json"]
+  - name: hazard_freeze
+    module: aetherguard.hazard.freeze
+    args: []
+    marker: ["{data}/processed/hazard/model/FROZEN.json"]
+    outputs: ["{data}/processed/hazard/model/FROZEN.json"]
+  # The single frozen test evaluation (protocol v2): the CLI refuses to run twice, so the stage is reused once
+  # TEST_EVALUATION.json exists. To repeat it deliberately (disclosed in the report) run the module by hand with --rerun.
+  - name: hazard_report
+    module: aetherguard.hazard.evaluate_report
+    args: []
+    marker: ["{data}/processed/hazard/model/TEST_EVALUATION.json"]
+    outputs: ["{reports}/phase3_hazard_report.json", "{data}/processed/hazard/model/TEST_EVALUATION.json"]
+  - name: cases
+    module: aetherguard.cases.series
+    args: []
+    network: true
+    marker: ["{data}/processed/cases/wayanad_2024_focus_table.parquet", "{reports}/phase3e_case_inputs.json"]
+    outputs: ["{data}/processed/cases/wayanad_2024_focus_table.parquet", "{reports}/phase3e_case_inputs.json"]
+  - name: alerts_derive
+    module: aetherguard.alerts.derive
+    args: []
+    optional: true
+    marker: ["{data}/processed/alerts/alert_config.json"]
+    outputs: ["{data}/processed/alerts/alert_config.json"]
+  - name: alerts_replay
+    module: aetherguard.alerts.replay
+    args: []
+    optional: true
+    marker: ["{data}/processed/alerts/replay/store_manifest.json"]
+    outputs: ["{data}/processed/alerts/replay/store_manifest.json"]
+  - name: alerts_report
+    module: aetherguard.alerts.report
+    args: []
+    optional: true
+    marker: ["{reports}/phase4_alerts_report.json"]
+    outputs: ["{reports}/phase4_alerts_report.json"]
+  # The React dashboard (dashboard/, served by the API at /): `npm ci && npm run build` into dashboard/dist.
+  # Always rebuilt (cheap); --offline keeps the installed node_modules instead of running `npm ci`.
+  - name: dashboard_build
+    module: aetherguard.serve.dashboard_build
+    args: []
+    network: true
+    offline_args: ["--skip-install"]
+    outputs: ["dashboard/dist/index.html"]
+  - name: final_report
+    module: aetherguard.finalreport
+    args: []
+    outputs: ["{reports}/FINAL_REPORT.md", "{reports}/FINAL_REPORT.json"]
+
+# Sources of the final report (aetherguard.finalreport): a name -> candidate files (first that exists).
+# hazard_cv is the protocol-v2 stage-1 cross-validation report, hazard_v2 the single frozen test evaluation. {data} / {reports}
+# as above; plain paths are relative to the project root. A source named in `distinct_from` skips a candidate that is
+# byte-identical to the other source (the unversioned hazard report counts as v2 only when it differs from the v1 file).
+finalreport:
+  sources:
+    phase0_audit: ["{reports}/phase0_data_audit.json"]
+    phase0_findings: ["{reports}/phase0_findings.md"]
+    phase2a: ["{reports}/phase2a_baselines.json"]
+    day_basis: ["{reports}/phase2b_day_basis.json"]
+    integrity: ["{reports}/phase2_integrity_report.json"]
+    corrector: ["{reports}/phase3_corrector_report.json"]
+    hazard_v1: ["{reports}/phase3_hazard_report_v1.json"]
+    hazard_cv: ["{reports}/phase3_hazard_cv_report.json"]
+    hazard_v2: ["{reports}/phase3_hazard_report.json", "{reports}/phase3_hazard_report_v2.json"]
+    cases: ["{reports}/phase3e_case_inputs.json"]
+    alerts: ["{reports}/phase4_alerts_report.json"]
+    labels: ["{data}/processed/labels/label_report.json"]
+    splits: ["{data}/processed/splits/splits_manifest.json"]
+    features: ["{data}/processed/features/feature_report.json"]
+    imd_index: ["{data}/processed/rain/imd_index.json"]
+    chirps_index: ["{data}/processed/rain/chirps_index.json"]
+    power_index: ["{data}/processed/rain/power_index.json"]
+    terrain: ["{data}/processed/terrain/terrain_report.json"]
+    regions: ["{data}/processed/features/cell_regions_report.json"]
+  distinct_from: {hazard_v2: hazard_v1}
+  docs: ["docs/phase1-design.md", "docs/phase2-design.md", "docs/phase3-design.md", "docs/phase4-design.md"]
+  spec: "docs/superpowers/specs/2026-09-30-aetherguard-design.md"
+  outputs: {markdown: "{reports}/FINAL_REPORT.md", json: "{reports}/FINAL_REPORT.json"}

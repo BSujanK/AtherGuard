@@ -1,0 +1,1957 @@
+{
+  "cells": 2536,
+  "seed": 20261015,
+  "bootstrap": 2000,
+  "model": "data/processed/hazard/model_v3_live",
+  "thresholds": {
+    "watch": 3.0146490326518273e-06,
+    "warning": 1.1842377470857583e-05,
+    "emergency": 4.814709609428837e-05,
+    "source": "card.alert_levels"
+  },
+  "fit_seasons": {
+    "gfs": [
+      2021,
+      2022,
+      2023
+    ],
+    "ecmwf_hres": [
+      2023
+    ],
+    "ecmwf_ens_mean": [
+      2023
+    ]
+  },
+  "tables": {
+    "2024": {
+      "1": {
+        "days": 122,
+        "candidates": {
+          "gfs": {
+            "pairs": 309379,
+            "agreement": 0.8173987245417433,
+            "within_one": 0.9852187769693482,
+            "watch_recall": 0.8777506112469438,
+            "watch_precision": 0.83501713392873,
+            "warning_recall": 0.7954456811976839,
+            "warning_precision": 0.701661991213677,
+            "observed_warning": 33331,
+            "agreement_se": 0.004255476610421794,
+            "delta_vs_baseline": 0.0,
+            "delta_se": 0.0,
+            "rain": {
+              "domain": {
+                "bias_mm": -1.0088492209318431,
+                "mae_mm": 8.290499651423204,
+                "hit_rate_50": 0.16324698860615486,
+                "false_alarm_ratio_50": 0.606346974365337
+              },
+              "himalaya": {
+                "bias_mm": 0.6530431810806921,
+                "mae_mm": 7.708375027583171,
+                "hit_rate_50": 0.2514867509786209,
+                "false_alarm_ratio_50": 0.7078806426931905
+              },
+              "western_ghats": {
+                "bias_mm": -2.0312491553941925,
+                "mae_mm": 8.789134430354897,
+                "hit_rate_50": 0.21431067899469386,
+                "false_alarm_ratio_50": 0.5658191181203733
+              }
+            }
+          },
+          "gfs+map": {
+            "pairs": 309385,
+            "agreement": 0.8155243466877838,
+            "within_one": 0.9839617305299223,
+            "watch_recall": 0.8672987551092779,
+            "watch_precision": 0.839745559029221,
+            "warning_recall": 0.7837148600402029,
+            "warning_precision": 0.6997589070452719,
+            "observed_warning": 33331,
+            "agreement_se": 0.0045057958968542896,
+            "delta_vs_baseline": -0.0018743778539594969,
+            "delta_se": 0.0006683848044655548,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.4940575560990911,
+                "mae_mm": 8.827679551417054,
+                "hit_rate_50": 0.29317569846614716,
+                "false_alarm_ratio_50": 0.6708398455677759
+              },
+              "himalaya": {
+                "bias_mm": 0.7484827068320393,
+                "mae_mm": 8.02229944476282,
+                "hit_rate_50": 0.30265733212887685,
+                "false_alarm_ratio_50": 0.7489384288747346
+              },
+              "western_ghats": {
+                "bias_mm": -1.1971396292092022,
+                "mae_mm": 9.111006248393279,
+                "hit_rate_50": 0.2902805579385505,
+                "false_alarm_ratio_50": 0.5877070264903651
+              }
+            }
+          },
+          "ecmwf_hres": {
+            "pairs": 309386,
+            "agreement": 0.812076176685435,
+            "within_one": 0.9856942460227677,
+            "watch_recall": 0.9029003900782023,
+            "watch_precision": 0.8075671073717948,
+            "warning_recall": 0.8036962587381117,
+            "warning_precision": 0.6960814884107681,
+            "observed_warning": 33331,
+            "agreement_se": 0.003988999906256162,
+            "delta_vs_baseline": -0.005322547856308368,
+            "delta_se": 0.0014962580892806843,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.2842810895943209,
+                "mae_mm": 8.056471426667894,
+                "hit_rate_50": 0.1869636803320394,
+                "false_alarm_ratio_50": 0.5736763546059536
+              },
+              "himalaya": {
+                "bias_mm": 1.6207487325596142,
+                "mae_mm": 7.8784366829248595,
+                "hit_rate_50": 0.24478696175850648,
+                "false_alarm_ratio_50": 0.7117306797278429
+              },
+              "western_ghats": {
+                "bias_mm": -0.682147469869071,
+                "mae_mm": 9.082947411808673,
+                "hit_rate_50": 0.23702856416611062,
+                "false_alarm_ratio_50": 0.5447888699048083
+              }
+            }
+          },
+          "ecmwf_hres+map": {
+            "pairs": 309385,
+            "agreement": 0.8181456760993584,
+            "within_one": 0.9827625773712365,
+            "watch_recall": 0.8716754698669255,
+            "watch_precision": 0.8393418758873533,
+            "warning_recall": 0.7446221235486484,
+            "warning_precision": 0.7093980449322587,
+            "observed_warning": 33331,
+            "agreement_se": 0.004064683297145552,
+            "delta_vs_baseline": 0.0007469515576150609,
+            "delta_se": 0.0017380392970058238,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.2058722199927351,
+                "mae_mm": 8.47236842279677,
+                "hit_rate_50": 0.35421823815594644,
+                "false_alarm_ratio_50": 0.6404267790196966
+              },
+              "himalaya": {
+                "bias_mm": 0.7725893600044929,
+                "mae_mm": 7.936722232624681,
+                "hit_rate_50": 0.3219850948509485,
+                "false_alarm_ratio_50": 0.7541669061440313
+              },
+              "western_ghats": {
+                "bias_mm": -0.2979341889851092,
+                "mae_mm": 9.54911862147098,
+                "hit_rate_50": 0.3520795602579989,
+                "false_alarm_ratio_50": 0.6047722652209581
+              }
+            }
+          },
+          "ecmwf_ens_mean": {
+            "pairs": 309386,
+            "agreement": 0.8182658555978616,
+            "within_one": 0.9876432676333124,
+            "watch_recall": 0.917215700181041,
+            "watch_precision": 0.8092595489613266,
+            "warning_recall": 0.8264378506495454,
+            "warning_precision": 0.7015229460602047,
+            "observed_warning": 33331,
+            "agreement_se": 0.0038370685352596503,
+            "delta_vs_baseline": 0.0008671310561182421,
+            "delta_se": 0.0015102206546008733,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.4097231200555149,
+                "mae_mm": 7.632949859687738,
+                "hit_rate_50": 0.1636557492325019,
+                "false_alarm_ratio_50": 0.4951279089249654
+              },
+              "himalaya": {
+                "bias_mm": 1.414816746154816,
+                "mae_mm": 7.248067760968284,
+                "hit_rate_50": 0.24226513098464317,
+                "false_alarm_ratio_50": 0.622525877488784
+              },
+              "western_ghats": {
+                "bias_mm": -0.5212301465306745,
+                "mae_mm": 8.743558503455837,
+                "hit_rate_50": 0.2355352206653322,
+                "false_alarm_ratio_50": 0.48709610461495884
+              }
+            }
+          },
+          "ecmwf_ens_mean+map": {
+            "pairs": 309386,
+            "agreement": 0.8271608928652234,
+            "within_one": 0.9844466136153542,
+            "watch_recall": 0.8787398047742586,
+            "watch_precision": 0.8532980526129783,
+            "warning_recall": 0.7634634424409709,
+            "warning_precision": 0.7157483194104576,
+            "observed_warning": 33331,
+            "agreement_se": 0.003957519766554699,
+            "delta_vs_baseline": 0.009762168323480092,
+            "delta_se": 0.001938129361453477,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.252524672706523,
+                "mae_mm": 7.942530556699921,
+                "hit_rate_50": 0.38395485910621485,
+                "false_alarm_ratio_50": 0.6089663905911122
+              },
+              "himalaya": {
+                "bias_mm": 0.8247056631824669,
+                "mae_mm": 7.45250696036908,
+                "hit_rate_50": 0.3683378500451671,
+                "false_alarm_ratio_50": 0.7154322603157987
+              },
+              "western_ghats": {
+                "bias_mm": -0.9583483908212684,
+                "mae_mm": 8.85841758565787,
+                "hit_rate_50": 0.345534267467353,
+                "false_alarm_ratio_50": 0.5593955108986306
+              }
+            }
+          }
+        }
+      },
+      "2": {
+        "days": 122,
+        "candidates": {
+          "gfs": {
+            "pairs": 309378,
+            "agreement": 0.7967470214430243,
+            "within_one": 0.980509279910013,
+            "watch_recall": 0.8570444303750326,
+            "watch_precision": 0.8194969953260628,
+            "warning_recall": 0.7450509177205683,
+            "warning_precision": 0.6715949092878418,
+            "observed_warning": 33289,
+            "agreement_se": 0.004484243660915489,
+            "delta_vs_baseline": 0.0,
+            "delta_se": 0.0,
+            "rain": {
+              "domain": {
+                "bias_mm": -1.10582285652901,
+                "mae_mm": 8.663939508767932,
+                "hit_rate_50": 0.1408495889547707,
+                "false_alarm_ratio_50": 0.6632308524700193
+              },
+              "himalaya": {
+                "bias_mm": 1.1743113570272752,
+                "mae_mm": 8.297949161340451,
+                "hit_rate_50": 0.20455958549222797,
+                "false_alarm_ratio_50": 0.7889057396173589
+              },
+              "western_ghats": {
+                "bias_mm": -3.551982158113759,
+                "mae_mm": 8.815616863480246,
+                "hit_rate_50": 0.1625330849916675,
+                "false_alarm_ratio_50": 0.584911958608028
+              }
+            }
+          },
+          "gfs+map": {
+            "pairs": 309386,
+            "agreement": 0.7923855636648071,
+            "within_one": 0.978286024577712,
+            "watch_recall": 0.84828311794719,
+            "watch_precision": 0.8177151114262379,
+            "warning_recall": 0.736068971732404,
+            "warning_precision": 0.6631393775372124,
+            "observed_warning": 33289,
+            "agreement_se": 0.004906143099450144,
+            "delta_vs_baseline": -0.004361457778217281,
+            "delta_se": 0.0007319865378529223,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.6821257742741713,
+                "mae_mm": 9.221491791923912,
+                "hit_rate_50": 0.2572083297528,
+                "false_alarm_ratio_50": 0.7058499800174274
+              },
+              "himalaya": {
+                "bias_mm": 1.251883234964583,
+                "mae_mm": 8.692138307723628,
+                "hit_rate_50": 0.26108337258596326,
+                "false_alarm_ratio_50": 0.8111121713171848
+              },
+              "western_ghats": {
+                "bias_mm": -1.9486510537133432,
+                "mae_mm": 9.32725426825215,
+                "hit_rate_50": 0.25298173381694605,
+                "false_alarm_ratio_50": 0.6184139188722954
+              }
+            }
+          },
+          "ecmwf_hres": {
+            "pairs": 309385,
+            "agreement": 0.7943306883009842,
+            "within_one": 0.9822874412140213,
+            "watch_recall": 0.8811962310528472,
+            "watch_precision": 0.7972773757676335,
+            "warning_recall": 0.7706149178407282,
+            "warning_precision": 0.6678555622087423,
+            "observed_warning": 33289,
+            "agreement_se": 0.004255607268572575,
+            "delta_vs_baseline": -0.00241633314204015,
+            "delta_se": 0.0019862324506400384,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.4247061888143921,
+                "mae_mm": 8.360427967640554,
+                "hit_rate_50": 0.15447280226862595,
+                "false_alarm_ratio_50": 0.6120371502773322
+              },
+              "himalaya": {
+                "bias_mm": 1.7411015995220784,
+                "mae_mm": 8.257225609203056,
+                "hit_rate_50": 0.22818652849740934,
+                "false_alarm_ratio_50": 0.7327905745300503
+              },
+              "western_ghats": {
+                "bias_mm": -0.7661381258558219,
+                "mae_mm": 9.320373430499018,
+                "hit_rate_50": 0.2172662810835539,
+                "false_alarm_ratio_50": 0.5903517959460292
+              }
+            }
+          },
+          "ecmwf_hres+map": {
+            "pairs": 309385,
+            "agreement": 0.796764549024678,
+            "within_one": 0.9786544273316418,
+            "watch_recall": 0.8454526833265056,
+            "watch_precision": 0.8219209080458729,
+            "warning_recall": 0.7045270209378474,
+            "warning_precision": 0.6779303367538662,
+            "observed_warning": 33289,
+            "agreement_se": 0.004472339176606528,
+            "delta_vs_baseline": 1.752758165363133e-05,
+            "delta_se": 0.0021424781427012117,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.6096707080621718,
+                "mae_mm": 8.72944828341922,
+                "hit_rate_50": 0.3186674687061385,
+                "false_alarm_ratio_50": 0.6670019096879247
+              },
+              "himalaya": {
+                "bias_mm": 0.5795960975862955,
+                "mae_mm": 8.192982046186204,
+                "hit_rate_50": 0.28932642487046634,
+                "false_alarm_ratio_50": 0.7758509955041747
+              },
+              "western_ghats": {
+                "bias_mm": -1.0064196662550506,
+                "mae_mm": 9.55353098876228,
+                "hit_rate_50": 0.28353429402346175,
+                "false_alarm_ratio_50": 0.6206278419027632
+              }
+            }
+          },
+          "ecmwf_ens_mean": {
+            "pairs": 309386,
+            "agreement": 0.8035560755819591,
+            "within_one": 0.9850090178611831,
+            "watch_recall": 0.8947432125432945,
+            "watch_precision": 0.8056454452473969,
+            "warning_recall": 0.7974706359458079,
+            "warning_precision": 0.6775823783149136,
+            "observed_warning": 33289,
+            "agreement_se": 0.003990542906018808,
+            "delta_vs_baseline": 0.006809054138934734,
+            "delta_se": 0.001955989189006415,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.569602959217996,
+                "mae_mm": 7.878500295032309,
+                "hit_rate_50": 0.11468018676061986,
+                "false_alarm_ratio_50": 0.5210718344398588
+              },
+              "himalaya": {
+                "bias_mm": 1.5910634307342364,
+                "mae_mm": 7.579648680630746,
+                "hit_rate_50": 0.2036740461610928,
+                "false_alarm_ratio_50": 0.6400386267523559
+              },
+              "western_ghats": {
+                "bias_mm": -0.760544423857933,
+                "mae_mm": 8.688534088276443,
+                "hit_rate_50": 0.2054373754207104,
+                "false_alarm_ratio_50": 0.5077513310366426
+              }
+            }
+          },
+          "ecmwf_ens_mean+map": {
+            "pairs": 309385,
+            "agreement": 0.806790891607544,
+            "within_one": 0.9801994278972801,
+            "watch_recall": 0.8501080034263155,
+            "watch_precision": 0.8400110400662404,
+            "warning_recall": 0.7321938177776443,
+            "warning_precision": 0.6841056442785372,
+            "observed_warning": 33289,
+            "agreement_se": 0.004341415714830929,
+            "delta_vs_baseline": 0.010043870164519686,
+            "delta_se": 0.0022775657266332783,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.6972515013713442,
+                "mae_mm": 8.172689236211628,
+                "hit_rate_50": 0.3442238835896995,
+                "false_alarm_ratio_50": 0.632755343401808
+              },
+              "himalaya": {
+                "bias_mm": 0.7757728085751561,
+                "mae_mm": 7.7660534515788,
+                "hit_rate_50": 0.3250117757889779,
+                "false_alarm_ratio_50": 0.7448187103359517
+              },
+              "western_ghats": {
+                "bias_mm": -1.3397425435896022,
+                "mae_mm": 8.847265797773323,
+                "hit_rate_50": 0.31908636408195273,
+                "false_alarm_ratio_50": 0.5731893876480615
+              }
+            }
+          }
+        }
+      },
+      "3": {
+        "days": 122,
+        "candidates": {
+          "gfs": {
+            "pairs": 309362,
+            "agreement": 0.7726126673605679,
+            "within_one": 0.9758761580284586,
+            "watch_recall": 0.8385688543775891,
+            "watch_precision": 0.7904981218643015,
+            "warning_recall": 0.705004812319538,
+            "warning_precision": 0.6443454835340041,
+            "observed_warning": 33248,
+            "agreement_se": 0.005035877906397589,
+            "delta_vs_baseline": 0.0,
+            "delta_se": 0.0,
+            "rain": {
+              "domain": {
+                "bias_mm": -1.071768780423275,
+                "mae_mm": 8.999900524019846,
+                "hit_rate_50": 0.13036553202602374,
+                "false_alarm_ratio_50": 0.7026335255726265
+              },
+              "himalaya": {
+                "bias_mm": 1.1429057930886384,
+                "mae_mm": 8.731487047744189,
+                "hit_rate_50": 0.15547729797932242,
+                "false_alarm_ratio_50": 0.8285749880608791
+              },
+              "western_ghats": {
+                "bias_mm": -4.097599777500139,
+                "mae_mm": 8.999739032231444,
+                "hit_rate_50": 0.12092085363804403,
+                "false_alarm_ratio_50": 0.6184112843355605
+              }
+            }
+          },
+          "gfs+map": {
+            "pairs": 309385,
+            "agreement": 0.7654508137110719,
+            "within_one": 0.9726521971006997,
+            "watch_recall": 0.830621191856145,
+            "watch_precision": 0.78365873321883,
+            "warning_recall": 0.6987487969201155,
+            "warning_precision": 0.6287075124485819,
+            "observed_warning": 33248,
+            "agreement_se": 0.00555783973216867,
+            "delta_vs_baseline": -0.007161853649495953,
+            "delta_se": 0.0009475122351666937,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.8528354278505449,
+                "mae_mm": 9.561711465387138,
+                "hit_rate_50": 0.22896189134196773,
+                "false_alarm_ratio_50": 0.7393375458222521
+              },
+              "himalaya": {
+                "bias_mm": 1.4842375879773795,
+                "mae_mm": 9.364835308112534,
+                "hit_rate_50": 0.2164554339842941,
+                "false_alarm_ratio_50": 0.8516156517473309
+              },
+              "western_ghats": {
+                "bias_mm": -2.560690821280037,
+                "mae_mm": 9.482217100067093,
+                "hit_rate_50": 0.20917492858343137,
+                "false_alarm_ratio_50": 0.643037393897683
+              }
+            }
+          },
+          "ecmwf_hres": {
+            "pairs": 309385,
+            "agreement": 0.7764953052022561,
+            "within_one": 0.9777881927048823,
+            "watch_recall": 0.8647365879031059,
+            "watch_precision": 0.7817569610049374,
+            "warning_recall": 0.749157844080847,
+            "warning_precision": 0.6405225396662123,
+            "observed_warning": 33248,
+            "agreement_se": 0.004601428933237285,
+            "delta_vs_baseline": 0.0038826378416881857,
+            "delta_se": 0.0022695113788128215,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.5091683940138195,
+                "mae_mm": 8.650822078021553,
+                "hit_rate_50": 0.13417668481364667,
+                "false_alarm_ratio_50": 0.6595028803227709
+              },
+              "himalaya": {
+                "bias_mm": 1.6564318201496158,
+                "mae_mm": 8.579002005140508,
+                "hit_rate_50": 0.18261426338487033,
+                "false_alarm_ratio_50": 0.7796436849520519
+              },
+              "western_ghats": {
+                "bias_mm": -0.9889976757696509,
+                "mae_mm": 9.384282434713391,
+                "hit_rate_50": 0.2150562930599899,
+                "false_alarm_ratio_50": 0.5966338880484114
+              }
+            }
+          },
+          "ecmwf_hres+map": {
+            "pairs": 309385,
+            "agreement": 0.7786091762690499,
+            "within_one": 0.9743846663542188,
+            "watch_recall": 0.8256613166889583,
+            "watch_precision": 0.8044560279451956,
+            "warning_recall": 0.6856953801732435,
+            "warning_precision": 0.6499045012685652,
+            "observed_warning": 33248,
+            "agreement_se": 0.004622080263690321,
+            "delta_vs_baseline": 0.005996508908482023,
+            "delta_se": 0.0023535315912598656,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.8688794455382673,
+                "mae_mm": 9.040369241290827,
+                "hit_rate_50": 0.27423367991482306,
+                "false_alarm_ratio_50": 0.6899161163662324
+              },
+              "himalaya": {
+                "bias_mm": 0.48366854950446253,
+                "mae_mm": 8.472191497618192,
+                "hit_rate_50": 0.2313892393740231,
+                "false_alarm_ratio_50": 0.8060610843658749
+              },
+              "western_ghats": {
+                "bias_mm": -1.790043912990214,
+                "mae_mm": 9.322401029544105,
+                "hit_rate_50": 0.26388842211393043,
+                "false_alarm_ratio_50": 0.613696743087671
+              }
+            }
+          },
+          "ecmwf_ens_mean": {
+            "pairs": 309385,
+            "agreement": 0.7846146387187485,
+            "within_one": 0.9814341354622881,
+            "watch_recall": 0.8785480754941298,
+            "watch_precision": 0.7888446879665074,
+            "warning_recall": 0.78125,
+            "warning_precision": 0.651819322459222,
+            "observed_warning": 33248,
+            "agreement_se": 0.004434198540165989,
+            "delta_vs_baseline": 0.012001971358180596,
+            "delta_se": 0.0023449087559748705,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.6427534267140113,
+                "mae_mm": 8.067679028786898,
+                "hit_rate_50": 0.08162984178550212,
+                "false_alarm_ratio_50": 0.5487085105032684
+              },
+              "himalaya": {
+                "bias_mm": 1.473710141843716,
+                "mae_mm": 7.821093907410964,
+                "hit_rate_50": 0.14331180203762642,
+                "false_alarm_ratio_50": 0.6674823035917155
+              },
+              "western_ghats": {
+                "bias_mm": -0.9733048629128155,
+                "mae_mm": 8.538199412450158,
+                "hit_rate_50": 0.18326331708956478,
+                "false_alarm_ratio_50": 0.4596710265556877
+              }
+            }
+          },
+          "ecmwf_ens_mean+map": {
+            "pairs": 309385,
+            "agreement": 0.7863277146597282,
+            "within_one": 0.9746173861046916,
+            "watch_recall": 0.8265901322633378,
+            "watch_precision": 0.823400967792674,
+            "warning_recall": 0.7072004331087585,
+            "warning_precision": 0.6490104612327141,
+            "observed_warning": 33248,
+            "agreement_se": 0.0048132581103073275,
+            "delta_vs_baseline": 0.013715047299160288,
+            "delta_se": 0.0025740369296186377,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.9176578205743617,
+                "mae_mm": 8.38738419828992,
+                "hit_rate_50": 0.3024270270425397,
+                "false_alarm_ratio_50": 0.641177992822266
+              },
+              "himalaya": {
+                "bias_mm": 0.8843660335452117,
+                "mae_mm": 8.187208829354905,
+                "hit_rate_50": 0.273290521835747,
+                "false_alarm_ratio_50": 0.7704342323815551
+              },
+              "western_ghats": {
+                "bias_mm": -1.5853594575310703,
+                "mae_mm": 8.734663030373495,
+                "hit_rate_50": 0.33066711477062677,
+                "false_alarm_ratio_50": 0.5591450846850076
+              }
+            }
+          }
+        }
+      }
+    },
+    "2023": {
+      "1": {
+        "days": 80,
+        "candidates": {
+          "gfs": {
+            "pairs": 202872,
+            "agreement": 0.8358965258882448,
+            "within_one": 0.9875389408099688,
+            "watch_recall": 0.893134291145947,
+            "watch_precision": 0.8300291080764051,
+            "warning_recall": 0.7892151196393481,
+            "warning_precision": 0.6486935866983373,
+            "observed_warning": 17302,
+            "agreement_se": 0.004761111018933884,
+            "delta_vs_baseline": 0.0,
+            "delta_se": 0.0,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.08786792112620813,
+                "mae_mm": 7.329732742532595,
+                "hit_rate_50": 0.1561556578524783,
+                "false_alarm_ratio_50": 0.6552510606114321
+              },
+              "himalaya": {
+                "bias_mm": 0.9333456720943533,
+                "mae_mm": 6.865626228910929,
+                "hit_rate_50": 0.2264243960842313,
+                "false_alarm_ratio_50": 0.7634463983518505
+              },
+              "western_ghats": {
+                "bias_mm": 0.2794029034251987,
+                "mae_mm": 6.142855002643402,
+                "hit_rate_50": 0.2703714098606044,
+                "false_alarm_ratio_50": 0.6881743634009495
+              }
+            }
+          },
+          "gfs+map": {
+            "pairs": 202877,
+            "agreement": 0.8358364920616925,
+            "within_one": 0.9858830720091484,
+            "watch_recall": 0.8824446037335992,
+            "watch_precision": 0.839784085179583,
+            "warning_recall": 0.7706623511732748,
+            "warning_precision": 0.644247958641349,
+            "observed_warning": 17302,
+            "agreement_se": 0.005074416443939081,
+            "delta_vs_baseline": -6.003382655228595e-05,
+            "delta_se": 0.000810512806125914,
+            "rain": {
+              "domain": {
+                "bias_mm": 0.3140823145833258,
+                "mae_mm": 7.7981309323140735,
+                "hit_rate_50": 0.2848356706990686,
+                "false_alarm_ratio_50": 0.7179004622757539
+              },
+              "himalaya": {
+                "bias_mm": 0.9463129867379027,
+                "mae_mm": 7.114686179301072,
+                "hit_rate_50": 0.28431579688710473,
+                "false_alarm_ratio_50": 0.7863116663137836
+              },
+              "western_ghats": {
+                "bias_mm": 0.8473582918836555,
+                "mae_mm": 6.4051353438461085,
+                "hit_rate_50": 0.3429694078024137,
+                "false_alarm_ratio_50": 0.7040445628481472
+              }
+            }
+          },
+          "ecmwf_hres": {
+            "pairs": 202878,
+            "agreement": 0.8382131132996185,
+            "within_one": 0.9908072831948265,
+            "watch_recall": 0.909480474958706,
+            "watch_precision": 0.8145393139252519,
+            "warning_recall": 0.7884059646283667,
+            "warning_precision": 0.6767040380990178,
+            "observed_warning": 17302,
+            "agreement_se": 0.004855226139273159,
+            "delta_vs_baseline": 0.0023165874113736384,
+            "delta_se": 0.0019392065431773167,
+            "rain": {
+              "domain": {
+                "bias_mm": 0.17084958382544574,
+                "mae_mm": 6.692217263105699,
+                "hit_rate_50": 0.15344181565142917,
+                "false_alarm_ratio_50": 0.5616618499319541
+              },
+              "himalaya": {
+                "bias_mm": 1.002401687304755,
+                "mae_mm": 6.4934144475250015,
+                "hit_rate_50": 0.170258468906261,
+                "false_alarm_ratio_50": 0.7008229688756884
+              },
+              "western_ghats": {
+                "bias_mm": 0.22918720986995944,
+                "mae_mm": 5.834876550546615,
+                "hit_rate_50": 0.16110019646365423,
+                "false_alarm_ratio_50": 0.6354012280330299
+              }
+            }
+          },
+          "ecmwf_hres+map": {
+            "pairs": 202878,
+            "agreement": 0.8487071047624681,
+            "within_one": 0.9893236329222488,
+            "watch_recall": 0.8762427151182722,
+            "watch_precision": 0.857430392485743,
+            "warning_recall": 0.7151196393480522,
+            "warning_precision": 0.702971422078291,
+            "observed_warning": 17302,
+            "agreement_se": 0.0049885618175545265,
+            "delta_vs_baseline": 0.012810578874223322,
+            "delta_se": 0.00210112048767119,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.0023024867796735673,
+                "mae_mm": 6.882926386606042,
+                "hit_rate_50": 0.35516539985012313,
+                "false_alarm_ratio_50": 0.6448859227068136
+              },
+              "himalaya": {
+                "bias_mm": -0.0036789010619188967,
+                "mae_mm": 6.432983726775301,
+                "hit_rate_50": 0.24452426227199098,
+                "false_alarm_ratio_50": 0.7554671268091699
+              },
+              "western_ghats": {
+                "bias_mm": -0.0034593594449959437,
+                "mae_mm": 5.8924419784274535,
+                "hit_rate_50": 0.3518570493030218,
+                "false_alarm_ratio_50": 0.64794533370776
+              }
+            }
+          },
+          "ecmwf_ens_mean": {
+            "pairs": 202878,
+            "agreement": 0.8402636066995929,
+            "within_one": 0.9920247636510612,
+            "watch_recall": 0.9209960420107832,
+            "watch_precision": 0.8106432588122343,
+            "warning_recall": 0.8149346896312565,
+            "warning_precision": 0.6786676934924913,
+            "observed_warning": 17302,
+            "agreement_se": 0.004776790247210327,
+            "delta_vs_baseline": 0.0043670808113480675,
+            "delta_se": 0.001996366667402669,
+            "rain": {
+              "domain": {
+                "bias_mm": 0.12133027049307686,
+                "mae_mm": 6.4162486217316985,
+                "hit_rate_50": 0.1219194947007815,
+                "false_alarm_ratio_50": 0.5056216357006424
+              },
+              "himalaya": {
+                "bias_mm": 0.9200619919599313,
+                "mae_mm": 6.096900260071666,
+                "hit_rate_50": 0.15825058102683287,
+                "false_alarm_ratio_50": 0.6077849537441089
+              },
+              "western_ghats": {
+                "bias_mm": 0.8189769779429646,
+                "mae_mm": 5.836605063838067,
+                "hit_rate_50": 0.19477968004490598,
+                "false_alarm_ratio_50": 0.625135037810587
+              }
+            }
+          },
+          "ecmwf_ens_mean+map": {
+            "pairs": 202877,
+            "agreement": 0.855498651892526,
+            "within_one": 0.9903931939056669,
+            "watch_recall": 0.8809954187053947,
+            "watch_precision": 0.8692917986407946,
+            "warning_recall": 0.7358108889145764,
+            "warning_precision": 0.709089896401916,
+            "observed_warning": 17302,
+            "agreement_se": 0.004919068338846741,
+            "delta_vs_baseline": 0.01960212600428124,
+            "delta_se": 0.0021045852315433014,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.0037740519849051323,
+                "mae_mm": 6.465383961120145,
+                "hit_rate_50": 0.38161331763194517,
+                "false_alarm_ratio_50": 0.6184050655947417
+              },
+              "himalaya": {
+                "bias_mm": -0.0019518636926338304,
+                "mae_mm": 6.100093319205223,
+                "hit_rate_50": 0.2731530389464047,
+                "false_alarm_ratio_50": 0.7277959083412289
+              },
+              "western_ghats": {
+                "bias_mm": -0.003357312404520457,
+                "mae_mm": 5.689191013983003,
+                "hit_rate_50": 0.3445598278604173,
+                "false_alarm_ratio_50": 0.6559872968428918
+              }
+            }
+          }
+        }
+      },
+      "2": {
+        "days": 80,
+        "candidates": {
+          "gfs": {
+            "pairs": 202865,
+            "agreement": 0.8248687550834298,
+            "within_one": 0.9850935351095557,
+            "watch_recall": 0.8696434157022208,
+            "watch_precision": 0.8246696427247245,
+            "warning_recall": 0.7306620209059234,
+            "warning_precision": 0.6347812925684879,
+            "observed_warning": 17220,
+            "agreement_se": 0.005118219234882868,
+            "delta_vs_baseline": 0.0,
+            "delta_se": 0.0,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.40704628480638627,
+                "mae_mm": 7.535230332180098,
+                "hit_rate_50": 0.13025884771019333,
+                "false_alarm_ratio_50": 0.6837591288302103
+              },
+              "himalaya": {
+                "bias_mm": 0.6760844827659658,
+                "mae_mm": 6.89837089982201,
+                "hit_rate_50": 0.16060324494317776,
+                "false_alarm_ratio_50": 0.8031709880868956
+              },
+              "western_ghats": {
+                "bias_mm": -1.2687854348110739,
+                "mae_mm": 5.889286849783591,
+                "hit_rate_50": 0.19171866137266025,
+                "false_alarm_ratio_50": 0.6220648527767425
+              }
+            }
+          },
+          "gfs+map": {
+            "pairs": 202877,
+            "agreement": 0.8214632511324595,
+            "within_one": 0.9828319622234162,
+            "watch_recall": 0.8578220547066827,
+            "watch_precision": 0.8276746642523012,
+            "warning_recall": 0.7123693379790941,
+            "warning_precision": 0.6244019138755981,
+            "observed_warning": 17220,
+            "agreement_se": 0.005557200987731876,
+            "delta_vs_baseline": -0.003405503950970279,
+            "delta_se": 0.0008238565334284982,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.15186418206677746,
+                "mae_mm": 7.993219505610982,
+                "hit_rate_50": 0.24427815959063953,
+                "false_alarm_ratio_50": 0.7366896679051949
+              },
+              "himalaya": {
+                "bias_mm": 0.5729596484789822,
+                "mae_mm": 7.158432758960468,
+                "hit_rate_50": 0.20724036880851976,
+                "false_alarm_ratio_50": 0.8273953031520671
+              },
+              "western_ghats": {
+                "bias_mm": -0.10415141209599185,
+                "mae_mm": 6.273997846635696,
+                "hit_rate_50": 0.29835507657402155,
+                "false_alarm_ratio_50": 0.6565084893339138
+              }
+            }
+          },
+          "ecmwf_hres": {
+            "pairs": 202878,
+            "agreement": 0.8249933457545914,
+            "within_one": 0.988392038565049,
+            "watch_recall": 0.8901174520260865,
+            "watch_precision": 0.8088998166597974,
+            "warning_recall": 0.7559814169570267,
+            "warning_precision": 0.6414387780241438,
+            "observed_warning": 17220,
+            "agreement_se": 0.005099446014230074,
+            "delta_vs_baseline": 0.00012459067116155076,
+            "delta_se": 0.0019487002524290393,
+            "rain": {
+              "domain": {
+                "bias_mm": 0.29960968099971264,
+                "mae_mm": 7.089993911620806,
+                "hit_rate_50": 0.12691352473933243,
+                "false_alarm_ratio_50": 0.6398967271622751
+              },
+              "himalaya": {
+                "bias_mm": 1.2543457105841103,
+                "mae_mm": 6.812694094425431,
+                "hit_rate_50": 0.1447359016510614,
+                "false_alarm_ratio_50": 0.7627972355628441
+              },
+              "western_ghats": {
+                "bias_mm": 0.5295463786104779,
+                "mae_mm": 6.160082447284509,
+                "hit_rate_50": 0.19928152769899793,
+                "false_alarm_ratio_50": 0.6938271604938272
+              }
+            }
+          },
+          "ecmwf_hres+map": {
+            "pairs": 202877,
+            "agreement": 0.8322628982092598,
+            "within_one": 0.9855676099311406,
+            "watch_recall": 0.8499867064950501,
+            "watch_precision": 0.8460173409504833,
+            "warning_recall": 0.6776422764227642,
+            "warning_precision": 0.6617330157649994,
+            "observed_warning": 17220,
+            "agreement_se": 0.005462054162015363,
+            "delta_vs_baseline": 0.007394143125829977,
+            "delta_se": 0.0020413214922725977,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.0003875128361115048,
+                "mae_mm": 7.316014063291848,
+                "hit_rate_50": 0.30070439120474446,
+                "false_alarm_ratio_50": 0.6991039532106111
+              },
+              "himalaya": {
+                "bias_mm": -0.0035249167306817034,
+                "mae_mm": 6.644381599218245,
+                "hit_rate_50": 0.20327353298549067,
+                "false_alarm_ratio_50": 0.7966247139588101
+              },
+              "western_ghats": {
+                "bias_mm": -0.0023638816174179683,
+                "mae_mm": 6.116842964327327,
+                "hit_rate_50": 0.2923993193420306,
+                "false_alarm_ratio_50": 0.7080698442661633
+              }
+            }
+          },
+          "ecmwf_ens_mean": {
+            "pairs": 202878,
+            "agreement": 0.8283549719535879,
+            "within_one": 0.9900974970179123,
+            "watch_recall": 0.9000172033593469,
+            "watch_precision": 0.808565045733635,
+            "warning_recall": 0.7799651567944251,
+            "warning_precision": 0.6487152241112828,
+            "observed_warning": 17220,
+            "agreement_se": 0.004725319494029038,
+            "delta_vs_baseline": 0.003486216870158043,
+            "delta_se": 0.0020299678126896974,
+            "rain": {
+              "domain": {
+                "bias_mm": 0.24617497359158647,
+                "mae_mm": 6.72631983563817,
+                "hit_rate_50": 0.09470743143426039,
+                "false_alarm_ratio_50": 0.5552483410416248
+              },
+              "himalaya": {
+                "bias_mm": 1.171568004360799,
+                "mae_mm": 6.358754687063979,
+                "hit_rate_50": 0.11164319919948539,
+                "false_alarm_ratio_50": 0.7015381675742811
+              },
+              "western_ghats": {
+                "bias_mm": 0.900154403750633,
+                "mae_mm": 5.984887155969335,
+                "hit_rate_50": 0.19493287956135374,
+                "false_alarm_ratio_50": 0.5727310401989225
+              }
+            }
+          },
+          "ecmwf_ens_mean+map": {
+            "pairs": 202877,
+            "agreement": 0.8385721397694169,
+            "within_one": 0.9863907687909423,
+            "watch_recall": 0.851206581066921,
+            "watch_precision": 0.8613229941446432,
+            "warning_recall": 0.6967479674796748,
+            "warning_precision": 0.6630560928433269,
+            "observed_warning": 17220,
+            "agreement_se": 0.005373230524659591,
+            "delta_vs_baseline": 0.013703384685987086,
+            "delta_se": 0.0023462971820991515,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.0032039712867878664,
+                "mae_mm": 6.781073005836358,
+                "hit_rate_50": 0.3463453015607939,
+                "false_alarm_ratio_50": 0.6539714116118268
+              },
+              "himalaya": {
+                "bias_mm": -0.005932137639126459,
+                "mae_mm": 6.262347074858164,
+                "hit_rate_50": 0.22621685369165892,
+                "false_alarm_ratio_50": 0.7738720394384311
+              },
+              "western_ghats": {
+                "bias_mm": -0.002365084351990518,
+                "mae_mm": 5.819429948751995,
+                "hit_rate_50": 0.3642465494422386,
+                "false_alarm_ratio_50": 0.6374329537969323
+              }
+            }
+          }
+        }
+      },
+      "3": {
+        "days": 80,
+        "candidates": {
+          "gfs": {
+            "pairs": 202853,
+            "agreement": 0.8091622997934464,
+            "within_one": 0.9829088058840638,
+            "watch_recall": 0.8456020843797087,
+            "watch_precision": 0.8057038599009975,
+            "warning_recall": 0.6970932603250423,
+            "warning_precision": 0.6170465092296586,
+            "observed_warning": 17167,
+            "agreement_se": 0.005496269498782763,
+            "delta_vs_baseline": 0.0,
+            "delta_se": 0.0,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.36389404162333555,
+                "mae_mm": 7.891745232780039,
+                "hit_rate_50": 0.11835208403749067,
+                "false_alarm_ratio_50": 0.7258605691562073
+              },
+              "himalaya": {
+                "bias_mm": 0.4726162364280432,
+                "mae_mm": 7.141783436904481,
+                "hit_rate_50": 0.11361434977578476,
+                "false_alarm_ratio_50": 0.8375730844189148
+              },
+              "western_ghats": {
+                "bias_mm": -2.0957415932065833,
+                "mae_mm": 6.115250655556803,
+                "hit_rate_50": 0.08481973434535105,
+                "false_alarm_ratio_50": 0.7332139659803044
+              }
+            }
+          },
+          "gfs+map": {
+            "pairs": 202878,
+            "agreement": 0.8038919942034128,
+            "within_one": 0.9797957393113103,
+            "watch_recall": 0.8314054775170682,
+            "watch_precision": 0.8048528495677408,
+            "warning_recall": 0.6770548144696219,
+            "warning_precision": 0.6021655786965081,
+            "observed_warning": 17167,
+            "agreement_se": 0.005999789672487906,
+            "delta_vs_baseline": -0.005270305590033608,
+            "delta_se": 0.0009675266199700558,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.3101863975566965,
+                "mae_mm": 8.348473668882171,
+                "hit_rate_50": 0.217776418642331,
+                "false_alarm_ratio_50": 0.7654848083933699
+              },
+              "himalaya": {
+                "bias_mm": 0.4960895546423859,
+                "mae_mm": 7.535042146481954,
+                "hit_rate_50": 0.15878026905829595,
+                "false_alarm_ratio_50": 0.8640621640713781
+              },
+              "western_ghats": {
+                "bias_mm": -0.9699871922304912,
+                "mae_mm": 6.535493003995273,
+                "hit_rate_50": 0.1689753320683112,
+                "false_alarm_ratio_50": 0.7334231402484658
+              }
+            }
+          },
+          "ecmwf_hres": {
+            "pairs": 202878,
+            "agreement": 0.8073374146038506,
+            "within_one": 0.9842565482703891,
+            "watch_recall": 0.8743310052577886,
+            "watch_precision": 0.7875591998303527,
+            "warning_recall": 0.7285489602143648,
+            "warning_precision": 0.6067530199388735,
+            "observed_warning": 17167,
+            "agreement_se": 0.005282675916821255,
+            "delta_vs_baseline": -0.0018248851895958929,
+            "delta_se": 0.00233095212143722,
+            "rain": {
+              "domain": {
+                "bias_mm": 0.4135086985193986,
+                "mae_mm": 7.368399654332666,
+                "hit_rate_50": 0.11431759776386452,
+                "false_alarm_ratio_50": 0.6879594646047507
+              },
+              "himalaya": {
+                "bias_mm": 1.2212850786129674,
+                "mae_mm": 6.984959851673466,
+                "hit_rate_50": 0.12591928251121076,
+                "false_alarm_ratio_50": 0.8101368529236761
+              },
+              "western_ghats": {
+                "bias_mm": 0.8625790108006697,
+                "mae_mm": 6.671918621508702,
+                "hit_rate_50": 0.18377609108159393,
+                "false_alarm_ratio_50": 0.758207464735988
+              }
+            }
+          },
+          "ecmwf_hres+map": {
+            "pairs": 202878,
+            "agreement": 0.8145092124330878,
+            "within_one": 0.9812251698064847,
+            "watch_recall": 0.8297418190379031,
+            "watch_precision": 0.8243081001013487,
+            "warning_recall": 0.64519135550766,
+            "warning_precision": 0.621967654986523,
+            "observed_warning": 17167,
+            "agreement_se": 0.00565177886763032,
+            "delta_vs_baseline": 0.005346912639641377,
+            "delta_se": 0.002440456208728818,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.0010724154159178507,
+                "mae_mm": 7.621606104111488,
+                "hit_rate_50": 0.2689371381972499,
+                "false_alarm_ratio_50": 0.7310830601855081
+              },
+              "himalaya": {
+                "bias_mm": -0.0011220887504671483,
+                "mae_mm": 6.781688133037872,
+                "hit_rate_50": 0.16961434977578474,
+                "false_alarm_ratio_50": 0.8306954092959966
+              },
+              "western_ghats": {
+                "bias_mm": -0.00467074812574323,
+                "mae_mm": 6.407388569920455,
+                "hit_rate_50": 0.25777988614800756,
+                "false_alarm_ratio_50": 0.7424156238149412
+              }
+            }
+          },
+          "ecmwf_ens_mean": {
+            "pairs": 202878,
+            "agreement": 0.8092252486716155,
+            "within_one": 0.986804877808338,
+            "watch_recall": 0.8868084438515264,
+            "watch_precision": 0.7844914960083305,
+            "warning_recall": 0.7616939476903362,
+            "warning_precision": 0.6164435225344145,
+            "observed_warning": 17167,
+            "agreement_se": 0.004991346194740478,
+            "delta_vs_baseline": 6.29488781690446e-05,
+            "delta_se": 0.002576150928745381,
+            "rain": {
+              "domain": {
+                "bias_mm": 0.3227934040207759,
+                "mae_mm": 6.935148772967133,
+                "hit_rate_50": 0.06662803860660003,
+                "false_alarm_ratio_50": 0.5808781343862847
+              },
+              "himalaya": {
+                "bias_mm": 1.094182038020042,
+                "mae_mm": 6.520643361926551,
+                "hit_rate_50": 0.08401793721973094,
+                "false_alarm_ratio_50": 0.7414154797394281
+              },
+              "western_ghats": {
+                "bias_mm": 0.9107850915421623,
+                "mae_mm": 6.110230057123595,
+                "hit_rate_50": 0.12438330170777989,
+                "false_alarm_ratio_50": 0.5895428929242329
+              }
+            }
+          },
+          "ecmwf_ens_mean+map": {
+            "pairs": 202878,
+            "agreement": 0.820345232109938,
+            "within_one": 0.9810920848983132,
+            "watch_recall": 0.8274974495801617,
+            "watch_precision": 0.8428153523986125,
+            "warning_recall": 0.6661618221005418,
+            "warning_precision": 0.6222318950976659,
+            "observed_warning": 17167,
+            "agreement_se": 0.005799893492082854,
+            "delta_vs_baseline": 0.01118293231649159,
+            "delta_se": 0.002780406338040518,
+            "rain": {
+              "domain": {
+                "bias_mm": -0.002923557797312522,
+                "mae_mm": 7.076138731587471,
+                "hit_rate_50": 0.3182093748155778,
+                "false_alarm_ratio_50": 0.6820942161429161
+              },
+              "himalaya": {
+                "bias_mm": -0.0036555252427904078,
+                "mae_mm": 6.519311957839668,
+                "hit_rate_50": 0.18267264573991032,
+                "false_alarm_ratio_50": 0.8174059597661993
+              },
+              "western_ghats": {
+                "bias_mm": -0.0023405571779025877,
+                "mae_mm": 5.938802843090582,
+                "hit_rate_50": 0.35398481973434537,
+                "false_alarm_ratio_50": 0.6465852041299611
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "decision": {
+    "1": {
+      "chosen": "gfs",
+      "eligible": [],
+      "reason": "no candidate beats GFS by more than the bootstrap SE of the difference without lowering Warning+ recall"
+    },
+    "2": {
+      "chosen": "ecmwf_ens_mean",
+      "eligible": [
+        "ecmwf_ens_mean"
+      ],
+      "reason": "agreement 0.8036 vs GFS 0.7967 (+0.0068, bootstrap SE 0.0020); Warning+ recall 0.797 vs 0.745"
+    },
+    "3": {
+      "chosen": "ecmwf_ens_mean+map",
+      "eligible": [
+        "ecmwf_hres",
+        "ecmwf_ens_mean",
+        "ecmwf_ens_mean+map"
+      ],
+      "reason": "agreement 0.7863 vs GFS 0.7726 (+0.0137, bootstrap SE 0.0026); Warning+ recall 0.707 vs 0.705"
+    }
+  },
+  "widening": {
+    "chosen": {
+      "leads": {
+        "1": {
+          "lo": 0.1762242466211319,
+          "hi": 4.237882137298584,
+          "raw_lo": 0.1762242466211319,
+          "raw_hi": 4.237882137298584,
+          "n": 149308
+        },
+        "2": {
+          "lo": 0.17573727667331696,
+          "hi": 3.671823501586914,
+          "raw_lo": 0.17573727667331696,
+          "raw_hi": 3.671823501586914,
+          "n": 154529
+        },
+        "3": {
+          "lo": 0.15050876140594482,
+          "hi": 5.916541576385498,
+          "raw_lo": 0.15050876140594482,
+          "raw_hi": 5.916541576385498,
+          "n": 149695
+        }
+      },
+      "quantiles": [
+        10,
+        90
+      ]
+    },
+    "gfs_raw_2024": {
+      "leads": {
+        "1": {
+          "lo": 0.1762242466211319,
+          "hi": 4.237882137298584,
+          "raw_lo": 0.1762242466211319,
+          "raw_hi": 4.237882137298584,
+          "n": 149308
+        },
+        "2": {
+          "lo": 0.1762242466211319,
+          "hi": 5.674587726593018,
+          "raw_lo": 0.1762242466211319,
+          "raw_hi": 5.674587726593018,
+          "n": 150307
+        },
+        "3": {
+          "lo": 0.16472245752811432,
+          "hi": 6.070817470550537,
+          "raw_lo": 0.16472245752811432,
+          "raw_hi": 6.070817470550537,
+          "n": 153165
+        }
+      },
+      "quantiles": [
+        10,
+        90
+      ]
+    }
+  },
+  "gefs": "not used: its archive carries APCP as 3- and 6-hour buckets without a running total, so an IMD day needs about 29 range requests per member (31 members), about 900 per issue day and about 66 GB for the two seasons, beyond the one-hour effort allowed; GFS and ECMWF remain.",
+  "days": {
+    "2024": {
+      "1": [
+        "2024-06-01",
+        "2024-06-02",
+        "2024-06-03",
+        "2024-06-04",
+        "2024-06-05",
+        "2024-06-06",
+        "2024-06-07",
+        "2024-06-08",
+        "2024-06-09",
+        "2024-06-10",
+        "2024-06-11",
+        "2024-06-12",
+        "2024-06-13",
+        "2024-06-14",
+        "2024-06-15",
+        "2024-06-16",
+        "2024-06-17",
+        "2024-06-18",
+        "2024-06-19",
+        "2024-06-20",
+        "2024-06-21",
+        "2024-06-22",
+        "2024-06-23",
+        "2024-06-24",
+        "2024-06-25",
+        "2024-06-26",
+        "2024-06-27",
+        "2024-06-28",
+        "2024-06-29",
+        "2024-06-30",
+        "2024-07-01",
+        "2024-07-02",
+        "2024-07-03",
+        "2024-07-04",
+        "2024-07-05",
+        "2024-07-06",
+        "2024-07-07",
+        "2024-07-08",
+        "2024-07-09",
+        "2024-07-10",
+        "2024-07-11",
+        "2024-07-12",
+        "2024-07-13",
+        "2024-07-14",
+        "2024-07-15",
+        "2024-07-16",
+        "2024-07-17",
+        "2024-07-18",
+        "2024-07-19",
+        "2024-07-20",
+        "2024-07-21",
+        "2024-07-22",
+        "2024-07-23",
+        "2024-07-24",
+        "2024-07-25",
+        "2024-07-26",
+        "2024-07-27",
+        "2024-07-28",
+        "2024-07-29",
+        "2024-07-30",
+        "2024-07-31",
+        "2024-08-01",
+        "2024-08-02",
+        "2024-08-03",
+        "2024-08-04",
+        "2024-08-05",
+        "2024-08-06",
+        "2024-08-07",
+        "2024-08-08",
+        "2024-08-09",
+        "2024-08-10",
+        "2024-08-11",
+        "2024-08-12",
+        "2024-08-13",
+        "2024-08-14",
+        "2024-08-15",
+        "2024-08-16",
+        "2024-08-17",
+        "2024-08-18",
+        "2024-08-19",
+        "2024-08-20",
+        "2024-08-21",
+        "2024-08-22",
+        "2024-08-23",
+        "2024-08-24",
+        "2024-08-25",
+        "2024-08-26",
+        "2024-08-27",
+        "2024-08-28",
+        "2024-08-29",
+        "2024-08-30",
+        "2024-08-31",
+        "2024-09-01",
+        "2024-09-02",
+        "2024-09-03",
+        "2024-09-04",
+        "2024-09-05",
+        "2024-09-06",
+        "2024-09-07",
+        "2024-09-08",
+        "2024-09-09",
+        "2024-09-10",
+        "2024-09-11",
+        "2024-09-12",
+        "2024-09-13",
+        "2024-09-14",
+        "2024-09-15",
+        "2024-09-16",
+        "2024-09-17",
+        "2024-09-18",
+        "2024-09-19",
+        "2024-09-20",
+        "2024-09-21",
+        "2024-09-22",
+        "2024-09-23",
+        "2024-09-24",
+        "2024-09-25",
+        "2024-09-26",
+        "2024-09-27",
+        "2024-09-28",
+        "2024-09-29",
+        "2024-09-30"
+      ],
+      "2": [
+        "2024-06-01",
+        "2024-06-02",
+        "2024-06-03",
+        "2024-06-04",
+        "2024-06-05",
+        "2024-06-06",
+        "2024-06-07",
+        "2024-06-08",
+        "2024-06-09",
+        "2024-06-10",
+        "2024-06-11",
+        "2024-06-12",
+        "2024-06-13",
+        "2024-06-14",
+        "2024-06-15",
+        "2024-06-16",
+        "2024-06-17",
+        "2024-06-18",
+        "2024-06-19",
+        "2024-06-20",
+        "2024-06-21",
+        "2024-06-22",
+        "2024-06-23",
+        "2024-06-24",
+        "2024-06-25",
+        "2024-06-26",
+        "2024-06-27",
+        "2024-06-28",
+        "2024-06-29",
+        "2024-06-30",
+        "2024-07-01",
+        "2024-07-02",
+        "2024-07-03",
+        "2024-07-04",
+        "2024-07-05",
+        "2024-07-06",
+        "2024-07-07",
+        "2024-07-08",
+        "2024-07-09",
+        "2024-07-10",
+        "2024-07-11",
+        "2024-07-12",
+        "2024-07-13",
+        "2024-07-14",
+        "2024-07-15",
+        "2024-07-16",
+        "2024-07-17",
+        "2024-07-18",
+        "2024-07-19",
+        "2024-07-20",
+        "2024-07-21",
+        "2024-07-22",
+        "2024-07-23",
+        "2024-07-24",
+        "2024-07-25",
+        "2024-07-26",
+        "2024-07-27",
+        "2024-07-28",
+        "2024-07-29",
+        "2024-07-30",
+        "2024-07-31",
+        "2024-08-01",
+        "2024-08-02",
+        "2024-08-03",
+        "2024-08-04",
+        "2024-08-05",
+        "2024-08-06",
+        "2024-08-07",
+        "2024-08-08",
+        "2024-08-09",
+        "2024-08-10",
+        "2024-08-11",
+        "2024-08-12",
+        "2024-08-13",
+        "2024-08-14",
+        "2024-08-15",
+        "2024-08-16",
+        "2024-08-17",
+        "2024-08-18",
+        "2024-08-19",
+        "2024-08-20",
+        "2024-08-21",
+        "2024-08-22",
+        "2024-08-23",
+        "2024-08-24",
+        "2024-08-25",
+        "2024-08-26",
+        "2024-08-27",
+        "2024-08-28",
+        "2024-08-29",
+        "2024-08-30",
+        "2024-08-31",
+        "2024-09-01",
+        "2024-09-02",
+        "2024-09-03",
+        "2024-09-04",
+        "2024-09-05",
+        "2024-09-06",
+        "2024-09-07",
+        "2024-09-08",
+        "2024-09-09",
+        "2024-09-10",
+        "2024-09-11",
+        "2024-09-12",
+        "2024-09-13",
+        "2024-09-14",
+        "2024-09-15",
+        "2024-09-16",
+        "2024-09-17",
+        "2024-09-18",
+        "2024-09-19",
+        "2024-09-20",
+        "2024-09-21",
+        "2024-09-22",
+        "2024-09-23",
+        "2024-09-24",
+        "2024-09-25",
+        "2024-09-26",
+        "2024-09-27",
+        "2024-09-28",
+        "2024-09-29",
+        "2024-09-30"
+      ],
+      "3": [
+        "2024-06-01",
+        "2024-06-02",
+        "2024-06-03",
+        "2024-06-04",
+        "2024-06-05",
+        "2024-06-06",
+        "2024-06-07",
+        "2024-06-08",
+        "2024-06-09",
+        "2024-06-10",
+        "2024-06-11",
+        "2024-06-12",
+        "2024-06-13",
+        "2024-06-14",
+        "2024-06-15",
+        "2024-06-16",
+        "2024-06-17",
+        "2024-06-18",
+        "2024-06-19",
+        "2024-06-20",
+        "2024-06-21",
+        "2024-06-22",
+        "2024-06-23",
+        "2024-06-24",
+        "2024-06-25",
+        "2024-06-26",
+        "2024-06-27",
+        "2024-06-28",
+        "2024-06-29",
+        "2024-06-30",
+        "2024-07-01",
+        "2024-07-02",
+        "2024-07-03",
+        "2024-07-04",
+        "2024-07-05",
+        "2024-07-06",
+        "2024-07-07",
+        "2024-07-08",
+        "2024-07-09",
+        "2024-07-10",
+        "2024-07-11",
+        "2024-07-12",
+        "2024-07-13",
+        "2024-07-14",
+        "2024-07-15",
+        "2024-07-16",
+        "2024-07-17",
+        "2024-07-18",
+        "2024-07-19",
+        "2024-07-20",
+        "2024-07-21",
+        "2024-07-22",
+        "2024-07-23",
+        "2024-07-24",
+        "2024-07-25",
+        "2024-07-26",
+        "2024-07-27",
+        "2024-07-28",
+        "2024-07-29",
+        "2024-07-30",
+        "2024-07-31",
+        "2024-08-01",
+        "2024-08-02",
+        "2024-08-03",
+        "2024-08-04",
+        "2024-08-05",
+        "2024-08-06",
+        "2024-08-07",
+        "2024-08-08",
+        "2024-08-09",
+        "2024-08-10",
+        "2024-08-11",
+        "2024-08-12",
+        "2024-08-13",
+        "2024-08-14",
+        "2024-08-15",
+        "2024-08-16",
+        "2024-08-17",
+        "2024-08-18",
+        "2024-08-19",
+        "2024-08-20",
+        "2024-08-21",
+        "2024-08-22",
+        "2024-08-23",
+        "2024-08-24",
+        "2024-08-25",
+        "2024-08-26",
+        "2024-08-27",
+        "2024-08-28",
+        "2024-08-29",
+        "2024-08-30",
+        "2024-08-31",
+        "2024-09-01",
+        "2024-09-02",
+        "2024-09-03",
+        "2024-09-04",
+        "2024-09-05",
+        "2024-09-06",
+        "2024-09-07",
+        "2024-09-08",
+        "2024-09-09",
+        "2024-09-10",
+        "2024-09-11",
+        "2024-09-12",
+        "2024-09-13",
+        "2024-09-14",
+        "2024-09-15",
+        "2024-09-16",
+        "2024-09-17",
+        "2024-09-18",
+        "2024-09-19",
+        "2024-09-20",
+        "2024-09-21",
+        "2024-09-22",
+        "2024-09-23",
+        "2024-09-24",
+        "2024-09-25",
+        "2024-09-26",
+        "2024-09-27",
+        "2024-09-28",
+        "2024-09-29",
+        "2024-09-30"
+      ]
+    },
+    "2023": {
+      "1": [
+        "2023-07-13",
+        "2023-07-14",
+        "2023-07-15",
+        "2023-07-16",
+        "2023-07-17",
+        "2023-07-18",
+        "2023-07-19",
+        "2023-07-20",
+        "2023-07-21",
+        "2023-07-22",
+        "2023-07-23",
+        "2023-07-24",
+        "2023-07-25",
+        "2023-07-26",
+        "2023-07-27",
+        "2023-07-28",
+        "2023-07-29",
+        "2023-07-30",
+        "2023-07-31",
+        "2023-08-01",
+        "2023-08-02",
+        "2023-08-03",
+        "2023-08-04",
+        "2023-08-05",
+        "2023-08-06",
+        "2023-08-07",
+        "2023-08-08",
+        "2023-08-09",
+        "2023-08-10",
+        "2023-08-11",
+        "2023-08-12",
+        "2023-08-13",
+        "2023-08-14",
+        "2023-08-15",
+        "2023-08-16",
+        "2023-08-17",
+        "2023-08-18",
+        "2023-08-19",
+        "2023-08-20",
+        "2023-08-21",
+        "2023-08-22",
+        "2023-08-23",
+        "2023-08-24",
+        "2023-08-25",
+        "2023-08-26",
+        "2023-08-27",
+        "2023-08-28",
+        "2023-08-29",
+        "2023-08-30",
+        "2023-08-31",
+        "2023-09-01",
+        "2023-09-02",
+        "2023-09-03",
+        "2023-09-04",
+        "2023-09-05",
+        "2023-09-06",
+        "2023-09-07",
+        "2023-09-08",
+        "2023-09-09",
+        "2023-09-10",
+        "2023-09-11",
+        "2023-09-12",
+        "2023-09-13",
+        "2023-09-14",
+        "2023-09-15",
+        "2023-09-16",
+        "2023-09-17",
+        "2023-09-18",
+        "2023-09-19",
+        "2023-09-20",
+        "2023-09-21",
+        "2023-09-22",
+        "2023-09-23",
+        "2023-09-24",
+        "2023-09-25",
+        "2023-09-26",
+        "2023-09-27",
+        "2023-09-28",
+        "2023-09-29",
+        "2023-09-30"
+      ],
+      "2": [
+        "2023-07-13",
+        "2023-07-14",
+        "2023-07-15",
+        "2023-07-16",
+        "2023-07-17",
+        "2023-07-18",
+        "2023-07-19",
+        "2023-07-20",
+        "2023-07-21",
+        "2023-07-22",
+        "2023-07-23",
+        "2023-07-24",
+        "2023-07-25",
+        "2023-07-26",
+        "2023-07-27",
+        "2023-07-28",
+        "2023-07-29",
+        "2023-07-30",
+        "2023-07-31",
+        "2023-08-01",
+        "2023-08-02",
+        "2023-08-03",
+        "2023-08-04",
+        "2023-08-05",
+        "2023-08-06",
+        "2023-08-07",
+        "2023-08-08",
+        "2023-08-09",
+        "2023-08-10",
+        "2023-08-11",
+        "2023-08-12",
+        "2023-08-13",
+        "2023-08-14",
+        "2023-08-15",
+        "2023-08-16",
+        "2023-08-17",
+        "2023-08-18",
+        "2023-08-19",
+        "2023-08-20",
+        "2023-08-21",
+        "2023-08-22",
+        "2023-08-23",
+        "2023-08-24",
+        "2023-08-25",
+        "2023-08-26",
+        "2023-08-27",
+        "2023-08-28",
+        "2023-08-29",
+        "2023-08-30",
+        "2023-08-31",
+        "2023-09-01",
+        "2023-09-02",
+        "2023-09-03",
+        "2023-09-04",
+        "2023-09-05",
+        "2023-09-06",
+        "2023-09-07",
+        "2023-09-08",
+        "2023-09-09",
+        "2023-09-10",
+        "2023-09-11",
+        "2023-09-12",
+        "2023-09-13",
+        "2023-09-14",
+        "2023-09-15",
+        "2023-09-16",
+        "2023-09-17",
+        "2023-09-18",
+        "2023-09-19",
+        "2023-09-20",
+        "2023-09-21",
+        "2023-09-22",
+        "2023-09-23",
+        "2023-09-24",
+        "2023-09-25",
+        "2023-09-26",
+        "2023-09-27",
+        "2023-09-28",
+        "2023-09-29",
+        "2023-09-30"
+      ],
+      "3": [
+        "2023-07-13",
+        "2023-07-14",
+        "2023-07-15",
+        "2023-07-16",
+        "2023-07-17",
+        "2023-07-18",
+        "2023-07-19",
+        "2023-07-20",
+        "2023-07-21",
+        "2023-07-22",
+        "2023-07-23",
+        "2023-07-24",
+        "2023-07-25",
+        "2023-07-26",
+        "2023-07-27",
+        "2023-07-28",
+        "2023-07-29",
+        "2023-07-30",
+        "2023-07-31",
+        "2023-08-01",
+        "2023-08-02",
+        "2023-08-03",
+        "2023-08-04",
+        "2023-08-05",
+        "2023-08-06",
+        "2023-08-07",
+        "2023-08-08",
+        "2023-08-09",
+        "2023-08-10",
+        "2023-08-11",
+        "2023-08-12",
+        "2023-08-13",
+        "2023-08-14",
+        "2023-08-15",
+        "2023-08-16",
+        "2023-08-17",
+        "2023-08-18",
+        "2023-08-19",
+        "2023-08-20",
+        "2023-08-21",
+        "2023-08-22",
+        "2023-08-23",
+        "2023-08-24",
+        "2023-08-25",
+        "2023-08-26",
+        "2023-08-27",
+        "2023-08-28",
+        "2023-08-29",
+        "2023-08-30",
+        "2023-08-31",
+        "2023-09-01",
+        "2023-09-02",
+        "2023-09-03",
+        "2023-09-04",
+        "2023-09-05",
+        "2023-09-06",
+        "2023-09-07",
+        "2023-09-08",
+        "2023-09-09",
+        "2023-09-10",
+        "2023-09-11",
+        "2023-09-12",
+        "2023-09-13",
+        "2023-09-14",
+        "2023-09-15",
+        "2023-09-16",
+        "2023-09-17",
+        "2023-09-18",
+        "2023-09-19",
+        "2023-09-20",
+        "2023-09-21",
+        "2023-09-22",
+        "2023-09-23",
+        "2023-09-24",
+        "2023-09-25",
+        "2023-09-26",
+        "2023-09-27",
+        "2023-09-28",
+        "2023-09-29",
+        "2023-09-30"
+      ]
+    }
+  }
+}

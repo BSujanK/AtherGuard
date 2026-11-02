@@ -1,0 +1,72 @@
+# Daily live runner settings (aetherguard.live.run; docs/superpowers/specs/2026-10-14-aetherguard-live-global-design.md
+# section 5). Source access paths (CMR, NOMADS, domain grid) are in configs/live.yaml; the hazard model configuration is
+# configs/hazard_v3.yaml. Relative paths are relative to the project root.
+
+live_dir: data/live                  # <live_dir>/<YYYY-MM-DD>/{raw/, freshness.json, features_D0.parquet, risk_D0..3.parquet,
+                                     #                          alerts.parquet, run.json}; logs in <live_dir>/logs/
+report_dir: reports/live             # <report_dir>/<YYYY-MM-DD>.md, the bulletin
+replay_dir: data/processed/alerts/replay   # the replay store that gets the set `replay_set`
+replay_set: live
+model_config: configs/hazard_v3.yaml       # names the model directory (model_dir) the run scores with; it must be frozen
+alert_config: data/processed/alerts/alert_config_v3.json   # v3 development parameters (reports/phase6_alert_burden.md); the v2 config stays untouched
+post_rules: data/processed/alerts/post_rules_v3.json       # post-model rules (rain trigger, ensemble agreement, blind-hold limit; reports/phase6_accuracy_hardening.md)
+terrain_table: data/processed/terrain/cell_terrain.parquet
+region_table: data/processed/features/cell_regions.parquet
+scored_regions: [himalaya, western_ghats]  # cells of every other region are not scored
+samples_manifest: data/processed/features/samples/samples_manifest.json   # its slope floor defines the candidate cells that are scored
+basemap_file: data/processed/basemap/india_basemap.npz   # country mask and elevation of the audit's land / georef checks (python -m aetherguard.serve.basemap build)
+places_table: data/processed/places/cell_places.parquet   # place names of the cells (python -m aetherguard.serve.places build); the bulletin's place column is left out without it
+
+schedule:
+  timezone: Asia/Kolkata
+  run_time: "11:00"                  # local time of the scheduled task (scripts/install_daily_task.ps1)
+  data_cutoff: "11:00"               # backtest: an input issued after this local time of the run date is rejected
+
+hysteresis_history_days: 30          # previous days of the live state fed to the level hysteresis (consecutive days only)
+top_cells: 20                        # cells per lead listed in the bulletin
+
+forecast_widening: reports/forecast_widening.json   # produced by the forecast-skill step (live/forecast_skill.py)
+forecast_selection: reports/forecast_selection.json  # which forecast rain each lead uses (live/forecast_select.py); GFS everywhere without it
+
+early_map:                           # how the Early run is used for UTC day D-1
+  mode: identity                     # identity: as it is | fitted: the quantile mapping of `file`
+  file: data/processed/rain/imerg_early_to_late.json   # python -m aetherguard.live.early_map fit; the fit did not improve
+                                     # the held-out 2018 season (reports/phase6_early_late_map.md), hence identity
+
+imerg:
+  processed_dir: data/processed/rain # ImergStore directory (imerg_<run>_<year>.npy)
+  late_window_days: 130              # the Late store is brought up to date over this many UTC days before D (up to D-2)
+  latency_h: {late: 14.5, early: 4.5}   # hours after the end of a UTC day that its granule is published (probe, measured)
+
+gfs:
+  enabled: true
+  latency_h: 3.95                    # hours after the cycle time that its last forecast hour is published (probe, measured)
+  first_hours_latency_h: 3.6         # ... that the hours its 00-03 UTC accumulation needs are published (tried: 00Z D, 18Z D-1, 12Z D-1)
+
+ecmwf:
+  enabled: true                      # ECMWF IFS open data (HRES + ensemble); the forecast leads fall back to GFS without it
+  latency_h: 8.2                     # hours after the cycle time that the run is complete (measured, reports/phase6_ecmwf_publication.md)
+
+imd_lon_offset_columns: -1           # live IMD sampling (src_imd_*, imd_acc_*): read this many 0.25-degree columns east of the cell's nearest
+                                     # point (-1: one column west). Against 131 GHCN gauges the IMD grid is registered about one column east of
+                                     # its 66.5 + 0.25 j labels (reports/live/audit/rain_registration_study.json, imd_lookup_options). Only
+                                     # the live adapter uses it; the frozen stores and the integrity engine keep the nearest point.
+
+imd_rt:
+  enabled: true                      # second-opinion rain for the alert engine; the server is slow and flaky
+  days: 3                            # IMD days D-2..D are requested (the confidence logic reads the 1- and 3-day totals)
+  timeout_s: 35
+  attempts: 2
+  latency_h: 24                      # hours after the end of an IMD day (03:00 UTC) that its file is published (about 1 day)
+
+ghcn:
+  enabled: true
+  look_back_days: 120                # gauge window handed to the integrity engine
+  request_timeout_s: 90
+  stations_per_request: 50
+  latency_h: 120                     # hours after the end of a day that its gauge value is published (probe: 115-308 h)
+  expected_lag_days: 7               # a newest value older than D minus this is reported as late
+
+integrity:
+  enabled: true
+  engine_dir: data/processed/integrity/model

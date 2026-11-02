@@ -1,0 +1,694 @@
+{
+  "period": [
+    "2007-01-01",
+    "2018-12-31"
+  ],
+  "lags": [
+    -2,
+    -1,
+    0,
+    1,
+    2
+  ],
+  "min_pairs_per_station_lag": 100,
+  "n_stations": 128,
+  "min_valid_days": 200,
+  "n_stations_with_enough_pairs": 11,
+  "pairs_rule": "both valid and either > 0; clean real days only",
+  "lag_convention": "station day t is paired with reference day t + lag",
+  "products": {
+    "imd": {
+      "lags": {
+        "-2": {
+          "pooled_pairs": 6632,
+          "median_pearson": 0.06786495531756223,
+          "pearson_ci": [
+            -0.01666202075443858,
+            0.1236979499313653
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.01960430224853005,
+          "spearman_ci": [
+            -0.06524562253982473,
+            0.038698258499409235
+          ]
+        },
+        "-1": {
+          "pooled_pairs": 6811,
+          "median_pearson": 0.20197449470203058,
+          "pearson_ci": [
+            0.07769257175566009,
+            0.24329476775296363
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.13419176256161805,
+          "spearman_ci": [
+            0.0328647039457389,
+            0.25672833927051597
+          ]
+        },
+        "0": {
+          "pooled_pairs": 6225,
+          "median_pearson": 0.6879616717599445,
+          "pearson_ci": [
+            0.5301485894691222,
+            0.8819990790385493
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.6176519139593235,
+          "spearman_ci": [
+            0.5092182030311566,
+            0.7673627990374466
+          ]
+        },
+        "1": {
+          "pooled_pairs": 6385,
+          "median_pearson": 0.23607065872501157,
+          "pearson_ci": [
+            0.1864599131859016,
+            0.29139484509697916
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.19182584258540586,
+          "spearman_ci": [
+            0.13606306705288865,
+            0.25017695114732663
+          ]
+        },
+        "2": {
+          "pooled_pairs": 6416,
+          "median_pearson": 0.08666949618183818,
+          "pearson_ci": [
+            0.05426751153334532,
+            0.1106878566099407
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.034388466132864996,
+          "spearman_ci": [
+            -0.0076329003980781605,
+            0.04973176843135412
+          ]
+        }
+      },
+      "peak_lag_pearson": 0,
+      "peak_lag_spearman": 0,
+      "per_station_peak_lag_counts": {
+        "0": 11
+      }
+    },
+    "chirps_utc": {
+      "lags": {
+        "-2": {
+          "pooled_pairs": 5987,
+          "median_pearson": 0.13218714461238965,
+          "pearson_ci": [
+            0.05323940044599078,
+            0.15633141406129408
+          ],
+          "n_stations": 11,
+          "median_spearman": -0.04889218752518575,
+          "spearman_ci": [
+            -0.12539134979756109,
+            0.012333036522863891
+          ]
+        },
+        "-1": {
+          "pooled_pairs": 5742,
+          "median_pearson": 0.3776959734914689,
+          "pearson_ci": [
+            0.2949204536961483,
+            0.4261757681769571
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.19944035299497342,
+          "spearman_ci": [
+            0.10207664804277294,
+            0.23557148659936933
+          ]
+        },
+        "0": {
+          "pooled_pairs": 5826,
+          "median_pearson": 0.1562228545074211,
+          "pearson_ci": [
+            0.12448590065879273,
+            0.20743598585423073
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.014695238585383557,
+          "spearman_ci": [
+            -0.09302337985961688,
+            0.11237626780684438
+          ]
+        },
+        "1": {
+          "pooled_pairs": 5909,
+          "median_pearson": -0.001533578261639447,
+          "pearson_ci": [
+            -0.0512676494301203,
+            0.04831589588660572
+          ],
+          "n_stations": 11,
+          "median_spearman": -0.12619933964988456,
+          "spearman_ci": [
+            -0.19051416927742612,
+            -0.07276058745287457
+          ]
+        },
+        "2": {
+          "pooled_pairs": 5933,
+          "median_pearson": -0.03400779967414419,
+          "pearson_ci": [
+            -0.09426379237417434,
+            0.0148573556413927
+          ],
+          "n_stations": 11,
+          "median_spearman": -0.15817651527325008,
+          "spearman_ci": [
+            -0.2548632352118556,
+            -0.12362326491070202
+          ]
+        }
+      },
+      "peak_lag_pearson": -1,
+      "peak_lag_spearman": -1,
+      "per_station_peak_lag_counts": {
+        "-2": 1,
+        "-1": 10
+      }
+    },
+    "chirps_aligned": {
+      "lags": {
+        "-2": {
+          "pooled_pairs": 6264,
+          "median_pearson": 0.05756013152580153,
+          "pearson_ci": [
+            -0.03339656011737775,
+            0.08811909938176378
+          ],
+          "n_stations": 11,
+          "median_spearman": -0.03948883078283987,
+          "spearman_ci": [
+            -0.1045280241309119,
+            0.010695152213950829
+          ]
+        },
+        "-1": {
+          "pooled_pairs": 6162,
+          "median_pearson": 0.17712596387780793,
+          "pearson_ci": [
+            0.09757092401365026,
+            0.22947449003916479
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.0583996209600751,
+          "spearman_ci": [
+            -0.00733452648877343,
+            0.10501688916267299
+          ]
+        },
+        "0": {
+          "pooled_pairs": 6027,
+          "median_pearson": 0.37781710350959413,
+          "pearson_ci": [
+            0.3184120543085466,
+            0.45776399508442794
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.2334058033879746,
+          "spearman_ci": [
+            0.11556129364521767,
+            0.27387887939548955
+          ]
+        },
+        "1": {
+          "pooled_pairs": 6121,
+          "median_pearson": 0.17024801843260634,
+          "pearson_ci": [
+            0.13739251285487447,
+            0.23157513180439648
+          ],
+          "n_stations": 11,
+          "median_spearman": 0.06465931844754987,
+          "spearman_ci": [
+            -0.06995219917970956,
+            0.11824476141126773
+          ]
+        },
+        "2": {
+          "pooled_pairs": 6167,
+          "median_pearson": 0.016190174838079552,
+          "pearson_ci": [
+            -0.0220916383907964,
+            0.05672792539688992
+          ],
+          "n_stations": 11,
+          "median_spearman": -0.11657538104337961,
+          "spearman_ci": [
+            -0.17019056298400204,
+            -0.03809725422236204
+          ]
+        }
+      },
+      "peak_lag_pearson": 0,
+      "peak_lag_spearman": 0,
+      "per_station_peak_lag_counts": {
+        "-1": 1,
+        "0": 10
+      }
+    }
+  },
+  "exceedance_imd_50mm": {
+    "-2": {
+      "station_exceedances": 402,
+      "reference_also_exceeds": 33,
+      "share_of_station_days": 0.08208955223880597,
+      "share_ci": [
+        0.02325245328673209,
+        0.13100385611261825
+      ],
+      "reference_exceedances": 260,
+      "station_also_exceeds": 33,
+      "share_of_reference_days": 0.12692307692307692,
+      "reference_share_ci": [
+        0.049982394366197204,
+        0.18490727325412923
+      ]
+    },
+    "-1": {
+      "station_exceedances": 402,
+      "reference_also_exceeds": 47,
+      "share_of_station_days": 0.11691542288557213,
+      "share_ci": [
+        0.05821752118712865,
+        0.16224428226640616
+      ],
+      "reference_exceedances": 271,
+      "station_also_exceeds": 47,
+      "share_of_reference_days": 0.17343173431734318,
+      "reference_share_ci": [
+        0.1199940119760479,
+        0.22473175422613623
+      ]
+    },
+    "0": {
+      "station_exceedances": 402,
+      "reference_also_exceeds": 151,
+      "share_of_station_days": 0.3756218905472637,
+      "share_ci": [
+        0.21720456708793956,
+        0.49414694006808646
+      ],
+      "reference_exceedances": 272,
+      "station_also_exceeds": 151,
+      "share_of_reference_days": 0.5551470588235294,
+      "reference_share_ci": [
+        0.43859414579228817,
+        0.7415883953651685
+      ]
+    },
+    "1": {
+      "station_exceedances": 402,
+      "reference_also_exceeds": 64,
+      "share_of_station_days": 0.15920398009950248,
+      "share_ci": [
+        0.08162496926481436,
+        0.2222394220846233
+      ],
+      "reference_exceedances": 254,
+      "station_also_exceeds": 64,
+      "share_of_reference_days": 0.25196850393700787,
+      "reference_share_ci": [
+        0.1777688172043011,
+        0.32099048589874274
+      ]
+    },
+    "2": {
+      "station_exceedances": 402,
+      "reference_also_exceeds": 33,
+      "share_of_station_days": 0.08208955223880597,
+      "share_ci": [
+        0.03254245754245754,
+        0.136368642370845
+      ],
+      "reference_exceedances": 245,
+      "station_also_exceeds": 33,
+      "share_of_reference_days": 0.1346938775510204,
+      "reference_share_ci": [
+        0.07751937984496124,
+        0.22232142857142848
+      ]
+    }
+  },
+  "verdict": [
+    "imd: median Pearson peaks at lag +0 (0.688, 95% CI [0.530, 0.882]; 11 stations); Spearman peaks at lag +0; per-station peak lags: {'0': 11}.",
+    "chirps_utc: median Pearson peaks at lag -1 (0.378, 95% CI [0.295, 0.426]; 11 stations); Spearman peaks at lag -1; lag 0 is NOT the maximum (median Pearson 0.156, CI [0.124, 0.207]); per-station peak lags: {'-2': 1, '-1': 10}.",
+    "chirps_aligned: median Pearson peaks at lag +0 (0.378, 95% CI [0.318, 0.458]; 11 stations); Spearman peaks at lag +0; per-station peak lags: {'-1': 1, '0': 10}.",
+    "Implication for D5: station vs IMD agrees best at lag 0 (same day label); CHIRPS on the UTC day is best matched by the previous UTC day (lag -1), as an IMD-day label (03:00 UTC D-1 to 03:00 UTC D) predicts; the D5-aligned CHIRPS agrees best at lag 0, which supports the alignment."
+  ],
+  "sensitivity": {
+    "period": [
+      "2007-01-01",
+      "2018-12-31"
+    ],
+    "lags": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "min_pairs_per_station_lag": 100,
+    "n_stations": 128,
+    "min_valid_days": 150,
+    "n_stations_with_enough_pairs": 24,
+    "pairs_rule": "both valid and either > 0; clean real days only",
+    "lag_convention": "station day t is paired with reference day t + lag",
+    "products": {
+      "imd": {
+        "lags": {
+          "-2": {
+            "pooled_pairs": 23818,
+            "median_pearson": 0.09146865088053904,
+            "pearson_ci": [
+              0.05049948110934579,
+              0.13553034689277357
+            ],
+            "n_stations": 24,
+            "median_spearman": 0.02553050395553043,
+            "spearman_ci": [
+              -0.03461542166455777,
+              0.07300129335039808
+            ]
+          },
+          "-1": {
+            "pooled_pairs": 24570,
+            "median_pearson": 0.187598868877641,
+            "pearson_ci": [
+              0.12108533819805752,
+              0.25634834610100565
+            ],
+            "n_stations": 24,
+            "median_spearman": 0.13277604279623073,
+            "spearman_ci": [
+              0.04614615454924231,
+              0.1679039900181188
+            ]
+          },
+          "0": {
+            "pooled_pairs": 22286,
+            "median_pearson": 0.7124886977710527,
+            "pearson_ci": [
+              0.6566999111882924,
+              0.7763761912337889
+            ],
+            "n_stations": 24,
+            "median_spearman": 0.6742070429204539,
+            "spearman_ci": [
+              0.5632306953965532,
+              0.7790456391580388
+            ]
+          },
+          "1": {
+            "pooled_pairs": 23012,
+            "median_pearson": 0.23127850134619288,
+            "pearson_ci": [
+              0.16458025330521278,
+              0.28004980353726816
+            ],
+            "n_stations": 24,
+            "median_spearman": 0.16146950861578205,
+            "spearman_ci": [
+              0.14090794018374844,
+              0.20046129437336457
+            ]
+          },
+          "2": {
+            "pooled_pairs": 23082,
+            "median_pearson": 0.08511465006438301,
+            "pearson_ci": [
+              0.05078608225184675,
+              0.13617859329136478
+            ],
+            "n_stations": 24,
+            "median_spearman": 0.031677314085775364,
+            "spearman_ci": [
+              -0.0004248982479358912,
+              0.08541146746137637
+            ]
+          }
+        },
+        "peak_lag_pearson": 0,
+        "peak_lag_spearman": 0,
+        "per_station_peak_lag_counts": {
+          "0": 24
+        }
+      },
+      "chirps_utc": {
+        "lags": {
+          "-2": {
+            "pooled_pairs": 21626,
+            "median_pearson": 0.11012709424873422,
+            "pearson_ci": [
+              0.07953764311113609,
+              0.1536987852088499
+            ],
+            "n_stations": 23,
+            "median_spearman": -0.05946800112275112,
+            "spearman_ci": [
+              -0.07464793326992004,
+              -0.01457046826953082
+            ]
+          },
+          "-1": {
+            "pooled_pairs": 20704,
+            "median_pearson": 0.3596406634708545,
+            "pearson_ci": [
+              0.3045525052981287,
+              0.4116930618386887
+            ],
+            "n_stations": 23,
+            "median_spearman": 0.19577697728987195,
+            "spearman_ci": [
+              0.1544622919595599,
+              0.2214230112873409
+            ]
+          },
+          "0": {
+            "pooled_pairs": 20974,
+            "median_pearson": 0.19247598063497384,
+            "pearson_ci": [
+              0.15642614694227022,
+              0.23891021513238836
+            ],
+            "n_stations": 23,
+            "median_spearman": 0.03364774542878764,
+            "spearman_ci": [
+              -0.0005181674940581462,
+              0.06595831158713315
+            ]
+          },
+          "1": {
+            "pooled_pairs": 21154,
+            "median_pearson": 0.017997964889207182,
+            "pearson_ci": [
+              0.001009564296347597,
+              0.07212187411069851
+            ],
+            "n_stations": 23,
+            "median_spearman": -0.1186135875401528,
+            "spearman_ci": [
+              -0.1386142635567974,
+              -0.07431083506241161
+            ]
+          },
+          "2": {
+            "pooled_pairs": 21206,
+            "median_pearson": -0.012999627705327484,
+            "pearson_ci": [
+              -0.034770347044765865,
+              0.04218632490140826
+            ],
+            "n_stations": 23,
+            "median_spearman": -0.15410543719742348,
+            "spearman_ci": [
+              -0.19119125125390188,
+              -0.11442532836441721
+            ]
+          }
+        },
+        "peak_lag_pearson": -1,
+        "peak_lag_spearman": -1,
+        "per_station_peak_lag_counts": {
+          "-1": 23
+        }
+      },
+      "chirps_aligned": {
+        "lags": {
+          "-2": {
+            "pooled_pairs": 22649,
+            "median_pearson": 0.07901651109827625,
+            "pearson_ci": [
+              0.05752055675475714,
+              0.11958529132298808
+            ],
+            "n_stations": 23,
+            "median_spearman": -0.045085146092052324,
+            "spearman_ci": [
+              -0.07138749104079656,
+              -0.02023903262830451
+            ]
+          },
+          "-1": {
+            "pooled_pairs": 22324,
+            "median_pearson": 0.17138034340464572,
+            "pearson_ci": [
+              0.14404737374115573,
+              0.21625916126684028
+            ],
+            "n_stations": 23,
+            "median_spearman": 0.04129875322736106,
+            "spearman_ci": [
+              0.005042973212888365,
+              0.09123084556737962
+            ]
+          },
+          "0": {
+            "pooled_pairs": 21793,
+            "median_pearson": 0.3876154153367032,
+            "pearson_ci": [
+              0.33678794635096104,
+              0.4436336904402336
+            ],
+            "n_stations": 23,
+            "median_spearman": 0.22881120637285277,
+            "spearman_ci": [
+              0.20278614273248205,
+              0.2759665920242699
+            ]
+          },
+          "1": {
+            "pooled_pairs": 22003,
+            "median_pearson": 0.20613271045814216,
+            "pearson_ci": [
+              0.17876398100090396,
+              0.2478521391443468
+            ],
+            "n_stations": 23,
+            "median_spearman": 0.061194379535560305,
+            "spearman_ci": [
+              0.024077390810974715,
+              0.08053434428056667
+            ]
+          },
+          "2": {
+            "pooled_pairs": 22119,
+            "median_pearson": 0.03438119387855942,
+            "pearson_ci": [
+              0.013209431478299456,
+              0.08553561687420941
+            ],
+            "n_stations": 23,
+            "median_spearman": -0.0672970437458456,
+            "spearman_ci": [
+              -0.10265103566025133,
+              -0.04925083900013155
+            ]
+          }
+        },
+        "peak_lag_pearson": 0,
+        "peak_lag_spearman": 0,
+        "per_station_peak_lag_counts": {
+          "0": 23
+        }
+      }
+    },
+    "exceedance_imd_50mm": {
+      "-2": {
+        "station_exceedances": 1620,
+        "reference_also_exceeds": 252,
+        "share_of_station_days": 0.15555555555555556,
+        "share_ci": [
+          0.08036173014018096,
+          0.22050974059737288
+        ],
+        "reference_exceedances": 1343,
+        "station_also_exceeds": 252,
+        "share_of_reference_days": 0.18763961280714817,
+        "reference_share_ci": [
+          0.11512420313671858,
+          0.23850646886632212
+        ]
+      },
+      "-1": {
+        "station_exceedances": 1620,
+        "reference_also_exceeds": 353,
+        "share_of_station_days": 0.21790123456790123,
+        "share_ci": [
+          0.11811840734470636,
+          0.302263678771886
+        ],
+        "reference_exceedances": 1379,
+        "station_also_exceeds": 353,
+        "share_of_reference_days": 0.25598259608411894,
+        "reference_share_ci": [
+          0.1641747887160244,
+          0.3196647581957684
+        ]
+      },
+      "0": {
+        "station_exceedances": 1620,
+        "reference_also_exceeds": 851,
+        "share_of_station_days": 0.5253086419753087,
+        "share_ci": [
+          0.4136855694833347,
+          0.6156487857851743
+        ],
+        "reference_exceedances": 1365,
+        "station_also_exceeds": 851,
+        "share_of_reference_days": 0.6234432234432234,
+        "reference_share_ci": [
+          0.5482412014299249,
+          0.7224512962707024
+        ]
+      },
+      "1": {
+        "station_exceedances": 1620,
+        "reference_also_exceeds": 397,
+        "share_of_station_days": 0.24506172839506174,
+        "share_ci": [
+          0.14284766118836914,
+          0.3278039782735191
+        ],
+        "reference_exceedances": 1312,
+        "station_also_exceeds": 397,
+        "share_of_reference_days": 0.30259146341463417,
+        "reference_share_ci": [
+          0.2171475158300289,
+          0.35841061358273746
+        ]
+      },
+      "2": {
+        "station_exceedances": 1620,
+        "reference_also_exceeds": 278,
+        "share_of_station_days": 0.17160493827160495,
+        "share_ci": [
+          0.08546199936928414,
+          0.24727084150992765
+        ],
+        "reference_exceedances": 1267,
+        "station_also_exceeds": 278,
+        "share_of_reference_days": 0.21941594317284924,
+        "reference_share_ci": [
+          0.13565959780528525,
+          0.2746734240251344
+        ]
+      }
+    },
+    "verdict": [
+      "imd: median Pearson peaks at lag +0 (0.712, 95% CI [0.657, 0.776]; 24 stations); Spearman peaks at lag +0; per-station peak lags: {'0': 24}.",
+      "chirps_utc: median Pearson peaks at lag -1 (0.360, 95% CI [0.305, 0.412]; 23 stations); Spearman peaks at lag -1; lag 0 is NOT the maximum (median Pearson 0.192, CI [0.156, 0.239]); per-station peak lags: {'-1': 23}.",
+      "chirps_aligned: median Pearson peaks at lag +0 (0.388, 95% CI [0.337, 0.444]; 23 stations); Spearman peaks at lag +0; per-station peak lags: {'0': 23}.",
+      "Implication for D5: station vs IMD agrees best at lag 0 (same day label); CHIRPS on the UTC day is best matched by the previous UTC day (lag -1), as an IMD-day label (03:00 UTC D-1 to 03:00 UTC D) predicts; the D5-aligned CHIRPS agrees best at lag 0, which supports the alignment."
+    ]
+  }
+}

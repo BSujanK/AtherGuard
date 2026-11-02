@@ -1,0 +1,42 @@
+# Frozen evaluation splits (Phase 1 design D4). Boundaries are inclusive calendar dates of the
+# catalog event date; changing any of them means regenerating the frozen files with --force.
+day_splits:
+  train:
+    role: train
+    start: "2007-01-01"
+    end: "2015-12-31"
+  validation:
+    role: validation
+    start: "2016-01-01"
+    end: "2017-12-31"
+  test_2018:
+    role: test
+    start: "2018-01-01"
+    end: "2018-12-31"
+  test_sparse:
+    role: test
+    start: "2019-01-01"
+    end: "2024-12-31"
+    reporting_only: true  # too few positives to score; day-exact positives only
+# Scored at window level, kept in its own table: inventory-window records are never day-exact.
+window_test:
+  name: test_2023_india_window
+  window_start: "2023-06-16"
+  window_end: "2023-07-31"
+# Case studies are never used for training or tuning: each must lie inside a `test` split.
+case_studies:
+  kerala_2018:
+    region: western_ghats
+    start: "2018-08-01"
+    end: "2018-08-31"
+  wayanad_2024:
+    region: western_ghats
+    start: "2024-07-25"
+    end: "2024-08-05"
+    expected_positives: 0  # Wayanad 2024 is not in any catalog; reported explicitly
+# A validation/test positive "leaks" if a train positive lies within these bounds of it.
+leakage:
+  days: 3
+  cells: 3
+  reference_split: train
+  checked_splits: [validation, test_2018, test_sparse]

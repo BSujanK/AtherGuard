@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aetherguard"
+version = "0.1.0"
+description = "AetherGuard: sensor-integrity and landslide / extreme-weather early-warning prototype"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "numpy>=2.2",
+  "pandas>=2.3",
+  "pyarrow>=23.0",
+  "pyyaml>=6.0",
+  "requests>=2.32",
+  "rasterio>=1.4.3",
+  "shapely>=2.0",
+  "pyproj>=3.7",
+  "scikit-learn>=1.6",
+  "lightgbm>=4.5",
+  "scikit-learn>=1.6",
+  "lightgbm>=4.5",
+]
+
+[project.optional-dependencies]
+audit = ["xarray", "zarr", "s3fs", "fsspec", "imdlib"]
+dev = ["pytest>=8.3"]
+challengers = ["catboost>=1.2"]   # aetherguard.hazard.challengers (CatBoost challenger; not needed to train or score v3)
+live = [
+  "eccodes>=2.49",     # GRIB2 decoding of GFS forecasts (aetherguard.ingest.gfs)
+  "xarray",            # IMERG OPeNDAP subset files (aetherguard.ingest.imerg)
+  "h5py",
+  "h5netcdf",
+]
+basemap = ["h5py"]   # aetherguard.serve.basemap (reads the ETOPO 2022 netCDF4 tiles; already pinned via `live`)
+serve = [
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
+  "httpx2>=2.13",      # starlette's TestClient (the API tests) uses httpx2; plain httpx is deprecated there
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "live: hits real network sources (excluded by default; run with -m live)",
+  "realdata: builds from the real label files in data/raw/manual (excluded by default; run with -m realdata)",
+]
+addopts = "-m 'not live and not realdata'"

@@ -1,0 +1,76 @@
+.view {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  align-items: flex-start;
+}
+
+.canvas {
+  flex: none;
+  width: 260px;
+  height: 260px;
+  max-width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.side {
+  display: grid;
+  gap: var(--sp-3);
+  flex: 1;
+  min-width: 12rem;
+}
+
+.legend,
+.nearby {
+  display: grid;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-2);
+}
+
+.legend i,
+.nearby i {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.unscored {
+  background: var(--ink-black);
+}
+
+.note {
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+.nearby button {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: var(--sp-1) var(--sp-2);
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.nearby button:hover {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+}

@@ -1,0 +1,380 @@
+{
+  "created_utc": "2026-10-23T10:17:41Z",
+  "config": "configs/hazard_v3_aspect_ablation.yaml",
+  "incumbent": "v3_selected",
+  "frozen_v2": "v2_selected",
+  "protocol": "protocol v2: year-blocked CV over 2007-2017, pooled OOF FA@90 on the weighted universe, bootstrap of positives as events and universe rows iid within year-region strata",
+  "bootstrap": {
+    "n": 2000,
+    "seed": 31337,
+    "level": 0.95
+  },
+  "reproduction": {
+    "v3_selected": {
+      "name": "imerg_core",
+      "model_dir": "data/processed/hazard/model_v3_live",
+      "recomputed_fa_at_90": 0.19554142779163688,
+      "reported_fa_at_90": 0.19554142779163688,
+      "abs_difference": 0.0,
+      "n_trees": 315,
+      "reported_n_trees": 315
+    },
+    "v2_selected": {
+      "name": "drop_src",
+      "model_dir": "data/processed/hazard/model",
+      "recomputed_fa_at_90": 0.18840519557842542,
+      "reported_fa_at_90": 0.18840519557842542,
+      "abs_difference": 0.0,
+      "n_trees": 118,
+      "reported_n_trees": 118
+    }
+  },
+  "rows": {
+    "positives": 789,
+    "universe": 399272,
+    "matched": 8240,
+    "identical_to_frozen_v2": true
+  },
+  "candidates": [
+    {
+      "name": "v3_selected",
+      "family": "lightgbm",
+      "description": "selected v3-live configuration (reproduced)",
+      "n_inputs": 26,
+      "hp": {
+        "num_leaves": 7,
+        "min_data_in_leaf": 40,
+        "feature_fraction": 0.5,
+        "lambda_l2": 0,
+        "learning_rate": 0.05
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 315,
+      "adoptable": true,
+      "parents": null,
+      "columns": [
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy",
+        "irain_acc_1",
+        "irain_acc_3",
+        "irain_acc_5",
+        "irain_acc_7",
+        "irain_acc_14",
+        "irain_acc_30",
+        "irain_acc_60",
+        "irain_acc_90",
+        "irain_max1d_7",
+        "irain_max1d_30",
+        "irain_wetdays_30",
+        "irain_days_since_10mm",
+        "irain_share1_3",
+        "irain_acc3_vs_clim",
+        "irain_acc7_vs_clim",
+        "irain_acc30_vs_clim"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.11185889977258454,
+          "lo": 0.09624302709513682,
+          "hi": 0.12561620942296187,
+          "se": 0.0075148515689170475
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.19554142779163688,
+          "lo": 0.1679492295501935,
+          "hi": 0.23482366691325304,
+          "se": 0.017813584014420413
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.27888222052618117,
+          "lo": 0.2527831666951377,
+          "hi": 0.32555239155283033,
+          "se": 0.020263901292069907
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.07731305449936629,
+          "lo": 0.058301647655259824,
+          "hi": 0.09885931558935361,
+          "se": 0.010305242151734742
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.30038022813688214,
+          "lo": 0.26996197718631176,
+          "hi": 0.3358681875792142,
+          "se": 0.017411744268040402
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6261089987325729,
+          "lo": 0.5918884664131813,
+          "hi": 0.6615969581749049,
+          "se": 0.017440868328731374
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7782002534854245,
+          "lo": 0.7490494296577946,
+          "hi": 0.8060836501901141,
+          "se": 0.014770903595941163
+        },
+        "pr_auc": {
+          "value": 0.005326744155254767,
+          "lo": 0.001462071939481135,
+          "hi": 0.014202552392422489,
+          "se": 0.0033030635698535395
+        }
+      },
+      "logloss": 0.21463198017177268
+    },
+    {
+      "name": "v2_selected",
+      "family": "frozen_v2",
+      "description": "frozen v2 configuration (reproduced from configs/hazard.yaml)",
+      "n_inputs": 30,
+      "hp": {
+        "num_leaves": 15,
+        "min_data_in_leaf": 40,
+        "feature_fraction": 0.5,
+        "lambda_l2": 0,
+        "learning_rate": 0.05
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 118,
+      "adoptable": false,
+      "parents": null,
+      "columns": [
+        "rain_acc_1",
+        "rain_acc_3",
+        "rain_acc_5",
+        "rain_acc_7",
+        "rain_acc_14",
+        "rain_acc_30",
+        "rain_max1d_7",
+        "rain_max1d_30",
+        "rain_wetdays_30",
+        "rain_days_since_10mm",
+        "rain_share1_3",
+        "rain_acc3_vs_clim",
+        "rain_acc7_vs_clim",
+        "rain_acc30_vs_clim",
+        "wet_top",
+        "wet_root",
+        "wet_top_chg3",
+        "wet_top_chg7",
+        "wet_root_chg3",
+        "wet_root_chg7",
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_aspect_sin",
+        "stat_aspect_cos",
+        "stat_twi_proxy"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.1115273292477639,
+          "lo": 0.09817032527367495,
+          "hi": 0.1289228644358405,
+          "se": 0.008218462435309494
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.18840519557842542,
+          "lo": 0.17256076353722008,
+          "hi": 0.2127896009466676,
+          "se": 0.010937069374494221
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.28796190299852364,
+          "lo": 0.24121255712690565,
+          "hi": 0.3514012799292864,
+          "se": 0.03254066036784021
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.07984790874524715,
+          "lo": 0.06080481622306723,
+          "hi": 0.10012674271229405,
+          "se": 0.01013621462340569
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.27629911280101394,
+          "lo": 0.24461343472750316,
+          "hi": 0.30798479087452474,
+          "se": 0.01620157495333417
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.5880861850443599,
+          "lo": 0.5525982256020279,
+          "hi": 0.6223067173637515,
+          "se": 0.01806752734405613
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7743979721166033,
+          "lo": 0.7452471482889734,
+          "hi": 0.8035487959442332,
+          "se": 0.014966023680327017
+        },
+        "pr_auc": {
+          "value": 0.00019732658144172046,
+          "lo": 0.00013676549691041617,
+          "hi": 0.007925244046196083,
+          "se": 0.00258060201609689
+        }
+      },
+      "logloss": 0.22251814927634514
+    },
+    {
+      "name": "lgb_no_aspect",
+      "family": "lightgbm",
+      "description": "LightGBM, imerg_core without the aspect inputs stat_aspect_sin and stat_aspect_cos",
+      "n_inputs": 24,
+      "hp": {
+        "num_leaves": 7,
+        "min_data_in_leaf": 40,
+        "feature_fraction": 0.5,
+        "lambda_l2": 0,
+        "learning_rate": 0.05
+      },
+      "neg_mix": "matched_plus_universe",
+      "n_trees": 362,
+      "adoptable": true,
+      "parents": null,
+      "columns": [
+        "stat_elev_mean",
+        "stat_elev_std",
+        "stat_relief",
+        "stat_slope_mean",
+        "stat_slope_p90",
+        "stat_slope_max",
+        "stat_curvature_mean",
+        "stat_twi_proxy",
+        "irain_acc_1",
+        "irain_acc_3",
+        "irain_acc_5",
+        "irain_acc_7",
+        "irain_acc_14",
+        "irain_acc_30",
+        "irain_acc_60",
+        "irain_acc_90",
+        "irain_max1d_7",
+        "irain_max1d_30",
+        "irain_wetdays_30",
+        "irain_days_since_10mm",
+        "irain_share1_3",
+        "irain_acc3_vs_clim",
+        "irain_acc7_vs_clim",
+        "irain_acc30_vs_clim"
+      ],
+      "metrics": {
+        "fa_at_recall_0.8": {
+          "value": 0.10982428665741908,
+          "lo": 0.09473530000319094,
+          "hi": 0.1294941292795988,
+          "se": 0.009399253368715508
+        },
+        "fa_at_recall_0.9": {
+          "value": 0.19919962651887008,
+          "lo": 0.17454934992207882,
+          "hi": 0.22760458673250042,
+          "se": 0.013087079248255183
+        },
+        "fa_at_recall_0.95": {
+          "value": 0.28550015869897655,
+          "lo": 0.2507558460327692,
+          "hi": 0.33605550580417864,
+          "se": 0.021107584271523223
+        },
+        "recall_at_fa_0.001": {
+          "value": 0.08111533586818757,
+          "lo": 0.060836501901140684,
+          "hi": 0.09889100126742695,
+          "se": 0.010217166449582298
+        },
+        "recall_at_fa_0.01": {
+          "value": 0.30798479087452474,
+          "lo": 0.27629911280101394,
+          "hi": 0.34220532319391633,
+          "se": 0.017266073958106636
+        },
+        "recall_at_fa_0.05": {
+          "value": 0.6261089987325729,
+          "lo": 0.5931558935361216,
+          "hi": 0.6603295310519645,
+          "se": 0.01734359363122595
+        },
+        "recall_at_fa_0.1": {
+          "value": 0.7845373891001267,
+          "lo": 0.7541191381495564,
+          "hi": 0.8111533586818758,
+          "se": 0.014651729609632227
+        },
+        "pr_auc": {
+          "value": 0.0014564477861950947,
+          "lo": 0.00014870057049160958,
+          "hi": 0.007842941390744332,
+          "se": 0.002023557351814028
+        }
+      },
+      "logloss": 0.21610098609887438,
+      "paired_vs_v3": {
+        "fa_a": 0.19919962651887008,
+        "fa_b": 0.19554142779163688,
+        "point_difference": 0.0036581987272331917,
+        "mean_difference": 0.002476252443176099,
+        "se": 0.00899414850991483,
+        "ci_lo": -0.016544566617679814,
+        "ci_hi": 0.01843548073849676,
+        "level": 0.95,
+        "n_boot": 2000,
+        "excludes_zero": false,
+        "share_a_better": 0.3645,
+        "share_tied": 0.0
+      }
+    }
+  ],
+  "v3_vs_v2": {
+    "fa_a": 0.19554142779163688,
+    "fa_b": 0.18840519557842542,
+    "point_difference": 0.007136232213211469,
+    "mean_difference": 0.005860875605861518,
+    "se": 0.014884393657575526,
+    "ci_lo": -0.020297950223664464,
+    "ci_hi": 0.038420589121901855,
+    "level": 0.95,
+    "n_boot": 2000,
+    "excludes_zero": false,
+    "share_a_better": 0.3745,
+    "share_tied": 0.0,
+    "better_than_v2": false
+  },
+  "adoption": {
+    "rule": "a challenger replaces the selected v3 configuration only if its pooled OOF FA@90 is lower by MORE than the bootstrap SE of the paired difference",
+    "incumbent_fa_at_90": 0.19554142779163688,
+    "evaluated": [
+      {
+        "name": "lgb_no_aspect",
+        "adoptable": true,
+        "adopt": false,
+        "gain": -0.0036581987272331917,
+        "se": 0.00899414850991483,
+        "gain_over_se": -0.4067309677175692
+      }
+    ],
+    "adopted": null
+  },
+  "multiple_comparisons": {
+    "n_challengers": 1,
+    "note": "1 challenger candidates were compared with the same development rows; the chance that the best of them looks better than it is grows with that number. The single look at test_2018 is the check."
+  },
+  "susceptibility_probe": null,
+  "seconds": 20.792402899998706
+}

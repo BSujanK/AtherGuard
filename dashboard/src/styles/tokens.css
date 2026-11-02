@@ -1,0 +1,80 @@
+:root {
+  color-scheme: dark;
+
+  /* Palette (pinned by the user, spec section 8). Everything below is a mix of these. */
+  --ink-black: #0a0b10;
+  --neon-cyan: #00f0ff;
+  --royal-blue: #4169e1;
+  --neon-lime: #c6ff00;
+  --flame-orange: #f4511e;
+  --fire-red: #d71920;
+  --cloud: #e6fbff;
+
+  /* Surfaces: ink mixed toward royal blue */
+  --bg: var(--ink-black);
+  --surface-sunken: color-mix(in srgb, var(--royal-blue) 5%, var(--ink-black));
+  --surface: color-mix(in srgb, var(--royal-blue) 10%, var(--ink-black));
+  --surface-raised: color-mix(in srgb, var(--royal-blue) 16%, var(--ink-black));
+  --surface-high: color-mix(in srgb, var(--royal-blue) 24%, var(--ink-black));
+  --border: color-mix(in srgb, var(--royal-blue) 32%, transparent);
+  --border-strong: color-mix(in srgb, var(--royal-blue) 62%, transparent);
+
+  /* Text. Secondary steps stay >= 4.5:1 on every surface (checked by palette.test.ts). */
+  --text: var(--cloud);
+  --text-2: color-mix(in srgb, var(--cloud) 78%, transparent);
+  --text-3: color-mix(in srgb, var(--cloud) 62%, transparent);
+  --text-on-accent: var(--ink-black);
+
+  /* Accent and state */
+  --accent: var(--neon-cyan);
+  --focus-ring: 2px solid var(--neon-cyan);
+  --warn: var(--flame-orange);
+  --danger: var(--fire-red);
+
+  /* Risk levels, cool to hot */
+  --level-normal: color-mix(in srgb, var(--royal-blue) 55%, var(--ink-black));
+  --level-watch: var(--neon-lime);
+  --level-warning: var(--flame-orange);
+  --level-emergency: var(--fire-red);
+
+  /* Type */
+  --font-display: 'Clash Display', 'Satoshi', system-ui, sans-serif;
+  --font-ui: 'Satoshi', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.375rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: 2.5rem;
+  --fs-wordmark: clamp(3.5rem, 9vw, 8.25rem);
+  --lh-tight: 1.1;
+  --lh-body: 1.5;
+
+  /* Space (4px base) */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+
+  --radius: 6px;
+  --rail-w: 13.5rem;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-quick: 280ms;
+  --dur-base: 420ms;
+  --dur-slow: 600ms;
+  --pulse-emergency: 2.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-quick: 0.01ms;
+    --dur-base: 0.01ms;
+    --dur-slow: 0.01ms;
+    --pulse-emergency: 0.01ms;
+  }
+}

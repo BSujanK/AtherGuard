@@ -1,0 +1,263 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ink-black) 62%, transparent);
+  animation: fade var(--dur-base) var(--ease-out);
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(42rem, 100%);
+  height: 100%;
+  background: var(--surface-sunken);
+  border-left: 1px solid var(--border-strong);
+  box-shadow: -1.5rem 0 3rem color-mix(in srgb, var(--ink-black) 70%, transparent);
+  animation: slide var(--dur-base) var(--ease-out);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-5) var(--sp-4);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.leadBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+  padding: var(--sp-3) var(--sp-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.headText {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.badge {
+  margin-left: var(--sp-3);
+  padding: 0 var(--sp-2);
+  color: var(--text-on-accent);
+  font-size: var(--fs-sm);
+  letter-spacing: 0;
+  text-transform: none;
+  background: var(--neon-lime);
+  border-radius: 999px;
+}
+
+.when {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.notice {
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  background: var(--surface);
+  border: 1px solid var(--warn);
+  border-radius: var(--radius);
+}
+
+.kicker {
+  color: var(--neon-cyan);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.head h2 {
+  margin: var(--sp-1) 0;
+}
+
+.close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.close:hover {
+  background: var(--surface-raised);
+}
+
+.body {
+  display: grid;
+  flex: 1;
+  gap: var(--sp-5);
+  align-content: start;
+  min-height: 0;
+  padding: var(--sp-5);
+  overflow-y: auto;
+}
+
+.section {
+  display: grid;
+  gap: var(--sp-3);
+  min-width: 0;
+  padding-bottom: var(--sp-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.section:last-child {
+  border-bottom: 0;
+}
+
+.section h3 {
+  font-size: var(--fs-md);
+}
+
+.muted,
+.hint {
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+.levelLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.levelLine i {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.levelLine strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+
+.riskLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+}
+
+.riskBig {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+
+.codes {
+  display: grid;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.codes li {
+  display: grid;
+  gap: 2px;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  border-left: 3px solid var(--neon-cyan);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.codes span {
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+.facts {
+  display: grid;
+  gap: var(--sp-2);
+  margin: 0;
+}
+
+.facts div {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  gap: var(--sp-3);
+}
+
+.facts dt {
+  color: var(--text-2);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(2.5rem);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.badge[data-certainty='depends'] {
+  background: var(--warn);
+}
+
+.capped {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 3px solid var(--warn);
+  background: color-mix(in srgb, var(--ink-black) 60%, transparent);
+  font-size: var(--fs-sm);
+}
+
+.certainty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+  margin: 0;
+}
+
+.certainty[data-certainty='firm'] strong {
+  color: var(--neon-lime);
+}
+
+.oddsLine {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 600;
+}

@@ -1,0 +1,547 @@
+{
+  "era5_wayanad": [
+    {
+      "date": "2024-07-29",
+      "era5": {
+        "utc_day_mm": 56.9,
+        "imd_exact_mm": 12.8,
+        "imd_d5_mm": 16.912499999999998
+      }
+    },
+    {
+      "date": "2024-07-30",
+      "era5": {
+        "utc_day_mm": 53.3,
+        "imd_exact_mm": 66.9,
+        "imd_d5_mm": 56.45
+      }
+    },
+    {
+      "date": "2024-07-31",
+      "era5": {
+        "utc_day_mm": 26.400000000000002,
+        "imd_exact_mm": 42.5,
+        "imd_d5_mm": 49.93749999999999
+      }
+    }
+  ],
+  "era5_kerala": {
+    "kerala_cell_19965138": {
+      "cell_id": 19965138,
+      "lat": 9.825000000000003,
+      "lon": 76.92500000000001,
+      "rain_acc_3_event": 448.3996887207031,
+      "event_date": "2018-08-16",
+      "days": [
+        {
+          "date": "2018-08-14",
+          "era5": {
+            "utc_day_mm": 108.1,
+            "imd_exact_mm": 23.7,
+            "imd_d5_mm": 30.3125
+          }
+        },
+        {
+          "date": "2018-08-15",
+          "era5": {
+            "utc_day_mm": 140.3,
+            "imd_exact_mm": 118.2,
+            "imd_d5_mm": 112.125
+          }
+        },
+        {
+          "date": "2018-08-16",
+          "era5": {
+            "utc_day_mm": 67.4,
+            "imd_exact_mm": 134.2,
+            "imd_d5_mm": 131.18750000000003
+          }
+        },
+        {
+          "date": "2018-08-17",
+          "era5": {
+            "utc_day_mm": 36.1,
+            "imd_exact_mm": 62.6,
+            "imd_d5_mm": 63.48750000000001
+          }
+        }
+      ]
+    },
+    "kerala_cell_20065137": {
+      "cell_id": 20065137,
+      "lat": 10.325000000000003,
+      "lon": 76.875,
+      "rain_acc_3_event": 395.9981689453125,
+      "event_date": "2018-08-16",
+      "days": [
+        {
+          "date": "2018-08-14",
+          "era5": {
+            "utc_day_mm": 145.5,
+            "imd_exact_mm": 19.1,
+            "imd_d5_mm": 32.45
+          }
+        },
+        {
+          "date": "2018-08-15",
+          "era5": {
+            "utc_day_mm": 206.5,
+            "imd_exact_mm": 163.9,
+            "imd_d5_mm": 153.125
+          }
+        },
+        {
+          "date": "2018-08-16",
+          "era5": {
+            "utc_day_mm": 102.6,
+            "imd_exact_mm": 200.3,
+            "imd_d5_mm": 193.5125
+          }
+        },
+        {
+          "date": "2018-08-17",
+          "era5": {
+            "utc_day_mm": 59.5,
+            "imd_exact_mm": 96.0,
+            "imd_d5_mm": 97.21249999999999
+          }
+        }
+      ]
+    },
+    "kerala_cell_20065129": {
+      "cell_id": 20065129,
+      "lat": 10.325000000000003,
+      "lon": 76.47500000000002,
+      "rain_acc_3_event": 355.8297119140625,
+      "event_date": "2018-08-16",
+      "days": [
+        {
+          "date": "2018-08-14",
+          "era5": {
+            "utc_day_mm": 88.5,
+            "imd_exact_mm": 36.1,
+            "imd_d5_mm": 35.5625
+          }
+        },
+        {
+          "date": "2018-08-15",
+          "era5": {
+            "utc_day_mm": 138.7,
+            "imd_exact_mm": 90.7,
+            "imd_d5_mm": 94.775
+          }
+        },
+        {
+          "date": "2018-08-16",
+          "era5": {
+            "utc_day_mm": 61.0,
+            "imd_exact_mm": 131.4,
+            "imd_d5_mm": 128.98749999999998
+          }
+        },
+        {
+          "date": "2018-08-17",
+          "era5": {
+            "utc_day_mm": 27.9,
+            "imd_exact_mm": 60.4,
+            "imd_d5_mm": 56.8625
+          }
+        }
+      ]
+    }
+  },
+  "d5_error": {
+    "wayanad_mundakkai|era5": {
+      "days": 34,
+      "mean_error_mm": -0.023529411764705015,
+      "mean_abs_error_mm": 1.8514705882352933,
+      "rmse_mm": 2.8409314571312065,
+      "max_abs_error_mm": 10.450000000000003,
+      "correlation": 0.9921138475326717,
+      "heavy_days": 22,
+      "heavy_mean_abs_relative_error": 0.07712088397323856,
+      "heavy_mean_error_mm": -0.4136363636363623,
+      "worst_days": [
+        {
+          "date": "2024-07-30",
+          "exact_mm": 66.9,
+          "d5_mm": 56.45
+        },
+        {
+          "date": "2024-07-31",
+          "exact_mm": 42.5,
+          "d5_mm": 49.93749999999999
+        },
+        {
+          "date": "2024-07-29",
+          "exact_mm": 12.8,
+          "d5_mm": 16.912499999999998
+        }
+      ]
+    },
+    "kerala_cell_19965138|era5": {
+      "days": 40,
+      "mean_error_mm": -0.04312499999999871,
+      "mean_abs_error_mm": 1.3331249999999994,
+      "rmse_mm": 2.0391117091763253,
+      "max_abs_error_mm": 6.612500000000001,
+      "correlation": 0.9977803979378989,
+      "heavy_days": 21,
+      "heavy_mean_abs_relative_error": 0.07334530352393147,
+      "heavy_mean_error_mm": -0.32738095238095,
+      "worst_days": [
+        {
+          "date": "2018-08-14",
+          "exact_mm": 23.7,
+          "d5_mm": 30.3125
+        },
+        {
+          "date": "2018-08-15",
+          "exact_mm": 118.2,
+          "d5_mm": 112.125
+        },
+        {
+          "date": "2018-08-09",
+          "exact_mm": 30.7,
+          "d5_mm": 27.012500000000003
+        }
+      ]
+    },
+    "kerala_cell_20065137|era5": {
+      "days": 40,
+      "mean_error_mm": -0.028750000000001386,
+      "mean_abs_error_mm": 1.721875,
+      "rmse_mm": 3.2610652975676535,
+      "max_abs_error_mm": 13.350000000000001,
+      "correlation": 0.9974364096987994,
+      "heavy_days": 30,
+      "heavy_mean_abs_relative_error": 0.06529544167211908,
+      "heavy_mean_error_mm": -0.05541666666666855,
+      "worst_days": [
+        {
+          "date": "2018-08-14",
+          "exact_mm": 19.1,
+          "d5_mm": 32.45
+        },
+        {
+          "date": "2018-08-15",
+          "exact_mm": 163.9,
+          "d5_mm": 153.125
+        },
+        {
+          "date": "2018-08-16",
+          "exact_mm": 200.3,
+          "d5_mm": 193.5125
+        }
+      ]
+    },
+    "kerala_cell_20065129|era5": {
+      "days": 40,
+      "mean_error_mm": -0.02562500000000064,
+      "mean_abs_error_mm": 1.060000000000001,
+      "rmse_mm": 1.4521724028158653,
+      "max_abs_error_mm": 4.075000000000003,
+      "correlation": 0.9982633732492648,
+      "heavy_days": 25,
+      "heavy_mean_abs_relative_error": 0.053655193262325644,
+      "heavy_mean_error_mm": -0.12300000000000125,
+      "worst_days": [
+        {
+          "date": "2018-08-15",
+          "exact_mm": 90.7,
+          "d5_mm": 94.775
+        },
+        {
+          "date": "2018-08-17",
+          "exact_mm": 60.4,
+          "d5_mm": 56.8625
+        },
+        {
+          "date": "2018-08-13",
+          "exact_mm": 13.5,
+          "d5_mm": 16.975
+        }
+      ]
+    }
+  },
+  "unavailable": {
+    "wayanad_mundakkai|era5_land": "every hourly precipitation value is null for era5_land (variable not provided by the model)",
+    "kerala_cell_19965138|era5_land": "every hourly precipitation value is null for era5_land (variable not provided by the model)",
+    "kerala_cell_20065137|era5_land": "every hourly precipitation value is null for era5_land (variable not provided by the model)",
+    "kerala_cell_20065129|era5_land": "every hourly precipitation value is null for era5_land (variable not provided by the model)"
+  },
+  "usage": {
+    "calls": 0,
+    "weight": 0.0,
+    "cached": 8,
+    "failures": [
+      "wayanad_mundakkai era5_land: every hourly precipitation value is null for era5_land (variable not provided by the model)",
+      "kerala_cell_19965138 era5_land: every hourly precipitation value is null for era5_land (variable not provided by the model)",
+      "kerala_cell_20065137 era5_land: every hourly precipitation value is null for era5_land (variable not provided by the model)",
+      "kerala_cell_20065129 era5_land: every hourly precipitation value is null for era5_land (variable not provided by the model)"
+    ],
+    "free_tier_calls_per_day": 10000,
+    "all_time": {
+      "cached_responses": 8,
+      "total_weight": 23.142857142857146
+    }
+  },
+  "wayanad_focus_cell": {
+    "cell_id": 20295122,
+    "distance_to_point_km": 0.7784528749411441
+  },
+  "focus_table": [
+    {
+      "date": "2024-07-25",
+      "imd_mm": 25.57000732421875,
+      "chirps_aligned_mm": 31.2109375,
+      "chirps_utc_mm": 44.0625,
+      "era5_utc_mm": 38.4,
+      "era5_imd_exact_mm": 25.2,
+      "era5_imd_d5_mm": 21.1625,
+      "era5_land_utc_mm": null,
+      "era5_land_imd_exact_mm": null,
+      "era5_land_imd_d5_mm": null,
+      "corr_q50_1": 8.228952407836914,
+      "corr_q90_1": 35.94449234008789,
+      "corr_q99_1": 88.14483642578125,
+      "corr_p_exceed99": 0.011299433186650276,
+      "integ_trw_rain_1": 36.93810272216797,
+      "near_station": "IN010050700",
+      "near_dist_km": 44.89982666611328,
+      "near_value_mm": 39.099998474121094,
+      "near_trust": 0.9926075302848324,
+      "near_flagged": false,
+      "near_genuine": false
+    },
+    {
+      "date": "2024-07-26",
+      "imd_mm": 53.2801628112793,
+      "chirps_aligned_mm": 38.5546875,
+      "chirps_utc_mm": 0.0,
+      "era5_utc_mm": 23.400000000000002,
+      "era5_imd_exact_mm": 33.8,
+      "era5_imd_d5_mm": 36.525,
+      "era5_land_utc_mm": null,
+      "era5_land_imd_exact_mm": null,
+      "era5_land_imd_d5_mm": null,
+      "corr_q50_1": 12.31924819946289,
+      "corr_q90_1": 42.383235931396484,
+      "corr_q99_1": 93.0782699584961,
+      "corr_p_exceed99": 0.019230760633945465,
+      "integ_trw_rain_1": 23.5994815826416,
+      "near_station": "IN010050700",
+      "near_dist_km": 44.89982666611328,
+      "near_value_mm": 23.100000381469727,
+      "near_trust": 0.9926075312875278,
+      "near_flagged": false,
+      "near_genuine": false
+    },
+    {
+      "date": "2024-07-27",
+      "imd_mm": 37.82063293457031,
+      "chirps_aligned_mm": 12.4296875,
+      "chirps_utc_mm": 99.4375,
+      "era5_utc_mm": 2.4,
+      "era5_imd_exact_mm": 21.3,
+      "era5_imd_d5_mm": 20.775000000000002,
+      "era5_land_utc_mm": null,
+      "era5_land_imd_exact_mm": null,
+      "era5_land_imd_d5_mm": null,
+      "corr_q50_1": 5.030431747436523,
+      "corr_q90_1": 27.048067092895508,
+      "corr_q99_1": 59.17373275756836,
+      "corr_p_exceed99": 0.002763957716524601,
+      "integ_trw_rain_1": 26.064300537109375,
+      "near_station": "IN010050700",
+      "near_dist_km": 44.89982666611328,
+      "near_value_mm": 30.0,
+      "near_trust": 0.9926075306537083,
+      "near_flagged": false,
+      "near_genuine": false
+    },
+    {
+      "date": "2024-07-28",
+      "imd_mm": 4.970007419586182,
+      "chirps_aligned_mm": 87.0078125,
+      "chirps_utc_mm": 0.0,
+      "era5_utc_mm": 11.2,
+      "era5_imd_exact_mm": 2.5,
+      "era5_imd_d5_mm": 3.5,
+      "era5_land_utc_mm": null,
+      "era5_land_imd_exact_mm": null,
+      "era5_land_imd_d5_mm": null,
+      "corr_q50_1": 23.933448791503906,
+      "corr_q90_1": 65.38233947753906,
+      "corr_q99_1": 109.56830596923828,
+      "corr_p_exceed99": 0.019607841968536377,
+      "integ_trw_rain_1": 5.741517066955566,
+      "near_station": "IN010050700",
+      "near_dist_km": 44.89982666611328,
+      "near_value_mm": 6.099999904632568,
+      "near_trust": 0.9926075294829613,
+      "near_flagged": false,
+      "near_genuine": false
+    },
+    {
+      "date": "2024-07-29",
+      "imd_mm": 6.6006083488464355,
+      "chirps_aligned_mm": 6.21484375,
+      "chirps_utc_mm": 49.71875,
+      "era5_utc_mm": 56.9,
+      "era5_imd_exact_mm": 12.8,
+      "era5_imd_d5_mm": 16.912499999999998,
+      "era5_land_utc_mm": null,
+      "era5_land_imd_exact_mm": null,
+      "era5_land_imd_d5_mm": null,
+      "corr_q50_1": 3.5065364837646484,
+      "corr_q90_1": 23.65656852722168,
+      "corr_q99_1": 64.22840881347656,
+      "corr_p_exceed99": 0.0027639579493552446,
+      "integ_trw_rain_1": 29.718263626098633,
+      "near_station": "IN010050700",
+      "near_dist_km": 44.89982666611328,
+      "near_value_mm": 33.0,
+      "near_trust": 0.9775179948905419,
+      "near_flagged": false,
+      "near_genuine": false
+    },
+    {
+      "date": "2024-07-30",
+      "imd_mm": 179.23580932617188,
+      "chirps_aligned_mm": 43.50390625,
+      "chirps_utc_mm": 0.0,
+      "era5_utc_mm": 53.3,
+      "era5_imd_exact_mm": 66.9,
+      "era5_imd_d5_mm": 56.45,
+      "era5_land_utc_mm": null,
+      "era5_land_imd_exact_mm": null,
+      "era5_land_imd_d5_mm": null,
+      "corr_q50_1": 27.24281120300293,
+      "corr_q90_1": 63.79937744140625,
+      "corr_q99_1": 134.70953369140625,
+      "corr_p_exceed99": 0.12727268040180206,
+      "integ_trw_rain_1": 158.66033935546875,
+      "near_station": "IN010050700",
+      "near_dist_km": 44.89982666611328,
+      "near_value_mm": 154.89999389648438,
+      "near_trust": 0.9926075302177981,
+      "near_flagged": false,
+      "near_genuine": false
+    },
+    {
+      "date": "2024-07-31",
+      "imd_mm": 16.69839096069336,
+      "chirps_aligned_mm": 6.21484375,
+      "chirps_utc_mm": 49.71875,
+      "era5_utc_mm": 26.400000000000002,
+      "era5_imd_exact_mm": 42.5,
+      "era5_imd_d5_mm": 49.93749999999999,
+      "era5_land_utc_mm": null,
+      "era5_land_imd_exact_mm": null,
+      "era5_land_imd_d5_mm": null,
+      "corr_q50_1": 3.8199799060821533,
+      "corr_q90_1": 19.373348236083984,
+      "corr_q99_1": 49.466453552246094,
+      "corr_p_exceed99": 0.002763960976153612,
+      "integ_trw_rain_1": 40.534339904785156,
+      "near_station": "IN010050700",
+      "near_dist_km": 44.89982666611328,
+      "near_value_mm": 36.099998474121094,
+      "near_trust": 0.9926075285127625,
+      "near_flagged": false,
+      "near_genuine": false
+    },
+    {
+      "date": "2024-08-01",
+      "imd_mm": 31.606407165527344,
+      "chirps_aligned_mm": 43.50390625,
+      "chirps_utc_mm": 0.0,
+      "era5_utc_mm": 26.3,
+      "era5_imd_exact_mm": 25.0,
+      "era5_imd_d5_mm": 26.387500000000003,
+      "era5_land_utc_mm": null,
+      "era5_land_imd_exact_mm": null,
+      "era5_land_imd_d5_mm": null,
+      "corr_q50_1": 12.174636840820312,
+      "corr_q90_1": 46.14340591430664,
+      "corr_q99_1": 107.89752197265625,
+      "corr_p_exceed99": 0.019230764359235764,
+      "integ_trw_rain_1": 46.25141143798828,
+      "near_station": "IN010050700",
+      "near_dist_km": 44.89982666611328,
+      "near_value_mm": 38.099998474121094,
+      "near_trust": 0.9926075287446371,
+      "near_flagged": false,
+      "near_genuine": false
+    },
+    {
+      "date": "2024-08-02",
+      "imd_mm": 42.526187896728516,
+      "chirps_aligned_mm": 0.0,
+      "chirps_utc_mm": 0.0,
+      "era5_utc_mm": 13.2,
+      "era5_imd_exact_mm": 28.0,
+      "era5_imd_d5_mm": 24.662499999999998,
+      "era5_land_utc_mm": null,
+      "era5_land_imd_exact_mm": null,
+      "era5_land_imd_d5_mm": null,
+      "corr_q50_1": 3.0104827880859375,
+      "corr_q90_1": 19.36960792541504,
+      "corr_q99_1": 42.91775131225586,
+      "corr_p_exceed99": 0.002763959113508463,
+      "integ_trw_rain_1": 38.533470153808594,
+      "near_station": "IN010050700",
+      "near_dist_km": 44.89982666611328,
+      "near_value_mm": 34.0,
+      "near_trust": 0.9926075289652434,
+      "near_flagged": false,
+      "near_genuine": false
+    }
+  ],
+  "points": [
+    {
+      "name": "wayanad_mundakkai",
+      "lat": 11.47,
+      "lon": 76.13,
+      "start": "2024-07-01",
+      "end": "2024-08-05"
+    },
+    {
+      "name": "kerala_cell_19965138",
+      "cell_id": 19965138,
+      "lat": 9.825000000000003,
+      "lon": 76.92500000000001,
+      "start": "2018-07-15",
+      "end": "2018-08-25",
+      "rain_acc_3": 448.3996887207031,
+      "event_date": "2018-08-16"
+    },
+    {
+      "name": "kerala_cell_20065137",
+      "cell_id": 20065137,
+      "lat": 10.325000000000003,
+      "lon": 76.875,
+      "start": "2018-07-15",
+      "end": "2018-08-25",
+      "rain_acc_3": 395.9981689453125,
+      "event_date": "2018-08-16"
+    },
+    {
+      "name": "kerala_cell_20065129",
+      "cell_id": 20065129,
+      "lat": 10.325000000000003,
+      "lon": 76.47500000000002,
+      "start": "2018-07-15",
+      "end": "2018-08-25",
+      "rain_acc_3": 355.8297119140625,
+      "event_date": "2018-08-16"
+    }
+  ],
+  "runtime_seconds": 7.2,
+  "notes": [
+    "Open-Meteo hourly precipitation is stamped by the PRECEDING hour; UTC day D = stamps 01:00 D..00:00 D+1, IMD day D = stamps 04:00 D-1..03:00 D (exact), D5 = 0.875 UTC(D-1) + 0.125 UTC(D).",
+    "ERA5 / ERA5-Land are reanalysis point values (about 0.25 / 0.1 degree cells), not gauge data.",
+    "Licence: Open-Meteo CC BY 4.0; ERA5 / ERA5-Land Copernicus (CC BY 4.0)."
+  ]
+}

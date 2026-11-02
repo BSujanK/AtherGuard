@@ -1,0 +1,3408 @@
+{
+  "created_utc": "2026-10-24T00:03:08Z",
+  "rules": {
+    "agreement_min": 0.25,
+    "rain_minimum_mm": {
+      "7": 11.504499244689944
+    },
+    "gated_levels": [
+      "Watch",
+      "Warning",
+      "Emergency"
+    ],
+    "cap": {
+      "Normal": "Normal",
+      "Watch": "Normal",
+      "Warning": "Watch",
+      "Emergency": "Watch"
+    },
+    "hold_window_days": 3,
+    "hold_window_days_by_level": {
+      "Watch": 2,
+      "Warning": 1,
+      "Emergency": 1
+    },
+    "blind_hold_days": 2,
+    "lead_uncertain_bound": "widened"
+  },
+  "development": {
+    "protocol": {
+      "period": "06-01 to 09-30 of 2007-2017 (train + validation years)",
+      "panels": "data/processed/alerts/accuracy_hardening_oof",
+      "model": "the year-blocked cross-validation models of the v3-live configuration, each scoring the years it did not train on (out-of-fold, the setting the card's thresholds were set in)",
+      "alert_config": "data/processed/alerts/alert_config_v3.json",
+      "universe_cells": 36792,
+      "note": "chosen on development years only; test_2018, the 2023 window, Wayanad 2024 and the live days are not read"
+    },
+    "events": {
+      "in_season": 647,
+      "in_panel_cells": 636
+    },
+    "interval": {
+      "old_bound": {
+        "label": "old interval (calibrated members p10 / p90)",
+        "upper": "old_hi",
+        "rules": null,
+        "release": true,
+        "cell_days": 6710000,
+        "n_events": 636,
+        "share_at_least": {
+          "Watch": 0.5877578241430701,
+          "Warning": 0.24911952309985097,
+          "Emergency": 0.10202026825633383
+        },
+        "dry_cell_days_at": {
+          "Watch": 143883,
+          "Warning": 9190,
+          "Emergency": 399
+        },
+        "detected_at_least": {
+          "Watch": {
+            "value": 0.9795597484276729,
+            "lo": 0.9685141509433963,
+            "hi": 0.9889937106918238,
+            "n": 636,
+            "hits": 623
+          },
+          "Warning": {
+            "value": 0.8537735849056604,
+            "lo": 0.8254716981132075,
+            "hi": 0.8820754716981132,
+            "n": 636,
+            "hits": 543
+          },
+          "Emergency": {
+            "value": 0.6336477987421384,
+            "lo": 0.5959119496855346,
+            "hi": 0.6729559748427673,
+            "n": 636,
+            "hits": 403
+          }
+        },
+        "median_lead_days": 7.0
+      },
+      "new_bound": {
+        "label": "re-centred interval",
+        "upper": "new_hi",
+        "rules": null,
+        "release": true,
+        "cell_days": 6710000,
+        "n_events": 636,
+        "share_at_least": {
+          "Watch": 0.6189467958271236,
+          "Warning": 0.24911952309985097,
+          "Emergency": 0.10202026825633383
+        },
+        "dry_cell_days_at": {
+          "Watch": 180997,
+          "Warning": 9190,
+          "Emergency": 399
+        },
+        "detected_at_least": {
+          "Watch": {
+            "value": 0.9811320754716981,
+            "lo": 0.9685534591194969,
+            "hi": 0.9905660377358491,
+            "n": 636,
+            "hits": 624
+          },
+          "Warning": {
+            "value": 0.8537735849056604,
+            "lo": 0.8254716981132075,
+            "hi": 0.8820754716981132,
+            "n": 636,
+            "hits": 543
+          },
+          "Emergency": {
+            "value": 0.6336477987421384,
+            "lo": 0.5959119496855346,
+            "hi": 0.6729559748427673,
+            "n": 636,
+            "hits": 403
+          }
+        },
+        "median_lead_days": 7.0
+      },
+      "no_uncertain_high": {
+        "label": "no uncertain_high",
+        "upper": "risk",
+        "rules": null,
+        "release": true,
+        "cell_days": 6710000,
+        "n_events": 636,
+        "share_at_least": {
+          "Watch": 0.5225949329359165,
+          "Warning": 0.24911952309985097,
+          "Emergency": 0.10202026825633383
+        },
+        "dry_cell_days_at": {
+          "Watch": 103192,
+          "Warning": 9190,
+          "Emergency": 399
+        },
+        "detected_at_least": {
+          "Watch": {
+            "value": 0.970125786163522,
+            "lo": 0.9559748427672956,
+            "hi": 0.9827044025157232,
+            "n": 636,
+            "hits": 617
+          },
+          "Warning": {
+            "value": 0.8537735849056604,
+            "lo": 0.8254716981132075,
+            "hi": 0.8820754716981132,
+            "n": 636,
+            "hits": 543
+          },
+          "Emergency": {
+            "value": 0.6336477987421384,
+            "lo": 0.5959119496855346,
+            "hi": 0.6729559748427673,
+            "n": 636,
+            "hits": 403
+          }
+        },
+        "median_lead_days": 7.0
+      },
+      "outside_old_interval": {
+        "cell_days": 6710000,
+        "outside_old": 215355,
+        "outside_old_share": 0.0320946348733234,
+        "above_old_hi": 200700,
+        "outside_new": 0
+      }
+    },
+    "agreement": {
+      "split": {
+        "events_total": 636,
+        "events_point_warning_plus": 520,
+        "alert_cell_days_point_warning_plus": 1319037,
+        "universe_cells": 36792,
+        "sampled_universe_cells": 5000,
+        "by_minimum": {
+          "0.1": {
+            "agreeing": {
+              "events": 518,
+              "events_share_of_all": 0.8144654088050315,
+              "alert_cell_days": 1309304,
+              "alert_cell_day_share": 0.9926211319318563,
+              "events_per_1000_alerted_cell_days": 0.05376577036651334
+            },
+            "disagreeing": {
+              "events": 2,
+              "events_share_of_all": 0.0031446540880503146,
+              "alert_cell_days": 9733,
+              "alert_cell_day_share": 0.007378868068143653,
+              "events_per_1000_alerted_cell_days": 0.027925430700061284
+            },
+            "disagreeing_as_precise": false
+          },
+          "0.25": {
+            "agreeing": {
+              "events": 512,
+              "events_share_of_all": 0.8050314465408805,
+              "alert_cell_days": 1259438,
+              "alert_cell_day_share": 0.954816278845855,
+              "events_per_1000_alerted_cell_days": 0.05524713686020773
+            },
+            "disagreeing": {
+              "events": 8,
+              "events_share_of_all": 0.012578616352201259,
+              "alert_cell_days": 59599,
+              "alert_cell_day_share": 0.04518372115414503,
+              "events_per_1000_alerted_cell_days": 0.018241797144495475
+            },
+            "disagreeing_as_precise": false
+          },
+          "0.5": {
+            "agreeing": {
+              "events": 466,
+              "events_share_of_all": 0.7327044025157232,
+              "alert_cell_days": 1070064,
+              "alert_cell_day_share": 0.8112463865683829,
+              "events_per_1000_alerted_cell_days": 0.05918242699676027
+            },
+            "disagreeing": {
+              "events": 54,
+              "events_share_of_all": 0.08490566037735849,
+              "alert_cell_days": 248973,
+              "alert_cell_day_share": 0.18875361343161715,
+              "events_per_1000_alerted_cell_days": 0.029475291935670955
+            },
+            "disagreeing_as_precise": false
+          }
+        }
+      },
+      "choice": {
+        "agreement_min": 0.25,
+        "flag_only": false,
+        "rule": "A = 0.25 (pre-declared) unless the disagreeing Warning+ alerts are at least as precise (events per alerted cell-day) as the agreeing ones; then the disagreement is reported as a flag only"
+      }
+    },
+    "rain": {
+      "positives": {
+        "n_positives": 789,
+        "quantiles": {
+          "1": {
+            "1": 0.0,
+            "2": 0.0,
+            "5": 0.3449999928474427
+          },
+          "3": {
+            "1": 0.0,
+            "2": 0.5884750056266784,
+            "5": 2.696250057220459
+          },
+          "7": {
+            "1": 0.3449750030040741,
+            "2": 4.004974956512451,
+            "5": 11.504499244689944
+          }
+        },
+        "dry_shares": {
+          "1": {
+            "below_1mm": 0.07858048162230671,
+            "below_5mm": 0.21292775665399238,
+            "n": 789
+          },
+          "3": {
+            "below_1mm": 0.026615969581749048,
+            "below_5mm": 0.07097591888466413,
+            "n": 789
+          },
+          "7": {
+            "below_1mm": 0.01394169835234474,
+            "below_5mm": 0.024081115335868188,
+            "n": 789
+          }
+        }
+      },
+      "candidates": [
+        {
+          "form": "acc_3",
+          "percentile": 1.0,
+          "minimum_mm": {
+            "3": 0.0
+          },
+          "vacuous_windows": [
+            3
+          ],
+          "per_level": null,
+          "adoptable_levels": []
+        },
+        {
+          "form": "acc_3",
+          "percentile": 2.0,
+          "minimum_mm": {
+            "3": 0.5884750056266784
+          },
+          "vacuous_windows": [],
+          "per_level": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.6085482861400894,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 543,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24899508196721312,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10200491803278688,
+              "adopt": true
+            }
+          ],
+          "adoptable_levels": [
+            "Watch",
+            "Warning",
+            "Emergency"
+          ],
+          "combined": {
+            "label": "acc_3 p2",
+            "upper": "new_hi",
+            "rules": {
+              "agreement_min": null,
+              "rain_minimum_mm": {
+                "3": 0.5884750056266784
+              },
+              "gated_levels": [
+                "Watch",
+                "Warning",
+                "Emergency"
+              ],
+              "cap": {
+                "Normal": "Normal",
+                "Watch": "Normal",
+                "Warning": "Watch",
+                "Emergency": "Watch"
+              },
+              "hold_window_days": 3,
+              "hold_window_days_by_level": {},
+              "blind_hold_days": null,
+              "lead_uncertain_bound": "widened"
+            },
+            "release": true,
+            "cell_days": 6710000,
+            "n_events": 636,
+            "share_at_least": {
+              "Watch": 0.608537257824143,
+              "Warning": 0.2489837555886736,
+              "Emergency": 0.10200491803278688
+            },
+            "dry_cell_days_at": {
+              "Watch": 113455,
+              "Warning": 8417,
+              "Emergency": 302
+            },
+            "detected_at_least": {
+              "Watch": {
+                "value": 0.9811320754716981,
+                "lo": 0.9685534591194969,
+                "hi": 0.9905660377358491,
+                "n": 636,
+                "hits": 624
+              },
+              "Warning": {
+                "value": 0.8537735849056604,
+                "lo": 0.8254716981132075,
+                "hi": 0.8820754716981132,
+                "n": 636,
+                "hits": 543
+              },
+              "Emergency": {
+                "value": 0.6336477987421384,
+                "lo": 0.5959119496855346,
+                "hi": 0.6729559748427673,
+                "n": 636,
+                "hits": 403
+              }
+            },
+            "median_lead_days": 7.0
+          },
+          "combined_adoption": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.608537257824143,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 543,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.2489837555886736,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10200491803278688,
+              "adopt": true
+            }
+          ]
+        },
+        {
+          "form": "acc_3",
+          "percentile": 5.0,
+          "minimum_mm": {
+            "3": 2.696250057220459
+          },
+          "vacuous_windows": [],
+          "per_level": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 622,
+              "events_lost": 2,
+              "relative_loss": 0.003205128205128205,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.5868025335320417,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 541,
+              "events_lost": 2,
+              "relative_loss": 0.003683241252302026,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.248250521609538,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10188479880774963,
+              "adopt": true
+            }
+          ],
+          "adoptable_levels": [
+            "Watch",
+            "Warning",
+            "Emergency"
+          ],
+          "combined": {
+            "label": "acc_3 p5",
+            "upper": "new_hi",
+            "rules": {
+              "agreement_min": null,
+              "rain_minimum_mm": {
+                "3": 2.696250057220459
+              },
+              "gated_levels": [
+                "Watch",
+                "Warning",
+                "Emergency"
+              ],
+              "cap": {
+                "Normal": "Normal",
+                "Watch": "Normal",
+                "Warning": "Watch",
+                "Emergency": "Watch"
+              },
+              "hold_window_days": 3,
+              "hold_window_days_by_level": {},
+              "blind_hold_days": null,
+              "lead_uncertain_bound": "widened"
+            },
+            "release": true,
+            "cell_days": 6710000,
+            "n_events": 636,
+            "share_at_least": {
+              "Watch": 0.5867199701937407,
+              "Warning": 0.24817451564828613,
+              "Emergency": 0.10188479880774963
+            },
+            "dry_cell_days_at": {
+              "Watch": 61569,
+              "Warning": 7466,
+              "Emergency": 233
+            },
+            "detected_at_least": {
+              "Watch": {
+                "value": 0.9779874213836478,
+                "lo": 0.9654088050314465,
+                "hi": 0.9889937106918238,
+                "n": 636,
+                "hits": 622
+              },
+              "Warning": {
+                "value": 0.8490566037735849,
+                "lo": 0.8207547169811321,
+                "hi": 0.8773584905660378,
+                "n": 636,
+                "hits": 540
+              },
+              "Emergency": {
+                "value": 0.6336477987421384,
+                "lo": 0.5959119496855346,
+                "hi": 0.6729559748427673,
+                "n": 636,
+                "hits": 403
+              }
+            },
+            "median_lead_days": 7.0
+          },
+          "combined_adoption": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 622,
+              "events_lost": 2,
+              "relative_loss": 0.003205128205128205,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.5867199701937407,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 540,
+              "events_lost": 3,
+              "relative_loss": 0.0055248618784530384,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24817451564828613,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10188479880774963,
+              "adopt": true
+            }
+          ]
+        },
+        {
+          "form": "acc_7",
+          "percentile": 1.0,
+          "minimum_mm": {
+            "7": 0.3449750030040741
+          },
+          "vacuous_windows": [],
+          "per_level": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.6177210134128167,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 543,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.2491150521609538,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10201907600596125,
+              "adopt": true
+            }
+          ],
+          "adoptable_levels": [
+            "Watch",
+            "Warning",
+            "Emergency"
+          ],
+          "combined": {
+            "label": "acc_7 p1",
+            "upper": "new_hi",
+            "rules": {
+              "agreement_min": null,
+              "rain_minimum_mm": {
+                "7": 0.3449750030040741
+              },
+              "gated_levels": [
+                "Watch",
+                "Warning",
+                "Emergency"
+              ],
+              "cap": {
+                "Normal": "Normal",
+                "Watch": "Normal",
+                "Warning": "Watch",
+                "Emergency": "Watch"
+              },
+              "hold_window_days": 3,
+              "hold_window_days_by_level": {},
+              "blind_hold_days": null,
+              "lead_uncertain_bound": "widened"
+            },
+            "release": true,
+            "cell_days": 6710000,
+            "n_events": 636,
+            "share_at_least": {
+              "Watch": 0.6177207153502235,
+              "Warning": 0.24911385991058121,
+              "Emergency": 0.10201907600596125
+            },
+            "dry_cell_days_at": {
+              "Watch": 172924,
+              "Warning": 9160,
+              "Emergency": 391
+            },
+            "detected_at_least": {
+              "Watch": {
+                "value": 0.9811320754716981,
+                "lo": 0.9685534591194969,
+                "hi": 0.9905660377358491,
+                "n": 636,
+                "hits": 624
+              },
+              "Warning": {
+                "value": 0.8537735849056604,
+                "lo": 0.8254716981132075,
+                "hi": 0.8820754716981132,
+                "n": 636,
+                "hits": 543
+              },
+              "Emergency": {
+                "value": 0.6336477987421384,
+                "lo": 0.5959119496855346,
+                "hi": 0.6729559748427673,
+                "n": 636,
+                "hits": 403
+              }
+            },
+            "median_lead_days": 7.0
+          },
+          "combined_adoption": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.6177207153502235,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 543,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24911385991058121,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10201907600596125,
+              "adopt": true
+            }
+          ]
+        },
+        {
+          "form": "acc_7",
+          "percentile": 2.0,
+          "minimum_mm": {
+            "7": 4.004974956512451
+          },
+          "vacuous_windows": [],
+          "per_level": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.6092904619970194,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 542,
+              "events_lost": 1,
+              "relative_loss": 0.001841620626151013,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24899538002980626,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.1020070044709389,
+              "adopt": true
+            }
+          ],
+          "adoptable_levels": [
+            "Watch",
+            "Warning",
+            "Emergency"
+          ],
+          "combined": {
+            "label": "acc_7 p2",
+            "upper": "new_hi",
+            "rules": {
+              "agreement_min": null,
+              "rain_minimum_mm": {
+                "7": 4.004974956512451
+              },
+              "gated_levels": [
+                "Watch",
+                "Warning",
+                "Emergency"
+              ],
+              "cap": {
+                "Normal": "Normal",
+                "Watch": "Normal",
+                "Warning": "Watch",
+                "Emergency": "Watch"
+              },
+              "hold_window_days": 3,
+              "hold_window_days_by_level": {},
+              "blind_hold_days": null,
+              "lead_uncertain_bound": "widened"
+            },
+            "release": true,
+            "cell_days": 6710000,
+            "n_events": 636,
+            "share_at_least": {
+              "Watch": 0.6092737704918033,
+              "Warning": 0.24898584202682564,
+              "Emergency": 0.1020070044709389
+            },
+            "dry_cell_days_at": {
+              "Watch": 142185,
+              "Warning": 8934,
+              "Emergency": 366
+            },
+            "detected_at_least": {
+              "Watch": {
+                "value": 0.9811320754716981,
+                "lo": 0.9685534591194969,
+                "hi": 0.9905660377358491,
+                "n": 636,
+                "hits": 624
+              },
+              "Warning": {
+                "value": 0.8522012578616353,
+                "lo": 0.8238993710691824,
+                "hi": 0.8805031446540881,
+                "n": 636,
+                "hits": 542
+              },
+              "Emergency": {
+                "value": 0.6336477987421384,
+                "lo": 0.5959119496855346,
+                "hi": 0.6729559748427673,
+                "n": 636,
+                "hits": 403
+              }
+            },
+            "median_lead_days": 7.0
+          },
+          "combined_adoption": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.6092737704918033,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 542,
+              "events_lost": 1,
+              "relative_loss": 0.001841620626151013,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24898584202682564,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.1020070044709389,
+              "adopt": true
+            }
+          ]
+        },
+        {
+          "form": "acc_7",
+          "percentile": 5.0,
+          "minimum_mm": {
+            "7": 11.504499244689944
+          },
+          "vacuous_windows": [],
+          "per_level": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 620,
+              "events_lost": 4,
+              "relative_loss": 0.00641025641025641,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.5841563338301043,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 541,
+              "events_lost": 2,
+              "relative_loss": 0.003683241252302026,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24785871833084946,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.1018913561847988,
+              "adopt": true
+            }
+          ],
+          "adoptable_levels": [
+            "Watch",
+            "Warning",
+            "Emergency"
+          ],
+          "combined": {
+            "label": "acc_7 p5",
+            "upper": "new_hi",
+            "rules": {
+              "agreement_min": null,
+              "rain_minimum_mm": {
+                "7": 11.504499244689944
+              },
+              "gated_levels": [
+                "Watch",
+                "Warning",
+                "Emergency"
+              ],
+              "cap": {
+                "Normal": "Normal",
+                "Watch": "Normal",
+                "Warning": "Watch",
+                "Emergency": "Watch"
+              },
+              "hold_window_days": 3,
+              "hold_window_days_by_level": {},
+              "blind_hold_days": null,
+              "lead_uncertain_bound": "widened"
+            },
+            "release": true,
+            "cell_days": 6710000,
+            "n_events": 636,
+            "share_at_least": {
+              "Watch": 0.5839046199701937,
+              "Warning": 0.24776393442622952,
+              "Emergency": 0.1018913561847988
+            },
+            "dry_cell_days_at": {
+              "Watch": 109690,
+              "Warning": 8571,
+              "Emergency": 351
+            },
+            "detected_at_least": {
+              "Watch": {
+                "value": 0.9732704402515723,
+                "lo": 0.9591194968553459,
+                "hi": 0.9842767295597484,
+                "n": 636,
+                "hits": 619
+              },
+              "Warning": {
+                "value": 0.85062893081761,
+                "lo": 0.8223270440251572,
+                "hi": 0.8789308176100629,
+                "n": 636,
+                "hits": 541
+              },
+              "Emergency": {
+                "value": 0.6336477987421384,
+                "lo": 0.5959119496855346,
+                "hi": 0.6729559748427673,
+                "n": 636,
+                "hits": 403
+              }
+            },
+            "median_lead_days": 7.0
+          },
+          "combined_adoption": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 619,
+              "events_lost": 5,
+              "relative_loss": 0.008012820512820512,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.5839046199701937,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 541,
+              "events_lost": 2,
+              "relative_loss": 0.003683241252302026,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24776393442622952,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.1018913561847988,
+              "adopt": true
+            }
+          ]
+        },
+        {
+          "form": "acc_3_or_acc_7",
+          "percentile": 1.0,
+          "minimum_mm": {
+            "3": 0.0,
+            "7": 0.3449750030040741
+          },
+          "vacuous_windows": [
+            3
+          ],
+          "per_level": null,
+          "adoptable_levels": []
+        },
+        {
+          "form": "acc_3_or_acc_7",
+          "percentile": 2.0,
+          "minimum_mm": {
+            "3": 0.5884750056266784,
+            "7": 4.004974956512451
+          },
+          "vacuous_windows": [],
+          "per_level": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.6149727272727272,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 543,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.2490962742175857,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10201654247391952,
+              "adopt": true
+            }
+          ],
+          "adoptable_levels": [
+            "Watch",
+            "Warning",
+            "Emergency"
+          ],
+          "combined": {
+            "label": "acc_3_or_acc_7 p2",
+            "upper": "new_hi",
+            "rules": {
+              "agreement_min": null,
+              "rain_minimum_mm": {
+                "3": 0.5884750056266784,
+                "7": 4.004974956512451
+              },
+              "gated_levels": [
+                "Watch",
+                "Warning",
+                "Emergency"
+              ],
+              "cap": {
+                "Normal": "Normal",
+                "Watch": "Normal",
+                "Warning": "Watch",
+                "Emergency": "Watch"
+              },
+              "hold_window_days": 3,
+              "hold_window_days_by_level": {},
+              "blind_hold_days": null,
+              "lead_uncertain_bound": "widened"
+            },
+            "release": true,
+            "cell_days": 6710000,
+            "n_events": 636,
+            "share_at_least": {
+              "Watch": 0.6149704918032787,
+              "Warning": 0.24909269746646795,
+              "Emergency": 0.10201654247391952
+            },
+            "dry_cell_days_at": {
+              "Watch": 155067,
+              "Warning": 9038,
+              "Emergency": 374
+            },
+            "detected_at_least": {
+              "Watch": {
+                "value": 0.9811320754716981,
+                "lo": 0.9685534591194969,
+                "hi": 0.9905660377358491,
+                "n": 636,
+                "hits": 624
+              },
+              "Warning": {
+                "value": 0.8537735849056604,
+                "lo": 0.8254716981132075,
+                "hi": 0.8820754716981132,
+                "n": 636,
+                "hits": 543
+              },
+              "Emergency": {
+                "value": 0.6336477987421384,
+                "lo": 0.5959119496855346,
+                "hi": 0.6729559748427673,
+                "n": 636,
+                "hits": 403
+              }
+            },
+            "median_lead_days": 7.0
+          },
+          "combined_adoption": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.6149704918032787,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 543,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24909269746646795,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10201654247391952,
+              "adopt": true
+            }
+          ]
+        },
+        {
+          "form": "acc_3_or_acc_7",
+          "percentile": 5.0,
+          "minimum_mm": {
+            "3": 2.696250057220459,
+            "7": 11.504499244689944
+          },
+          "vacuous_windows": [],
+          "per_level": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 623,
+              "events_lost": 1,
+              "relative_loss": 0.0016025641025641025,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.601630998509687,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 542,
+              "events_lost": 1,
+              "relative_loss": 0.001841620626151013,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.2488532041728763,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.101997913561848,
+              "adopt": true
+            }
+          ],
+          "adoptable_levels": [
+            "Watch",
+            "Warning",
+            "Emergency"
+          ],
+          "combined": {
+            "label": "acc_3_or_acc_7 p5",
+            "upper": "new_hi",
+            "rules": {
+              "agreement_min": null,
+              "rain_minimum_mm": {
+                "3": 2.696250057220459,
+                "7": 11.504499244689944
+              },
+              "gated_levels": [
+                "Watch",
+                "Warning",
+                "Emergency"
+              ],
+              "cap": {
+                "Normal": "Normal",
+                "Watch": "Normal",
+                "Warning": "Watch",
+                "Emergency": "Watch"
+              },
+              "hold_window_days": 3,
+              "hold_window_days_by_level": {},
+              "blind_hold_days": null,
+              "lead_uncertain_bound": "widened"
+            },
+            "release": true,
+            "cell_days": 6710000,
+            "n_events": 636,
+            "share_at_least": {
+              "Watch": 0.6016004470938897,
+              "Warning": 0.24883845007451566,
+              "Emergency": 0.101997913561848
+            },
+            "dry_cell_days_at": {
+              "Watch": 115997,
+              "Warning": 8663,
+              "Emergency": 352
+            },
+            "detected_at_least": {
+              "Watch": {
+                "value": 0.9795597484276729,
+                "lo": 0.9669811320754716,
+                "hi": 0.9889937106918238,
+                "n": 636,
+                "hits": 623
+              },
+              "Warning": {
+                "value": 0.85062893081761,
+                "lo": 0.8223270440251572,
+                "hi": 0.8789308176100629,
+                "n": 636,
+                "hits": 541
+              },
+              "Emergency": {
+                "value": 0.6336477987421384,
+                "lo": 0.5959119496855346,
+                "hi": 0.6729559748427673,
+                "n": 636,
+                "hits": 403
+              }
+            },
+            "median_lead_days": 7.0
+          },
+          "combined_adoption": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 623,
+              "events_lost": 1,
+              "relative_loss": 0.0016025641025641025,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.6016004470938897,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 541,
+              "events_lost": 2,
+              "relative_loss": 0.003683241252302026,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24883845007451566,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.101997913561848,
+              "adopt": true
+            }
+          ]
+        },
+        {
+          "form": "acc_1_or_acc_3_or_acc_7",
+          "percentile": 1.0,
+          "minimum_mm": {
+            "1": 0.0,
+            "3": 0.0,
+            "7": 0.3449750030040741
+          },
+          "vacuous_windows": [
+            1,
+            3
+          ],
+          "per_level": null,
+          "adoptable_levels": []
+        },
+        {
+          "form": "acc_1_or_acc_3_or_acc_7",
+          "percentile": 2.0,
+          "minimum_mm": {
+            "1": 0.0,
+            "3": 0.5884750056266784,
+            "7": 4.004974956512451
+          },
+          "vacuous_windows": [
+            1
+          ],
+          "per_level": null,
+          "adoptable_levels": []
+        },
+        {
+          "form": "acc_1_or_acc_3_or_acc_7",
+          "percentile": 5.0,
+          "minimum_mm": {
+            "1": 0.3449999928474427,
+            "3": 2.696250057220459,
+            "7": 11.504499244689944
+          },
+          "vacuous_windows": [],
+          "per_level": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.6108959761549926,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 543,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.24906363636363638,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10201535022354695,
+              "adopt": true
+            }
+          ],
+          "adoptable_levels": [
+            "Watch",
+            "Warning",
+            "Emergency"
+          ],
+          "combined": {
+            "label": "acc_1_or_acc_3_or_acc_7 p5",
+            "upper": "new_hi",
+            "rules": {
+              "agreement_min": null,
+              "rain_minimum_mm": {
+                "1": 0.3449999928474427,
+                "3": 2.696250057220459,
+                "7": 11.504499244689944
+              },
+              "gated_levels": [
+                "Watch",
+                "Warning",
+                "Emergency"
+              ],
+              "cap": {
+                "Normal": "Normal",
+                "Watch": "Normal",
+                "Warning": "Watch",
+                "Emergency": "Watch"
+              },
+              "hold_window_days": 3,
+              "hold_window_days_by_level": {},
+              "blind_hold_days": null,
+              "lead_uncertain_bound": "widened"
+            },
+            "release": true,
+            "cell_days": 6710000,
+            "n_events": 636,
+            "share_at_least": {
+              "Watch": 0.610891654247392,
+              "Warning": 0.2490591654247392,
+              "Emergency": 0.10201535022354695
+            },
+            "dry_cell_days_at": {
+              "Watch": 132319,
+              "Warning": 8853,
+              "Emergency": 366
+            },
+            "detected_at_least": {
+              "Watch": {
+                "value": 0.9811320754716981,
+                "lo": 0.9685534591194969,
+                "hi": 0.9905660377358491,
+                "n": 636,
+                "hits": 624
+              },
+              "Warning": {
+                "value": 0.8537735849056604,
+                "lo": 0.8254716981132075,
+                "hi": 0.8820754716981132,
+                "n": 636,
+                "hits": 543
+              },
+              "Emergency": {
+                "value": 0.6336477987421384,
+                "lo": 0.5959119496855346,
+                "hi": 0.6729559748427673,
+                "n": 636,
+                "hits": 403
+              }
+            },
+            "median_lead_days": 7.0
+          },
+          "combined_adoption": [
+            {
+              "level": "Watch",
+              "events_before": 624,
+              "events_after": 624,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.6189467958271236,
+              "share_after": 0.610891654247392,
+              "adopt": true
+            },
+            {
+              "level": "Warning",
+              "events_before": 543,
+              "events_after": 543,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.24911952309985097,
+              "share_after": 0.2490591654247392,
+              "adopt": true
+            },
+            {
+              "level": "Emergency",
+              "events_before": 403,
+              "events_after": 403,
+              "events_lost": 0,
+              "relative_loss": 0.0,
+              "share_before": 0.10202026825633383,
+              "share_after": 0.10201535022354695,
+              "adopt": true
+            }
+          ]
+        }
+      ],
+      "chosen": {
+        "form": "acc_7",
+        "percentile": 5.0,
+        "minimum_mm": {
+          "7": 11.504499244689944
+        },
+        "gated_levels": [
+          "Watch",
+          "Warning",
+          "Emergency"
+        ]
+      },
+      "hold_window_days": 3,
+      "candidate_hold_window_days": 3,
+      "hold_window": {
+        "per_level": {
+          "Watch": {
+            "windows": {
+              "1": {
+                "share_at_least": {
+                  "Watch": 0.5717994038748138,
+                  "Warning": 0.24776393442622952,
+                  "Emergency": 0.1018913561847988
+                },
+                "adoption": {
+                  "level": "Watch",
+                  "events_before": 624,
+                  "events_after": 617,
+                  "events_lost": 7,
+                  "relative_loss": 0.011217948717948718,
+                  "share_before": 0.6189467958271236,
+                  "share_after": 0.5717994038748138,
+                  "adopt": false
+                }
+              },
+              "2": {
+                "share_at_least": {
+                  "Watch": 0.5798931445603577,
+                  "Warning": 0.24776393442622952,
+                  "Emergency": 0.1018913561847988
+                },
+                "adoption": {
+                  "level": "Watch",
+                  "events_before": 624,
+                  "events_after": 618,
+                  "events_lost": 6,
+                  "relative_loss": 0.009615384615384616,
+                  "share_before": 0.6189467958271236,
+                  "share_after": 0.5798931445603577,
+                  "adopt": true
+                }
+              },
+              "3": {
+                "share_at_least": {
+                  "Watch": 0.5839046199701937,
+                  "Warning": 0.24776393442622952,
+                  "Emergency": 0.1018913561847988
+                },
+                "adoption": {
+                  "level": "Watch",
+                  "events_before": 624,
+                  "events_after": 619,
+                  "events_lost": 5,
+                  "relative_loss": 0.008012820512820512,
+                  "share_before": 0.6189467958271236,
+                  "share_after": 0.5839046199701937,
+                  "adopt": true
+                }
+              }
+            },
+            "chosen": 2
+          },
+          "Warning": {
+            "windows": {
+              "1": {
+                "share_at_least": {
+                  "Watch": 0.5838847988077496,
+                  "Warning": 0.24725245901639345,
+                  "Emergency": 0.1018913561847988
+                },
+                "adoption": {
+                  "level": "Warning",
+                  "events_before": 543,
+                  "events_after": 540,
+                  "events_lost": 3,
+                  "relative_loss": 0.0055248618784530384,
+                  "share_before": 0.24911952309985097,
+                  "share_after": 0.24725245901639345,
+                  "adopt": true
+                }
+              },
+              "2": {
+                "share_at_least": {
+                  "Watch": 0.5838847988077496,
+                  "Warning": 0.24760938897168405,
+                  "Emergency": 0.1018913561847988
+                },
+                "adoption": {
+                  "level": "Warning",
+                  "events_before": 543,
+                  "events_after": 541,
+                  "events_lost": 2,
+                  "relative_loss": 0.003683241252302026,
+                  "share_before": 0.24911952309985097,
+                  "share_after": 0.24760938897168405,
+                  "adopt": true
+                }
+              },
+              "3": {
+                "share_at_least": {
+                  "Watch": 0.5839046199701937,
+                  "Warning": 0.24776393442622952,
+                  "Emergency": 0.1018913561847988
+                },
+                "adoption": {
+                  "level": "Warning",
+                  "events_before": 543,
+                  "events_after": 541,
+                  "events_lost": 2,
+                  "relative_loss": 0.003683241252302026,
+                  "share_before": 0.24911952309985097,
+                  "share_after": 0.24776393442622952,
+                  "adopt": true
+                }
+              }
+            },
+            "chosen": 1
+          },
+          "Emergency": {
+            "windows": {
+              "1": {
+                "share_at_least": {
+                  "Watch": 0.5839014903129657,
+                  "Warning": 0.24771535022354693,
+                  "Emergency": 0.1018548435171386
+                },
+                "adoption": {
+                  "level": "Emergency",
+                  "events_before": 403,
+                  "events_after": 402,
+                  "events_lost": 1,
+                  "relative_loss": 0.0024813895781637717,
+                  "share_before": 0.10202026825633383,
+                  "share_after": 0.1018548435171386,
+                  "adopt": true
+                }
+              },
+              "2": {
+                "share_at_least": {
+                  "Watch": 0.5839046199701937,
+                  "Warning": 0.2477563338301043,
+                  "Emergency": 0.10188375558867362
+                },
+                "adoption": {
+                  "level": "Emergency",
+                  "events_before": 403,
+                  "events_after": 402,
+                  "events_lost": 1,
+                  "relative_loss": 0.0024813895781637717,
+                  "share_before": 0.10202026825633383,
+                  "share_after": 0.10188375558867362,
+                  "adopt": true
+                }
+              },
+              "3": {
+                "share_at_least": {
+                  "Watch": 0.5839046199701937,
+                  "Warning": 0.24776393442622952,
+                  "Emergency": 0.1018913561847988
+                },
+                "adoption": {
+                  "level": "Emergency",
+                  "events_before": 403,
+                  "events_after": 403,
+                  "events_lost": 0,
+                  "relative_loss": 0.0,
+                  "share_before": 0.10202026825633383,
+                  "share_after": 0.1018913561847988,
+                  "adopt": true
+                }
+              }
+            },
+            "chosen": 1
+          }
+        },
+        "combined": {
+          "label": "per-level hold windows",
+          "upper": "new_hi",
+          "rules": {
+            "agreement_min": 0.25,
+            "rain_minimum_mm": {
+              "7": 11.504499244689944
+            },
+            "gated_levels": [
+              "Watch",
+              "Warning",
+              "Emergency"
+            ],
+            "cap": {
+              "Normal": "Normal",
+              "Watch": "Normal",
+              "Warning": "Watch",
+              "Emergency": "Watch"
+            },
+            "hold_window_days": 3,
+            "hold_window_days_by_level": {
+              "Watch": 2,
+              "Warning": 1,
+              "Emergency": 1
+            },
+            "blind_hold_days": 2,
+            "lead_uncertain_bound": "widened"
+          },
+          "release": true,
+          "cell_days": 6710000,
+          "n_events": 636,
+          "share_at_least": {
+            "Watch": 0.5798374068554396,
+            "Warning": 0.2472156482861401,
+            "Emergency": 0.1018548435171386
+          },
+          "dry_cell_days_at": {
+            "Watch": 101842,
+            "Warning": 8010,
+            "Emergency": 320
+          },
+          "detected_at_least": {
+            "Watch": {
+              "value": 0.9716981132075472,
+              "lo": 0.9575471698113207,
+              "hi": 0.9842767295597484,
+              "n": 636,
+              "hits": 618
+            },
+            "Warning": {
+              "value": 0.8474842767295597,
+              "lo": 0.8191823899371069,
+              "hi": 0.8757861635220126,
+              "n": 636,
+              "hits": 539
+            },
+            "Emergency": {
+              "value": 0.6320754716981132,
+              "lo": 0.5943396226415094,
+              "hi": 0.6713836477987422,
+              "n": 636,
+              "hits": 402
+            }
+          },
+          "median_lead_days": 7.0
+        },
+        "combined_adoption": [
+          {
+            "level": "Watch",
+            "events_before": 624,
+            "events_after": 618,
+            "events_lost": 6,
+            "relative_loss": 0.009615384615384616,
+            "share_before": 0.6189467958271236,
+            "share_after": 0.5798374068554396,
+            "adopt": true
+          },
+          {
+            "level": "Warning",
+            "events_before": 543,
+            "events_after": 539,
+            "events_lost": 4,
+            "relative_loss": 0.007366482504604052,
+            "share_before": 0.24911952309985097,
+            "share_after": 0.2472156482861401,
+            "adopt": true
+          },
+          {
+            "level": "Emergency",
+            "events_before": 403,
+            "events_after": 402,
+            "events_lost": 1,
+            "relative_loss": 0.0024813895781637717,
+            "share_before": 0.10202026825633383,
+            "share_after": 0.1018548435171386,
+            "adopt": true
+          }
+        ],
+        "chosen": {
+          "Watch": 2,
+          "Warning": 1,
+          "Emergency": 1
+        },
+        "rule": "per level, the shortest hold window meeting the adoption rule at that level; the combination must meet it at every gated level"
+      },
+      "max_relative_loss": 0.01,
+      "post_rain": {
+        "n_positives": 789,
+        "post_rain": 73,
+        "minimum_7_mm": 11.504499244689944,
+        "unknown_days_since": 0,
+        "post_rain_below_minimum": 40,
+        "share_of_positives": 0.050697084917617236,
+        "all_below_minimum": 40
+      }
+    },
+    "blind_hold": {
+      "retention": {
+        "Watch": {
+          "1": {
+            "cell_days": 3206857,
+            "retained": 2945737,
+            "share": 0.9185744796228831
+          },
+          "2": {
+            "cell_days": 3185852,
+            "retained": 2838897,
+            "share": 0.8910950665630418
+          },
+          "3": {
+            "cell_days": 3164695,
+            "retained": 2776935,
+            "share": 0.8774731846196869
+          }
+        },
+        "Warning": {
+          "1": {
+            "cell_days": 1313743,
+            "retained": 1023182,
+            "share": 0.7788296493301963
+          },
+          "2": {
+            "cell_days": 1308135,
+            "retained": 923136,
+            "share": 0.7056886330539279
+          },
+          "3": {
+            "cell_days": 1302652,
+            "retained": 871441,
+            "share": 0.6689745227428354
+          }
+        },
+        "Emergency": {
+          "1": {
+            "cell_days": 495546,
+            "retained": 311607,
+            "share": 0.6288154883704036
+          },
+          "2": {
+            "cell_days": 493882,
+            "retained": 251517,
+            "share": 0.5092653710805415
+          },
+          "3": {
+            "cell_days": 492354,
+            "retained": 220484,
+            "share": 0.44781600230728297
+          }
+        }
+      },
+      "choice": {
+        "blind_hold_days": 2,
+        "lags_meeting_retention": [
+          1,
+          2
+        ],
+        "rule": "H = the largest k in [1, 2, 3] whose retention is at least 0.5 at every level, and at least 1 (pre-declared)"
+      }
+    },
+    "after": {
+      "label": "chosen post-model rules",
+      "upper": "new_hi",
+      "rules": {
+        "agreement_min": 0.25,
+        "rain_minimum_mm": {
+          "7": 11.504499244689944
+        },
+        "gated_levels": [
+          "Watch",
+          "Warning",
+          "Emergency"
+        ],
+        "cap": {
+          "Normal": "Normal",
+          "Watch": "Normal",
+          "Warning": "Watch",
+          "Emergency": "Watch"
+        },
+        "hold_window_days": 3,
+        "hold_window_days_by_level": {
+          "Watch": 2,
+          "Warning": 1,
+          "Emergency": 1
+        },
+        "blind_hold_days": 2,
+        "lead_uncertain_bound": "widened"
+      },
+      "release": true,
+      "cell_days": 6710000,
+      "n_events": 636,
+      "share_at_least": {
+        "Watch": 0.5798374068554396,
+        "Warning": 0.2472156482861401,
+        "Emergency": 0.1018548435171386
+      },
+      "dry_cell_days_at": {
+        "Watch": 101842,
+        "Warning": 8010,
+        "Emergency": 320
+      },
+      "detected_at_least": {
+        "Watch": {
+          "value": 0.9716981132075472,
+          "lo": 0.9575471698113207,
+          "hi": 0.9842767295597484,
+          "n": 636,
+          "hits": 618
+        },
+        "Warning": {
+          "value": 0.8474842767295597,
+          "lo": 0.8191823899371069,
+          "hi": 0.8757861635220126,
+          "n": 636,
+          "hits": 539
+        },
+        "Emergency": {
+          "value": 0.6320754716981132,
+          "lo": 0.5943396226415094,
+          "hi": 0.6713836477987422,
+          "n": 636,
+          "hits": 402
+        }
+      },
+      "median_lead_days": 7.0
+    },
+    "after_without_hold_release": {
+      "label": "chosen rules, holds not released",
+      "upper": "new_hi",
+      "rules": {
+        "agreement_min": 0.25,
+        "rain_minimum_mm": {
+          "7": 11.504499244689944
+        },
+        "gated_levels": [
+          "Watch",
+          "Warning",
+          "Emergency"
+        ],
+        "cap": {
+          "Normal": "Normal",
+          "Watch": "Normal",
+          "Warning": "Watch",
+          "Emergency": "Watch"
+        },
+        "hold_window_days": 3,
+        "hold_window_days_by_level": {
+          "Watch": 2,
+          "Warning": 1,
+          "Emergency": 1
+        },
+        "blind_hold_days": 2,
+        "lead_uncertain_bound": "widened"
+      },
+      "release": false,
+      "cell_days": 6710000,
+      "n_events": 636,
+      "share_at_least": {
+        "Watch": 0.5951611028315946,
+        "Warning": 0.24804172876304023,
+        "Emergency": 0.10190417287630403
+      },
+      "dry_cell_days_at": {
+        "Watch": 134611,
+        "Warning": 9026,
+        "Emergency": 389
+      },
+      "detected_at_least": {
+        "Watch": {
+          "value": 0.9779874213836478,
+          "lo": 0.9654088050314465,
+          "hi": 0.9889937106918238,
+          "n": 636,
+          "hits": 622
+        },
+        "Warning": {
+          "value": 0.85062893081761,
+          "lo": 0.8223270440251572,
+          "hi": 0.8789308176100629,
+          "n": 636,
+          "hits": 541
+        },
+        "Emergency": {
+          "value": 0.6336477987421384,
+          "lo": 0.5959119496855346,
+          "hi": 0.6729559748427673,
+          "n": 636,
+          "hits": 403
+        }
+      },
+      "median_lead_days": 7.0
+    },
+    "rules": {
+      "agreement_min": 0.25,
+      "rain_minimum_mm": {
+        "7": 11.504499244689944
+      },
+      "gated_levels": [
+        "Watch",
+        "Warning",
+        "Emergency"
+      ],
+      "cap": {
+        "Normal": "Normal",
+        "Watch": "Normal",
+        "Warning": "Watch",
+        "Emergency": "Watch"
+      },
+      "hold_window_days": 3,
+      "hold_window_days_by_level": {
+        "Watch": 2,
+        "Warning": 1,
+        "Emergency": 1
+      },
+      "blind_hold_days": 2,
+      "lead_uncertain_bound": "widened"
+    },
+    "terrain": {
+      "Watch_dry": {
+        "cell_days": 180997,
+        "explained": 180997,
+        "median_logodds_aspect": 0.031696867197752,
+        "median_logodds_twi": 0.017416484653949738,
+        "median_logodds_aspect_twi": 0.006465420126914978,
+        "mean_share_of_positive_contribution": 0.1129835844039917,
+        "share_top3_all_aspect_twi": 0.0006906191815333956,
+        "share_point_level_drops_without_aspect_twi": 0.13702117161568134,
+        "share_below_watch_without_aspect_twi": 0.13702117161568134
+      },
+      "Watch_wet": {
+        "cell_days": 2300544,
+        "explained": 1475091,
+        "median_logodds_aspect": 0.0010743513703346252,
+        "median_logodds_twi": 0.0033065560273826122,
+        "median_logodds_aspect_twi": -0.05236099660396576,
+        "mean_share_of_positive_contribution": 0.06996684521436691,
+        "share_top3_all_aspect_twi": 3.3896213860704186e-05,
+        "share_point_level_drops_without_aspect_twi": 0.07145389674264165,
+        "share_below_watch_without_aspect_twi": 0.07145389674264165
+      },
+      "Warning_dry": {
+        "cell_days": 9190,
+        "explained": 9190,
+        "median_logodds_aspect": 0.07745876908302307,
+        "median_logodds_twi": 0.07088853418827057,
+        "median_logodds_aspect_twi": 0.13542285561561584,
+        "mean_share_of_positive_contribution": 0.09896198660135269,
+        "share_top3_all_aspect_twi": 0.0,
+        "share_point_level_drops_without_aspect_twi": 0.1888023814975956,
+        "share_below_watch_without_aspect_twi": 0.032402106709411495
+      },
+      "Warning_wet": {
+        "cell_days": 977846,
+        "explained": 969750,
+        "median_logodds_aspect": 0.012074209749698639,
+        "median_logodds_twi": 0.03507939353585243,
+        "median_logodds_aspect_twi": -0.009614910930395126,
+        "mean_share_of_positive_contribution": 0.0585523322224617,
+        "share_top3_all_aspect_twi": 1.2374323279195669e-05,
+        "share_point_level_drops_without_aspect_twi": 0.09945346738850219,
+        "share_below_watch_without_aspect_twi": 0.005533384893013664
+      },
+      "Emergency_dry": {
+        "cell_days": 399,
+        "explained": 399,
+        "median_logodds_aspect": 0.2330159991979599,
+        "median_logodds_twi": 0.22765174508094788,
+        "median_logodds_aspect_twi": 0.5553704500198364,
+        "mean_share_of_positive_contribution": 0.16306792199611664,
+        "share_top3_all_aspect_twi": 0.0,
+        "share_point_level_drops_without_aspect_twi": 0.5739348370927319,
+        "share_below_watch_without_aspect_twi": 0.002506265664160401
+      },
+      "Emergency_wet": {
+        "cell_days": 684157,
+        "explained": 684008,
+        "median_logodds_aspect": 0.03706681728363037,
+        "median_logodds_twi": 0.06509637087583542,
+        "median_logodds_aspect_twi": 0.05693693086504936,
+        "mean_share_of_positive_contribution": 0.05240931361913681,
+        "share_top3_all_aspect_twi": 8.771827230090876e-06,
+        "share_point_level_drops_without_aspect_twi": 0.11756587642249798,
+        "share_below_watch_without_aspect_twi": 0.0003625688588437562
+      }
+    },
+    "seconds": 126.12310730000172
+  },
+  "evaluation": {
+    "rules": {
+      "agreement_min": 0.25,
+      "rain_minimum_mm": {
+        "7": 11.504499244689944
+      },
+      "gated_levels": [
+        "Watch",
+        "Warning",
+        "Emergency"
+      ],
+      "cap": {
+        "Normal": "Normal",
+        "Watch": "Normal",
+        "Warning": "Watch",
+        "Emergency": "Watch"
+      },
+      "hold_window_days": 3,
+      "hold_window_days_by_level": {
+        "Watch": 2,
+        "Warning": 1,
+        "Emergency": 1
+      },
+      "blind_hold_days": 2,
+      "lead_uncertain_bound": "unwidened"
+    },
+    "rules_source": "data/processed/alerts/post_rules_v3.json",
+    "season_2018": {
+      "cells": 36792,
+      "days": 122,
+      "events": 56,
+      "conditions": {
+        "before": {
+          "label": "before: old interval, no post-model rules",
+          "upper": "old_hi",
+          "rules": null,
+          "release": true,
+          "cell_days": 4451832,
+          "n_events": 56,
+          "share_at_least": {
+            "Watch": 0.5637274721957163,
+            "Warning": 0.22646766544649483,
+            "Emergency": 0.08707673604933878
+          },
+          "dry_cell_days_at": {
+            "Watch": 119068,
+            "Warning": 7674,
+            "Emergency": 251
+          },
+          "detected_at_least": {
+            "Watch": {
+              "value": 0.9107142857142857,
+              "lo": 0.8214285714285714,
+              "hi": 0.9821428571428571,
+              "n": 56,
+              "hits": 51
+            },
+            "Warning": {
+              "value": 0.7142857142857143,
+              "lo": 0.5892857142857143,
+              "hi": 0.8214285714285714,
+              "n": 56,
+              "hits": 40
+            },
+            "Emergency": {
+              "value": 0.5357142857142857,
+              "lo": 0.4107142857142857,
+              "hi": 0.6607142857142857,
+              "n": 56,
+              "hits": 30
+            }
+          },
+          "median_lead_days": 7.0
+        },
+        "interval_only": {
+          "label": "re-centred interval, no post-model rules",
+          "upper": "new_hi",
+          "rules": null,
+          "release": true,
+          "cell_days": 4451832,
+          "n_events": 56,
+          "share_at_least": {
+            "Watch": 0.5966813213077223,
+            "Warning": 0.22646766544649483,
+            "Emergency": 0.08707673604933878
+          },
+          "dry_cell_days_at": {
+            "Watch": 142608,
+            "Warning": 7674,
+            "Emergency": 251
+          },
+          "detected_at_least": {
+            "Watch": {
+              "value": 0.9107142857142857,
+              "lo": 0.8214285714285714,
+              "hi": 0.9821428571428571,
+              "n": 56,
+              "hits": 51
+            },
+            "Warning": {
+              "value": 0.7142857142857143,
+              "lo": 0.5892857142857143,
+              "hi": 0.8214285714285714,
+              "n": 56,
+              "hits": 40
+            },
+            "Emergency": {
+              "value": 0.5357142857142857,
+              "lo": 0.4107142857142857,
+              "hi": 0.6607142857142857,
+              "n": 56,
+              "hits": 30
+            }
+          },
+          "median_lead_days": 7.0
+        },
+        "after": {
+          "label": "re-centred interval + chosen rules",
+          "upper": "new_hi",
+          "rules": {
+            "agreement_min": 0.25,
+            "rain_minimum_mm": {
+              "7": 11.504499244689944
+            },
+            "gated_levels": [
+              "Watch",
+              "Warning",
+              "Emergency"
+            ],
+            "cap": {
+              "Normal": "Normal",
+              "Watch": "Normal",
+              "Warning": "Watch",
+              "Emergency": "Watch"
+            },
+            "hold_window_days": 3,
+            "hold_window_days_by_level": {
+              "Watch": 2,
+              "Warning": 1,
+              "Emergency": 1
+            },
+            "blind_hold_days": 2,
+            "lead_uncertain_bound": "unwidened"
+          },
+          "release": true,
+          "cell_days": 4451832,
+          "n_events": 56,
+          "share_at_least": {
+            "Watch": 0.5545914580783821,
+            "Warning": 0.2238442510858451,
+            "Emergency": 0.08687996312529314
+          },
+          "dry_cell_days_at": {
+            "Watch": 79946,
+            "Warning": 6624,
+            "Emergency": 182
+          },
+          "detected_at_least": {
+            "Watch": {
+              "value": 0.8571428571428571,
+              "lo": 0.75,
+              "hi": 0.9464285714285714,
+              "n": 56,
+              "hits": 48
+            },
+            "Warning": {
+              "value": 0.7142857142857143,
+              "lo": 0.5892857142857143,
+              "hi": 0.8214285714285714,
+              "n": 56,
+              "hits": 40
+            },
+            "Emergency": {
+              "value": 0.5357142857142857,
+              "lo": 0.4107142857142857,
+              "hi": 0.6607142857142857,
+              "n": 56,
+              "hits": 30
+            }
+          },
+          "median_lead_days": 7.0
+        }
+      },
+      "ensemble_disagrees_cell_days": 40053,
+      "point_warning_plus_cell_days": 752828,
+      "outside_old_interval": {
+        "cell_days": 4451832,
+        "outside_old": 141009,
+        "outside_old_share": 0.031674375852458046,
+        "above_old_hi": 133073,
+        "outside_new": 0
+      }
+    },
+    "live_day": {
+      "date": "2026-10-23",
+      "run_finished_utc": "2026-10-23T20:04:50+00:00",
+      "cells": 36792,
+      "scored": 36792,
+      "previous_days_used": 14,
+      "published_levels": {
+        "Normal": 33194,
+        "Watch": 1852,
+        "Warning": 603,
+        "Emergency": 1143
+      },
+      "before": {
+        "levels": {
+          "Normal": 25889,
+          "Watch": 9110,
+          "Warning": 649,
+          "Emergency": 1144
+        },
+        "dry": {
+          "Watch": {
+            "dry": 7217,
+            "all": 9110
+          },
+          "Warning": {
+            "dry": 51,
+            "all": 649
+          },
+          "Emergency": {
+            "dry": 1,
+            "all": 1144
+          }
+        },
+        "interval_violations": 1043,
+        "confidence": {
+          "High": 30872,
+          "Degraded": 5920
+        },
+        "confidence_matches_published": false
+      },
+      "after": {
+        "levels": {
+          "Normal": 33194,
+          "Watch": 1852,
+          "Warning": 603,
+          "Emergency": 1143
+        },
+        "dry": {
+          "Watch": {
+            "dry": 565,
+            "all": 1852
+          },
+          "Warning": {
+            "dry": 11,
+            "all": 603
+          },
+          "Emergency": {
+            "dry": 0,
+            "all": 1143
+          }
+        },
+        "interval_violations": 0,
+        "confidence": {
+          "High": 30813,
+          "Degraded": 5979
+        },
+        "ensemble_disagrees": 60,
+        "no_recent_rain_capped": 9175,
+        "audit": {
+          "rows": 36792,
+          "violations": {
+            "interval": 0,
+            "level": 0,
+            "rain_rule": 0,
+            "blind_hold": 0,
+            "confidence": 0,
+            "forecast_confidence": 0,
+            "per_100k": 0,
+            "lead0_table": 0
+          },
+          "checked": {
+            "interval": true,
+            "level": true,
+            "rain_rule": true,
+            "blind_hold": true,
+            "confidence": true,
+            "forecast_confidence": false,
+            "per_100k": true,
+            "lead0_table": false
+          },
+          "notes": [],
+          "examples": {}
+        }
+      },
+      "reported_cells": {
+        "23965166": {
+          "irain_acc_1": 0.0,
+          "irain_acc_3": 0.0,
+          "irain_acc_7": 0.0,
+          "irain_acc_30": 210.60499572753906,
+          "irain_days_since_10mm": 7.0,
+          "before": {
+            "risk": 1.7896614804065753e-05,
+            "risk_lo": 1.4109676225836492e-07,
+            "risk_hi": 1.4696195746847236e-06,
+            "level_name": "Warning",
+            "confidence": "High",
+            "confidence_causes": "",
+            "reason_codes": "risk_above_warning"
+          },
+          "after": {
+            "risk": 1.7896614804065753e-05,
+            "risk_lo": 7.329125468735094e-06,
+            "risk_hi": 4.9226520385570795e-05,
+            "level_name": "Watch",
+            "confidence": "Degraded",
+            "confidence_causes": "ensemble_disagrees",
+            "reason_codes": "risk_above_warning;no_recent_rain",
+            "ensemble_agreement": 0.0,
+            "member_median_risk": 2.2374268332778162e-07,
+            "rain_ok": false
+          }
+        },
+        "24605098": {
+          "irain_acc_1": 0.0,
+          "irain_acc_3": 0.0,
+          "irain_acc_7": 0.0,
+          "irain_acc_30": 153.08999633789062,
+          "irain_days_since_10mm": 8.0,
+          "before": {
+            "risk": 0.00010712774491521074,
+            "risk_lo": 1.3765576493023059e-05,
+            "risk_hi": 0.00027742433252932815,
+            "level_name": "Emergency",
+            "confidence": "High",
+            "confidence_causes": "",
+            "reason_codes": "risk_above_emergency"
+          },
+          "after": {
+            "risk": 0.00010712774491521074,
+            "risk_lo": 2.2968632875532848e-05,
+            "risk_hi": 0.0003883426972863015,
+            "level_name": "Watch",
+            "confidence": "High",
+            "confidence_causes": "",
+            "reason_codes": "risk_above_emergency;no_recent_rain",
+            "ensemble_agreement": 0.8,
+            "member_median_risk": 8.303269377228634e-05,
+            "rain_ok": false
+          }
+        }
+      },
+      "terrain": {
+        "Watch_dry": {
+          "cell_days": 7217,
+          "explained": 7217,
+          "median_logodds_aspect": 0.09045508880104501,
+          "median_logodds_twi": -0.12969152897385822,
+          "median_logodds_aspect_twi": -0.13891070202392908,
+          "mean_share_of_positive_contribution": 0.08833417545592366,
+          "share_top3_all_aspect_twi": 0.003186919772758764,
+          "share_point_level_drops_without_aspect_twi": 0.11210762331838565,
+          "share_below_watch_without_aspect_twi": 0.11210762331838565
+        },
+        "Watch_wet": {
+          "cell_days": 1893,
+          "explained": 1223,
+          "median_logodds_aspect": -0.012562646295823744,
+          "median_logodds_twi": 0.07263004611068288,
+          "median_logodds_aspect_twi": 0.05431883342747411,
+          "mean_share_of_positive_contribution": 0.08856777394782851,
+          "share_top3_all_aspect_twi": 0.0,
+          "share_point_level_drops_without_aspect_twi": 0.12264922322158626,
+          "share_below_watch_without_aspect_twi": 0.12264922322158626
+        },
+        "Warning_dry": {
+          "cell_days": 51,
+          "explained": 51,
+          "median_logodds_aspect": 0.2448727550392773,
+          "median_logodds_twi": 0.1379906890878021,
+          "median_logodds_aspect_twi": 0.34738621851606455,
+          "mean_share_of_positive_contribution": 0.2045439631610636,
+          "share_top3_all_aspect_twi": 0.0784313725490196,
+          "share_point_level_drops_without_aspect_twi": 0.40816326530612246,
+          "share_below_watch_without_aspect_twi": 0.14285714285714285
+        },
+        "Warning_wet": {
+          "cell_days": 598,
+          "explained": 590,
+          "median_logodds_aspect": 0.009487373779528484,
+          "median_logodds_twi": 0.07789311217301206,
+          "median_logodds_aspect_twi": 0.05007690520756485,
+          "mean_share_of_positive_contribution": 0.05871078151984036,
+          "share_top3_all_aspect_twi": 0.0,
+          "share_point_level_drops_without_aspect_twi": 0.13898305084745763,
+          "share_below_watch_without_aspect_twi": 0.0
+        },
+        "Emergency_dry": {
+          "cell_days": 1,
+          "explained": 1,
+          "median_logodds_aspect": 1.0441514338972617,
+          "median_logodds_twi": 0.04439529669980083,
+          "median_logodds_aspect_twi": 1.0885467305970626,
+          "mean_share_of_positive_contribution": 0.19888760931034455,
+          "share_top3_all_aspect_twi": 0.0,
+          "share_point_level_drops_without_aspect_twi": 1.0,
+          "share_below_watch_without_aspect_twi": 0.0
+        },
+        "Emergency_wet": {
+          "cell_days": 1143,
+          "explained": 1140,
+          "median_logodds_aspect": 0.045686774985852566,
+          "median_logodds_twi": 0.11100939982428609,
+          "median_logodds_aspect_twi": 0.10384041588645868,
+          "mean_share_of_positive_contribution": 0.053681974602933176,
+          "share_top3_all_aspect_twi": 0.0,
+          "share_point_level_drops_without_aspect_twi": 0.09385964912280702,
+          "share_below_watch_without_aspect_twi": 0.0
+        }
+      }
+    },
+    "seconds": 16.831504000001587
+  },
+  "first_publication": {
+    "levels": {
+      "levels": {
+        "Normal": 26233,
+        "Watch": 8972,
+        "Warning": 690,
+        "Emergency": 897
+      },
+      "dry": {
+        "Watch": {
+          "dry": 6965,
+          "all": 8972
+        },
+        "Warning": {
+          "dry": 30,
+          "all": 690
+        },
+        "Emergency": {
+          "dry": 1,
+          "all": 897
+        }
+      },
+      "interval_violations": 1043,
+      "confidence": {
+        "High": 30872,
+        "Degraded": 5920
+      },
+      "confidence_matches_published": true
+    },
+    "reported_cells": {
+      "23965166": {
+        "risk": 1.7896614804065753e-05,
+        "risk_lo": 1.4109676225836492e-07,
+        "risk_hi": 1.4696195746847236e-06,
+        "level_name": "Warning",
+        "confidence": "High",
+        "confidence_causes": "",
+        "reason_codes": "risk_above_warning"
+      },
+      "24605098": {
+        "risk": 0.00010712774491521074,
+        "risk_lo": 1.3765576493023059e-05,
+        "risk_hi": 0.00027742433252932815,
+        "level_name": "Emergency",
+        "confidence": "High",
+        "confidence_causes": "",
+        "reason_codes": "risk_above_emergency"
+      }
+    },
+    "source": "evaluation.json of the first evaluation (evaluation_hold_window_3.json)"
+  },
+  "aspect_ablation": {
+    "candidate": "lgb_no_aspect",
+    "columns": [
+      "stat_elev_mean",
+      "stat_elev_std",
+      "stat_relief",
+      "stat_slope_mean",
+      "stat_slope_p90",
+      "stat_slope_max",
+      "stat_curvature_mean",
+      "stat_twi_proxy",
+      "irain_acc_1",
+      "irain_acc_3",
+      "irain_acc_5",
+      "irain_acc_7",
+      "irain_acc_14",
+      "irain_acc_30",
+      "irain_acc_60",
+      "irain_acc_90",
+      "irain_max1d_7",
+      "irain_max1d_30",
+      "irain_wetdays_30",
+      "irain_days_since_10mm",
+      "irain_share1_3",
+      "irain_acc3_vs_clim",
+      "irain_acc7_vs_clim",
+      "irain_acc30_vs_clim"
+    ],
+    "fa_at_90": {
+      "value": 0.19919962651887008,
+      "lo": 0.17454934992207882,
+      "hi": 0.22760458673250042,
+      "se": 0.013087079248255183
+    },
+    "incumbent_fa_at_90": {
+      "value": 0.19554142779163688,
+      "lo": 0.1679492295501935,
+      "hi": 0.23482366691325304,
+      "se": 0.017813584014420413
+    },
+    "paired_vs_v3": {
+      "fa_a": 0.19919962651887008,
+      "fa_b": 0.19554142779163688,
+      "point_difference": 0.0036581987272331917,
+      "mean_difference": 0.002476252443176099,
+      "se": 0.00899414850991483,
+      "ci_lo": -0.016544566617679814,
+      "ci_hi": 0.01843548073849676,
+      "level": 0.95,
+      "n_boot": 2000,
+      "excludes_zero": false,
+      "share_a_better": 0.3645,
+      "share_tied": 0.0
+    },
+    "adoption": {
+      "rule": "a challenger replaces the selected v3 configuration only if its pooled OOF FA@90 is lower by MORE than the bootstrap SE of the paired difference",
+      "incumbent_fa_at_90": 0.19554142779163688,
+      "evaluated": [
+        {
+          "name": "lgb_no_aspect",
+          "adoptable": true,
+          "adopt": false,
+          "gain": -0.0036581987272331917,
+          "se": 0.00899414850991483,
+          "gain_over_se": -0.4067309677175692
+        }
+      ],
+      "adopted": null
+    },
+    "report": "reports/phase6_aspect_ablation.md"
+  },
+  "forecast_leads": {
+    "issue_days": 488,
+    "cells": 2536,
+    "seed": 20261015,
+    "rules": {
+      "agreement_min": 0.25,
+      "rain_minimum_mm": {
+        "7": 11.504499244689944
+      },
+      "gated_levels": [
+        "Watch",
+        "Warning",
+        "Emergency"
+      ],
+      "cap": {
+        "Normal": "Normal",
+        "Watch": "Normal",
+        "Warning": "Watch",
+        "Emergency": "Watch"
+      },
+      "hold_window_days": 3,
+      "blind_hold_days": 2
+    },
+    "widening": {
+      "1": {
+        "lo": 0.1762242466211319,
+        "hi": 4.097658634185791
+      },
+      "2": {
+        "lo": 0.1762242466211319,
+        "hi": 5.674587726593018
+      },
+      "3": {
+        "lo": 0.16901765763759613,
+        "hi": 5.916541576385498
+      }
+    },
+    "leads": {
+      "1": {
+        "widened": {
+          "n": 1237568,
+          "confusion": [
+            [
+              607550,
+              214567,
+              2226,
+              548
+            ],
+            [
+              14236,
+              238715,
+              33000,
+              7511
+            ],
+            [
+              580,
+              20717,
+              33950,
+              14865
+            ],
+            [
+              71,
+              4693,
+              13947,
+              30392
+            ]
+          ],
+          "exact_agreement": 0.7358036083673786,
+          "forecast_watch_plus_share": 0.4970482430056369,
+          "observed_watch_plus_share": 0.3334580402854631
+        },
+        "unwidened": {
+          "n": 1237568,
+          "confusion": [
+            [
+              756321,
+              65796,
+              2226,
+              548
+            ],
+            [
+              48261,
+              204690,
+              33000,
+              7511
+            ],
+            [
+              1088,
+              20209,
+              33950,
+              14865
+            ],
+            [
+              155,
+              4609,
+              13947,
+              30392
+            ]
+          ],
+          "exact_agreement": 0.8285225539121891,
+          "forecast_watch_plus_share": 0.3488640624191964,
+          "observed_watch_plus_share": 0.3334580402854631
+        },
+        "none": {
+          "n": 1237568,
+          "confusion": [
+            [
+              800180,
+              21937,
+              2226,
+              548
+            ],
+            [
+              113206,
+              139745,
+              33000,
+              7511
+            ],
+            [
+              2544,
+              18753,
+              33950,
+              14865
+            ],
+            [
+              403,
+              4361,
+              13947,
+              30392
+            ]
+          ],
+          "exact_agreement": 0.8114842982365413,
+          "forecast_watch_plus_share": 0.2595695751667787,
+          "observed_watch_plus_share": 0.3334580402854631
+        }
+      },
+      "2": {
+        "widened": {
+          "n": 1237568,
+          "confusion": [
+            [
+              594508,
+              225926,
+              2809,
+              517
+            ],
+            [
+              19083,
+              233801,
+              33832,
+              7629
+            ],
+            [
+              1028,
+              23759,
+              30331,
+              15111
+            ],
+            [
+              265,
+              6986,
+              15004,
+              26979
+            ]
+          ],
+          "exact_agreement": 0.7156123946320525,
+          "forecast_watch_plus_share": 0.5031513419868645,
+          "observed_watch_plus_share": 0.33437192946165384
+        },
+        "unwidened": {
+          "n": 1237568,
+          "confusion": [
+            [
+              749983,
+              70451,
+              2809,
+              517
+            ],
+            [
+              57059,
+              195825,
+              33832,
+              7629
+            ],
+            [
+              2045,
+              22742,
+              30331,
+              15111
+            ],
+            [
+              482,
+              6769,
+              15004,
+              26979
+            ]
+          ],
+          "exact_agreement": 0.8105558644050266,
+          "forecast_watch_plus_share": 0.34583877411180636,
+          "observed_watch_plus_share": 0.33437192946165384
+        },
+        "none": {
+          "n": 1237568,
+          "confusion": [
+            [
+              794290,
+              26144,
+              2809,
+              517
+            ],
+            [
+              117886,
+              134998,
+              33832,
+              7629
+            ],
+            [
+              4050,
+              20737,
+              30331,
+              15111
+            ],
+            [
+              1026,
+              6225,
+              15004,
+              26979
+            ]
+          ],
+          "exact_agreement": 0.7972071029632312,
+          "forecast_watch_plus_share": 0.2588269897088483,
+          "observed_watch_plus_share": 0.33437192946165384
+        }
+      },
+      "3": {
+        "widened": {
+          "n": 1237568,
+          "confusion": [
+            [
+              584799,
+              233604,
+              3563,
+              649
+            ],
+            [
+              24236,
+              227361,
+              34835,
+              8624
+            ],
+            [
+              1352,
+              25293,
+              29033,
+              14833
+            ],
+            [
+              402,
+              8834,
+              15849,
+              24301
+            ]
+          ],
+          "exact_agreement": 0.6993506619434245,
+          "forecast_watch_plus_share": 0.5064602510730724,
+          "observed_watch_plus_share": 0.335297131147541
+        },
+        "unwidened": {
+          "n": 1237568,
+          "confusion": [
+            [
+              738598,
+              79805,
+              3563,
+              649
+            ],
+            [
+              64051,
+              187546,
+              34835,
+              8624
+            ],
+            [
+              2853,
+              23792,
+              29033,
+              14833
+            ],
+            [
+              746,
+              8490,
+              15849,
+              24301
+            ]
+          ],
+          "exact_agreement": 0.7914538837461861,
+          "forecast_watch_plus_share": 0.34852226301908257,
+          "observed_watch_plus_share": 0.335297131147541
+        },
+        "none": {
+          "n": 1237568,
+          "confusion": [
+            [
+              786955,
+              31448,
+              3563,
+              649
+            ],
+            [
+              121436,
+              130161,
+              34835,
+              8624
+            ],
+            [
+              5212,
+              21433,
+              29033,
+              14833
+            ],
+            [
+              1535,
+              7701,
+              15849,
+              24301
+            ]
+          ],
+          "exact_agreement": 0.7841589310647981,
+          "forecast_watch_plus_share": 0.2605351786730103,
+          "observed_watch_plus_share": 0.335297131147541
+        }
+      }
+    },
+    "choice": {
+      "option": "unwidened",
+      "pooled": {
+        "widened": {
+          "exact_agreement": 0.7169222216476185,
+          "forecast_watch_plus_share": 0.5022199453551912
+        },
+        "unwidened": {
+          "exact_agreement": 0.810177434021134,
+          "forecast_watch_plus_share": 0.34774169985002845
+        },
+        "none": {
+          "exact_agreement": 0.7976167774215235,
+          "forecast_watch_plus_share": 0.25964391451621244
+        }
+      },
+      "rule": "higher exact level agreement with the observed-feature level (pooled over leads 1-3); a tie to three decimals goes to the lower forecast Watch+ share (pre-declared)"
+    },
+    "seconds": 956.4913020999957
+  },
+  "audit": {
+    "created_utc": "2026-10-24T00:01:23Z",
+    "rules": {
+      "agreement_min": 0.25,
+      "rain_minimum_mm": {
+        "7": 11.504499244689944
+      },
+      "gated_levels": [
+        "Watch",
+        "Warning",
+        "Emergency"
+      ],
+      "cap": {
+        "Normal": "Normal",
+        "Watch": "Normal",
+        "Warning": "Watch",
+        "Emergency": "Watch"
+      },
+      "hold_window_days": 3,
+      "hold_window_days_by_level": {
+        "Watch": 2,
+        "Warning": 1,
+        "Emergency": 1
+      },
+      "blind_hold_days": 2,
+      "lead_uncertain_bound": "unwidened"
+    },
+    "rules_source": "data/processed/alerts/post_rules_v3.json",
+    "days": {
+      "2026-10-09": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-10": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-11": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-12": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-13": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-14": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-15": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-16": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-17": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-18": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-19": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-20": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-21": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-22": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      },
+      "2026-10-23": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 0,
+          "confidence": 0,
+          "forecast_confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 0
+      }
+    },
+    "violations": {
+      "interval": 0,
+      "level": 0,
+      "rain_rule": 0,
+      "blind_hold": 0,
+      "confidence": 0,
+      "forecast_confidence": 0,
+      "per_100k": 0,
+      "lead0_table": 0
+    },
+    "total_violations": 0
+  },
+  "audit_before_rerun": {
+    "created_utc": "2026-10-23T14:26:57Z",
+    "rules": {
+      "agreement_min": 0.25,
+      "rain_minimum_mm": {
+        "7": 11.504499244689944
+      },
+      "gated_levels": [
+        "Watch",
+        "Warning",
+        "Emergency"
+      ],
+      "cap": {
+        "Normal": "Normal",
+        "Watch": "Normal",
+        "Warning": "Watch",
+        "Emergency": "Watch"
+      },
+      "hold_window_days": 3,
+      "blind_hold_days": 2
+    },
+    "rules_source": "data/processed/alerts/post_rules_v3.json",
+    "days": {
+      "2026-10-09": {
+        "rows": 183960,
+        "violations": {
+          "interval": 946,
+          "level": 0,
+          "rain_rule": 3351,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 4297
+      },
+      "2026-10-10": {
+        "rows": 183960,
+        "violations": {
+          "interval": 999,
+          "level": 0,
+          "rain_rule": 2896,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 3895
+      },
+      "2026-10-11": {
+        "rows": 183960,
+        "violations": {
+          "interval": 1034,
+          "level": 0,
+          "rain_rule": 2556,
+          "blind_hold": 3,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 3593
+      },
+      "2026-10-12": {
+        "rows": 183960,
+        "violations": {
+          "interval": 1004,
+          "level": 0,
+          "rain_rule": 2303,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 3307
+      },
+      "2026-10-13": {
+        "rows": 183960,
+        "violations": {
+          "interval": 946,
+          "level": 0,
+          "rain_rule": 2865,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 3811
+      },
+      "2026-10-14": {
+        "rows": 183960,
+        "violations": {
+          "interval": 871,
+          "level": 0,
+          "rain_rule": 3147,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 4018
+      },
+      "2026-10-15": {
+        "rows": 183960,
+        "violations": {
+          "interval": 884,
+          "level": 0,
+          "rain_rule": 3986,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 4870
+      },
+      "2026-10-16": {
+        "rows": 183960,
+        "violations": {
+          "interval": 933,
+          "level": 0,
+          "rain_rule": 4575,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 5508
+      },
+      "2026-10-17": {
+        "rows": 183960,
+        "violations": {
+          "interval": 1005,
+          "level": 0,
+          "rain_rule": 6890,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 7895
+      },
+      "2026-10-18": {
+        "rows": 183960,
+        "violations": {
+          "interval": 1116,
+          "level": 0,
+          "rain_rule": 7837,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 8953
+      },
+      "2026-10-19": {
+        "rows": 183960,
+        "violations": {
+          "interval": 1042,
+          "level": 0,
+          "rain_rule": 8291,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 9333
+      },
+      "2026-10-20": {
+        "rows": 73584,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 13643,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 13643
+      },
+      "2026-10-21": {
+        "rows": 73584,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 0,
+          "blind_hold": 13643,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 13643
+      },
+      "2026-10-23": {
+        "rows": 183960,
+        "violations": {
+          "interval": 0,
+          "level": 0,
+          "rain_rule": 56755,
+          "blind_hold": 0,
+          "confidence": 0,
+          "per_100k": 0,
+          "lead0_table": 0
+        },
+        "total_violations": 56755
+      }
+    },
+    "violations": {
+      "interval": 10780,
+      "level": 0,
+      "rain_rule": 105452,
+      "blind_hold": 27289,
+      "confidence": 0,
+      "per_100k": 0,
+      "lead0_table": 0
+    },
+    "total_violations": 143521
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "thresholds": {
+    "watch": 3.0146490326518273e-06,
+    "warning": 1.1842377470857583e-05,
+    "emergency": 4.814709609428837e-05,
+    "source": "card.alert_levels"
+  },
+  "thresholds_by_region": {
+    "himalaya": {
+      "watch": 2.782149847271763e-06,
+      "warning": 1.3765576493023059e-05,
+      "emergency": 4.9226520385570795e-05,
+      "source": "card.alert_levels risk_by_region[himalaya]"
+    },
+    "western_ghats": {
+      "watch": 3.8084629480536887e-06,
+      "warning": 1.3681137059859508e-05,
+      "emergency": 2.5642648636983134e-05,
+      "source": "card.alert_levels risk_by_region[western_ghats]"
+    }
+  },
+  "alert_config": {
+    "exit_factor": 0.8,
+    "exit_days": 2,
+    "radius_km": 100.0,
+    "ood_window_days": 90,
+    "ood_multiple": 3.0,
+    "ood_min_observed_days": 30,
+    "engine_target_flag_rate": 0.01,
+    "dis_ratio_lo": 0.12478674203157425,
+    "dis_ratio_hi": 13.471030235290527,
+    "heavy_acc1_mm": 32.51171875,
+    "heavy_acc3_mm": 79.05380249023438,
+    "agree_abs_mm": 3.0,
+    "agree_rel": 0.6834401487021482,
+    "uncertain_percentile": 90.0
+  },
+  "cells": [
+    23965166,
+    24605098
+  ],
+  "days": [
+    "2026-10-17",
+    "2026-10-18",
+    "2026-10-19",
+    "2026-10-20",
+    "2026-10-21",
+    "2026-10-23"
+  ],
+  "note": "built by `python -m aetherguard.live.hardening fixture` from data/live; 2026-10-22 has no run"
+}

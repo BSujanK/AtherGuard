@@ -1,0 +1,15 @@
+.map {
+  position: absolute;
+  /* Fill the whole map area, including the padding the shell leaves around views. */
+  inset: calc(var(--sp-5) * -1);
+  overflow: hidden;
+  background: var(--bg);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

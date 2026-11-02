@@ -1,0 +1,206 @@
+{
+  "source_reports": [
+    "reports/phase6_v3_cv_report.json",
+    "reports/phase3_hazard_cv_report.json",
+    "reports/phase6_challengers.json",
+    "reports/phase6_live_model_report.json"
+  ],
+  "status": "v3 frozen, tested once, backtested, alert parameters re-derived; first live run in progress",
+  "v3": {
+    "selected_set": "imerg_core",
+    "n_inputs": 26,
+    "oof_fa_at_90": 0.19554142779163688,
+    "oof_fa_at_90_ci": [
+      0.1679492295501935,
+      0.23482366691325304
+    ],
+    "v2_oof_fa_at_90": 0.18840519557842542,
+    "oof_recall_at_fa_0.01": 0.30038022813688214,
+    "v2_oof_recall_at_fa_0.01": 0.27629911280101394,
+    "oof_recall_at_fa_0.05": 0.6261089987325729,
+    "v2_oof_recall_at_fa_0.05": 0.5880861850443599,
+    "oof_logloss": 0.21463198017177268,
+    "v2_oof_logloss": 0.22251814927634514,
+    "verdict": "live-capable, not shown better than v2: paired difference in false alarms at 90% detection +0.7 points (95% CI -2.0 to +3.8), using satellite rain only",
+    "paired_vs_v2": {
+      "point_difference": 0.007136232213211469,
+      "se": 0.014884393657575526,
+      "ci_lo": -0.020297950223664464,
+      "ci_hi": 0.038420589121901855,
+      "excludes_zero": false,
+      "share_a_better": 0.3745,
+      "n_boot": 2000
+    },
+    "challengers_tried": 7,
+    "challenger_adopted": null,
+    "test_2018": {
+      "recall": [
+        0.8375,
+        0.75,
+        0.9125
+      ],
+      "fa_share": [
+        0.2116989613138412,
+        0.20969986604823068,
+        0.21368609288955964
+      ],
+      "v2_recall": [
+        0.85,
+        0.775,
+        0.925
+      ],
+      "v2_fa_share": [
+        0.21400704871492854,
+        0.21179378104063504,
+        0.2161427676538262
+      ],
+      "note": "single look with the frozen model; descriptive, not a hypothesis test"
+    }
+  },
+  "forecast": {
+    "source_reports": [
+      "reports/phase6_forecast_skill.json",
+      "reports/forecast_widening.json"
+    ],
+    "level_agreement": {
+      "1": 0.862,
+      "2": 0.851,
+      "3": 0.84
+    },
+    "recall_of_observed_watch": {
+      "1": 0.867,
+      "2": 0.841,
+      "3": 0.821
+    },
+    "precision_of_forecast_watch": {
+      "1": 0.81,
+      "2": 0.799,
+      "3": 0.783
+    },
+    "widening": {
+      "1": {
+        "lo": 0.1762242466211319,
+        "hi": 4.097658634185791
+      },
+      "2": {
+        "lo": 0.1762242466211319,
+        "hi": 5.674587726593018
+      },
+      "3": {
+        "lo": 0.16901765763759613,
+        "hi": 5.916541576385498
+      }
+    },
+    "gfs_heavy_rain_ratio_lead1_ge100mm": 0.22,
+    "note": "forecast-feature risk vs observed-feature risk on the same days (2021-2024 Jun-Sep, 2536 cells); labels too thin for detection rates"
+  },
+  "backtest": {
+    "source_reports": [
+      "reports/phase6_backtest.json"
+    ],
+    "season_2018_operational_detection": [
+      0.8214285714285714,
+      0.7142857142857143,
+      0.9107142857142857,
+      46,
+      56
+    ],
+    "season_2018_training_style_detection": [
+      0.8571428571428571,
+      0.75,
+      0.9464285714285714,
+      48,
+      56
+    ],
+    "season_2018_operational_watch_share": 0.3908730158730159,
+    "raw_rank_correlation": 0.9881137136467377,
+    "persist_d1_share_2018": 1.0,
+    "note": "live-timed inputs (Early D-1, nowcast tail) vs training-style inputs on the same frozen model; alert-burden re-derivation pending (Task 6b)"
+  },
+  "alerts_2018": {
+    "source_reports": [
+      "reports/phase6_accuracy_hardening.json"
+    ],
+    "watch_plus": 0.5545914580783821,
+    "warning_plus": 0.2238442510858451,
+    "emergency": 0.08687996312529314,
+    "event_detection_levels": [
+      0.8571428571428571,
+      0.75,
+      0.9464285714285714,
+      48,
+      56
+    ],
+    "warning_detection": [
+      0.7142857142857143,
+      40,
+      56
+    ],
+    "emergency_detection": [
+      0.5357142857142857,
+      30,
+      56
+    ],
+    "parameters_changed": true,
+    "note": "after accuracy hardening (interval re-centred on the point, ensemble-disagreement cap, rain trigger irain_acc_7 >= 11.5 mm, per-level hold windows, blind-hold limit), all chosen on 2007-2017; 2018 evaluated once"
+  },
+  "live_operation": {
+    "first_live_day": "2026-10-16",
+    "last_day": "2026-10-23",
+    "days_published": 14,
+    "live_days": 7,
+    "backfilled_days": 7,
+    "days_all_four_leads": 12,
+    "days_with_failed_sources": 3,
+    "source": "data/live/<date>/run.json"
+  },
+  "hardening": {
+    "source_reports": [
+      "reports/phase6_accuracy_hardening.json"
+    ],
+    "rain_minimum_mm_7d": 11.504499244689944,
+    "audit_violations_after_rerun": 0,
+    "live_days_audited": 15,
+    "dry_watch_cell_days_2018": [
+      119068,
+      79946
+    ],
+    "dry_warning_cell_days_2018": [
+      7674,
+      6624
+    ],
+    "watch_detection_2018_before": 51
+  },
+  "forecast_v2": {
+    "source_reports": [
+      "reports/phase6_forecast_certainty.json",
+      "reports/forecast_selection.json"
+    ],
+    "choice": {
+      "1": "gfs",
+      "2": "ecmwf_ens_mean",
+      "3": "ecmwf_ens_mean+map"
+    },
+    "leads": {
+      "1": {
+        "firm_share": 0.5155359607471742,
+        "firm_agreement": 0.961428499774289,
+        "depends_agreement": 0.6641313557908501,
+        "all_agreement": 0.8173987245417433
+      },
+      "2": {
+        "firm_share": 0.5803203764876239,
+        "firm_agreement": 0.9597645132363835,
+        "depends_agreement": 0.5875557403941684,
+        "all_agreement": 0.8035560755819591
+      },
+      "3": {
+        "firm_share": 0.5775974917982449,
+        "firm_agreement": 0.944023503077784,
+        "depends_agreement": 0.5706928874775223,
+        "all_agreement": 0.7863277146597282
+      }
+    },
+    "note": "2024 June-Sept, 2,536 cells; forecast-feature level vs observed-feature level; firm = same level under dry, forecast and wet scenarios"
+  }
+}

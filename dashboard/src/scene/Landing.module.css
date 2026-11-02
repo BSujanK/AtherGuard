@@ -1,0 +1,92 @@
+.landing {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 62% 42% at 50% 50%,
+    color-mix(in srgb, var(--ink-black) 78%, transparent) 0%,
+    color-mix(in srgb, var(--ink-black) 40%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+.copy {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-5);
+  padding: 0 var(--sp-5);
+  text-align: center;
+}
+
+.wordmark {
+  position: relative;
+  display: flex;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-wordmark);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* A soft cyan band sweeping down the wordmark; it replaces the heat shimmer and keeps its timing. */
+.scan {
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  height: 14%;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--neon-cyan) 55%, transparent),
+    transparent
+  );
+  mix-blend-mode: screen;
+}
+
+.letter {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.tagline {
+  max-width: 34ch;
+  font-size: var(--fs-md);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.skip {
+  position: absolute;
+  right: var(--sp-5);
+  bottom: var(--sp-5);
+  pointer-events: auto;
+  cursor: pointer;
+  padding: var(--sp-2) var(--sp-4);
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  background: color-mix(in srgb, var(--ink-black) 70%, transparent);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  transition:
+    background var(--dur-quick) var(--ease-out),
+    border-color var(--dur-quick) var(--ease-out);
+}
+
+.skip:hover {
+  background: var(--surface);
+  border-color: var(--neon-cyan);
+}

@@ -1,0 +1,2211 @@
+{
+  "generated_utc": "2026-09-30T07:28:38Z",
+  "results": [
+    {
+      "name": "geolibs",
+      "status": "ok",
+      "summary": "geospatial stack imports on Python 3.13",
+      "evidence": {
+        "versions": {
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "pyarrow": "25.0.1",
+          "rasterio": "1.5.1",
+          "gdal": "3.12.4",
+          "shapely": "2.1.2",
+          "pyproj": "3.8.0",
+          "yaml": "6.0.3",
+          "requests": "2.34.2",
+          "python": "3.13.5"
+        },
+        "missing": []
+      },
+      "day_definition": null
+    },
+    {
+      "name": "disk",
+      "status": "ok",
+      "summary": "237.1 GB free (need 100 GB)",
+      "evidence": {
+        "free_gb": 237.1,
+        "total_gb": 511.0,
+        "cpu_count": 12,
+        "required_free_gb": 100
+      },
+      "day_definition": null
+    },
+    {
+      "name": "earthdata_credentials",
+      "status": "needs_login",
+      "summary": "no Earthdata credentials found; create a free account at urs.earthdata.nasa.gov and set EARTHDATA_USERNAME / EARTHDATA_PASSWORD (or a .netrc entry) to unlock the HMA catalog and IMERG",
+      "evidence": {
+        "env_vars": false,
+        "netrc": false
+      },
+      "day_definition": null
+    },
+    {
+      "name": "ghcnd",
+      "status": "ok",
+      "summary": "140 stations selected, 391 real quality-flagged rain values",
+      "evidence": {
+        "n_selected": 140,
+        "by_country": {
+          "IN": 138,
+          "NP": 2
+        },
+        "n_unknown_elevation": 0,
+        "census_by_group": {
+          "western_ghats|lowland": {
+            "n_stations": 25,
+            "n_valid": 549245,
+            "n_flagged": 13,
+            "by_flag": {
+              "G": 3,
+              "O": 4,
+              "S": 6
+            }
+          },
+          "outside_domain|lowland": {
+            "n_stations": 35,
+            "n_valid": 803119,
+            "n_flagged": 81,
+            "by_flag": {
+              "D": 61,
+              "G": 5,
+              "O": 7,
+              "S": 8
+            }
+          },
+          "western_ghats|upland": {
+            "n_stations": 11,
+            "n_valid": 272562,
+            "n_flagged": 28,
+            "by_flag": {
+              "G": 3,
+              "O": 16,
+              "S": 9
+            }
+          },
+          "himalaya|lowland": {
+            "n_stations": 51,
+            "n_valid": 1111831,
+            "n_flagged": 240,
+            "by_flag": {
+              "D": 180,
+              "G": 13,
+              "K": 5,
+              "O": 9,
+              "S": 33
+            }
+          },
+          "himalaya|upland": {
+            "n_stations": 17,
+            "n_valid": 333965,
+            "n_flagged": 28,
+            "by_flag": {
+              "G": 5,
+              "O": 5,
+              "S": 18
+            }
+          },
+          "outside_domain|upland": {
+            "n_stations": 1,
+            "n_valid": 28908,
+            "n_flagged": 1,
+            "by_flag": {
+              "S": 1
+            }
+          }
+        },
+        "stations": [
+          {
+            "id": "IN001020700",
+            "name": "PBO ANANTAPUR",
+            "lat": 14.583,
+            "lon": 77.633,
+            "region": "western_ghats",
+            "elevation_m": 364.0,
+            "upland": false,
+            "n_valid": 31948,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN001050200",
+            "name": "KAKINADA",
+            "lat": 16.95,
+            "lon": 82.233,
+            "region": "",
+            "elevation_m": 8.0,
+            "upland": false,
+            "n_valid": 34781,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN001080500",
+            "name": "BEGUMPET        OBSY",
+            "lat": 17.45,
+            "lon": 78.47,
+            "region": "western_ghats",
+            "elevation_m": 527.0,
+            "upland": true,
+            "n_valid": 36538,
+            "n_flagged": 3
+          },
+          {
+            "id": "IN001090500",
+            "name": "RAMGUNDAM",
+            "lat": 18.767,
+            "lon": 79.433,
+            "region": "",
+            "elevation_m": 156.0,
+            "upland": false,
+            "n_valid": 13930,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN001111200",
+            "name": "MACHILIPATNAM",
+            "lat": 16.2,
+            "lon": 81.15,
+            "region": "",
+            "elevation_m": 3.0,
+            "upland": false,
+            "n_valid": 35896,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN001111600",
+            "name": "VIJAYAWADA/GANNAVA",
+            "lat": 16.533,
+            "lon": 80.8,
+            "region": "",
+            "elevation_m": 24.0,
+            "upland": false,
+            "n_valid": 9309,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN001120100",
+            "name": "KURNOOL",
+            "lat": 15.8,
+            "lon": 78.067,
+            "region": "western_ghats",
+            "elevation_m": 281.0,
+            "upland": false,
+            "n_valid": 34154,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN001160200",
+            "name": "NELLORE",
+            "lat": 14.45,
+            "lon": 79.983,
+            "region": "",
+            "elevation_m": 20.0,
+            "upland": false,
+            "n_valid": 35229,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN001170800",
+            "name": "NIZAMABAD",
+            "lat": 18.667,
+            "lon": 78.1,
+            "region": "western_ghats",
+            "elevation_m": 381.0,
+            "upland": false,
+            "n_valid": 25690,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN001190700",
+            "name": "KALINGAPATAM",
+            "lat": 18.333,
+            "lon": 84.133,
+            "region": "",
+            "elevation_m": 6.0,
+            "upland": false,
+            "n_valid": 24860,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN001200200",
+            "name": "VISHAKHAPATNAM",
+            "lat": 17.717,
+            "lon": 83.233,
+            "region": "",
+            "elevation_m": 3.0,
+            "upland": false,
+            "n_valid": 28531,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN002050100",
+            "name": "PASIGHAT",
+            "lat": 28.1,
+            "lon": 95.383,
+            "region": "himalaya",
+            "elevation_m": 157.0,
+            "upland": false,
+            "n_valid": 19078,
+            "n_flagged": 13
+          },
+          {
+            "id": "IN003010600",
+            "name": "SILCHAR",
+            "lat": 24.75,
+            "lon": 92.8,
+            "region": "himalaya",
+            "elevation_m": 29.0,
+            "upland": false,
+            "n_valid": 26575,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN003020100",
+            "name": "TEZPUR",
+            "lat": 26.617,
+            "lon": 92.783,
+            "region": "himalaya",
+            "elevation_m": 79.0,
+            "upland": false,
+            "n_valid": 32670,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN003030100",
+            "name": "DHUBRI",
+            "lat": 26.017,
+            "lon": 89.983,
+            "region": "himalaya",
+            "elevation_m": 36.0,
+            "upland": false,
+            "n_valid": 26359,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN003041800",
+            "name": "GAUHATI",
+            "lat": 26.1,
+            "lon": 91.583,
+            "region": "himalaya",
+            "elevation_m": 54.0,
+            "upland": false,
+            "n_valid": 19671,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN003050401",
+            "name": "NORTH LAKHIMPUR",
+            "lat": 27.233,
+            "lon": 94.117,
+            "region": "himalaya",
+            "elevation_m": 102.0,
+            "upland": false,
+            "n_valid": 26720,
+            "n_flagged": 64
+          },
+          {
+            "id": "IN003050500",
+            "name": "DIBRUGARH/MOHANBAR",
+            "lat": 27.483,
+            "lon": 95.017,
+            "region": "himalaya",
+            "elevation_m": 111.0,
+            "upland": false,
+            "n_valid": 18298,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN003080100",
+            "name": "PET JORHAT",
+            "lat": 26.9,
+            "lon": 94.2,
+            "region": "himalaya",
+            "elevation_m": 87.0,
+            "upland": false,
+            "n_valid": 20448,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN004011500",
+            "name": "BHAGALPUR",
+            "lat": 25.233,
+            "lon": 86.95,
+            "region": "himalaya",
+            "elevation_m": 49.0,
+            "upland": false,
+            "n_valid": 15591,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN004051800",
+            "name": "GAYA",
+            "lat": 24.75,
+            "lon": 84.95,
+            "region": "himalaya",
+            "elevation_m": 116.0,
+            "upland": false,
+            "n_valid": 31137,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN004091000",
+            "name": "DALTONGANJ",
+            "lat": 24.05,
+            "lon": 84.067,
+            "region": "himalaya",
+            "elevation_m": 221.0,
+            "upland": false,
+            "n_valid": 26505,
+            "n_flagged": 3
+          },
+          {
+            "id": "IN004102500",
+            "name": "PATNA",
+            "lat": 25.6,
+            "lon": 85.1,
+            "region": "himalaya",
+            "elevation_m": 60.0,
+            "upland": false,
+            "n_valid": 18763,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN004110600",
+            "name": "PURNEA",
+            "lat": 25.267,
+            "lon": 87.467,
+            "region": "himalaya",
+            "elevation_m": 38.0,
+            "upland": false,
+            "n_valid": 26460,
+            "n_flagged": 3
+          },
+          {
+            "id": "IN004122600",
+            "name": "M.O. RANCHI",
+            "lat": 23.317,
+            "lon": 85.317,
+            "region": "himalaya",
+            "elevation_m": 652.0,
+            "upland": true,
+            "n_valid": 12587,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN005010600",
+            "name": "AHMADABAD",
+            "lat": 23.067,
+            "lon": 72.633,
+            "region": "himalaya",
+            "elevation_m": 55.0,
+            "upland": false,
+            "n_valid": 35698,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN005030100",
+            "name": "DEESA",
+            "lat": 24.2,
+            "lon": 72.2,
+            "region": "himalaya",
+            "elevation_m": 136.0,
+            "upland": false,
+            "n_valid": 25741,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN005050100",
+            "name": "BHAUNAGAR",
+            "lat": 21.75,
+            "lon": 72.2,
+            "region": "",
+            "elevation_m": 11.0,
+            "upland": false,
+            "n_valid": 22517,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN005090100",
+            "name": "DWARKA",
+            "lat": 22.367,
+            "lon": 69.083,
+            "region": "",
+            "elevation_m": 11.0,
+            "upland": false,
+            "n_valid": 25858,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN005100100",
+            "name": "VERAVAL",
+            "lat": 20.9,
+            "lon": 70.367,
+            "region": "",
+            "elevation_m": 8.0,
+            "upland": false,
+            "n_valid": 34871,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN005100400",
+            "name": "PORBANDAR",
+            "lat": 21.65,
+            "lon": 69.667,
+            "region": "",
+            "elevation_m": 7.0,
+            "upland": false,
+            "n_valid": 4282,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN005120000",
+            "name": "NALIYA",
+            "lat": 23.25,
+            "lon": 68.85,
+            "region": "",
+            "elevation_m": 21.0,
+            "upland": false,
+            "n_valid": 4944,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN005120501",
+            "name": "BHUJ-RUDRAMATA",
+            "lat": 23.25,
+            "lon": 69.667,
+            "region": "",
+            "elevation_m": 80.0,
+            "upland": false,
+            "n_valid": 14274,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN005150100",
+            "name": "RAJKOT",
+            "lat": 22.3,
+            "lon": 70.783,
+            "region": "",
+            "elevation_m": 138.0,
+            "upland": false,
+            "n_valid": 34809,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN005171200",
+            "name": "SURAT",
+            "lat": 21.2,
+            "lon": 72.833,
+            "region": "western_ghats",
+            "elevation_m": 12.0,
+            "upland": false,
+            "n_valid": 35309,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN006011400",
+            "name": "CHANDIGARH(IAFB)",
+            "lat": 30.733,
+            "lon": 76.883,
+            "region": "himalaya",
+            "elevation_m": 347.0,
+            "upland": false,
+            "n_valid": 7205,
+            "n_flagged": 56
+          },
+          {
+            "id": "IN006012800",
+            "name": "AMBALA",
+            "lat": 30.383,
+            "lon": 76.767,
+            "region": "himalaya",
+            "elevation_m": 272.0,
+            "upland": false,
+            "n_valid": 4733,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN006031000",
+            "name": "HISSAR",
+            "lat": 29.167,
+            "lon": 75.733,
+            "region": "himalaya",
+            "elevation_m": 221.0,
+            "upland": false,
+            "n_valid": 28925,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN007101600",
+            "name": "SHIMLA",
+            "lat": 31.1,
+            "lon": 77.167,
+            "region": "himalaya",
+            "elevation_m": 2202.0,
+            "upland": true,
+            "n_valid": 26822,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN008010200",
+            "name": "SRINAGAR",
+            "lat": 34.083,
+            "lon": 74.833,
+            "region": "himalaya",
+            "elevation_m": 1587.0,
+            "upland": true,
+            "n_valid": 33114,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN008040500",
+            "name": "JAMMU",
+            "lat": 32.667,
+            "lon": 74.833,
+            "region": "himalaya",
+            "elevation_m": 367.0,
+            "upland": false,
+            "n_valid": 3751,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN009010100",
+            "name": "BANGALORE",
+            "lat": 12.967,
+            "lon": 77.583,
+            "region": "western_ghats",
+            "elevation_m": 921.0,
+            "upland": true,
+            "n_valid": 36623,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN009012800",
+            "name": "BANGALORE/HINDUSTAN",
+            "lat": 12.95,
+            "lon": 77.633,
+            "region": "western_ghats",
+            "elevation_m": 897.0,
+            "upland": true,
+            "n_valid": 9522,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN009021000",
+            "name": "BELGAUM/SAMBRA",
+            "lat": 15.85,
+            "lon": 74.617,
+            "region": "western_ghats",
+            "elevation_m": 747.0,
+            "upland": true,
+            "n_valid": 16255,
+            "n_flagged": 3
+          },
+          {
+            "id": "IN009070100",
+            "name": "CHITRADURGA",
+            "lat": 14.233,
+            "lon": 76.433,
+            "region": "western_ghats",
+            "elevation_m": 733.0,
+            "upland": true,
+            "n_valid": 35219,
+            "n_flagged": 6
+          },
+          {
+            "id": "IN009090300",
+            "name": "GADAG",
+            "lat": 15.417,
+            "lon": 75.633,
+            "region": "western_ghats",
+            "elevation_m": 650.0,
+            "upland": true,
+            "n_valid": 24494,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN009100200",
+            "name": "GULBARGA",
+            "lat": 17.35,
+            "lon": 76.85,
+            "region": "western_ghats",
+            "elevation_m": 458.0,
+            "upland": false,
+            "n_valid": 25381,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN009120100",
+            "name": "KARWAR",
+            "lat": 14.783,
+            "lon": 74.133,
+            "region": "western_ghats",
+            "elevation_m": 4.0,
+            "upland": false,
+            "n_valid": 26478,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN009120400",
+            "name": "HONAVAR",
+            "lat": 14.283,
+            "lon": 74.45,
+            "region": "western_ghats",
+            "elevation_m": 9.0,
+            "upland": false,
+            "n_valid": 14791,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN009130300",
+            "name": "MANGALORE/BAJPE",
+            "lat": 12.917,
+            "lon": 74.883,
+            "region": "western_ghats",
+            "elevation_m": 102.0,
+            "upland": false,
+            "n_valid": 17141,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN010021200",
+            "name": "CANNUR",
+            "lat": 11.833,
+            "lon": 75.333,
+            "region": "western_ghats",
+            "elevation_m": 18.0,
+            "upland": false,
+            "n_valid": 4354,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN010050700",
+            "name": "KOZHIKODE",
+            "lat": 11.25,
+            "lon": 75.783,
+            "region": "western_ghats",
+            "elevation_m": 5.0,
+            "upland": false,
+            "n_valid": 35825,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN010100400",
+            "name": "THIRUVANANTHAPURAM",
+            "lat": 8.483,
+            "lon": 76.95,
+            "region": "western_ghats",
+            "elevation_m": 64.0,
+            "upland": false,
+            "n_valid": 37876,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN010100700",
+            "name": "THIRUVANANTHAPURAM",
+            "lat": 8.467,
+            "lon": 76.95,
+            "region": "western_ghats",
+            "elevation_m": 8.0,
+            "upland": false,
+            "n_valid": 7703,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN011020300",
+            "name": "JAGDALPUR",
+            "lat": 19.083,
+            "lon": 82.033,
+            "region": "",
+            "elevation_m": 553.0,
+            "upland": true,
+            "n_valid": 28908,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN011060800",
+            "name": "PENDRA ROAD",
+            "lat": 22.767,
+            "lon": 81.9,
+            "region": "himalaya",
+            "elevation_m": 625.0,
+            "upland": true,
+            "n_valid": 33017,
+            "n_flagged": 4
+          },
+          {
+            "id": "IN011140700",
+            "name": "GUNA",
+            "lat": 24.65,
+            "lon": 77.317,
+            "region": "himalaya",
+            "elevation_m": 478.0,
+            "upland": false,
+            "n_valid": 21891,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN011150300",
+            "name": "GWALIOR",
+            "lat": 26.233,
+            "lon": 78.25,
+            "region": "himalaya",
+            "elevation_m": 207.0,
+            "upland": false,
+            "n_valid": 20480,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN011160300",
+            "name": "HOSHANGABAD",
+            "lat": 22.767,
+            "lon": 77.767,
+            "region": "himalaya",
+            "elevation_m": 302.0,
+            "upland": false,
+            "n_valid": 26333,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN011170400",
+            "name": "INDORE",
+            "lat": 22.717,
+            "lon": 75.8,
+            "region": "himalaya",
+            "elevation_m": 567.0,
+            "upland": true,
+            "n_valid": 35495,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN011180800",
+            "name": "JABALPUR",
+            "lat": 23.2,
+            "lon": 79.95,
+            "region": "himalaya",
+            "elevation_m": 393.0,
+            "upland": false,
+            "n_valid": 34518,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN011330900",
+            "name": "SAGAR",
+            "lat": 23.85,
+            "lon": 78.75,
+            "region": "himalaya",
+            "elevation_m": 551.0,
+            "upland": true,
+            "n_valid": 26213,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN011340100",
+            "name": "SATNA",
+            "lat": 24.567,
+            "lon": 80.833,
+            "region": "himalaya",
+            "elevation_m": 317.0,
+            "upland": false,
+            "n_valid": 31500,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN011351500",
+            "name": "BHOPAL/BAIRAGARH",
+            "lat": 23.283,
+            "lon": 77.35,
+            "region": "himalaya",
+            "elevation_m": 523.0,
+            "upland": true,
+            "n_valid": 17493,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN011410500",
+            "name": "AMBIKAPUR",
+            "lat": 23.167,
+            "lon": 83.25,
+            "region": "himalaya",
+            "elevation_m": 611.0,
+            "upland": true,
+            "n_valid": 8430,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN012020100",
+            "name": "AKOLA",
+            "lat": 20.7,
+            "lon": 77.033,
+            "region": "western_ghats",
+            "elevation_m": 282.0,
+            "upland": false,
+            "n_valid": 27461,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN012030700",
+            "name": "AMRAOTI",
+            "lat": 20.933,
+            "lon": 77.783,
+            "region": "western_ghats",
+            "elevation_m": 370.0,
+            "upland": false,
+            "n_valid": 26023,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN012041000",
+            "name": "AURANGABAD CHIKALTH",
+            "lat": 19.85,
+            "lon": 75.4,
+            "region": "western_ghats",
+            "elevation_m": 579.0,
+            "upland": true,
+            "n_valid": 16557,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN012051400",
+            "name": "GONDIA",
+            "lat": 21.467,
+            "lon": 80.2,
+            "region": "",
+            "elevation_m": 313.0,
+            "upland": false,
+            "n_valid": 8453,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN012070800",
+            "name": "BOMBAY/SANTACRUZ",
+            "lat": 19.117,
+            "lon": 72.85,
+            "region": "western_ghats",
+            "elevation_m": 14.0,
+            "upland": false,
+            "n_valid": 19808,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN012081300",
+            "name": "BULDANA",
+            "lat": 20.533,
+            "lon": 76.233,
+            "region": "western_ghats",
+            "elevation_m": 650.0,
+            "upland": true,
+            "n_valid": 8678,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN012090600",
+            "name": "CHANDRAPUR",
+            "lat": 19.967,
+            "lon": 79.3,
+            "region": "",
+            "elevation_m": 193.0,
+            "upland": false,
+            "n_valid": 25797,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN012131800",
+            "name": "KOLHAPUR",
+            "lat": 16.7,
+            "lon": 74.233,
+            "region": "western_ghats",
+            "elevation_m": 570.0,
+            "upland": true,
+            "n_valid": 24925,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN012141800",
+            "name": "NAGPUR SONEGAON",
+            "lat": 21.1,
+            "lon": 79.05,
+            "region": "",
+            "elevation_m": 310.0,
+            "upland": false,
+            "n_valid": 19371,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN012190100",
+            "name": "POONA",
+            "lat": 18.533,
+            "lon": 73.85,
+            "region": "western_ghats",
+            "elevation_m": 559.0,
+            "upland": true,
+            "n_valid": 36991,
+            "n_flagged": 6
+          },
+          {
+            "id": "IN012201100",
+            "name": "RATNAGIRI",
+            "lat": 16.983,
+            "lon": 73.333,
+            "region": "western_ghats",
+            "elevation_m": 67.0,
+            "upland": false,
+            "n_valid": 36856,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN012201300",
+            "name": "HARNAI",
+            "lat": 17.817,
+            "lon": 73.1,
+            "region": "western_ghats",
+            "elevation_m": 20.0,
+            "upland": false,
+            "n_valid": 8125,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN012220400",
+            "name": "MAHABALESHWAR",
+            "lat": 17.933,
+            "lon": 73.667,
+            "region": "western_ghats",
+            "elevation_m": 1382.0,
+            "upland": true,
+            "n_valid": 26760,
+            "n_flagged": 6
+          },
+          {
+            "id": "IN012230300",
+            "name": "SHOLAPUR",
+            "lat": 17.667,
+            "lon": 75.9,
+            "region": "western_ghats",
+            "elevation_m": 479.0,
+            "upland": false,
+            "n_valid": 35347,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN013010200",
+            "name": "IMPHAL",
+            "lat": 24.667,
+            "lon": 93.9,
+            "region": "himalaya",
+            "elevation_m": 774.0,
+            "upland": true,
+            "n_valid": 12938,
+            "n_flagged": 3
+          },
+          {
+            "id": "IN014020300",
+            "name": "SHILLONG",
+            "lat": 25.567,
+            "lon": 91.883,
+            "region": "himalaya",
+            "elevation_m": 1598.0,
+            "upland": true,
+            "n_valid": 25399,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN014020800",
+            "name": "CHERRAPUNJI",
+            "lat": 25.25,
+            "lon": 91.733,
+            "region": "himalaya",
+            "elevation_m": 1313.0,
+            "upland": true,
+            "n_valid": 23793,
+            "n_flagged": 17
+          },
+          {
+            "id": "IN017010300",
+            "name": "BALASORE",
+            "lat": 21.517,
+            "lon": 86.933,
+            "region": "",
+            "elevation_m": 20.0,
+            "upland": false,
+            "n_valid": 34098,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN017011200",
+            "name": "CHANDBALI",
+            "lat": 20.783,
+            "lon": 86.733,
+            "region": "",
+            "elevation_m": 6.0,
+            "upland": false,
+            "n_valid": 15641,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN017060500",
+            "name": "GOPALPUR",
+            "lat": 19.267,
+            "lon": 84.883,
+            "region": "",
+            "elevation_m": 17.0,
+            "upland": false,
+            "n_valid": 26568,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN017110100",
+            "name": "PURI",
+            "lat": 19.8,
+            "lon": 85.817,
+            "region": "",
+            "elevation_m": 6.0,
+            "upland": false,
+            "n_valid": 26121,
+            "n_flagged": 62
+          },
+          {
+            "id": "IN017111200",
+            "name": "BHUBANESWAR",
+            "lat": 20.25,
+            "lon": 85.833,
+            "region": "",
+            "elevation_m": 46.0,
+            "upland": false,
+            "n_valid": 22979,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN017120100",
+            "name": "SAMBALPUR",
+            "lat": 21.467,
+            "lon": 83.967,
+            "region": "",
+            "elevation_m": 148.0,
+            "upland": false,
+            "n_valid": 26384,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN017121000",
+            "name": "JHARSUGUDA",
+            "lat": 21.917,
+            "lon": 84.083,
+            "region": "",
+            "elevation_m": 230.0,
+            "upland": false,
+            "n_valid": 14343,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN018091100",
+            "name": "LUDHIANA",
+            "lat": 30.867,
+            "lon": 75.933,
+            "region": "himalaya",
+            "elevation_m": 255.0,
+            "upland": false,
+            "n_valid": 26207,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN018103100",
+            "name": "PATIALA",
+            "lat": 30.333,
+            "lon": 76.467,
+            "region": "himalaya",
+            "elevation_m": 251.0,
+            "upland": false,
+            "n_valid": 9086,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN019010300",
+            "name": "AJMER",
+            "lat": 26.45,
+            "lon": 74.617,
+            "region": "himalaya",
+            "elevation_m": 486.0,
+            "upland": false,
+            "n_valid": 26024,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN019040100",
+            "name": "BARMER",
+            "lat": 25.75,
+            "lon": 71.383,
+            "region": "",
+            "elevation_m": 194.0,
+            "upland": false,
+            "n_valid": 15972,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN019070100",
+            "name": "BIKANER",
+            "lat": 28.0,
+            "lon": 73.3,
+            "region": "himalaya",
+            "elevation_m": 224.0,
+            "upland": false,
+            "n_valid": 34026,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN019100500",
+            "name": "CHURU",
+            "lat": 28.25,
+            "lon": 74.917,
+            "region": "himalaya",
+            "elevation_m": 291.0,
+            "upland": false,
+            "n_valid": 6090,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN019120700",
+            "name": "GANGANAGAR",
+            "lat": 29.917,
+            "lon": 73.917,
+            "region": "himalaya",
+            "elevation_m": 177.0,
+            "upland": false,
+            "n_valid": 8717,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN019131301",
+            "name": "JAIPUR/SANGANER",
+            "lat": 26.817,
+            "lon": 75.8,
+            "region": "himalaya",
+            "elevation_m": 390.0,
+            "upland": false,
+            "n_valid": 12177,
+            "n_flagged": 6
+          },
+          {
+            "id": "IN019140400",
+            "name": "JAISALMER",
+            "lat": 26.9,
+            "lon": 70.917,
+            "region": "",
+            "elevation_m": 231.0,
+            "upland": false,
+            "n_valid": 13194,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN019180500",
+            "name": "JODHPUR",
+            "lat": 26.3,
+            "lon": 73.017,
+            "region": "himalaya",
+            "elevation_m": 224.0,
+            "upland": false,
+            "n_valid": 33555,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN019191200",
+            "name": "KOTA AERODROME",
+            "lat": 25.15,
+            "lon": 75.85,
+            "region": "himalaya",
+            "elevation_m": 274.0,
+            "upland": false,
+            "n_valid": 10353,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN019261900",
+            "name": "UDAIPUR DABOK",
+            "lat": 24.617,
+            "lon": 73.883,
+            "region": "himalaya",
+            "elevation_m": 514.0,
+            "upland": true,
+            "n_valid": 3786,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN020011100",
+            "name": "VELLORE",
+            "lat": 12.917,
+            "lon": 79.15,
+            "region": "",
+            "elevation_m": 214.0,
+            "upland": false,
+            "n_valid": 24241,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN020020300",
+            "name": "CUDDALORE",
+            "lat": 11.767,
+            "lon": 79.767,
+            "region": "",
+            "elevation_m": 12.0,
+            "upland": false,
+            "n_valid": 35593,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN020031700",
+            "name": "COIMBATORE/PEELAMED",
+            "lat": 11.033,
+            "lon": 77.05,
+            "region": "western_ghats",
+            "elevation_m": 399.0,
+            "upland": false,
+            "n_valid": 18244,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN020040900",
+            "name": "MADRAS/MINAMBAKKAM",
+            "lat": 13.0,
+            "lon": 80.183,
+            "region": "",
+            "elevation_m": 16.0,
+            "upland": false,
+            "n_valid": 36949,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN020065100",
+            "name": "KANNIYAKUMARI",
+            "lat": 8.083,
+            "lon": 77.5,
+            "region": "western_ghats",
+            "elevation_m": 37.0,
+            "upland": false,
+            "n_valid": 4638,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN020081700",
+            "name": "MADURAI",
+            "lat": 9.833,
+            "lon": 78.083,
+            "region": "western_ghats",
+            "elevation_m": 131.0,
+            "upland": false,
+            "n_valid": 5954,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN020100400",
+            "name": "PAMBAN",
+            "lat": 9.267,
+            "lon": 79.3,
+            "region": "",
+            "elevation_m": 11.0,
+            "upland": false,
+            "n_valid": 26790,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN020100500",
+            "name": "TONDI",
+            "lat": 9.733,
+            "lon": 79.033,
+            "region": "",
+            "elevation_m": 5.0,
+            "upland": false,
+            "n_valid": 5061,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN020110800",
+            "name": "SALEM",
+            "lat": 11.65,
+            "lon": 78.167,
+            "region": "western_ghats",
+            "elevation_m": 278.0,
+            "upland": false,
+            "n_valid": 26128,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN020120700",
+            "name": "NAGAPPATTINAM",
+            "lat": 10.767,
+            "lon": 79.85,
+            "region": "",
+            "elevation_m": 9.0,
+            "upland": false,
+            "n_valid": 27124,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN020130700",
+            "name": "TIRUCHCHIRAPALLI",
+            "lat": 10.767,
+            "lon": 78.717,
+            "region": "",
+            "elevation_m": 88.0,
+            "upland": false,
+            "n_valid": 35322,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN021010100",
+            "name": "AGARTALA",
+            "lat": 23.883,
+            "lon": 91.25,
+            "region": "himalaya",
+            "elevation_m": 16.0,
+            "upland": false,
+            "n_valid": 35535,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN021012000",
+            "name": "KAILASHAHAR",
+            "lat": 24.317,
+            "lon": 92.0,
+            "region": "himalaya",
+            "elevation_m": 30.0,
+            "upland": false,
+            "n_valid": 5530,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN022021900",
+            "name": "NEW DELHI/SAFDARJUN",
+            "lat": 28.583,
+            "lon": 77.2,
+            "region": "himalaya",
+            "elevation_m": 216.0,
+            "upland": false,
+            "n_valid": 36153,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN022023000",
+            "name": "NEW DELHI/PALAM",
+            "lat": 28.567,
+            "lon": 77.117,
+            "region": "himalaya",
+            "elevation_m": 233.0,
+            "upland": false,
+            "n_valid": 5508,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN022030600",
+            "name": "GOA/PANJIM",
+            "lat": 15.483,
+            "lon": 73.817,
+            "region": "western_ghats",
+            "elevation_m": 60.0,
+            "upland": false,
+            "n_valid": 12246,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN022043500",
+            "name": "KARAIKAL",
+            "lat": 10.917,
+            "lon": 79.833,
+            "region": "",
+            "elevation_m": 7.0,
+            "upland": false,
+            "n_valid": 5344,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN023060800",
+            "name": "BAHRAICH",
+            "lat": 27.567,
+            "lon": 81.6,
+            "region": "himalaya",
+            "elevation_m": 124.0,
+            "upland": false,
+            "n_valid": 26413,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN023101700",
+            "name": "BAREILLY",
+            "lat": 28.367,
+            "lon": 79.4,
+            "region": "himalaya",
+            "elevation_m": 169.0,
+            "upland": false,
+            "n_valid": 30715,
+            "n_flagged": 3
+          },
+          {
+            "id": "IN023160900",
+            "name": "DEHRADUN",
+            "lat": 30.317,
+            "lon": 78.033,
+            "region": "himalaya",
+            "elevation_m": 682.0,
+            "upland": true,
+            "n_valid": 32228,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN023261300",
+            "name": "GORAKHPUR",
+            "lat": 26.75,
+            "lon": 83.367,
+            "region": "himalaya",
+            "elevation_m": 77.0,
+            "upland": false,
+            "n_valid": 31840,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN023310500",
+            "name": "JHANSI",
+            "lat": 25.45,
+            "lon": 78.617,
+            "region": "himalaya",
+            "elevation_m": 258.0,
+            "upland": false,
+            "n_valid": 26434,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN023351400",
+            "name": "LUCKNOW/AMAUSI",
+            "lat": 26.75,
+            "lon": 80.883,
+            "region": "himalaya",
+            "elevation_m": 128.0,
+            "upland": false,
+            "n_valid": 17434,
+            "n_flagged": 3
+          },
+          {
+            "id": "IN023420800",
+            "name": "MUKTESHWAR KUMAON",
+            "lat": 29.467,
+            "lon": 79.65,
+            "region": "himalaya",
+            "elevation_m": 2311.0,
+            "upland": true,
+            "n_valid": 26495,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN023522100",
+            "name": "TEHRI",
+            "lat": 30.4,
+            "lon": 78.483,
+            "region": "himalaya",
+            "elevation_m": 899.0,
+            "upland": true,
+            "n_valid": 6250,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN023550300",
+            "name": "VARANASI/BABATPUR",
+            "lat": 25.45,
+            "lon": 82.867,
+            "region": "himalaya",
+            "elevation_m": 85.0,
+            "upland": false,
+            "n_valid": 8465,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN023550800",
+            "name": "VARANASI",
+            "lat": 25.3,
+            "lon": 83.017,
+            "region": "himalaya",
+            "elevation_m": 90.0,
+            "upland": false,
+            "n_valid": 26090,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN024041000",
+            "name": "COOCH BEHAR",
+            "lat": 26.333,
+            "lon": 89.467,
+            "region": "himalaya",
+            "elevation_m": 43.0,
+            "upland": false,
+            "n_valid": 22121,
+            "n_flagged": 2
+          },
+          {
+            "id": "IN024059900",
+            "name": "SILIGURI",
+            "lat": 26.633,
+            "lon": 88.317,
+            "region": "himalaya",
+            "elevation_m": 131.0,
+            "upland": false,
+            "n_valid": 18323,
+            "n_flagged": 63
+          },
+          {
+            "id": "IN024080100",
+            "name": "JALPAIGURI",
+            "lat": 26.533,
+            "lon": 88.717,
+            "region": "himalaya",
+            "elevation_m": 83.0,
+            "upland": false,
+            "n_valid": 26339,
+            "n_flagged": 3
+          },
+          {
+            "id": "IN024090600",
+            "name": "MALDA",
+            "lat": 25.033,
+            "lon": 88.133,
+            "region": "himalaya",
+            "elevation_m": 31.0,
+            "upland": false,
+            "n_valid": 26233,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN024140300",
+            "name": "CALCUTTA/ALIPORE",
+            "lat": 22.533,
+            "lon": 88.333,
+            "region": "himalaya",
+            "elevation_m": 6.0,
+            "upland": false,
+            "n_valid": 26873,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN024141500",
+            "name": "CALCUTTA/DUM DUM",
+            "lat": 22.65,
+            "lon": 88.45,
+            "region": "himalaya",
+            "elevation_m": 6.0,
+            "upland": false,
+            "n_valid": 18368,
+            "n_flagged": 1
+          },
+          {
+            "id": "IN025010100",
+            "name": "MINICOY         OBSY",
+            "lat": 8.3,
+            "lon": 73.0,
+            "region": "western_ghats",
+            "elevation_m": 2.0,
+            "upland": false,
+            "n_valid": 12079,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN099990101",
+            "name": "M.O. AMINI",
+            "lat": 11.117,
+            "lon": 72.733,
+            "region": "western_ghats",
+            "elevation_m": 3.0,
+            "upland": false,
+            "n_valid": 19686,
+            "n_flagged": 0
+          },
+          {
+            "id": "IN099999901",
+            "name": "PORT BLAIR",
+            "lat": 11.667,
+            "lon": 92.717,
+            "region": "",
+            "elevation_m": 79.0,
+            "upland": false,
+            "n_valid": 33683,
+            "n_flagged": 0
+          },
+          {
+            "id": "INM00042071",
+            "name": "AMRITSAR",
+            "lat": 31.71,
+            "lon": 74.797,
+            "region": "himalaya",
+            "elevation_m": 230.4,
+            "upland": false,
+            "n_valid": 8172,
+            "n_flagged": 1
+          },
+          {
+            "id": "NP000444540",
+            "name": "KATHMANDU AIRPORT",
+            "lat": 27.7,
+            "lon": 85.367,
+            "region": "himalaya",
+            "elevation_m": 1337.0,
+            "upland": true,
+            "n_valid": 6086,
+            "n_flagged": 0
+          },
+          {
+            "id": "NPM00044477",
+            "name": "DHANKUTA",
+            "lat": 26.983,
+            "lon": 87.35,
+            "region": "himalaya",
+            "elevation_m": 1210.0,
+            "upland": true,
+            "n_valid": 3819,
+            "n_flagged": 0
+          }
+        ],
+        "failed_downloads": [],
+        "qflag_meanings": {
+          "D": "duplicate day",
+          "G": "gap check",
+          "I": "internal inconsistency",
+          "K": "streak / frequent-value",
+          "L": "multi-day accumulation length",
+          "M": "megaconsecutive value",
+          "N": "naught check",
+          "O": "climatological outlier",
+          "R": "lagged range",
+          "S": "spatial inconsistency",
+          "T": "temporal inconsistency",
+          "W": "temperature too warm for snow",
+          "X": "exceeds bounds / record",
+          "Z": "Datzilla investigation"
+        }
+      },
+      "day_definition": null
+    },
+    {
+      "name": "isd",
+      "status": "ok",
+      "summary": "414 active ISD stations in IN, NP",
+      "evidence": {
+        "n_selected": 414,
+        "by_country": {
+          "IN": 399,
+          "NP": 15
+        },
+        "by_region": {
+          "himalaya": 200,
+          "outside_domain": 107,
+          "western_ghats": 107
+        },
+        "note": "ISD is hourly station data; per-value QC flags are in the full ISD files (not fetched in Phase 0)."
+      },
+      "day_definition": null
+    },
+    {
+      "name": "open_meteo",
+      "status": "partial",
+      "summary": "2/3 precipitation models with complete data; soil moisture ok; 1 problem(s), first: era5_land precipitation: 96 null hourly values",
+      "evidence": {
+        "event_rows": [
+          {
+            "label": "era5",
+            "daily_mm": {
+              "2024-07-28": 10.7,
+              "2024-07-29": 54.2,
+              "2024-07-30": 56.0,
+              "2024-07-31": 27.0
+            }
+          },
+          {
+            "label": "era5_land",
+            "daily_mm": {
+              "2024-07-28": null,
+              "2024-07-29": null,
+              "2024-07-30": null,
+              "2024-07-31": null
+            }
+          },
+          {
+            "label": "ecmwf_ifs",
+            "daily_mm": {
+              "2024-07-28": 9.9,
+              "2024-07-29": 62.2,
+              "2024-07-30": 46.6,
+              "2024-07-31": 80.6
+            }
+          }
+        ],
+        "soil_moisture": {
+          "n": 96,
+          "n_null": 0
+        },
+        "problems": [
+          "era5_land precipitation: 96 null hourly values"
+        ]
+      },
+      "day_definition": "UTC calendar date (timezone=UTC requested). Open-Meteo hourly precipitation is the total of the PRECEDING hour, so the stamps 00:00-23:00 UTC of a date cover 23:00 UTC of the previous day to 23:00 UTC of that date"
+    },
+    {
+      "name": "power_api",
+      "status": "ok",
+      "summary": "PRECTOTCORR requested days=4, missing/fill=0, soil wetness ok",
+      "evidence": {
+        "event_rows": [
+          {
+            "label": "merra2_power_api",
+            "daily_mm": {
+              "2024-07-28": 7.63,
+              "2024-07-29": 52.62,
+              "2024-07-30": 27.53,
+              "2024-07-31": 19.56
+            }
+          }
+        ],
+        "time_standard": "LST",
+        "fill_value": -999.0,
+        "problems": []
+      },
+      "day_definition": "NASA POWER time_standard=LST (MERRA-2 native daily)"
+    },
+    {
+      "name": "power_zarr",
+      "status": "ok",
+      "summary": "bulk MERRA-2 store readable; 4/4 requested days have values",
+      "evidence": {
+        "event_rows": [
+          {
+            "label": "merra2_power_zarr_utc",
+            "daily_mm": {
+              "2024-07-28": 10.68,
+              "2024-07-29": 63.54,
+              "2024-07-30": 17.89,
+              "2024-07-31": 19.47
+            }
+          }
+        ],
+        "problems": [],
+        "dims": {
+          "time": 17898,
+          "lat": 361,
+          "lon": 576
+        },
+        "n_variables": 74,
+        "soil_variables_present": [
+          "GWETTOP",
+          "GWETROOT",
+          "GWETPROF"
+        ],
+        "prectotcorr_chunks": "(5844, 15, 15)"
+      },
+      "day_definition": "NASA POWER analysis-ready 'utc' store: UTC calendar day of MERRA-2"
+    },
+    {
+      "name": "chirps",
+      "status": "ok",
+      "summary": "grid (2000, 7200) at (0.05, 0.05) deg; ~18.9 GB for the full period",
+      "evidence": {
+        "event_rows": [
+          {
+            "label": "chirps_p05",
+            "daily_mm": {
+              "2024-07-28": 0.0,
+              "2024-07-29": 28.42,
+              "2024-07-30": 0.0,
+              "2024-07-31": 85.25
+            }
+          }
+        ],
+        "shape": [
+          2000,
+          7200
+        ],
+        "res": [
+          0.05,
+          0.05
+        ],
+        "bounds": [
+          -180.0,
+          -50.0,
+          180.0,
+          50.0
+        ],
+        "nodata": null,
+        "problems": [],
+        "est_total_gb": 18.9
+      },
+      "day_definition": "UTC calendar day (00-24 UTC) per CHIRPS documentation - confirm in review"
+    },
+    {
+      "name": "imd",
+      "status": "ok",
+      "summary": "IMD 2024 gridded rain readable; grid shape (366, 129, 135)",
+      "evidence": {
+        "event_rows": [
+          {
+            "label": "imd_gauge_grid_0p25",
+            "daily_mm": {
+              "2024-07-28": 4.97,
+              "2024-07-29": 6.6,
+              "2024-07-30": 179.24,
+              "2024-07-31": 16.7
+            }
+          }
+        ],
+        "grid_shape": [
+          366,
+          129,
+          135
+        ]
+      },
+      "day_definition": "IMD rainfall day: 08:30 IST previous day to 08:30 IST (= 03:00 UTC to 03:00 UTC) per IMD convention - confirm in review"
+    },
+    {
+      "name": "dem",
+      "status": "ok",
+      "summary": "tile Copernicus_DSM_COG_10_N11_00_E076_00_DEM.tif: elevation at point 908 m; ~20.4 GB for the domain",
+      "evidence": {
+        "shape": [
+          3600,
+          3600
+        ],
+        "res_deg": [
+          0.000278,
+          0.000278
+        ],
+        "elevation_m_at_point": 907.9198608398438,
+        "tiles_for_domain": 462,
+        "est_total_gb": 20.4
+      },
+      "day_definition": null
+    },
+    {
+      "name": "worldcover",
+      "status": "ok",
+      "summary": "tile reachable; ~4.8 GB for the domain",
+      "evidence": {
+        "tile_bytes": 75590338,
+        "tiles_for_domain": 63,
+        "est_total_gb": 4.8
+      },
+      "day_definition": null
+    },
+    {
+      "name": "soilgrids",
+      "status": "ok",
+      "summary": "clay 0-5 cm at point = 280.0 (nodata=-32768.0)",
+      "evidence": {
+        "crs": "PROJCS[\"Interrupted_Goode_Homolosine\",GEOGCS[\"GCS_WGS_1984 ellipse\",DATUM[\"WGS_1",
+        "nodata": -32768.0,
+        "value_at_point": 280.0
+      },
+      "day_definition": null
+    },
+    {
+      "name": "osm_roads",
+      "status": "ok",
+      "summary": "Geofabrik extracts reachable, 2.12 GB combined",
+      "evidence": {
+        "pbf_bytes": {
+          "india": 1708683618,
+          "nepal": 414460647
+        },
+        "errors": [],
+        "note": "Reading .pbf files needs an extra dependency (e.g. pyosmium); decide in Phase 1."
+      },
+      "day_definition": null
+    },
+    {
+      "name": "nepal_inventories",
+      "status": "ok",
+      "summary": "Landslide inventories for Nepal: Database 2010 - 2021 | cc-by-4.0 | 2 files, 0.00 GB",
+      "evidence": {
+        "id": 10410752,
+        "doi": "10.5281/zenodo.10410752",
+        "title": "Landslide inventories for Nepal: Database 2010 - 2021",
+        "license": "cc-by-4.0",
+        "n_files": 2,
+        "n_unsized_files": 0,
+        "total_bytes": 1927414,
+        "files": [
+          "Hexplot.zip",
+          "LandslideDatabase.xlsx"
+        ],
+        "note": "Database of 117 Nepal landslide inventories (metadata); each inventory is a separate download."
+      },
+      "day_definition": null
+    },
+    {
+      "name": "gaolan",
+      "status": "ok",
+      "summary": "Monitoring Dataset of Loess Slopes in Gaolan Mountain(MDLS-GLM) | cc-by-4.0 | 10 files, 48.69 GB",
+      "evidence": {
+        "id": 15180387,
+        "doi": "10.5281/zenodo.15180387",
+        "title": "Monitoring Dataset of Loess Slopes in Gaolan Mountain(MDLS-GLM)",
+        "license": "cc-by-4.0",
+        "n_files": 10,
+        "n_unsized_files": 0,
+        "total_bytes": 48689400790,
+        "files": [
+          "201910.7z",
+          "201911.7z",
+          "Terrain data.zip",
+          "Read_me(data format).jpg",
+          "201909.7z",
+          "202002.7z",
+          "202001.7z",
+          "201912.7z",
+          "202003.7z",
+          "201908.7z"
+        ],
+        "note": "Gaolan Mountain loess-slope multi-sensor dataset (China): real physics, no fault labels documented."
+      },
+      "day_definition": null
+    },
+    {
+      "name": "lithology_search",
+      "status": "ok",
+      "summary": "5 candidates only (relevance not verified); top: Global landform and lithology class at 250 m based on the USGS global ecosystem map",
+      "evidence": {
+        "query": "global lithological map GLiM",
+        "hits": [
+          {
+            "id": 1464846,
+            "doi": "10.5281/zenodo.1464846",
+            "title": "Global landform and lithology class at 250 m based on the USGS global ecosystem map",
+            "license": "cc-by-sa-4.0",
+            "n_files": 27,
+            "n_unsized_files": 0,
+            "total_bytes": 4364863192,
+            "files": [
+              "dtm_lithology_usgs.ecotapestry.pyroclastics_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_landform_usgs.ecotapestry_c_250m_s0..0cm_2014_v1.0.tif.csv",
+              "dtm_lithology_usgs.ecotapestry_c_250m_s0..0cm_2014_v1.0.tif.csv",
+              "dtm_landform_usgs.ecotapestry.smooth.plains_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry.intermediate.plutonics_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry.ice.and.glaciers_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry.carbonate.sedimentary.rock_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry.undefined_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry.unconsolidated.sediment_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_landform_usgs.ecotapestry_c.png",
+              "dtm_lithology_usgs.ecotapestry.basic.volcanics_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry.basic.plutonics_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_landform_usgs.ecotapestry.flat.plains_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_landform_usgs.ecotapestry.high.mountains.deep.canyons_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry.metamorphics_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry.acid.volcanic_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry.siliciclastic.sedimentary_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_lithology_usgs.ecotapestry_c_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_landform_usgs.ecotapestry.hills_p_250m_s0..0cm_2014_v1.0.tif",
+              "dtm_landform_usgs.ecotapestry.low.hills_p_250m_s0..0cm_2014_v1.0.tif"
+            ]
+          },
+          {
+            "id": 15591825,
+            "doi": "10.5281/zenodo.15591825",
+            "title": "PHALK - A global dataset of estimated pH and alkalinity in inland waters at basin-scale",
+            "license": "cc-by-4.0",
+            "n_files": 6,
+            "n_unsized_files": 0,
+            "total_bytes": 183471237,
+            "files": [
+              "references_SurfaceWaters.csv",
+              "alkalinity_SurfaceWaters.csv",
+              "files_description.pdf",
+              "worldwide_estimated_pH_and_alkalinity_at_HydroBasins_HYBASID.csv",
+              "pH_SurfaceWaters.csv",
+              "readme.txt"
+            ]
+          },
+          {
+            "id": 15119418,
+            "doi": "10.5281/zenodo.15119418",
+            "title": "Rainfall Induced Landslide Susceptibility Maps using GIRI model",
+            "license": "cc-by-4.0",
+            "n_files": 2,
+            "n_unsized_files": 0,
+            "total_bytes": 3874056045,
+            "files": [
+              "Landslide_Susceptibility_GIRI_W5E5.zip",
+              "Landslide_Susceptibility_GIRI_SSP126.zip"
+            ]
+          },
+          {
+            "id": 14885750,
+            "doi": "10.11591/ijphs.v13i4.24175",
+            "title": "Global Leadership Initiative on Malnutrition criteria for predicting surgical site infection in elective laparotomy patients",
+            "license": "cc-by-4.0",
+            "n_files": 1,
+            "n_unsized_files": 0,
+            "total_bytes": 369269,
+            "files": [
+              "47. 24175 IJPHS 7Feb24 Rev30Jan24 Ko.pdf"
+            ]
+          },
+          {
+            "id": 20530791,
+            "doi": "10.5281/zenodo.20530791",
+            "title": "Dataset for: Scale-dependent geomorphic adjustment across the Chalus\u2013Karaj drainage divide, Central Alborz: Contrasting basin-scale and fault-proximal signals",
+            "license": "cc-by-4.0",
+            "n_files": 1,
+            "n_unsized_files": 0,
+            "total_bytes": 5658404,
+            "files": [
+              "Chalus_Karaj_Zenodo_Dataset.rar"
+            ]
+          }
+        ]
+      },
+      "day_definition": null
+    },
+    {
+      "name": "kerala_inventory_search",
+      "status": "ok",
+      "summary": "5 candidates only (relevance not verified); top: Multi-temporal landslide inventory for southern Sikkim State, India",
+      "evidence": {
+        "query": "Kerala landslide inventory 2018",
+        "hits": [
+          {
+            "id": 8169506,
+            "doi": "10.5281/zenodo.8169506",
+            "title": "Multi-temporal landslide inventory for southern Sikkim State, India",
+            "license": "cc-by-4.0",
+            "n_files": 33,
+            "n_unsized_files": 0,
+            "total_bytes": 881414,
+            "files": [
+              "Google_Earth_landslides_point_21Dec2021.shx",
+              "Google_Earth_mapped_extent_21Dec2021.dbf",
+              "Google_Earth_mapped_extent_21Dec2021.prj",
+              "Cartosat_197823411_extents.cpg",
+              "Cartosat_197823411clouds.prj",
+              "Cartosat_197823411clouds.dbf",
+              "Cartosat_197823411_extents.shp",
+              "Google_Earth_mapped_extent_21Dec2021.qmd",
+              "Cartosat_197823411clouds.shp",
+              "Cartosat_197823411_extents.shx",
+              "Cartosat_landslides_21Dec2021.prj",
+              "Cartosat_landslides_21Dec2021.dbf",
+              "Cartosat_landslides_21Dec2021.shp",
+              "Cartosat_landslides_21Dec2021.shx",
+              "Google_Earth_landslides_point_21Dec2021.cpg",
+              "Google_Earth_mapped_extent_21Dec2021.shp",
+              "Google_Earth_mapped_extent_21Dec2021.shx",
+              "Google_Earth_landslides_polygon_21Dec2021.shx",
+              "Google_Earth_landslides_polygon_21Dec2021.shp",
+              "Google_Earth_landslides_polygon_21Dec2021.prj"
+            ]
+          },
+          {
+            "id": 18871474,
+            "doi": "10.5281/zenodo.18871474",
+            "title": "Submarine Landslide Inventory for Coseismic Landslides Triggered by the 2016 Kaik\u014dura Earthquake in the Upper Kaik\u014dura Canyon, New Zealand",
+            "license": "cc-by-4.0",
+            "n_files": 2,
+            "n_unsized_files": 0,
+            "total_bytes": 6216407,
+            "files": [
+              "KaikouraCanyon_LandslidesTable.csv",
+              "Kaikoura_Canyon_Inventory.gpkg"
+            ]
+          },
+          {
+            "id": 15516233,
+            "doi": "10.5281/zenodo.15516233",
+            "title": "Landslides triggered during the 2018 Lombok, Indonesia earthquake sequence timed with Sentinel-1",
+            "license": "cc-by-4.0",
+            "n_files": 2,
+            "n_unsized_files": 0,
+            "total_bytes": 55785,
+            "files": [
+              "Lombok_timed_coherence_amplitude_3960.xlsx",
+              "Lombok_timed_amplitude_2000.csv"
+            ]
+          },
+          {
+            "id": 18532071,
+            "doi": "10.5281/zenodo.18532071",
+            "title": "Comprehensive Inventory of Coseismic Landslides triggered by the 2023 Kahramanmara\u015f Earthquake Doublet, T\u00fcrkiye",
+            "license": null,
+            "n_files": 1,
+            "n_unsized_files": 0,
+            "total_bytes": 36059870,
+            "files": [
+              "Coseismic_and_Preseismic_Landslides_Inventory_2023_EQ_Turkiye.zip"
+            ]
+          },
+          {
+            "id": 19158843,
+            "doi": "10.5281/zenodo.19158843",
+            "title": "The data for \"Expanding the Global Martian Landslide Inventory with Multi-modal DINOv2 Feature Fusion and SVM Classification\"",
+            "license": "cc-by-4.0",
+            "n_files": 0,
+            "n_unsized_files": 0,
+            "total_bytes": 0,
+            "files": []
+          }
+        ]
+      },
+      "day_definition": null
+    },
+    {
+      "name": "catalog_nasa_glc",
+      "status": "manual_pending",
+      "summary": "file not found: place the CSV export at data/raw/manual/nasa_glc.csv",
+      "evidence": {
+        "expected_path": "data/raw/manual/nasa_glc.csv"
+      },
+      "day_definition": null
+    },
+    {
+      "name": "catalog_hma_ls_cat",
+      "status": "manual_pending",
+      "summary": "file not found: place the CSV export at data/raw/manual/hma_ls_cat_v2.csv",
+      "evidence": {
+        "expected_path": "data/raw/manual/hma_ls_cat_v2.csv"
+      },
+      "day_definition": null
+    },
+    {
+      "name": "feasibility",
+      "status": "ok",
+      "summary": "infeasible (>30 days at the free limit): full domain, ERA5 0.25 deg grid, whole period (334.4 d); full domain, 0.05 deg grid, whole period (8,359.6 d); feasible: sampled case-control, 30,000 points x 60 days (12.9 d)",
+      "evidence": {
+        "scenarios": [
+          {
+            "name": "full domain, ERA5 0.25 deg grid, whole period",
+            "points": 7120,
+            "days": 6575,
+            "variables": 3,
+            "call_units": 3343857,
+            "days_at_free_limit": 334.4
+          },
+          {
+            "name": "full domain, 0.05 deg grid, whole period",
+            "points": 178000,
+            "days": 6575,
+            "variables": 3,
+            "call_units": 83596429,
+            "days_at_free_limit": 8359.6
+          },
+          {
+            "name": "sampled case-control, 30,000 points x 60 days",
+            "points": 30000,
+            "days": 60,
+            "variables": 3,
+            "call_units": 128571,
+            "days_at_free_limit": 12.9
+          }
+        ],
+        "infeasible": [
+          "full domain, ERA5 0.25 deg grid, whole period",
+          "full domain, 0.05 deg grid, whole period"
+        ],
+        "feasible": [
+          "sampled case-control, 30,000 points x 60 days"
+        ],
+        "threshold_days": 30,
+        "source": "https://open-meteo.com/en/pricing (checked 2026-09-30)"
+      },
+      "day_definition": null
+    }
+  ]
+}

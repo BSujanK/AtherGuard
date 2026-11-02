@@ -1,0 +1,43 @@
+{
+  "leads": {
+    "1": {
+      "lo": 0.1762242466211319,
+      "hi": 4.097658634185791,
+      "raw_lo": 0.1762242466211319,
+      "raw_hi": 4.097658634185791,
+      "n": 575662
+    },
+    "2": {
+      "lo": 0.1762242466211319,
+      "hi": 5.674587726593018,
+      "raw_lo": 0.1762242466211319,
+      "raw_hi": 5.674587726593018,
+      "n": 579003
+    },
+    "3": {
+      "lo": 0.16901765763759613,
+      "hi": 5.916541576385498,
+      "raw_lo": 0.16901765763759613,
+      "raw_hi": 5.916541576385498,
+      "n": 587259
+    }
+  },
+  "quantiles": [
+    10,
+    90
+  ],
+  "model_dir": "data/processed/hazard/model_v3_live",
+  "freeze_sha256": "6e16b42a99918704995fa54d917634d3881f3ccc08ec4b66e239e20757e706e9",
+  "ratio": "observed risk / forecast risk",
+  "sample_cells": 2536,
+  "seed": 20261015,
+  "floor_fraction_of_watch": 0.1,
+  "issue_days": 488,
+  "labels": {
+    "day_exact_cell_days": 3,
+    "window_cells": 24,
+    "case_cells": 9
+  },
+  "report": "reports/phase6_forecast_skill.md",
+  "generated_utc": "2026-10-15T23:11:45Z"
+}

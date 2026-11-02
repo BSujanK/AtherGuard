@@ -1,0 +1,30 @@
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: var(--sp-3);
+  max-width: 34rem;
+  padding: var(--sp-6);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.icon {
+  color: var(--neon-cyan);
+}
+
+.empty p {
+  color: var(--text-2);
+  max-width: 52ch;
+}
+
+.empty button {
+  margin-top: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text-on-accent);
+  background: var(--neon-cyan);
+  border: 0;
+  border-radius: var(--radius);
+}

@@ -1,0 +1,128 @@
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2) var(--sp-6);
+  min-height: 3.75rem;
+  padding: var(--sp-3) var(--sp-5);
+  background: color-mix(in srgb, var(--ink-black) 92%, transparent);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+}
+
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-5);
+}
+
+.mode {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-base);
+}
+
+.mode strong {
+  font-weight: 700;
+}
+
+.dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  border: 2px solid var(--text-2);
+  background: transparent;
+}
+
+.mode[data-mode='live'] .dot {
+  border-color: var(--neon-cyan);
+  background: var(--neon-cyan);
+  animation: pulse 2.4s var(--ease-out) infinite;
+}
+
+.mode[data-mode='replay'] .dot {
+  background: var(--text-2);
+}
+
+.mode[data-mode='unreachable'] .dot {
+  border-color: var(--fire-red);
+  background: var(--fire-red);
+}
+
+.setName {
+  color: var(--text-2);
+  padding-left: var(--sp-2);
+  border-left: 1px solid var(--border-strong);
+}
+
+.fact {
+  color: var(--text-2);
+}
+
+.fact b {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.reconnecting {
+  color: var(--warn);
+  font-weight: 500;
+}
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-2);
+}
+
+.count .num {
+  color: var(--text);
+  font-weight: 700;
+  margin-right: calc(var(--sp-1) * -1);
+}
+
+.swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+}
+
+.swatch[data-level='normal'] {
+  background: var(--level-normal);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.swatch[data-level='watch'] {
+  background: var(--level-watch);
+}
+
+.swatch[data-level='warning'] {
+  background: var(--level-warning);
+}
+
+.swatch[data-level='emergency'] {
+  background: var(--level-emergency);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--neon-cyan) 55%, transparent);
+  }
+  60% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}

@@ -1,0 +1,16 @@
+# Region boxes are coarse selection windows; terrain and country filters refine them in Phase 1.
+cell_size_deg: 0.05
+period:
+  start: "2007-01-01"
+  end: "2024-12-31"
+regions:
+  himalaya:
+    lat_min: 22.0
+    lat_max: 36.0
+    lon_min: 72.0
+    lon_max: 98.0
+  western_ghats:
+    lat_min: 8.0
+    lat_max: 21.5
+    lon_min: 72.5
+    lon_max: 78.5

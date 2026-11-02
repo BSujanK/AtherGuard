@@ -1,0 +1,771 @@
+{
+  "created_utc": "2026-10-03T16:13:14Z",
+  "provisional": null,
+  "thresholds": {
+    "watch": 4.134155079431125e-06,
+    "warning": 1.5830874747827032e-05,
+    "emergency": 3.697191461958891e-05,
+    "source": "card.alert_levels"
+  },
+  "model": {
+    "card_path": "data/processed/hazard/model/card.json",
+    "card_sha256": "b14a60c317889e69983190206dfffdfd0997b037f93e2f17618f4f43bff830ef",
+    "n_columns": 30
+  },
+  "freeze": {
+    "created_utc": "2026-10-03T11:39:44Z",
+    "card_sha256": "b14a60c317889e69983190206dfffdfd0997b037f93e2f17618f4f43bff830ef"
+  },
+  "alert_config": {
+    "exit_factor": 0.8,
+    "exit_days": 2,
+    "radius_km": 100.0,
+    "ood_window_days": 90,
+    "ood_multiple": 3.0,
+    "ood_min_observed_days": 30,
+    "engine_target_flag_rate": 0.01,
+    "dis_ratio_lo": 0.12478674203157425,
+    "dis_ratio_hi": 13.471030235290527,
+    "heavy_acc1_mm": 32.51171875,
+    "heavy_acc3_mm": 79.05380249023438,
+    "agree_abs_mm": 3.0,
+    "agree_rel": 0.6834401487021482
+  },
+  "store_created_utc": "2026-10-03T16:10:23Z",
+  "evaluation": {
+    "lead_days": 7,
+    "flap_window_days": 3
+  },
+  "sections": {
+    "test_2018": {
+      "universe_set": "universe_test_2018",
+      "samples_set": "test_2018_samples",
+      "operating_view": {
+        "n_positives_in_domain": 80,
+        "n_out_of_domain": 5,
+        "base_rate": 6.329547519264164e-06,
+        "per_level": {
+          "Watch": {
+            "alerts_per_1000_cell_days": 271.59081282921716,
+            "recall_in_domain": 0.9125,
+            "recall_all": 0.8588235294117647
+          },
+          "Warning": {
+            "alerts_per_1000_cell_days": 91.70172387746437,
+            "recall_in_domain": 0.7,
+            "recall_all": 0.6588235294117647
+          },
+          "Emergency": {
+            "alerts_per_1000_cell_days": 35.39142029103357,
+            "recall_in_domain": 0.3875,
+            "recall_all": 0.36470588235294116
+          }
+        },
+        "cost_loss": {
+          "base_rate": 6.329547519264164e-06,
+          "operating_points": {
+            "watch": {
+              "threshold": 4.134155079431125e-06,
+              "alerts_per_1000_cell_days": 218.03447760963832,
+              "recall": 0.8625,
+              "implied_cost_ratio": 4.134155079431125e-06,
+              "cost_ratio": 4.134155079431125e-06,
+              "expense": 1.7717011269998203e-06,
+              "relative_expense": 0.42855216917591127
+            },
+            "warning": {
+              "threshold": 1.5830874747827032e-05,
+              "alerts_per_1000_cell_days": 91.39789943213803,
+              "recall": 0.6875,
+              "implied_cost_ratio": 1.5830874747827032e-05,
+              "cost_ratio": 1.5830874747827032e-05,
+              "expense": 3.4248922978947204e-06,
+              "relative_expense": 0.5410959136448474
+            },
+            "emergency": {
+              "threshold": 3.697191461958891e-05,
+              "alerts_per_1000_cell_days": 35.170316707011516,
+              "recall": 0.3875,
+              "implied_cost_ratio": 3.697191461958891e-05,
+              "cost_ratio": 3.697191461958891e-05,
+              "expense": 5.1771618019848325e-06,
+              "relative_expense": 0.8179355295505703
+            }
+          },
+          "ratios": [
+            {
+              "cost_loss": 0.1,
+              "threshold": 0.1,
+              "alerts_per_1000_cell_days": 0.0,
+              "recall": 0.0,
+              "implied_cost_ratio": 0.1,
+              "cost_ratio": 0.1,
+              "expense": 6.329547519264164e-06,
+              "relative_expense": 1.0
+            },
+            {
+              "cost_loss": 0.02,
+              "threshold": 0.02,
+              "alerts_per_1000_cell_days": 0.0,
+              "recall": 0.0,
+              "implied_cost_ratio": 0.02,
+              "cost_ratio": 0.02,
+              "expense": 6.329547519264164e-06,
+              "relative_expense": 1.0
+            },
+            {
+              "cost_loss": 0.005,
+              "threshold": 0.005,
+              "alerts_per_1000_cell_days": 0.004388336293311965,
+              "recall": 0.0,
+              "implied_cost_ratio": 0.005,
+              "cost_ratio": 0.005,
+              "expense": 6.351489200730724e-06,
+              "relative_expense": 1.0034665481852818
+            }
+          ]
+        }
+      },
+      "layers": {
+        "Watch": {
+          "point_risk": {
+            "alerts_per_1000_cell_days": 218.03447760963832,
+            "recall_in_domain": 0.8625,
+            "recall_all": 0.8117647058823529
+          },
+          "plus_uncertain_high": {
+            "alerts_per_1000_cell_days": 266.5094759071991,
+            "recall_in_domain": 0.9125,
+            "recall_all": 0.8588235294117647
+          },
+          "plus_blind_rule": {
+            "alerts_per_1000_cell_days": 271.0921433637663,
+            "recall_in_domain": 0.9125,
+            "recall_all": 0.8588235294117647
+          },
+          "after_hysteresis": {
+            "alerts_per_1000_cell_days": 271.59081282921716,
+            "recall_in_domain": 0.9125,
+            "recall_all": 0.8588235294117647
+          }
+        },
+        "Warning": {
+          "point_risk": {
+            "alerts_per_1000_cell_days": 91.39789943213803,
+            "recall_in_domain": 0.6875,
+            "recall_all": 0.6470588235294118
+          },
+          "plus_uncertain_high": {
+            "alerts_per_1000_cell_days": 91.39789943213803,
+            "recall_in_domain": 0.6875,
+            "recall_all": 0.6470588235294118
+          },
+          "plus_blind_rule": {
+            "alerts_per_1000_cell_days": 91.39789943213803,
+            "recall_in_domain": 0.6875,
+            "recall_all": 0.6470588235294118
+          },
+          "after_hysteresis": {
+            "alerts_per_1000_cell_days": 91.70172387746437,
+            "recall_in_domain": 0.7,
+            "recall_all": 0.6588235294117647
+          }
+        },
+        "Emergency": {
+          "point_risk": {
+            "alerts_per_1000_cell_days": 35.17031670701152,
+            "recall_in_domain": 0.3875,
+            "recall_all": 0.36470588235294116
+          },
+          "plus_uncertain_high": {
+            "alerts_per_1000_cell_days": 35.17031670701152,
+            "recall_in_domain": 0.3875,
+            "recall_all": 0.36470588235294116
+          },
+          "plus_blind_rule": {
+            "alerts_per_1000_cell_days": 35.17031670701152,
+            "recall_in_domain": 0.3875,
+            "recall_all": 0.36470588235294116
+          },
+          "after_hysteresis": {
+            "alerts_per_1000_cell_days": 35.39142029103357,
+            "recall_in_domain": 0.3875,
+            "recall_all": 0.36470588235294116
+          }
+        }
+      },
+      "universe_risk_max": 0.01121558762247065,
+      "confidence_causes_universe": {
+        "imd_missing": 19236,
+        "sources_disagree": 17069,
+        "station_out_of_distribution": 8892,
+        "stations_flagged_nearby": 5741,
+        "all_nearby_stations_untrusted": 1255
+      },
+      "event_detection_same_day": {
+        "n_events": 80,
+        "n_detected": 73,
+        "detection_rate": 0.9125,
+        "n_with_history": 2,
+        "median_lead_days": 0.0,
+        "mean_lead_days": 0.0273972602739726,
+        "n_lead_at_least_1_day": 2,
+        "detected_by_level": {
+          "Watch": 73,
+          "Warning": 56,
+          "Emergency": 31
+        },
+        "lead_days": 7
+      },
+      "level_and_confidence_mix_universe": {
+        "level": {
+          "Normal": 0.7273597455968689,
+          "Watch": 0.18032554685801264,
+          "Warning": 0.05656458143074582,
+          "Emergency": 0.03575012611437269
+        },
+        "confidence": {
+          "High": 0.7666170819743423,
+          "Degraded": 0.23305979560774082,
+          "Insufficient": 0.00032312241791693843
+        }
+      },
+      "blind_escalations_universe": {
+        "n_blind": 4997,
+        "n_escalated": 1300,
+        "n_cell_days": 200000,
+        "n_cells_escalated": 1069,
+        "n_coinciding_event": 0,
+        "n_events_covered": 0
+      },
+      "positives_blind_escalated": 0,
+      "note": "the sample files hold the event day only, so lead time is 0 by construction; the universe rows are random cell-days (not consecutive), so flapping and area per day do not apply"
+    },
+    "window_2023": {
+      "set": "window_2023_samples",
+      "window": [
+        "2023-06-16",
+        "2023-07-31"
+      ],
+      "window_detection": {
+        "n_positive_cells": 24,
+        "n_detected": 24,
+        "detection_rate": 1.0,
+        "n_other_cells": 4069,
+        "other_cells_alerted_any_day": 0.9085770459572377,
+        "other_cell_days_alerted": 0.6008099415517112,
+        "note": "false alerts are an upper bound: the inventory is partial"
+      },
+      "alerted_area_sampled_cells": {
+        "n_days": 46,
+        "cells_per_day_mean": 4093.0,
+        "watch_share_mean": 0.6030444342939695,
+        "watch_share_max": 0.696799413633032,
+        "warning_share_mean": 0.3316531936816835,
+        "watch_km2_mean": 67347.72608130967,
+        "watch_km2_max": 78074.95076491522,
+        "warning_km2_mean": 37003.08979236789,
+        "total_km2_mean": 111747.8130569887,
+        "peak_day": "2023-06-28"
+      },
+      "flapping": {
+        "with_hysteresis": {
+          "cell_days": 188278,
+          "n_changes": 29748,
+          "n_flaps": 2390,
+          "changes_per_1000_cell_days": 158.00040365842,
+          "flaps_per_1000_cell_days": 12.69399504987306
+        },
+        "without_hysteresis": {
+          "cell_days": 188278,
+          "n_changes": 47613,
+          "n_flaps": 4363,
+          "changes_per_1000_cell_days": 252.88668883247112,
+          "flaps_per_1000_cell_days": 23.17318008476827
+        }
+      },
+      "blind_escalations": {
+        "n_blind": 10920,
+        "n_escalated": 1565,
+        "n_cell_days": 188278,
+        "n_cells_escalated": 717,
+        "n_coinciding_event": null,
+        "n_events_covered": null,
+        "n_escalated_in_positive_cells": 1
+      },
+      "level_and_confidence_mix": {
+        "level": {
+          "Normal": 0.39695556570603047,
+          "Watch": 0.2713912406122861,
+          "Warning": 0.14449378047355507,
+          "Emergency": 0.1871594132081284
+        },
+        "confidence": {
+          "High": 0.6829688014531703,
+          "Degraded": 0.31632479631183674,
+          "Insufficient": 0.000706402234992936
+        }
+      },
+      "layers": {
+        "Watch": {
+          "point_risk": 0.48267455571017326,
+          "plus_uncertain_high": 0.5484974346445151,
+          "plus_blind_rule": 0.5568096113194319,
+          "after_hysteresis": 0.6030444342939696
+        },
+        "Warning": {
+          "point_risk": 0.2610926396073891,
+          "plus_uncertain_high": 0.2610926396073891,
+          "plus_blind_rule": 0.2610926396073891,
+          "after_hysteresis": 0.33165319368168344
+        },
+        "Emergency": {
+          "point_risk": 0.11842594461381574,
+          "plus_uncertain_high": 0.11842594461381574,
+          "plus_blind_rule": 0.11842594461381574,
+          "after_hysteresis": 0.1871594132081284
+        }
+      },
+      "confidence_causes": {
+        "imd_missing": 35788,
+        "sources_disagree": 26975,
+        "station_out_of_distribution": 12260,
+        "stations_flagged_nearby": 7334,
+        "all_nearby_stations_untrusted": 1579
+      },
+      "note": "window events have no dates, so detection is window-level; the table holds the sampled cells (positive cells and controls), so area is the sampled share, not a region total"
+    },
+    "kerala_2018": {
+      "set": "case_kerala_2018_samples",
+      "n_cells": 8048,
+      "dates": [
+        "2018-08-01",
+        "2018-08-20"
+      ],
+      "alerted_area": {
+        "n_days": 20,
+        "cells_per_day_mean": 8048.0,
+        "watch_share_mean": 0.45314363817097425,
+        "watch_share_max": 0.6667495029821073,
+        "warning_share_mean": 0.2009008449304175,
+        "watch_km2_mean": 108790.27495631183,
+        "watch_km2_max": 159326.5676571414,
+        "warning_km2_mean": 48462.37258840605,
+        "total_km2_mean": 239425.87347259172,
+        "peak_day": "2018-08-17"
+      },
+      "flapping": {
+        "with_hysteresis": {
+          "cell_days": 160960,
+          "n_changes": 19602,
+          "n_flaps": 1659,
+          "changes_per_1000_cell_days": 121.78180914512923,
+          "flaps_per_1000_cell_days": 10.306908548707753
+        },
+        "without_hysteresis": {
+          "cell_days": 160960,
+          "n_changes": 29921,
+          "n_flaps": 3568,
+          "changes_per_1000_cell_days": 185.8909045725646,
+          "flaps_per_1000_cell_days": 22.16699801192843
+        }
+      },
+      "blind_escalations": {
+        "n_blind": 18705,
+        "n_escalated": 6485,
+        "n_cell_days": 160960,
+        "n_cells_escalated": 1183,
+        "n_coinciding_event": 0,
+        "n_events_covered": 0
+      },
+      "level_and_confidence_mix": {
+        "level": {
+          "Normal": 0.5468563618290259,
+          "Watch": 0.25224279324055665,
+          "Warning": 0.09822316103379722,
+          "Emergency": 0.10267768389662028
+        },
+        "confidence": {
+          "High": 0.7403640656063618,
+          "Degraded": 0.2594744035785288,
+          "Insufficient": 0.00016153081510934393
+        }
+      },
+      "layers": {
+        "Watch": {
+          "point_risk": 0.3186443836978131,
+          "plus_uncertain_high": 0.36856361829025847,
+          "plus_blind_rule": 0.40885313121272365,
+          "after_hysteresis": 0.45314363817097414
+        },
+        "Warning": {
+          "point_risk": 0.15700173956262425,
+          "plus_uncertain_high": 0.15700173956262425,
+          "plus_blind_rule": 0.15700173956262425,
+          "after_hysteresis": 0.2009008449304175
+        },
+        "Emergency": {
+          "point_risk": 0.06980616302186879,
+          "plus_uncertain_high": 0.06980616302186879,
+          "plus_blind_rule": 0.06980616302186879,
+          "after_hysteresis": 0.10267768389662028
+        }
+      },
+      "confidence_causes": {
+        "sources_disagree": 32087,
+        "station_out_of_distribution": 26553,
+        "stations_flagged_nearby": 9721,
+        "all_nearby_stations_untrusted": 89
+      },
+      "event_detection": {
+        "n_events": 23,
+        "n_detected": 23,
+        "detection_rate": 1.0,
+        "n_with_history": 23,
+        "median_lead_days": 7.0,
+        "mean_lead_days": 6.869565217391305,
+        "n_lead_at_least_1_day": 23,
+        "detected_by_level": {
+          "Watch": 23,
+          "Warning": 20,
+          "Emergency": 14
+        },
+        "lead_days": 7
+      },
+      "events": [
+        {
+          "cell_id": 20405115,
+          "date": "2018-08-05",
+          "detected": true,
+          "lead_days": 4,
+          "days_available": 5
+        },
+        {
+          "cell_id": 19945134,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20035135,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20115127,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20345115,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20565111,
+          "date": "2018-08-08",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20305120,
+          "date": "2018-08-09",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20375119,
+          "date": "2018-08-09",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20385120,
+          "date": "2018-08-09",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19945137,
+          "date": "2018-08-15",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19965134,
+          "date": "2018-08-15",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20235117,
+          "date": "2018-08-15",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20495114,
+          "date": "2018-08-15",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19965138,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20065129,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20065137,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20375118,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20485114,
+          "date": "2018-08-16",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20025142,
+          "date": "2018-08-17",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20485114,
+          "date": "2018-08-17",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19955142,
+          "date": "2018-08-18",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 20565112,
+          "date": "2018-08-18",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        },
+        {
+          "cell_id": 19925142,
+          "date": "2018-08-19",
+          "detected": true,
+          "lead_days": 7,
+          "days_available": 8
+        }
+      ]
+    },
+    "wayanad_2024": {
+      "set": "case_wayanad_2024_samples",
+      "n_cells": 140,
+      "dates": [
+        "2024-07-15",
+        "2024-08-05"
+      ],
+      "alerted_area": {
+        "n_days": 22,
+        "cells_per_day_mean": 140.0,
+        "watch_share_mean": 0.7461038961038962,
+        "watch_share_max": 0.9714285714285714,
+        "warning_share_mean": 0.4795454545454545,
+        "watch_km2_mean": 3162.6376879150976,
+        "watch_km2_max": 4117.305309272912,
+        "warning_km2_mean": 2033.0674741973423,
+        "total_km2_mean": 4238.352106091462,
+        "peak_day": "2024-07-31"
+      },
+      "flapping": {
+        "with_hysteresis": {
+          "cell_days": 3080,
+          "n_changes": 554,
+          "n_flaps": 44,
+          "changes_per_1000_cell_days": 179.87012987012986,
+          "flaps_per_1000_cell_days": 14.285714285714286
+        },
+        "without_hysteresis": {
+          "cell_days": 3080,
+          "n_changes": 797,
+          "n_flaps": 68,
+          "changes_per_1000_cell_days": 258.76623376623377,
+          "flaps_per_1000_cell_days": 22.07792207792208
+        }
+      },
+      "blind_escalations": {
+        "n_blind": 83,
+        "n_escalated": 60,
+        "n_cell_days": 3080,
+        "n_cells_escalated": 40,
+        "n_coinciding_event": null,
+        "n_events_covered": null
+      },
+      "level_and_confidence_mix": {
+        "level": {
+          "Normal": 0.2538961038961039,
+          "Watch": 0.26655844155844155,
+          "Warning": 0.1331168831168831,
+          "Emergency": 0.3464285714285714
+        },
+        "confidence": {
+          "High": 0.9668831168831169,
+          "Degraded": 0.033116883116883114,
+          "Insufficient": 0.0
+        }
+      },
+      "layers": {
+        "Watch": {
+          "point_risk": 0.6058441558441559,
+          "plus_uncertain_high": 0.6675324675324675,
+          "plus_blind_rule": 0.687012987012987,
+          "after_hysteresis": 0.7461038961038962
+        },
+        "Warning": {
+          "point_risk": 0.3987012987012987,
+          "plus_uncertain_high": 0.3987012987012987,
+          "plus_blind_rule": 0.3987012987012987,
+          "after_hysteresis": 0.47954545454545455
+        },
+        "Emergency": {
+          "point_risk": 0.25097402597402596,
+          "plus_uncertain_high": 0.25097402597402596,
+          "plus_blind_rule": 0.25097402597402596,
+          "after_hysteresis": 0.3464285714285714
+        }
+      },
+      "confidence_causes": {
+        "sources_disagree": 179
+      },
+      "saturation": {
+        "focus_cell": 20295122,
+        "focus_distance_km": 0.7784528749411441,
+        "n_days": 22,
+        "days_at_emergency": 22,
+        "days_at_watch_or_above": 22,
+        "level_by_day": {
+          "2024-07-15": "Emergency",
+          "2024-07-16": "Emergency",
+          "2024-07-17": "Emergency",
+          "2024-07-18": "Emergency",
+          "2024-07-19": "Emergency",
+          "2024-07-20": "Emergency",
+          "2024-07-21": "Emergency",
+          "2024-07-22": "Emergency",
+          "2024-07-23": "Emergency",
+          "2024-07-24": "Emergency",
+          "2024-07-25": "Emergency",
+          "2024-07-26": "Emergency",
+          "2024-07-27": "Emergency",
+          "2024-07-28": "Emergency",
+          "2024-07-29": "Emergency",
+          "2024-07-30": "Emergency",
+          "2024-07-31": "Emergency",
+          "2024-08-01": "Emergency",
+          "2024-08-02": "Emergency",
+          "2024-08-03": "Emergency",
+          "2024-08-04": "Emergency",
+          "2024-08-05": "Emergency"
+        },
+        "risk_by_day": {
+          "2024-07-15": 0.0002270064130415943,
+          "2024-07-16": 0.0002270064130415943,
+          "2024-07-17": 0.00045198183608784784,
+          "2024-07-18": 0.0002270064130415943,
+          "2024-07-19": 0.0002270064130415943,
+          "2024-07-20": 0.0002270064130415943,
+          "2024-07-21": 8.140902373329635e-05,
+          "2024-07-22": 0.00010596190111534579,
+          "2024-07-23": 0.00012305674991813366,
+          "2024-07-24": 8.140902373329635e-05,
+          "2024-07-25": 0.00012305674991813366,
+          "2024-07-26": 0.0002270064130415943,
+          "2024-07-27": 0.0002270064130415943,
+          "2024-07-28": 7.46574867719724e-05,
+          "2024-07-29": 4.2569286834559026e-05,
+          "2024-07-30": 0.00045198183608784784,
+          "2024-07-31": 0.00018270708990291917,
+          "2024-08-01": 0.0002270064130415943,
+          "2024-08-02": 0.00012305674991813366,
+          "2024-08-03": 7.46574867719724e-05,
+          "2024-08-04": 6.426784861136685e-05,
+          "2024-08-05": 3.7409071470710054e-05
+        },
+        "risk_rank_by_day": {
+          "2024-07-15": 3,
+          "2024-07-16": 3,
+          "2024-07-17": 1,
+          "2024-07-18": 3,
+          "2024-07-19": 3,
+          "2024-07-20": 3,
+          "2024-07-21": 16,
+          "2024-07-22": 15,
+          "2024-07-23": 12,
+          "2024-07-24": 16,
+          "2024-07-25": 12,
+          "2024-07-26": 3,
+          "2024-07-27": 3,
+          "2024-07-28": 18,
+          "2024-07-29": 21,
+          "2024-07-30": 1,
+          "2024-07-31": 11,
+          "2024-08-01": 3,
+          "2024-08-02": 12,
+          "2024-08-03": 18,
+          "2024-08-04": 20,
+          "2024-08-05": 22
+        },
+        "max_risk": 0.00045198183608784784,
+        "max_risk_days": [
+          "2024-07-17",
+          "2024-07-30"
+        ],
+        "distinct_risk_values": 10,
+        "emergency_share_all_cells": {
+          "mean": 0.3464285714285715,
+          "min": 0.16428571428571428,
+          "max": 0.5
+        }
+      },
+      "note": "no landslide label exists for this case (no NASA record), so no detection statistics"
+    }
+  }
+}

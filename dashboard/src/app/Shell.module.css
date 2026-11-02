@@ -1,0 +1,153 @@
+.app {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: color-mix(in srgb, var(--ink-black) 84%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.scrim[data-dim='true'] {
+  opacity: 1;
+}
+
+.rail {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  padding: var(--sp-5) var(--sp-3);
+  background: color-mix(in srgb, var(--ink-black) 94%, transparent);
+  border-right: 1px solid var(--border);
+}
+
+.brand {
+  padding: 0 var(--sp-3);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-lg);
+  letter-spacing: -0.01em;
+  word-spacing: 0.12em;
+  color: var(--text);
+}
+
+.nav {
+  display: grid;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--radius);
+  color: var(--text-2);
+  text-decoration: none;
+  font-weight: 500;
+  transition:
+    background var(--dur-quick) var(--ease-out),
+    color var(--dur-quick) var(--ease-out);
+}
+
+.link:hover {
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.link svg {
+  flex: none;
+}
+
+.active {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--neon-cyan);
+}
+
+.active svg {
+  color: var(--neon-cyan);
+}
+
+.column {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--sp-5);
+}
+
+/* On the map the canvas behind is interactive: the column lets the pointer through to it, and only the status strip takes it back. */
+.column:has(> .main[data-map='true']) {
+  pointer-events: none;
+}
+
+.column:has(> .main[data-map='true']) > :not(.main) {
+  pointer-events: auto;
+}
+
+/* Views opt their panels back in. */
+.main[data-map="true"] {
+  pointer-events: none;
+}
+
+.main[data-map="true"] > * {
+  pointer-events: auto;
+}
+
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .rail {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--sp-4);
+    padding: var(--sp-2) var(--sp-3);
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .nav {
+    grid-auto-flow: column;
+  }
+
+  .link span {
+    white-space: nowrap;
+  }
+}

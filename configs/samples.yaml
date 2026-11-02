@@ -1,0 +1,54 @@
+# Phase 1 Task 5a: cell regions, negative sampling, universe sampling and case-study sets (docs/phase1-design.md D1, D3).
+# Changing anything here means regenerating the frozen sample tables with --force.
+seed: 20260930  # base seed; every random stream is SeedSequence(seed, spawn_key=(purpose, split index, region index))
+
+boundaries:
+  url: "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson"
+  file: "ne_50m_admin_0_countries.geojson"
+  source: "Natural Earth admin-0 countries 1:50m"
+  licence: "Natural Earth: public domain"
+
+# D1: himalaya = these countries inside the himalaya box and outside the ghats box; ghats = IN inside the ghats box.
+himalaya_countries: [IN, NP, BT]
+ghats_countries: [IN]
+
+sample_splits: [train, validation, test_2018]   # day splits that get negatives and a universe sample
+sample_regions: [himalaya, western_ghats]
+
+slope_floor:
+  percentile: 5          # of slope_mean over unique cells of the reference split's positives with own terrain
+  reference_split: train
+
+terrain:
+  nearest_land_max_cells: 3   # Chebyshev index distance (0.15 deg) for positives absent from the terrain table
+
+lookback_days: 30       # a sample date needs rain for the 30 days before it inside one covered range
+
+negatives:
+  ratio: 10
+  max_draws_per_negative: 1000   # bounded attempts: the build fails loudly rather than under-fill
+  min_batch: 2000
+
+buffer:
+  cells: 3   # negatives need Chebyshev cell distance >= 3 from every record ...
+  days: 3    # ... or a date difference > 3 days
+
+universe:
+  n_per_region: 100000
+
+window_2023:
+  control_n: 4000
+  control_region: himalaya
+
+case_studies:
+  kerala_2018:
+    region: western_ghats
+    start: "2018-08-01"
+    end: "2018-08-20"
+  wayanad_2024:
+    lat_min: 11.4
+    lat_max: 11.9
+    lon_min: 75.8
+    lon_max: 76.5
+    start: "2024-07-15"
+    end: "2024-08-05"
