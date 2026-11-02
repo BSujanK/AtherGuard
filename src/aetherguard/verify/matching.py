@@ -13,7 +13,9 @@ Two views of the same rule:
   hit rather than a false alarm.
 
 Events are de-duplicated on (cell, date) first, since one slide appears in several catalogue records. An event whose date
-lies outside the panel days widened by the day tolerance is counted in `Match.outside_window` and takes no further part.
+lies outside the panel days is counted in `Match.outside_window` and is not scored or listed in `Match.events`, but it still
+verifies the alert cell-days within tolerance of it (an alert on the first panel day beside an event the day before is not a
+false alarm), so tolerant and `CELL_EXACT` runs score the same event set.
 The panel need not contain the event's own cell: events are matched to panel cells by distance.
 """
 from __future__ import annotations
@@ -49,8 +51,8 @@ CELL_EXACT = Tolerance(0.0, 0)
 class Match:
     event_level: np.ndarray  # int8 per event: highest level within tolerance, -1 when no panel cell-day is within it
     alert_verified: np.ndarray  # bool, cells x days: an event lies within tolerance of the cell-day
-    events: pd.DataFrame  # the de-duplicated events inside the window, columns cell_id and date
-    outside_window: int  # de-duplicated events dated outside the panel days widened by the day tolerance
+    events: pd.DataFrame  # the de-duplicated events dated within the panel days, columns cell_id and date
+    outside_window: int  # de-duplicated events dated outside the panel days
 
 
 def _haversine_km(lat1: float, lon1: float, lat2: np.ndarray, lon2: np.ndarray) -> np.ndarray:
@@ -105,6 +107,8 @@ def _dedupe(events: pd.DataFrame) -> pd.DataFrame:
 def match(levels: np.ndarray, cell_ids: np.ndarray, days: list[date], events: pd.DataFrame, tol: Tolerance) -> Match:
     """Match events to the published levels of a panel (`levels`: cells x days) under `tol`; see the module docstring."""
     levels = np.asarray(levels)
+    if not np.issubdtype(levels.dtype, np.integer):
+        raise ValueError(f"levels must be an integer array, got dtype {levels.dtype}")
     cell_ids = np.asarray(cell_ids, dtype=np.int64)
     if levels.shape != (len(cell_ids), len(days)):
         raise ValueError(f"levels shape {levels.shape} does not match {len(cell_ids)} cells x {len(days)} days")
@@ -112,20 +116,18 @@ def match(levels: np.ndarray, cell_ids: np.ndarray, days: list[date], events: pd
     day_ordinals = np.array([d.toordinal() for d in days], dtype=np.int64)
     event_ordinals = np.array([d.toordinal() for d in unique["date"]], dtype=np.int64)
     if len(days):
-        inside = (event_ordinals >= day_ordinals.min() - tol.days) & (event_ordinals <= day_ordinals.max() + tol.days)
+        inside = (event_ordinals >= day_ordinals.min()) & (event_ordinals <= day_ordinals.max())
     else:
         inside = np.zeros(len(unique), dtype=bool)
-    kept = unique[inside].reset_index(drop=True)
-    kept_ordinals = event_ordinals[inside]
 
-    event_level = np.full(len(kept), -1, dtype=np.int8)
+    level = np.full(len(unique), -1, dtype=np.int8)
     alert_verified = np.zeros(levels.shape, dtype=bool)
-    near_rows = rows_within(kept["cell_id"].to_numpy(), cell_ids, tol.km)
-    for i, (rows, ordinal) in enumerate(zip(near_rows, kept_ordinals)):
+    near_rows = rows_within(unique["cell_id"].to_numpy(), cell_ids, tol.km)
+    for i, (rows, ordinal) in enumerate(zip(near_rows, event_ordinals)):
         cols = np.flatnonzero(np.abs(day_ordinals - ordinal) <= tol.days)
         if len(rows) == 0 or len(cols) == 0:
             continue
         block = np.ix_(rows, cols)
-        event_level[i] = levels[block].max()
+        level[i] = levels[block].max()
         alert_verified[block] = True
-    return Match(event_level, alert_verified, kept, int((~inside).sum()))
+    return Match(level[inside], alert_verified, unique[inside].reset_index(drop=True), int((~inside).sum()))

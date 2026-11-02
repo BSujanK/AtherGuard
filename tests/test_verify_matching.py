@@ -98,9 +98,27 @@ def test_an_event_with_no_panel_cell_within_the_distance_is_unscored():
     assert m.event_level.tolist() == [-1]
 
 
-def test_an_event_the_day_before_the_panel_is_still_within_the_day_tolerance():
+def test_an_event_the_day_before_the_panel_is_outside_the_window_but_still_verifies_the_alert():
     m = match(levels_with(EVENT_30N, 0, 2), CELLS, DAYS, events_on(["2018-06-30"]), Tolerance())
-    assert m.event_level.tolist() == [2] and m.outside_window == 0
+    assert m.outside_window == 1 and len(m.events) == 0 and m.event_level.tolist() == []
+    assert m.alert_verified[row(EVENT_30N), :].tolist() == [True, False, False]
+    assert m.alert_verified[row(east(EVENT_30N, 2)), 0]
+
+
+def test_an_alert_two_days_from_the_event_is_not_a_match():
+    m = match(levels_with(EVENT_30N, 2, 3), CELLS, DAYS, one_event(EVENT_30N, 0), Tolerance())
+    assert m.event_level.tolist() == [0]
+
+
+def test_cell_exact_detects_the_same_cell_and_day():
+    m = match(levels_with(EVENT_30N, 1, 3), CELLS, DAYS, one_event(EVENT_30N, 1), CELL_EXACT)
+    assert m.event_level.tolist() == [3]
+    assert m.alert_verified.sum() == 1
+
+
+def test_levels_must_be_integers():
+    with pytest.raises(ValueError, match="integer"):
+        match(ZERO_LEVELS.astype(float), CELLS, DAYS, one_event(EVENT_30N, 1), Tolerance())
 
 
 def test_rows_within_includes_the_own_cell_and_orders_rows_ascending():
