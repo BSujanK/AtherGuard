@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 
 from aetherguard.manifest import Manifest
+from aetherguard.serve.places import read_admin_names
 from aetherguard.verify import geocode as gc
 
 KM_PER_DEG = 6371.0088 * np.pi / 180
@@ -199,6 +200,40 @@ def test_a_three_to_five_letter_district_allows_one_edit_only():
     assert gc.geocode("Somewhere", "Mndy", "Himachal Pradesh", frame) is None
 
 
+def test_a_name_that_is_a_district_of_the_state_never_matches_another_district():
+    kolhapur = places(("Somewhere", "Maharashtra", "Kolhapur", 16.7, 74.2), ("Elsewhere", "Maharashtra", "Solapur", 17.7, 75.9))
+    assert gc.geocode("Somewhere", "Solapur", "Maharashtra", kolhapur) is None
+    assert gc.geocode("Elsewhere", "Kolhapur", "Maharashtra", kolhapur) is None
+    assert gc.geocode("Somewhere", "Kolhapur", "Maharashtra", kolhapur) == (16.7, 74.2, 5.0)
+    tamil = places(("Somewhere", "Tamil Nadu", "Thiruvallur", 13.1, 79.9), ("Elsewhere", "Tamil Nadu", "Thiruvarur", 10.8, 79.6))
+    assert gc.geocode("Somewhere", "Thiruvarur", "Tamil Nadu", tamil) is None
+    assert gc.geocode("Elsewhere", "Thiruvallur", "Tamil Nadu", tamil) is None
+    assert gc.geocode("Somewhere", "Thiruvallur", "Tamil Nadu", tamil) == (13.1, 79.9, 5.0)
+    assam = places(("Somewhere", "Assam", "Bajali", 26.5, 91.0), ("Elsewhere", "Assam", "Majuli", 26.95, 94.2))
+    assert gc.geocode("Somewhere", "Majuli", "Assam", assam) is None
+    assert gc.geocode("Elsewhere", "Bajali", "Assam", assam) is None
+
+
+def test_district_matches_takes_the_unique_nearest_district_of_the_state():
+    known = ["kolhapur", "mandi", "shimla", "solapur", "wayanad"]
+    assert gc.district_matches("Waynad", known) == {"wayanad"}
+    assert gc.district_matches("Manadi", known) == {"mandi"}
+    assert gc.district_matches("Kolhapur", known) == {"kolhapur"}
+    assert gc.district_matches("Idukki", known) == set()
+
+
+def test_a_misspelling_equally_near_two_districts_matches_neither():
+    known = ["pune", "puna"]
+    assert gc.district_matches("Punu", known) == set()
+    frame = places(("Somewhere", "Maharashtra", "Pune", 18.5, 73.9), ("Elsewhere", "Maharashtra", "Puna", 18.0, 73.0))
+    assert gc.geocode("Somewhere", "Punu", "Maharashtra", frame) is None
+
+
+def test_a_listed_alias_applies_even_when_the_name_is_a_district_of_the_state():
+    frame = places(("Vikhroli", "Maharashtra", "Mumbai Suburban", 19.1, 72.9), ("Vikhroli", "Maharashtra", "Mumbai", 18.9, 72.8))
+    assert gc.geocode("Vikhroli", "Mumbai", "Maharashtra", frame) is None     # both Mumbai districts are meant
+
+
 def test_a_right_district_feature_beats_a_wrong_district_populated_place():
     frame = places(("Sangla", "Himachal Pradesh", "Shimla", 31.1, 77.3, "P"), ("Sangla", "Himachal Pradesh", "Kinnaur", 31.42, 78.26, "T"))
     assert gc.geocode("Sangla", "Kinnaur", "Himachal Pradesh", frame) == (31.42, 78.26, 5.0)
@@ -366,3 +401,34 @@ def test_a_bad_zip_is_a_geocode_error(tmp_path):
     bad.write_bytes(b"not a zip")
     with pytest.raises(gc.GeocodeError, match="IN.zip"):
         gc.read_in_dump(bad)
+
+
+# --- real district names ------------------------------------------------------------------------
+
+REAL_ADMIN = gc.data_root() / "raw" / "geonames"
+
+
+def domain_districts():
+    """{state: [folded district names]} of the study-domain states from GeoNames' admin1 / admin2 name files."""
+    admin1 = read_admin_names(REAL_ADMIN / "admin1CodesASCII.txt")
+    states = {}
+    for code, name in read_admin_names(REAL_ADMIN / "admin2Codes.txt").items():
+        country, state_code, _ = code.split(".", 2)
+        state = admin1.get(f"{country}.{state_code}")
+        if country == "IN" and state and gc.canonical_state(state):
+            states.setdefault(state, []).append(gc._district_key(name))
+    return {state: sorted(set(names)) for state, names in states.items()}
+
+
+@pytest.mark.realdata
+@pytest.mark.skipif(not (REAL_ADMIN / "admin2Codes.txt").exists(), reason="GeoNames admin2Codes.txt not downloaded")
+def test_no_two_real_districts_of_a_state_match_each_other_or_each_others_misspellings():
+    states = domain_districts()
+    assert sum(len(v) for v in states.values()) > 200
+    for state, known in states.items():
+        for name in known:
+            matched = gc.district_matches(name, known)
+            assert name in matched and matched - {name} <= gc.DISTRICT_ALIASES.get(name, set()), (state, name)
+            if len(name) >= 6:
+                for mutated in (name[:3] + name[4:], name[:2] + name[3] + name[2] + name[4:], name[:-1]):
+                    assert gc.district_matches(mutated, known) <= {name}, (state, name, mutated)

@@ -20,10 +20,12 @@ is not in the table (a state outside the study domain, or a typo) returns None. 
 
 District. Optional. When given it is applied to all candidates of the state, of every feature class, before the class is
 chosen, so a same-name populated place in another district cannot hide the right one. A candidate matches when its district
-equals the given one ASCII-folded (without a trailing "district", and also without a bracketed part), is listed in
-`DISTRICT_ALIASES` ("Kullu" is "Kulu" in GeoNames), or is spelled alike: the directional / qualifier words (east, west,
-north, south, upper, lower, central, new, old) must be the same set ("East Khasi Hills" is not "West Khasi Hills") and the
-rest may differ by 2 edits when it is 6 or more characters ("Waynad"), 1 edit at 3-5, none below. When no candidate of a
+is the district the report names (`district_matches`): equal ASCII-folded (without a trailing "district", and also
+without a bracketed part), a `DISTRICT_ALIASES` target ("Kullu" is "Kulu" in GeoNames), or, when the name is not a district
+of the state, the unique nearest district of the state by edit distance, within an allowance of 2 edits (6 or more
+characters), 1 (3-5) or none, and with the same directional / qualifier words (east, west, north, south, upper, lower,
+central, new, old; "East Khasi Hills" is not "West Khasi Hills"). A name that is a district of the state denotes only
+that district ("Kolhapur" is never Solapur); a misspelling equally near two districts denotes neither. When no candidate of a
 query matches, that query has no result; if no query has one the answer is None: a district that disagrees with every
 candidate is evidence against them, not noise.
 
@@ -118,16 +120,14 @@ def _given_districts(district: str | None) -> list[str]:
     return [key for i, key in enumerate(keys) if key and key not in keys[:i]]
 
 
-def _edit_distance_within(a: str, b: str, limit: int) -> bool:
-    if abs(len(a) - len(b)) > limit:
-        return False
+def _edit_distance(a: str, b: str) -> int:
     previous = list(range(len(b) + 1))
     for i, ca in enumerate(a, 1):
         current = [i]
         for j, cb in enumerate(b, 1):
             current.append(min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (ca != cb)))
         previous = current
-    return previous[-1] <= limit
+    return previous[-1]
 
 
 def _split_qualifiers(key: str) -> tuple[frozenset[str], str]:
@@ -139,19 +139,34 @@ def _allowed_edits(shorter_length: int) -> int:
     return 2 if shorter_length >= 6 else 1 if shorter_length >= 3 else 0
 
 
-def _same_district(key: str, candidate: str) -> bool:
-    """Equal, listed in DISTRICT_ALIASES, or alike in spelling: the same directional / qualifier words ("East Khasi Hills"
-    is not "West Khasi Hills") and the rest within 2 edits (6 or more characters), 1 edit (3-5) or equal (fewer)."""
-    if key == candidate or candidate in DISTRICT_ALIASES.get(key, ()):
-        return True
-    qualifiers, rest = _split_qualifiers(key)
-    candidate_qualifiers, candidate_rest = _split_qualifiers(candidate)
-    return qualifiers == candidate_qualifiers and _edit_distance_within(
-        rest, candidate_rest, _allowed_edits(min(len(rest), len(candidate_rest))))
+def district_matches(district: str | None, known: list[str]) -> set[str]:
+    """The districts of `known` (the folded district names of one state) that a district as a report writes it denotes.
 
-
-def _district_matches(given: list[str], candidate: str) -> bool:
-    return bool(candidate) and any(_same_district(key, candidate) for key in given)
+    Checked for the district as written and without a bracketed part, each: its `DISTRICT_ALIASES` targets; if it equals
+    a known district, that district and no other; otherwise the unique known district nearest to it by edit distance
+    (the qualifier words east, west, ... must be the same set; only the rest is compared), and only when that distance
+    is within the allowance for the length of the rest (2 edits from 6 characters, 1 from 3, none below). Two equally
+    near districts match neither: the spelling does not say which was meant."""
+    matched: set[str] = set()
+    keys = [_district_key(district), _district_key(re.sub(r"\(.*?\)", " ", district or ""))]
+    for key in dict.fromkeys(k for k in keys if k):
+        matched.update(d for d in DISTRICT_ALIASES.get(key, ()) if d in known)
+        if key in known:
+            matched.add(key)
+            continue
+        qualifiers, rest = _split_qualifiers(key)
+        distances = {}
+        for name in known:
+            name_qualifiers, name_rest = _split_qualifiers(name)
+            if name_qualifiers == qualifiers:
+                distances[name] = (_edit_distance(rest, name_rest), min(len(rest), len(name_rest)))
+        if not distances:
+            continue
+        nearest = min(distance for distance, _ in distances.values())
+        winners = [name for name, (distance, _) in distances.items() if distance == nearest]
+        if len(winners) == 1 and nearest <= _allowed_edits(distances[winners[0]][1]):
+            matched.add(winners[0])
+    return matched
 
 
 def candidate_queries(place: str) -> list[tuple[str, float]]:
@@ -183,6 +198,7 @@ class _Index:
     by_name: dict[str, np.ndarray]      # folded name / asciiname / alternate name -> row positions
     state: np.ndarray
     district: np.ndarray
+    districts: dict[str, list[str]]     # folded state -> its folded district names (the districts a report can mean)
     feature_class: np.ndarray
     lat: np.ndarray
     lon: np.ndarray
@@ -203,11 +219,16 @@ def _build_index(places: pd.DataFrame) -> _Index:
         for key in keys:
             if key:
                 rows[key].append(position)
+    districts: dict[str, set[str]] = defaultdict(set)
+    state_keys = np.array([fold(s) for s in places["state"]], dtype=object)
+    district_keys = np.array([_district_key(d) for d in places["district"]], dtype=object)
+    for state_key, district_key in set(zip(state_keys, district_keys)):
+        if state_key and district_key:
+            districts[state_key].add(district_key)
     return _Index(
         frame=places,
         by_name={key: np.asarray(positions, dtype=np.int64) for key, positions in rows.items()},
-        state=np.array([fold(s) for s in places["state"]], dtype=object),
-        district=np.array([_district_key(d) for d in places["district"]], dtype=object),
+        state=state_keys, district=district_keys, districts={k: sorted(v) for k, v in districts.items()},
         feature_class=places["feature_class"].to_numpy(dtype=object),
         lat=places["lat"].to_numpy(dtype=np.float64), lon=places["lon"].to_numpy(dtype=np.float64))
 
@@ -251,15 +272,17 @@ def geocode(place: str, district: str | None, state: str, places: pd.DataFrame) 
     if canonical is None:
         return None
     index = _index(places)
-    state_key, given = fold(canonical), _given_districts(district)
+    state_key = fold(canonical)
+    matched = district_matches(district, index.districts.get(state_key, []))
+    if _district_key(district) and not matched:
+        return None
     for query, accuracy_km in candidate_queries(place):
         rows = index.by_name.get(query)
         if rows is None:
             continue
         rows = rows[index.state[rows] == state_key]
-        if given and len(rows):
-            matching = {d: _district_matches(given, d) for d in set(index.district[rows])}
-            rows = rows[[matching[d] for d in index.district[rows]]]
+        if matched:
+            rows = rows[np.isin(index.district[rows], list(matched))]
         for feature_class in FEATURE_ORDER:
             tier = rows[index.feature_class[rows] == feature_class]
             if len(tier):
