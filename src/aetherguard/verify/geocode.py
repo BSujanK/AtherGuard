@@ -10,8 +10,8 @@ fuzzy matching: "Mundakkai" and "Mundakai" are different places here.
 
 Messy place text ("Kavalappara, near Pothukal (Muthappan Hill)", "Pakshep village"). The queries are, in order: the whole
 text, then each comma / semicolon / bracket segment left to right, each as written and without a trailing generic word
-(village, hamlet, town, area). A query that starts with "near" is never used, so "near Gangtok" never places an event in
-Gangtok. The whole text and the first segment name the place and are good to 5 km; a match on a later segment (a locality
+(village, hamlet, town, area). A query that starts with "near" or "nr" is never used, so "near Gangtok" never places an event in
+Gangtok. The whole text and the first non-empty segment name the place and are good to 5 km; a match on a later segment (a locality
 the place lies in or beside) is good to 15 km only. Segment queries shorter than 3 characters are ignored. The first query
 with candidates in the state (and district) decides, even when it is ambiguous.
 
@@ -20,8 +20,10 @@ is not in the table (a state outside the study domain, or a typo) returns None. 
 
 District. Optional. When given it is applied to all candidates of the state, of every feature class, before the class is
 chosen, so a same-name populated place in another district cannot hide the right one. A candidate matches when its district
-equals the given one ASCII-folded (without a trailing "district", and also without a bracketed part), differs by an edit
-distance of at most 2 ("Waynad"), or is listed in `DISTRICT_ALIASES` ("Kullu" is "Kulu" in GeoNames). When no candidate of a
+equals the given one ASCII-folded (without a trailing "district", and also without a bracketed part), is listed in
+`DISTRICT_ALIASES` ("Kullu" is "Kulu" in GeoNames), or is spelled alike: the directional / qualifier words (east, west,
+north, south, upper, lower, central, new, old) must be the same set ("East Khasi Hills" is not "West Khasi Hills") and the
+rest may differ by 2 edits when it is 6 or more characters ("Waynad"), 1 edit at 3-5, none below. When no candidate of a
 query matches, that query has no result; if no query has one the answer is None: a district that disagrees with every
 candidate is evidence against them, not noise.
 
@@ -66,7 +68,7 @@ NAMED_PLACE_KM = 5.0                                   # accuracy of a match on 
 LOCALITY_KM = 15.0                                     # accuracy of a match on a later segment
 MAX_SPREAD_KM = 10.0                                   # several matches further apart than this are not one place
 MIN_SEGMENT_CHARS = 3
-MAX_DISTRICT_EDITS = 2
+QUALIFIERS = frozenset({"east", "west", "north", "south", "upper", "lower", "central", "new", "old"})
 FEATURE_ORDER = ("P", "S", "T", "H", "L", "R")         # populated places first, then the other named features
 GENERIC_WORDS = ("village", "hamlet", "town", "area")  # dropped from the end of a place text
 STATE_ALIASES = {                                      # folded spelling -> GeoNames admin1 name
@@ -128,11 +130,28 @@ def _edit_distance_within(a: str, b: str, limit: int) -> bool:
     return previous[-1] <= limit
 
 
+def _split_qualifiers(key: str) -> tuple[frozenset[str], str]:
+    words = key.split()
+    return frozenset(w for w in words if w in QUALIFIERS), " ".join(w for w in words if w not in QUALIFIERS)
+
+
+def _allowed_edits(shorter_length: int) -> int:
+    return 2 if shorter_length >= 6 else 1 if shorter_length >= 3 else 0
+
+
+def _same_district(key: str, candidate: str) -> bool:
+    """Equal, listed in DISTRICT_ALIASES, or alike in spelling: the same directional / qualifier words ("East Khasi Hills"
+    is not "West Khasi Hills") and the rest within 2 edits (6 or more characters), 1 edit (3-5) or equal (fewer)."""
+    if key == candidate or candidate in DISTRICT_ALIASES.get(key, ()):
+        return True
+    qualifiers, rest = _split_qualifiers(key)
+    candidate_qualifiers, candidate_rest = _split_qualifiers(candidate)
+    return qualifiers == candidate_qualifiers and _edit_distance_within(
+        rest, candidate_rest, _allowed_edits(min(len(rest), len(candidate_rest))))
+
+
 def _district_matches(given: list[str], candidate: str) -> bool:
-    if not candidate:
-        return False
-    return any(candidate == key or candidate in DISTRICT_ALIASES.get(key, ()) or
-               _edit_distance_within(candidate, key, MAX_DISTRICT_EDITS) for key in given)
+    return bool(candidate) and any(_same_district(key, candidate) for key in given)
 
 
 def candidate_queries(place: str) -> list[tuple[str, float]]:
@@ -140,7 +159,7 @@ def candidate_queries(place: str) -> list[tuple[str, float]]:
     queries: dict[str, float] = {}
 
     def add(key: str, accuracy: float, segment: bool) -> None:
-        if key and not key.startswith("near ") and not (segment and len(key) < MIN_SEGMENT_CHARS):
+        if key and not key.startswith(("near ", "nr ")) and not (segment and len(key) < MIN_SEGMENT_CHARS):
             queries.setdefault(key, accuracy)
 
     def variants(key: str, accuracy: float, segment: bool) -> None:
@@ -150,8 +169,9 @@ def candidate_queries(place: str) -> list[tuple[str, float]]:
                 add(key[: -len(word) - 1], accuracy, segment)
 
     variants(fold(place), NAMED_PLACE_KM, False)
-    for i, segment in enumerate(re.split(r"[,;()\[\]]", str(place))):
-        variants(fold(segment), NAMED_PLACE_KM if i == 0 else LOCALITY_KM, True)
+    segments = [key for key in (fold(segment) for segment in re.split(r"[,;()\[\]]", str(place))) if key]
+    for i, key in enumerate(segments):
+        variants(key, NAMED_PLACE_KM if i == 0 else LOCALITY_KM, True)
     return list(queries.items())
 
 

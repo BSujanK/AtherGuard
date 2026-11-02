@@ -162,6 +162,43 @@ def test_a_district_with_no_match_gives_none_even_when_the_name_is_unique_in_the
     assert gc.geocode("Chaura", "Kinnaur", "Himachal Pradesh", frame) is None
 
 
+def test_a_directional_district_is_not_its_opposite():
+    only_east = places(("Dangar", "Meghalaya", "East Khasi Hills", 25.3, 91.6))
+    assert gc.geocode("Dangar", "West Khasi Hills", "Meghalaya", only_east) is None
+    both = places(("Dangar", "Meghalaya", "East Khasi Hills", 25.3, 91.6), ("Dangar", "Meghalaya", "West Khasi Hills", 25.5, 91.1))
+    assert gc.geocode("Dangar", "West Khasi Hills", "Meghalaya", both) == (25.5, 91.1, 5.0)
+    assert gc.geocode("Dangar", "East Khasi Hills", "Meghalaya", both) == (25.3, 91.6, 5.0)
+
+
+@pytest.mark.parametrize("given, geonames, state", [("North Tripura", "South Tripura", "Tripura"),
+                                                     ("South Tripura", "North Tripura", "Tripura"),
+                                                     ("North 24 Parganas", "South 24 Parganas", "West Bengal"),
+                                                     ("Upper Siang", "Lower Siang", "Arunachal Pradesh"),
+                                                     ("Siang", "East Siang", "Arunachal Pradesh")])
+def test_districts_that_differ_in_a_qualifier_word_do_not_match(given, geonames, state):
+    frame = places(("Somewhere", state, geonames, 24.0, 91.5))
+    assert gc.geocode("Somewhere", given, state, frame) is None
+
+
+def test_the_qualifier_words_may_come_in_any_order_and_the_rest_may_be_misspelled():
+    frame = places(("Somewhere", "West Bengal", "South 24 Parganas", 22.0, 88.4), ("Somewhere", "Sikkim", "East Sikkim", 27.3, 88.6))
+    assert gc.geocode("Somewhere", "South 24 Parganas", "West Bengal", frame) == (22.0, 88.4, 5.0)
+    assert gc.geocode("Somewhere", "East Sikkm", "Sikkim", frame) == (27.3, 88.6, 5.0)
+
+
+def test_a_short_district_needs_an_exact_match():
+    frame = places(("Somewhere", "Himachal Pradesh", "Una", 31.5, 76.3))
+    assert gc.geocode("Somewhere", "N/A", "Himachal Pradesh", frame) is None
+    assert gc.geocode("Somewhere", "Uan", "Himachal Pradesh", frame) is None
+    assert gc.geocode("Somewhere", "Una", "Himachal Pradesh", frame) == (31.5, 76.3, 5.0)
+
+
+def test_a_three_to_five_letter_district_allows_one_edit_only():
+    frame = places(("Somewhere", "Himachal Pradesh", "Mandi", 31.7, 76.9))
+    assert gc.geocode("Somewhere", "Mandy", "Himachal Pradesh", frame) == (31.7, 76.9, 5.0)
+    assert gc.geocode("Somewhere", "Mndy", "Himachal Pradesh", frame) is None
+
+
 def test_a_right_district_feature_beats_a_wrong_district_populated_place():
     frame = places(("Sangla", "Himachal Pradesh", "Shimla", 31.1, 77.3, "P"), ("Sangla", "Himachal Pradesh", "Kinnaur", 31.42, 78.26, "T"))
     assert gc.geocode("Sangla", "Kinnaur", "Himachal Pradesh", frame) == (31.42, 78.26, 5.0)
@@ -226,6 +263,18 @@ def test_a_segment_introduced_by_near_is_never_a_query():
 def test_a_name_inside_a_segment_after_near_is_not_a_query_either():
     frame = places(("Gangtok", "Sikkim", "East Sikkim", 27.33, 88.61))
     assert gc.geocode("Dokan Dara near Gangtok", None, "Sikkim", frame) is None
+
+
+def test_nr_is_treated_like_near():
+    frame = places(("Gangtok", "Sikkim", "East Sikkim", 27.33, 88.61), ("Nr Gangtok", "Sikkim", "East Sikkim", 27.0, 88.0))
+    assert gc.geocode("Dokan Dara, nr Gangtok", None, "Sikkim", frame) is None
+    assert gc.geocode("nr Gangtok", None, "Sikkim", frame) is None
+
+
+def test_an_empty_leading_segment_does_not_make_the_first_real_segment_a_locality():
+    frame = places(("Kavalappara", "Kerala", "Malappuram", 11.2, 76.2))
+    assert gc.geocode(", Kavalappara", None, "Kerala", frame) == (11.2, 76.2, 5.0)
+    assert gc.geocode("(Kavalappara), Pothukal", None, "Kerala", frame) == (11.2, 76.2, 5.0)
 
 
 def test_segments_shorter_than_three_characters_are_ignored():
