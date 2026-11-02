@@ -133,6 +133,15 @@ Markers: `live` (network) and `realdata` (needs the real data tree) are excluded
 New code is test-first; new tests are also run once with `-W error` so output stays pristine. The dashboard has its own tests
 (`cd dashboard && npm run test`).
 
+## Verification
+
+Alerts are checked against landslide events with tolerance matching (10 km, 1 day, or the same cell and day), with
+bootstrap intervals, and against two simple models of the same alert burden (3-day rain cuts, a static susceptibility map).
+
+```
+.venv/Scripts/python -m aetherguard.verify baseline    # reports/phase7_verification_baseline.{json,md}: development seasons and 2018
+```
+
 ## Reports
 
 | file | content |
@@ -146,6 +155,7 @@ New code is test-first; new tests are also run once with `-W error` so output st
 | `reports/phase3_hazard_report_v1.*`, `phase3_hazard_*` | hazard model v1 (disclosed history) and v2 |
 | `reports/phase3e_case_inputs.*` | ERA5 point series, D5 approximation error, Wayanad focus table |
 | `reports/phase4_alerts_report.*` | alert engine evaluation and case replays (when produced) |
+| `reports/phase7_verification_baseline.*` | v3 against rain and susceptibility baselines, tolerance-matched, development and 2018 |
 
 ## Data licences
 
