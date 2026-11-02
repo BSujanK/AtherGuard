@@ -137,10 +137,24 @@ New code is test-first; new tests are also run once with `-W error` so output st
 
 Alerts are checked against landslide events with tolerance matching (10 km, 1 day, or the same cell and day), with
 bootstrap intervals, and against two simple models of the same alert burden (3-day rain cuts, a static susceptibility map).
+The live ledger scores every published day of `data/live` the same way against landslides people reported, for each lead
+0 to 3; days within 14 days of today are marked provisional because reports are still arriving.
 
 ```
 .venv/Scripts/python -m aetherguard.verify baseline    # reports/phase7_verification_baseline.{json,md}: development seasons and 2018
+.venv/Scripts/python -m aetherguard.verify ledger      # reports/live_verification.{json,md}: published alerts vs reported events
 ```
+
+Reported events are CSV files in `data/raw/manual/reported_events/` (local only, like all of `data/`), one header for every file:
+
+```
+date,latitude,longitude,location_text,source_url,accuracy_km
+2026-10-22,30.4,79.3,Chamoli,https://example.org/report,2
+```
+
+`date` is the IST date (YYYY-MM-DD); the point must lie inside a region of `configs/domain.yaml`; `source_url` is required;
+`accuracy_km` may be empty. A bad row stops the ledger with the file and line. An empty folder is valid: events 0, detection
+n/a, alert cell-days still counted. `--today YYYY-MM-DD` overrides the IST date.
 
 ## Reports
 
@@ -156,6 +170,7 @@ bootstrap intervals, and against two simple models of the same alert burden (3-d
 | `reports/phase3e_case_inputs.*` | ERA5 point series, D5 approximation error, Wayanad focus table |
 | `reports/phase4_alerts_report.*` | alert engine evaluation and case replays (when produced) |
 | `reports/phase7_verification_baseline.*` | v3 against rain and susceptibility baselines, tolerance-matched, development and 2018 |
+| `reports/live_verification.*` | published live alerts against reported landslides, by lead and level, recent days provisional |
 
 ## Data licences
 
