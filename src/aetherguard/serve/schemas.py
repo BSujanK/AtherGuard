@@ -121,6 +121,7 @@ class CellExplanation(BaseModel):
     risk_hi: float | None
     risk_per_100k: float | None
     thresholds: ThresholdsOut | None
+    thresholds_region: str | None = None       # live dates: the region the thresholds are for, or "pooled"; None: the store's
     provisional: str | None
     shap: list[ShapFactor]
     sources: dict[str, float | str | None]

@@ -1285,3 +1285,57 @@ def test_a_rule_that_did_not_cap_is_returned_as_it_is(client, tmp_path):
         "passed": True, "capped": False}
     assert dash_api.rain_rule_detail(folder.parent, RUN_DAY, 1, FORECAST_CELL, None, "Watch") is None
     assert dash_api.rain_rule_detail(folder.parent, "2026-01-01", 1, FORECAST_CELL, {"capped": True}, "Watch") == {"capped": True}
+
+
+# ---- thresholds of one cell ----------------------------------------------------------------------------------------
+
+def live_store_client(tmp_path):
+    _, store = build_store(tmp_path, {"live": {"n_cells": 2, "n_days": 2, "start": "2024-08-01"}})
+    return make_client(store, tmp_path)
+
+
+def write_run_model(tmp_path, day, **model):
+    folder = tmp_path / "live" / day
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "run.json").write_text(json.dumps({"model": model}))
+
+
+def test_a_live_cell_carries_the_thresholds_its_region_was_levelled_against(tmp_path):
+    client = live_store_client(tmp_path)
+    write_run_model(tmp_path, "2024-08-02", thresholds=POOLED, thresholds_by_region=BY_REGION)
+    body = client.get("/risk/cell/1000", params={"date": "2024-08-02"}).json()
+    assert body["region"] == "western_ghats" and body["thresholds_region"] == "western_ghats"
+    assert body["thresholds"]["emergency"] == 2.56e-5 and body["thresholds"]["source"].endswith("[western_ghats]")
+
+
+def test_a_live_cell_without_regional_thresholds_gets_the_runs_pooled_ones(tmp_path):
+    client = live_store_client(tmp_path)
+    write_run_model(tmp_path, "2024-08-02", thresholds=POOLED, thresholds_by_region={"himalaya": BY_REGION["himalaya"]})
+    body = client.get("/risk/cell/1000", params={"date": "2024-08-02"}).json()
+    assert (body["thresholds_region"], body["thresholds"]["emergency"]) == ("pooled", 4.81e-5)
+
+
+def test_a_live_date_without_a_usable_run_summary_keeps_the_stores_thresholds(tmp_path):
+    client = live_store_client(tmp_path)
+    body = client.get("/risk/cell/1000", params={"date": "2024-08-02"}).json()
+    assert (body["thresholds_region"], body["thresholds"]["emergency"]) == (None, 1e-4)
+
+
+def test_a_live_cell_uses_the_run_of_its_own_date(tmp_path):
+    client = live_store_client(tmp_path)
+    write_run_model(tmp_path, "2024-08-01", thresholds=POOLED, thresholds_by_region={"western_ghats": {**BY_REGION["western_ghats"], "emergency": 7e-5}})
+    write_run_model(tmp_path, "2024-08-02", thresholds=POOLED, thresholds_by_region=BY_REGION)
+    assert client.get("/risk/cell/1000", params={"date": "2024-08-01"}).json()["thresholds"]["emergency"] == 7e-5
+
+
+def test_a_replay_cell_keeps_the_stores_thresholds(client, tmp_path):
+    write_run_model(tmp_path, "2024-07-06", thresholds=POOLED, thresholds_by_region=BY_REGION)
+    body = client.get("/risk/cell/1003", params={"date": "2024-07-06"}).json()
+    assert (body["thresholds_region"], body["thresholds"]["emergency"]) == (None, 1e-4)
+
+
+def test_a_forecast_cell_carries_the_thresholds_of_its_region_in_the_run(client, tmp_path):
+    write_forecast(tmp_path / "live")
+    write_run_model(tmp_path, RUN_DAY, thresholds=POOLED, thresholds_by_region=BY_REGION)
+    body = forecast_cell(client, 2).json()
+    assert (body["thresholds_region"], body["thresholds"]["emergency"]) == ("western_ghats", 2.56e-5)

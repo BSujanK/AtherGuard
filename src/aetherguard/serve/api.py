@@ -96,6 +96,10 @@ def _thresholds(manifest: dict) -> sc.ThresholdsOut | None:
     return sc.ThresholdsOut(**{k: t[k] for k in ("watch", "warning", "emergency", "source")}) if t else None
 
 
+def _run_thresholds(thresholds: dict | None) -> sc.ThresholdsOut | None:
+    return sc.ThresholdsOut(**{**thresholds, "source": thresholds["source"] or "unknown"}) if thresholds else None
+
+
 def _shap(text: str) -> list[sc.ShapFactor]:
     return [sc.ShapFactor(feature=f["feature"], value=f["value"], contribution=f["contribution"])
             for f in json.loads(text)]
@@ -215,10 +219,12 @@ def create_app(store_dir: Path | None = None, *, live_dir: Path | None = None, d
                 raise HTTPException(404, f"replay set {set!r} holds lead 0 only (requested lead {lead})")
             store.refresh()
             shown = {"mode": "live", "set": dash_api.LIVE_SET}
-            thresholds = dash_api.served_thresholds(store, config.live_dir, shown)
             body = dash_api.forecast_cell(config, cell_id, _day(date), lead)
+            thresholds, scope = dash_api.cell_thresholds(config.live_dir, _day(date), body["region"])
+            if thresholds is None:
+                thresholds = dash_api.served_thresholds(store, config.live_dir, shown)
             return sc.CellExplanation(
-                **body, thresholds=sc.ThresholdsOut(**{**thresholds, "source": thresholds["source"] or "unknown"}) if thresholds else None,
+                **body, thresholds=_run_thresholds(thresholds), thresholds_region=scope,
                 provisional=store.manifest.get("provisional") if store.available else None,
                 place=dash_api.place_of(config, cell_id))
         try:
@@ -226,13 +232,16 @@ def create_app(store_dir: Path | None = None, *, live_dir: Path | None = None, d
         except StoreError as error:
             raise _store_error(error, store) from None
         reasons = json.loads(row["reasons_json"])
+        region = _text(row.get("region"))
+        run_thresholds, scope = dash_api.cell_thresholds(config.live_dir, _day(date), region) if name == dash_api.LIVE_SET else (None, None)
         return sc.CellExplanation(
             cell_id=int(row["cell_id"]), date=_day(date), set=name, lat=row["lat"], lon=row["lon"],
-            region=_text(row.get("region")), level=int(row["level"]), level_name=row["level_name"],
+            region=region, level=int(row["level"]), level_name=row["level_name"],
             raw_level=reasons["raw_level"], confidence=row["confidence"],
             confidence_causes=reasons["confidence"]["causes"], reason_codes=_codes(row["reason_codes"]),
             risk=row["risk"], risk_lo=row["risk_lo"], risk_hi=row["risk_hi"], risk_per_100k=row["risk_per_100k"],
-            thresholds=_thresholds(store.manifest), provisional=store.manifest.get("provisional"),
+            thresholds=_run_thresholds(run_thresholds) or _thresholds(store.manifest), thresholds_region=scope if run_thresholds else None,
+            provisional=store.manifest.get("provisional"),
             shap=_shap(row["shap_json"]), sources=reasons["sources"], sensor_trust=reasons["sensor_trust"],
             lead=0, issued_date=_day(date), target_date=_day(date),
             place=dash_api.place_of(config, int(row["cell_id"])),
