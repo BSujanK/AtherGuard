@@ -7,6 +7,8 @@ above, at Warning or above, and at Emergency, so they never increase from one to
 * `rain_baseline`: three rain accumulation cuts, fitted on development cell-days and applied to the evaluated season;
 * `susceptibility_baseline`: the same shares placed every day on the cells of highest static score, with no rain, which
   shows what the rain-driven part of the model adds.
+
+`realised_shares` reads the shares a set of levels actually reached, to report beside the target.
 """
 from __future__ import annotations
 
@@ -26,20 +28,42 @@ def _check_shares(shares: Shares) -> tuple[float, float, float]:
 def burden_matched_cuts(values: np.ndarray, scored: np.ndarray, shares: Shares) -> Cuts:
     """Cuts (watch, warning, emergency) so that about `shares` of the scored cell-days reach each level.
 
-    The cuts are quantiles of the finite `values` of scored cell-days, so they do not decrease, and a value at or above a
-    cut reaches that level. Ties in `values` can make the realised share a little larger than asked. A share of 0, or no
-    finite scored value, gives an infinite cut, which nothing reaches.
+    The cuts come from the finite `values` of scored cell-days, and a value at or above a cut reaches that level. A cut is
+    the quantile for its share, taken as `>=` or as `>` (the next float up, so `threshold_levels` still reads `>=`),
+    whichever realises the share closer to the target on these values. Ties pile up at one value (3-day rain at exactly 0),
+    where `>=` would alert far more than asked; a cut of 0 always reads `>`, so a value of 0 never alerts. The cuts do not
+    decrease. A share of 0, or no finite scored value, gives an infinite cut, which nothing reaches.
     """
     values, scored = np.asarray(values, dtype=np.float64), np.asarray(scored, dtype=bool)
     if values.shape != scored.shape:
         raise ValueError(f"values {values.shape} and scored {scored.shape} must share one shape")
     shares = _check_shares(shares)
     pool = values[scored]
-    pool = pool[np.isfinite(pool)]
+    pool = np.sort(pool[np.isfinite(pool)])
     if not len(pool):
         return (np.inf, np.inf, np.inf)
-    cuts = [float(np.quantile(pool, 1.0 - share)) if share > 0.0 else np.inf for share in shares]
+    cuts = []
+    for share in shares:
+        if share <= 0.0:
+            cuts.append(np.inf)
+            continue
+        cut = float(np.quantile(pool, 1.0 - share))
+        above = (len(pool) - np.searchsorted(pool, cut, side="right")) / len(pool)
+        at_or_above = (len(pool) - np.searchsorted(pool, cut, side="left")) / len(pool)
+        strictly = cut == 0.0 or abs(above - share) < abs(at_or_above - share)
+        cuts.append(float(np.nextafter(cut, np.inf)) if strictly else cut)
     return tuple(np.maximum.accumulate(cuts).tolist())
+
+
+def realised_shares(levels: np.ndarray, scored: np.ndarray) -> Shares:
+    """The shares of scored cell-days at Watch or above, Warning or above and Emergency; NaN when nothing is scored."""
+    levels, scored = np.asarray(levels), np.asarray(scored, dtype=bool)
+    if levels.shape != scored.shape:
+        raise ValueError(f"levels {levels.shape} and scored {scored.shape} must share one shape")
+    n_scored = int(scored.sum())
+    if not n_scored:
+        return (np.nan, np.nan, np.nan)
+    return tuple(float((scored & (levels >= k)).sum()) / n_scored for k in (1, 2, 3))
 
 
 def threshold_levels(values: np.ndarray, cuts: Cuts) -> np.ndarray:
@@ -63,8 +87,10 @@ def rain_baseline(
 def susceptibility_baseline(static_score: np.ndarray, n_days: int, scored: np.ndarray, shares: Shares) -> np.ndarray:
     """Levels (cells x `n_days`) that rank each day's scored cells by `static_score` and alert the top `shares` of them.
 
-    The count of cells at each level is the share of that day's scored cells, rounded half up. Cells with equal scores
-    are ranked in index order. Unscored cells stay at level 0.
+    Counts are rounded across the season, not within each day: through day j each level holds the share of the scored
+    cell-days so far, rounded half up, so the fractional remainder carries to the next day and a level too rare for one
+    cell a day still appears. The season total is within one cell-day of the share. Cells with equal scores are ranked in
+    index order. Unscored cells stay at level 0.
     """
     static_score, scored = np.asarray(static_score, dtype=np.float64), np.asarray(scored, dtype=bool)
     if scored.shape != (len(static_score), n_days):
@@ -74,8 +100,14 @@ def susceptibility_baseline(static_score: np.ndarray, n_days: int, scored: np.nd
     rank = np.empty(scored.shape, dtype=np.int64)
     rank[order] = np.cumsum(scored[order], axis=0)
     n_scored = scored.sum(axis=0)
+    through = np.cumsum(n_scored)
+    placed = np.zeros(3, dtype=np.int64)
     levels = np.zeros(scored.shape, dtype=np.int8)
-    for share in shares:
-        levels += (rank <= np.floor(share * n_scored + 0.5)).astype(np.int8)
+    for day in range(n_days):
+        due = np.floor(np.asarray(shares) * through[day] + 0.5).astype(np.int64) - placed
+        count = np.minimum(np.maximum.accumulate(np.maximum(due, 0)[::-1])[::-1], n_scored[day])
+        placed += count
+        for c in count:
+            levels[:, day] += rank[:, day] <= c
     levels[~scored] = 0
     return levels

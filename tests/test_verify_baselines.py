@@ -3,6 +3,7 @@ import pytest
 
 from aetherguard.verify.baselines import (
     burden_matched_cuts,
+    realised_shares,
     rain_baseline,
     susceptibility_baseline,
     threshold_levels,
@@ -83,9 +84,44 @@ def test_susceptibility_baseline_skips_unscored_cells_and_ranks_the_rest():
     scored = np.array([[False, True], [True, True], [True, True], [True, False]])
     lv = susceptibility_baseline(static, 2, scored, (0.5, 0.5, 0.5))
     assert lv[:, 0].tolist() == [0, 3, 0, 3]
-    assert lv[:, 1].tolist() == [3, 3, 0, 0]
+    assert lv[:, 1].tolist() == [3, 0, 0, 0]
 
 
 def test_susceptibility_baseline_rejects_mismatched_shapes():
     with pytest.raises(ValueError, match="shape"):
         susceptibility_baseline(np.arange(4.0), 3, np.ones((4, 2), bool), (0.25, 0.25, 0.25))
+
+
+def test_zero_rain_never_alerts_when_the_share_exceeds_the_non_zero_fraction():
+    rain = np.concatenate([np.zeros(600), np.arange(1.0, 401.0)])
+    cuts = burden_matched_cuts(rain, np.ones(1000, bool), (0.5, 0.2, 0.05))
+    lv = threshold_levels(rain, cuts)
+    assert (lv[:600] == 0).all()
+    assert realised_shares(lv, np.ones(1000, bool))[0] == pytest.approx(0.4, abs=0.01)
+    assert realised_shares(lv, np.ones(1000, bool))[1:] == pytest.approx((0.2, 0.05), abs=0.01)
+
+
+def test_a_heavy_tie_takes_the_side_closer_to_the_target():
+    ones = np.ones(1000, bool)
+    ties = np.concatenate([np.zeros(500), np.full(300, 5.0), np.arange(200.0) + 10.0])  # >= 5 is 0.5, > 5 is 0.2
+    closer_above = threshold_levels(ties, burden_matched_cuts(ties, ones, (0.45, 0.0, 0.0)))
+    assert realised_shares(closer_above, ones)[0] == 0.5
+    closer_below = threshold_levels(ties, burden_matched_cuts(ties, ones, (0.25, 0.0, 0.0)))
+    assert realised_shares(closer_below, ones)[0] == 0.2
+
+
+def test_realised_shares_counts_scored_cell_days_only():
+    levels = np.array([[0, 1, 2, 3], [3, 3, 3, 3]], dtype=np.int8)
+    scored = np.array([[True, True, True, True], [False, False, False, False]])
+    assert realised_shares(levels, scored) == (0.75, 0.5, 0.25)
+    assert all(np.isnan(realised_shares(levels, np.zeros((2, 4), bool))))
+
+
+def test_susceptibility_baseline_carries_the_remainder_so_rare_levels_appear():
+    static = np.random.default_rng(0).random(1000)
+    scored = np.ones((1000, 30), bool)
+    lv = susceptibility_baseline(static, 30, scored, (0.0004, 0.0004, 0.0004))
+    assert (lv == 3).sum() == 12
+    nested = susceptibility_baseline(static, 30, scored, (0.1, 0.01, 0.0004))
+    assert [(nested >= k).sum() for k in (1, 2, 3)] == [3000, 300, 12]
+    assert realised_shares(nested, scored) == pytest.approx((0.1, 0.01, 0.0004))
