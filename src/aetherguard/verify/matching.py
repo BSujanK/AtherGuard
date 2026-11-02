@@ -53,6 +53,7 @@ class Match:
     alert_verified: np.ndarray  # bool, cells x days: an event lies within tolerance of the cell-day
     events: pd.DataFrame  # the de-duplicated events dated within the panel days, columns cell_id and date
     outside_window: int  # de-duplicated events dated outside the panel days
+    event_day: np.ndarray | None = None  # int per event in `events`: the panel day column nearest its date
 
 
 def _haversine_km(lat1: float, lon1: float, lat2: np.ndarray, lon2: np.ndarray) -> np.ndarray:
@@ -130,4 +131,8 @@ def match(levels: np.ndarray, cell_ids: np.ndarray, days: list[date], events: pd
         block = np.ix_(rows, cols)
         level[i] = levels[block].max()
         alert_verified[block] = True
-    return Match(level[inside], alert_verified, unique[inside].reset_index(drop=True), int((~inside).sum()))
+    if len(days):
+        event_day = np.abs(day_ordinals[None, :] - event_ordinals[inside][:, None]).argmin(axis=1)
+    else:
+        event_day = np.zeros(0, dtype=np.intp)
+    return Match(level[inside], alert_verified, unique[inside].reset_index(drop=True), int((~inside).sum()), event_day)

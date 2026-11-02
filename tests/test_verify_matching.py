@@ -137,3 +137,9 @@ def test_rows_within_wraps_across_the_antimeridian():
     east_edge = grid.latlon_to_cell(0.025, 179.975)
     (rows,) = rows_within(np.array([west]), np.array([east_edge]), 10.0)
     assert rows.tolist() == [0]
+
+
+def test_event_day_is_the_panel_column_of_each_scored_event():
+    m = match(ZERO_LEVELS, CELLS, DAYS, events_on(["2018-07-03", "2018-06-20", "2018-07-01"]), Tolerance())
+    assert m.event_day.tolist() == [2, 0]
+    assert match(ZERO_LEVELS[:, :0], CELLS, [], one_event(EVENT_30N, 1), Tolerance()).event_day.tolist() == []
