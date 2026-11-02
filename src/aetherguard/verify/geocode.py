@@ -249,17 +249,27 @@ def _haversine_km(lat, lon, lat0: float, lon0: float) -> np.ndarray:
     return 2 * EARTH_RADIUS_KM * np.arcsin(np.sqrt(a))
 
 
-def _resolve(index: _Index, rows: np.ndarray, accuracy_km: float) -> tuple[float, float, float] | None:
-    if len(set(index.district[rows])) > 1:
-        return None
-    lat, lon = index.lat[rows], index.lon[rows]
-    if len(rows) == 1:
+def merge_points(lat: np.ndarray, lon: np.ndarray, accuracy_km: float) -> tuple[float, float, float] | None:
+    """The one place several candidate points denote: the point itself, or their centroid with accuracy equal to the distance
+    to the farthest one (never below `accuracy_km`); None when that spread exceeds 10 km."""
+    if len(lat) == 1:
         return float(lat[0]), float(lon[0]), accuracy_km
     centre_lat, centre_lon = float(lat.mean()), float(lon.mean())
     spread = float(_haversine_km(lat, lon, centre_lat, centre_lon).max())
     if spread > MAX_SPREAD_KM:
         return None
     return centre_lat, centre_lon, max(spread, accuracy_km)
+
+
+def _resolve(index: _Index, rows: np.ndarray, accuracy_km: float) -> tuple[float, float, float] | None:
+    if len(set(index.district[rows])) > 1:
+        return None
+    return merge_points(index.lat[rows], index.lon[rows], accuracy_km)
+
+
+def known_districts(places: pd.DataFrame, state: str) -> list[str]:
+    """The folded district names of a state (as `canonical_state` gives it) in the places table; [] for an unknown state."""
+    return _index(places).districts.get(fold(state), [])
 
 
 def geocode(place: str, district: str | None, state: str, places: pd.DataFrame) -> tuple[float, float, float] | None:
