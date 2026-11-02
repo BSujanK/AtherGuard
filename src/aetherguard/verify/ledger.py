@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -177,6 +178,14 @@ def live_levels(live_root: Path, lead: int = 0) -> tuple[np.ndarray, np.ndarray,
 
 # --------------------------------------------------------------------------------------------------- the ledger
 
+def _without_ground_truth(scores: dict) -> dict:
+    """With no event in the lead's days nothing can verify an alert, so precision is unknown (NaN), not 0 of N."""
+    if scores["events"]:
+        return scores
+    return {**scores, "precision": math.nan, "precision_ci": [math.nan, math.nan],
+            "events_per_1000_alert_cell_days": math.nan}
+
+
 def ledger(live_root: Path, reported_dir: Path, today: date, tol: Tolerance = Tolerance()) -> dict:
     """Per lead and alert level, `bootstrap_scores` of the published levels against the reported events.
 
@@ -204,7 +213,7 @@ def ledger(live_root: Path, reported_dir: Path, today: date, tol: Tolerance = To
             "published_days": int((levels >= 0).any(axis=0).sum()),
             "provisional_days": [d.isoformat() for d in days if d >= provisional_from],
             "events_outside_window": m.outside_window,
-            "levels": {str(k): bootstrap_scores(levels, scored, m, k, BOOTSTRAP) for k in LEVELS},
+            "levels": {str(k): _without_ground_truth(bootstrap_scores(levels, scored, m, k, BOOTSTRAP)) for k in LEVELS},
         }
     return result
 
@@ -241,7 +250,7 @@ def markdown(result: dict) -> str:
         ]
         for level in LEVELS:
             s = entry["levels"][str(level)]
-            precision = "n/a" if result["reported_events"] == 0 else f"{_pct(s['precision'], 3)} {_interval(s['precision_ci'], 3)}"
+            precision = f"{_pct(s['precision'], 3)} {_interval(s['precision_ci'], 3)}" if s["events"] else "n/a"
             lines.append(
                 f"| {LEVEL_NAMES[level]} | {s['events']} | {s['hits']} | {_pct(s['pod'])} {_interval(s['pod_ci'])} | "
                 f"{s['alert_cell_days']:,} | {s['verified_alert_cell_days']:,} | "
