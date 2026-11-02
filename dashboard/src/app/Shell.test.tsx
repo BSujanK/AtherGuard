@@ -128,6 +128,7 @@ describe('Shell on a day without risk scores', () => {
     dates: ['2026-10-31', '2026-11-01'],
     scored_share: 0,
     last_scored_date: '2026-10-31',
+    scored_reason: 'the rain of IMD day D could not be assembled (imd: missing)',
     next_run: NEXT_RUN,
   }
 
@@ -137,9 +138,17 @@ describe('Shell on a day without risk scores', () => {
     const strip = screen.getByRole('banner', { name: 'Data status' })
     const notice = await within(strip).findByTestId('no-scores-notice')
     expect(notice).toHaveTextContent(
-      'No new risk scores for 1 Nov 2026: satellite rain not yet available. Levels are held from 31 Oct 2026.',
+      'No new risk scores for 1 Nov 2026: the rain of IMD day D could not be assembled (imd: missing). Levels are held from 31 Oct 2026.',
     )
     expect(notice).toHaveAttribute('role', 'status')
+    await settled()
+  })
+
+  it('says the model inputs were not available when the run gave no reason', async () => {
+    server.use(...apiHandlers({ ...live, scored_reason: null }))
+    renderApp()
+    const notice = await within(screen.getByRole('banner', { name: 'Data status' })).findByTestId('no-scores-notice')
+    expect(notice).toHaveTextContent('No new risk scores for 1 Nov 2026: model inputs were not available. Levels are held from 31 Oct 2026.')
     await settled()
   })
 
@@ -147,7 +156,9 @@ describe('Shell on a day without risk scores', () => {
     server.use(...apiHandlers({ ...live, last_scored_date: null }))
     renderApp()
     const notice = await within(screen.getByRole('banner', { name: 'Data status' })).findByTestId('no-scores-notice')
-    expect(notice).toHaveTextContent('No new risk scores for 1 Nov 2026: satellite rain not yet available. Levels are held from earlier days.')
+    expect(notice).toHaveTextContent(
+      'No new risk scores for 1 Nov 2026: the rain of IMD day D could not be assembled (imd: missing). Levels are held from earlier days.',
+    )
     await settled()
   })
 

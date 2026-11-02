@@ -51,6 +51,8 @@ export interface ModeResponse {
   scored_share?: number | null
   /** The newest live date, at or before the newest day, that scored any cell: where held levels come from. */
   last_scored_date?: string | null
+  /** Why the newest run had no inputs to score with (its `retry_reason`); null when it gave none. */
+  scored_reason?: string | null
   /** ISO datetime (+05:30) of the next scheduled daily run; absent from an API that predates the field. */
   next_run?: string
 }
@@ -246,6 +248,12 @@ export interface CellDetail {
   lat: number
   lon: number
   region: string | null
+  /**
+   * The thresholds the run of this date levelled the cell against, and whose they are: a region name or `pooled`. Null
+   * `thresholdsRegion` means the API did not take them from that run (a replay set), so they are only the store's.
+   */
+  thresholds: Thresholds | null
+  thresholdsRegion: string | null
   level: Level
   levelName: string
   /** The level before hysteresis held it. */

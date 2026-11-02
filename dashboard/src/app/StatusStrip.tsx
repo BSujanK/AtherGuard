@@ -54,7 +54,7 @@ export default function StatusStrip() {
 
       {unscored && (
         <p className={styles.notice} role="status" data-testid="no-scores-notice">
-          No new risk scores for {formatDate(latest ?? null)}: satellite rain not yet available.
+          No new risk scores for {formatDate(latest ?? null)}: {data.scored_reason ?? 'model inputs were not available'}.
           {data.last_scored_date ? ` Levels are held from ${formatDate(data.last_scored_date)}.` : ' Levels are held from earlier days.'}
         </p>
       )}

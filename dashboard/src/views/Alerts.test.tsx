@@ -274,6 +274,33 @@ describe('the detail drawer', () => {
       expect(dialog).toHaveTextContent('9.2× Watch threshold')
     })
 
+    it('shows the thresholds the cell response carries for its date, not the newest run’s', async () => {
+      const ofThatDay = { watch: 5e-6, warning: 2e-5, emergency: 6e-5, source: 'run.json[western_ghats]' }
+      serve({ thresholds: ofThatDay, thresholds_region: 'western_ghats' })
+      renderAlerts(`/alerts-why?cell=${CELL}&date=2024-07-30`)
+      const dialog = await screen.findByRole('dialog')
+      await within(dialog).findByText('2.6 per 100k cell-days')
+      expect(dialog).toHaveTextContent('Western Ghats thresholds, per 100k cell-days: Watch 0.5, Warning 2, Emergency 6.')
+      expect(dialog).not.toHaveTextContent('Emergency 2.6.')
+      expect(dialog).toHaveTextContent('5.1× Watch threshold')
+    })
+
+    it('labels the thresholds of a run without a regional entry all-India', async () => {
+      serve({ thresholds: { watch: 5e-6, warning: 2e-5, emergency: 6e-5, source: 'run.json' }, thresholds_region: 'pooled' })
+      renderAlerts(`/alerts-why?cell=${CELL}&date=2024-07-30`)
+      const dialog = await screen.findByRole('dialog')
+      await within(dialog).findByText('2.6 per 100k cell-days')
+      expect(dialog).toHaveTextContent('All-India thresholds, per 100k cell-days: Watch 0.5, Warning 2, Emergency 6.')
+    })
+
+    it('uses the current regional thresholds when the cell response does not name where its own came from', async () => {
+      serve({ thresholds: { watch: 5e-6, warning: 2e-5, emergency: 6e-5, source: 'store' }, thresholds_region: null })
+      renderAlerts(`/alerts-why?cell=${CELL}&date=2024-07-30`)
+      const dialog = await screen.findByRole('dialog')
+      await within(dialog).findByText('2.6 per 100k cell-days')
+      expect(dialog).toHaveTextContent('Western Ghats thresholds, per 100k cell-days: Watch 0.38, Warning 1.4, Emergency 2.6.')
+    })
+
     it('labels the pooled thresholds all-India when the API has none per region', async () => {
       serve({}, { ...regional, thresholds_by_region: null })
       renderAlerts(`/alerts-why?cell=${CELL}&date=2024-07-30`)

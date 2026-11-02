@@ -324,8 +324,9 @@ def _lead0_counts(live_dir: Path, day: str) -> tuple[int, int] | None:
 def served_scored_status(live_dir: Path, shown: dict) -> dict:
     """How much of the domain the newest day of a live set has a risk score for: `scored_share` (n_scored / n_cells of
     lead 0, from its run.json) and `last_scored_date`, the newest live date at or before it with n_scored > 0 (the day its
-    held levels trace back to). Both None for a replay set, a day without a usable run.json or an empty domain."""
-    none = {"scored_share": None, "last_scored_date": None}
+    held levels trace back to), and `scored_reason`, the run's `retry_reason` (why its inputs were missing; None when it
+    has none). All None for a replay set, a day without a usable run.json or an empty domain."""
+    none = {"scored_share": None, "last_scored_date": None, "scored_reason": None}
     if shown["set"] != LIVE_SET or not shown["latest_date"]:
         return none
     counts = _lead0_counts(live_dir, shown["latest_date"])
@@ -333,7 +334,9 @@ def served_scored_status(live_dir: Path, shown: dict) -> dict:
         return none
     last = next((day for day in reversed(shown["dates"]) if day <= shown["latest_date"]
                  and (found := _lead0_counts(live_dir, day)) is not None and found[0] > 0), None)
-    return {"scored_share": counts[0] / counts[1], "last_scored_date": last}
+    reason = (run_summary(live_dir, shown["latest_date"]) or {}).get("retry_reason")
+    return {"scored_share": counts[0] / counts[1], "last_scored_date": last,
+            "scored_reason": reason if isinstance(reason, str) and reason.strip() else None}
 
 
 def available_leads(shown: dict, live_dir: Path) -> dict[str, list[int]]:

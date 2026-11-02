@@ -80,7 +80,7 @@ def mode_of(client):
     """/api/mode without its time-dependent `next_run`, the `thresholds`, the `leads` and the scored status (each covered by
     its own tests)."""
     body = client.get("/api/mode").json()
-    for key in ("next_run", "thresholds", "thresholds_by_region", "leads", "scored_share", "last_scored_date"):
+    for key in ("next_run", "thresholds", "thresholds_by_region", "leads", "scored_share", "last_scored_date", "scored_reason"):
         body.pop(key)
     return body
 
@@ -242,6 +242,23 @@ def test_mode_reports_the_share_of_cells_scored_on_the_shown_date(built, tmp_pat
     assert body["last_scored_date"] == "2024-07-10"
 
 
+def test_mode_serves_the_retry_reason_of_the_shown_run(built, tmp_path):
+    client = make_client(built[1], tmp_path)
+    write_scored(tmp_path / "live", "2024-07-09", 80)
+    folder = write_run(tmp_path / "live", "2024-07-10")
+    reason = "the rain of IMD day D could not be assembled (imd: missing)"
+    (folder / "run.json").write_text(json.dumps({"retry_reason": reason, "leads": {"0": {"n_cells": 100, "n_scored": 0}}}))
+    assert client.get("/api/mode").json()["scored_reason"] == reason
+
+
+@pytest.mark.parametrize("reason", [None, "", "  ", 3])
+def test_mode_scored_reason_is_null_without_a_retry_reason(built, tmp_path, reason):
+    client = make_client(built[1], tmp_path)
+    folder = write_run(tmp_path / "live", "2024-07-10")
+    (folder / "run.json").write_text(json.dumps({"retry_reason": reason, "leads": {"0": {"n_cells": 100, "n_scored": 0}}}))
+    assert client.get("/api/mode").json()["scored_reason"] is None
+
+
 def test_mode_last_scored_date_skips_days_that_scored_nothing(built, tmp_path):
     client = make_client(built[1], tmp_path)
     write_scored(tmp_path / "live", "2024-07-08", 100)
@@ -267,14 +284,14 @@ def test_mode_scored_status_is_null_without_a_usable_summary(built, tmp_path, su
     if summary is not None:
         (folder / "run.json").write_text(summary)
     body = client.get("/api/mode").json()
-    assert (body["scored_share"], body["last_scored_date"]) == (None, None)
+    assert (body["scored_share"], body["last_scored_date"], body["scored_reason"]) == (None, None, None)
 
 
 def test_mode_scored_status_is_null_for_a_replay_set_and_without_data(client, tmp_path):
     body = client.get("/api/mode").json()
-    assert (body["scored_share"], body["last_scored_date"]) == (None, None)
+    assert (body["scored_share"], body["last_scored_date"], body["scored_reason"]) == (None, None, None)
     body = make_client(tmp_path / "nothing", tmp_path).get("/api/mode").json()
-    assert (body["scored_share"], body["last_scored_date"]) == (None, None)
+    assert (body["scored_share"], body["last_scored_date"], body["scored_reason"]) == (None, None, None)
 
 
 IST = dash_api.IST

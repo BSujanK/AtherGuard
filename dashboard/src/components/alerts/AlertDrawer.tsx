@@ -18,7 +18,7 @@ import {
   type RiskText,
 } from '../../data/summary'
 import { type CellDetail, LEVELS, type PlaceLabel } from '../../data/types'
-import { type ScopedThresholds, thresholdsFor } from '../../data/thresholds'
+import { type ScopedThresholds, thresholdsOfCell } from '../../data/thresholds'
 import { LEVEL_HEX } from '../../scene/levelColors'
 import { REGION_LABELS, type RegionName } from '../../scene/geo'
 import EmptyState from '../EmptyState'
@@ -355,7 +355,7 @@ export default function AlertDrawer({
   useDialog(panel, onClose, returnFocus)
 
   const mode = useMode().data
-  const scoped = thresholdsFor(mode, detail.data?.region)
+  const scoped = thresholdsOfCell(detail.data, mode)
   const risk = describeRisk(detail.data?.risk, scoped.thresholds?.watch)
   const today = mode?.mode === 'live' && mode.latest_date === date
   const lastScored = mode?.last_scored_date

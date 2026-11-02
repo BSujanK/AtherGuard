@@ -284,12 +284,13 @@ export function parseRegionalThresholds(raw: unknown): Record<string, Thresholds
 
 export async function getMode(signal?: AbortSignal): Promise<ModeResponse> {
   const raw = await getJson<
-    Partial<Omit<ModeResponse, 'thresholds' | 'thresholds_by_region' | 'leads' | 'scored_share' | 'last_scored_date'>> & {
+    Partial<Omit<ModeResponse, 'thresholds' | 'thresholds_by_region' | 'leads' | 'scored_share' | 'last_scored_date' | 'scored_reason'>> & {
       thresholds?: unknown
       thresholds_by_region?: unknown
       leads?: unknown
       scored_share?: unknown
       last_scored_date?: unknown
+      scored_reason?: unknown
     }
   >('/api/mode', signal)
   return {
@@ -302,6 +303,7 @@ export async function getMode(signal?: AbortSignal): Promise<ModeResponse> {
     thresholds_by_region: parseRegionalThresholds(raw.thresholds_by_region),
     scored_share: shareOrNull(raw.scored_share),
     last_scored_date: textOrNull(raw.last_scored_date),
+    scored_reason: textOrNull(raw.scored_reason),
     next_run: raw.next_run,
   }
 }
@@ -398,6 +400,8 @@ export function parseCellDetail(raw: unknown): CellDetail {
     lat: finiteOrNull(raw.lat) ?? NaN,
     lon: finiteOrNull(raw.lon) ?? NaN,
     region: textOrNull(raw.region),
+    thresholds: parseThresholds(raw.thresholds),
+    thresholdsRegion: textOrNull(raw.thresholds_region),
     level: level as Level,
     levelName: textOrNull(raw.level_name) ?? '',
     rawLevel: textOrNull(raw.raw_level) ?? '',

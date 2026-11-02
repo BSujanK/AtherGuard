@@ -22,6 +22,15 @@ describe('parseCellDetail', () => {
     expect(d.sensorTrust).toEqual({ stations: 2, trusted: 1, flagged7d: 1, outOfDistribution: 0, flaggedTypes: ['stuck_zero'] })
   })
 
+  it('reads the thresholds of the cell’s date and the region they are for, and leaves both null when absent', () => {
+    const thresholds = { watch: 5e-6, warning: 2e-5, emergency: 6e-5, source: 'run.json' }
+    expect(parseCellDetail({ ...cellBody, thresholds, thresholds_region: 'pooled' })).toMatchObject({ thresholds, thresholdsRegion: 'pooled' })
+    expect(parseCellDetail({ ...cellBody, thresholds: { watch: 0 }, thresholds_region: undefined })).toMatchObject({
+      thresholds: null,
+      thresholdsRegion: null,
+    })
+  })
+
   it('keeps a source the API reports as null as null, never as zero', () => {
     const { sources } = parseCellDetail(cellBody)
     expect(sources.satellite1).toBeNull()
