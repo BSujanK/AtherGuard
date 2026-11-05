@@ -22,6 +22,14 @@ else:
 
 A geocoder answer with a non-finite coordinate or accuracy counts as not found (`ungeocodable`).
 
+QA corrections. The optional `qa/corrections.csv` of the reported-events folder (`CORRECTION_COLUMNS`) overrides the geocoder
+for single events after the spot-check against the sources. A row names the raw row by `date`, `place` and `state` exactly as
+written there and either gives the true point (`action` = correct, with latitude, longitude and accuracy_km; the row's
+`geocode_source` becomes "qa_correction" and it still goes through the domain, accuracy and duplicate checks) or throws the row
+out (`action` = exclude, those three empty; reason `qa_excluded`, with the given `reason` as `qa_reason` in the report).
+`reason` and `source_url` (where the correction comes from) are required. A key matching no raw row, or only a report-dated
+one, is an error; so is a malformed line. The report lists every correction with what the geocoder had answered.
+
 Admitted rows go to `<year>.csv` in the ledger format (`ledger.COLUMNS`, `location_text` = "place, district, state") and, with
 the extra columns `EXTRA_COLUMNS`, to `qa/inventory_admitted.csv` for the spot-check against the source URLs. That file is in a
 subfolder because `ledger.load_reported` reads every top-level `*.csv` and would count each event twice. An event's year is the
@@ -52,7 +60,8 @@ from .geocode_osm import geocode_any, nominatim_fetch
 
 RAW_COLUMNS = ("event_date", "date_basis", "place", "district", "state", "source_url", "outlet", "description")
 EXTRA_COLUMNS = ("year", "place", "district", "state", "outlet", "geocode_source", "description")
-REPORT_NAME, QA_DIR, COMBINED_NAME = "inventory_report.json", "qa", "inventory_admitted.csv"
+REPORT_NAME, QA_DIR, COMBINED_NAME, CORRECTIONS_NAME = "inventory_report.json", "qa", "inventory_admitted.csv", "corrections.csv"
+CORRECTION_COLUMNS = ("date", "place", "state", "action", "latitude", "longitude", "accuracy_km", "reason", "source_url")
 MAX_ACCURACY_KM = 10.0
 SAME_PLACE_KM = 5.0
 OUTSIDE = "outside_domain"
@@ -109,6 +118,77 @@ def _check(fields: dict[str, str], year: int) -> dict:
     return {"day": day, "year": year}
 
 
+def _correction(fields: dict[str, str]) -> dict:
+    """The validated correction of one CSV row (key, action, point, reason, source); ValueError says what is wrong."""
+    try:
+        day = datetime.strptime(fields["date"], "%Y-%m-%d").date()
+    except ValueError:
+        raise ValueError(f"date {fields['date']!r} is not YYYY-MM-DD") from None
+    for name in ("place", "state", "reason", "source_url"):
+        if not fields[name]:
+            raise ValueError(f"{name} is empty")
+    action = fields["action"]
+    if action not in ("correct", "exclude"):
+        raise ValueError(f"action {action!r} is neither 'correct' nor 'exclude'")
+    entry = {"key": (day.isoformat(), fields["place"], fields["state"]), "action": action, "reason": fields["reason"],
+             "source_url": fields["source_url"]}
+    numbers = {name: fields[name] for name in ("latitude", "longitude", "accuracy_km")}
+    if action == "exclude":
+        if any(numbers.values()):
+            raise ValueError("latitude, longitude and accuracy_km must be empty for an exclude")
+        return entry
+    for name, text in numbers.items():
+        try:
+            value = float(text)
+        except ValueError:
+            raise ValueError(f"{name} {text!r} is not a number") from None
+        if not math.isfinite(value) or (name == "accuracy_km" and value < 0):
+            raise ValueError(f"{name} {text!r} must be a finite number" + (" >= 0" if name == "accuracy_km" else ""))
+        entry[name] = value
+    return entry
+
+
+def _read_corrections(path: Path | None) -> dict[tuple[str, str, str], dict]:
+    """The corrections of `path` by (date, place, state); none when the file does not exist."""
+    if path is None or not Path(path).is_file():
+        return {}
+    path = Path(path)
+    corrections = {}
+    with path.open(newline="", encoding="utf-8-sig") as handle:
+        reader = csv.reader(handle)
+        header = next(reader, None) or []
+        missing = [c for c in CORRECTION_COLUMNS if c not in header]
+        if missing:
+            raise ValueError(f"{path.name}: missing column(s) {missing}; the header is {','.join(CORRECTION_COLUMNS)}")
+        while True:
+            line = reader.line_num + 1
+            raw = next(reader, None)
+            if raw is None:
+                return corrections
+            if not any(cell.strip() for cell in raw):
+                continue
+            fields = {name: (raw[i] if i < len(raw) else "").strip() for i, name in enumerate(header)}
+            try:
+                entry = _correction(fields)
+                if entry["key"] in corrections:
+                    raise ValueError(f"{entry['key']} is corrected twice")
+            except ValueError as error:
+                raise ValueError(f"{path.name} line {line}: {error}") from None
+            corrections[entry["key"]] = entry
+
+
+def _check_corrections(corrections: dict, records: list[dict]) -> None:
+    """Raise unless every correction names a stated raw row."""
+    basis = {}
+    for record in records:
+        basis.setdefault((record["event_date"], record["place"], record["state"]), set()).add(record["date_basis"])
+    for key in corrections:
+        if key not in basis:
+            raise ValueError(f"{CORRECTIONS_NAME}: no raw row matches {key}")
+        if "stated" not in basis[key]:
+            raise ValueError(f"{CORRECTIONS_NAME}: the raw row {key} is report-dated and never enters the test set")
+
+
 # --- deciding -----------------------------------------------------------------------------------------------------
 
 def _duplicate(a: dict, b: dict) -> bool:
@@ -118,13 +198,26 @@ def _duplicate(a: dict, b: dict) -> bool:
     return a["cell_id"] == b["cell_id"] or float(gc._haversine_km(a["lat"], a["lon"], b["lat"], b["lon"])) <= SAME_PLACE_KM
 
 
-def _locate(record: dict, geocoder: Geocoder) -> None:
-    """Geocode a stated row and set its `reason` (None = still a candidate) and, when found, its point and region."""
+def _locate(record: dict, geocoder: Geocoder, correction: dict | None = None) -> None:
+    """Geocode a stated row, apply its QA correction and set its `reason` (None = still a candidate) and, when placed, its
+    point and region."""
     record.update(reason=None, lat=None, lon=None, accuracy_km=None, geocode_source=None, region=None, cell_id=None)
     if record["date_basis"] != "stated":
         record["reason"] = "report_dated"
         return
     found = geocoder(record["place"], record["district"], record["state"])
+    if correction is not None:
+        correction["geocoded"] = None if found is None else dict(zip(("latitude", "longitude", "accuracy_km", "source"), found))
+        correction["rows"] = correction.get("rows", 0) + 1
+        if correction["action"] == "correct":
+            found = (correction["latitude"], correction["longitude"], correction["accuracy_km"], "qa_correction")
+    _place(record, found)
+    if correction is not None and correction["action"] == "exclude":
+        record["reason"], record["qa_reason"] = "qa_excluded", correction["reason"]
+
+
+def _place(record: dict, found: tuple[float, float, float, str] | None) -> None:
+    """Set the point, region and `reason` of a stated row from the geocoder's (or a correction's) answer."""
     if found is None:
         record["reason"] = "ungeocodable"
         return
@@ -214,8 +307,9 @@ def _rejected_entry(record: dict) -> dict:
              "district": record["district"], "state": record["state"], "source_url": record["source_url"],
              "outlet": record["outlet"], "reason": record["reason"], "latitude": record["lat"], "longitude": record["lon"],
              "accuracy_km": record["accuracy_km"], "geocode_source": record["geocode_source"]}
-    if "duplicate_of" in record:
-        entry["duplicate_of"] = record["duplicate_of"]
+    for extra in ("duplicate_of", "qa_reason"):
+        if extra in record:
+            entry[extra] = record[extra]
     return entry
 
 
@@ -223,14 +317,15 @@ def _rejected_entry(record: dict) -> dict:
 
 def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | None = None, geocoder: Geocoder | None = None,
                     fetch: Callable[[str], list[dict]] | None = None, cache: Path | None = None,
-                    offline: bool = False) -> pd.DataFrame:
+                    offline: bool = False, corrections: Path | None = None) -> pd.DataFrame:
     """Geocode the rows of `<raw_dir>/<year>.csv`, admit those the module docstring allows and write the files into `out_dir`
     (default the parent of `raw_dir`): `<year>.csv` per raw year, `qa/inventory_admitted.csv` and `inventory_report.json`.
 
     Returns the admitted rows (ledger columns, then EXTRA_COLUMNS), by date. `places` is the table of `geocode.load_places()`;
     `fetch` and `cache` go to `geocode_any` (defaults: the throttled Nominatim call and its on-disk cache). `geocoder(place,
     district, state) -> (lat, lon, accuracy_km, source) | None` replaces `geocode_any` (for tests). With `offline` a Nominatim
-    query missing from the cache raises `GeocodeError` naming it instead of being fetched."""
+    query missing from the cache raises `GeocodeError` naming it instead of being fetched. `corrections` is the QA corrections file
+    (default `<out_dir>/qa/corrections.csv`, used when it exists)."""
     raw_dir = Path(raw_dir)
     out_dir = Path(out_dir) if out_dir is not None else raw_dir.parent
     fetched = []
@@ -243,8 +338,10 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
 
     geocoder = geocoder or (lambda place, district, state: geocode_any(place, district, state, places, fetch=counted, cache=cache))
     records = _read_raw(raw_dir)
+    corrections = _read_corrections(corrections if corrections is not None else out_dir / QA_DIR / CORRECTIONS_NAME)
+    _check_corrections(corrections, records)
     for record in records:
-        _locate(record, geocoder)
+        _locate(record, geocoder, corrections.get((record["event_date"], record["place"], record["state"])))
     _drop_duplicates(records)
 
     admitted = _admitted_frame(records)
@@ -262,6 +359,8 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
         "years": {str(y): _summary([r for r in records if r["year"] == y]) for y in years},
         "rejected": [_rejected_entry(r) for r in records if r["reason"]],
         "merged_events": [r["merged"] for r in records if "merged" in r],
+        "corrections": [{"date": c["key"][0], "place": c["key"][1], "state": c["key"][2],
+                         **{k: v for k, v in c.items() if k != "key"}} for c in corrections.values()],
     })
     return admitted
 

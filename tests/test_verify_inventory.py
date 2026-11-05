@@ -303,3 +303,112 @@ def test_write_inventory_passes_offline_on(tmp_path, monkeypatch):
     write_raw(tmp_path, 2024, row())
     with pytest.raises(GeocodeError, match="offline"):
         inv.write_inventory(tmp_path, None, lambda m: None, offline=True)
+
+
+# --- QA corrections ---------------------------------------------------------------------------------------------------
+
+CORRECTION_HEADER = ["date", "place", "state", "action", "latitude", "longitude", "accuracy_km", "reason", "source_url"]
+
+
+def correction(action="correct", date="2024-08-01", place="Puthumala", state="Kerala", lat="11.4", lon="76.2", accuracy="5",
+               reason="namesake elsewhere", url="https://w.example/p"):
+    return dict(zip(CORRECTION_HEADER, [date, place, state, action, lat, lon, accuracy, reason, url]))
+
+
+def write_corrections(tmp_path, *rows):
+    (tmp_path / "qa").mkdir(exist_ok=True)
+    with (tmp_path / "qa" / "corrections.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, CORRECTION_HEADER)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def test_a_correction_moves_the_event_and_keeps_it_admitted(tmp_path):
+    write_corrections(tmp_path, correction())
+    admitted, report = build(tmp_path, row())
+    (event,) = admitted.to_dict("records")
+    assert (event["latitude"], event["longitude"], event["accuracy_km"], event["geocode_source"]) == (11.4, 76.2, 5.0, "qa_correction")
+    assert "2024-08-01,11.4,76.2," in (tmp_path / "2024.csv").read_text(encoding="utf-8")
+    (applied,) = report["corrections"]
+    assert applied["action"] == "correct" and applied["reason"] == "namesake elsewhere"
+    assert applied["source_url"] == "https://w.example/p"
+    assert applied["geocoded"] == {"latitude": 11.5, "longitude": 76.1, "accuracy_km": 5.0, "source": "geonames"}
+    assert applied["rows"] == 1 and report["rejected"] == []
+
+
+def test_a_correction_rescues_an_ungeocodable_place(tmp_path):
+    write_corrections(tmp_path, correction(place="Nowhere"))
+    admitted, report = build(tmp_path, row(place="Nowhere"))
+    assert list(admitted["place"]) == ["Nowhere"]
+    assert report["corrections"][0]["geocoded"] is None
+
+
+def test_a_corrected_point_still_goes_through_the_domain_and_accuracy_checks(tmp_path):
+    write_corrections(tmp_path, correction(lat="13.08", lon="80.27"),
+                      correction(place="Gangtok", lat="27.33", lon="88.61", accuracy="12"))
+    _, report = build(tmp_path, row(), row(place="Gangtok", state="Kerala"))
+    assert reasons(report) == {("Puthumala", "outside_domain"), ("Gangtok", "accuracy_over_10km")}
+
+
+def test_an_exclusion_rejects_the_row_with_the_given_reason(tmp_path):
+    write_corrections(tmp_path, correction("exclude", lat="", lon="", accuracy="", reason="boundary wall collapse"))
+    admitted, report = build(tmp_path, row(), row(place="Gangtok", state="Sikkim"))
+    assert list(admitted["place"]) == ["Gangtok"]
+    (entry,) = report["rejected"]
+    assert (entry["place"], entry["reason"], entry["qa_reason"]) == ("Puthumala", "qa_excluded", "boundary wall collapse")
+    assert report["totals"]["rejected"] == {"qa_excluded": 1}
+    assert report["corrections"][0]["action"] == "exclude"
+
+
+def test_an_exclusion_wins_over_a_duplicate_choice(tmp_path):
+    write_corrections(tmp_path, correction("exclude", place="Puthumala near", lat="", lon="", accuracy=""))
+    admitted, _ = build(tmp_path, row(), row(place="Puthumala near", outlet="B"))
+    assert list(admitted["outlet"]) == ["A"]
+
+
+def test_a_correction_matching_no_raw_row_raises_naming_the_key(tmp_path):
+    write_corrections(tmp_path, correction(place="Elsewhere"))
+    with pytest.raises(ValueError, match=r"2024-08-01.*Elsewhere.*Kerala"):
+        build(tmp_path, row())
+
+
+def test_a_correction_for_a_report_dated_row_raises(tmp_path):
+    write_corrections(tmp_path, correction())
+    with pytest.raises(ValueError, match="report-dated"):
+        build(tmp_path, row(basis="report"))
+
+
+def test_without_a_corrections_file_nothing_changes(tmp_path):
+    admitted, report = build(tmp_path, row())
+    assert list(admitted["geocode_source"]) == ["geonames"] and report["corrections"] == []
+
+
+def test_an_explicit_corrections_path_is_used(tmp_path):
+    write_corrections(tmp_path, correction())
+    moved = tmp_path / "elsewhere.csv"
+    (tmp_path / "qa" / "corrections.csv").rename(moved)
+    raw = write_raw(tmp_path, 2024, row())
+    admitted = inv.build_inventory(raw, None, out_dir=tmp_path, geocoder=geocoder, corrections=moved)
+    assert list(admitted["geocode_source"]) == ["qa_correction"]
+
+
+@pytest.mark.parametrize("bad, message", [
+    (correction("fix"), "action"),
+    (correction(lat=""), "latitude"),
+    (correction(accuracy="-1"), "accuracy_km"),
+    (correction(lat="abc"), "latitude"),
+    (correction("exclude"), "empty"),
+    (correction(url=" "), "source_url"),
+    (correction(reason=""), "reason"),
+    (correction(date="1/8/2024"), "date"),
+])
+def test_a_malformed_correction_stops_the_build_naming_the_line(tmp_path, bad, message):
+    write_corrections(tmp_path, bad)
+    with pytest.raises(ValueError, match=rf"corrections\.csv line 2: .*{message}"):
+        build(tmp_path, row())
+
+
+def test_two_corrections_for_one_event_raise(tmp_path):
+    write_corrections(tmp_path, correction(), correction())
+    with pytest.raises(ValueError, match="line 3: .*twice"):
+        build(tmp_path, row())
