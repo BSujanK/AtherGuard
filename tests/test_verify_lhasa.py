@@ -1,3 +1,4 @@
+import json
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -8,6 +9,7 @@ import xarray as xr
 from aetherguard.grid import latlon_to_cell
 from aetherguard.http import DownloadError
 from aetherguard.manifest import Manifest
+from aetherguard.urlredact import redact_text, redact_url
 from aetherguard.verify import lhasa
 from aetherguard.verify.lhasa import LhasaFormatError, build_year, cell_max, fetch_lhasa, subset_url
 
@@ -16,11 +18,12 @@ def cell_at(lat: float, lon: float) -> int:
     return int(latlon_to_cell(lat, lon))
 
 
-def write_nc(path: Path, lat, lon, values, *, fill_encoding: bool = True, variable: str = "p_landslide") -> Path:
+def write_nc(path: Path, lat, lon, values, *, fill_encoding: bool = True, variable: str = "p_landslide",
+             stamp: str = "2018-06-01") -> Path:
     """A LHASA-shaped file: `variable` as (time, lat, lon) float32; NaN is stored as -9999 with a _FillValue."""
     values = np.asarray(values, dtype=np.float32)
     data = xr.Dataset({variable: (("time", "lat", "lon"), values[None])},
-                      coords={"time": np.array(["2018-06-01"], dtype="datetime64[ns]"), "lat": lat, "lon": lon})
+                      coords={"time": np.array([stamp], dtype="datetime64[ns]"), "lat": lat, "lon": lon})
     encoding = {variable: {"_FillValue": np.float32(-9999.0)}} if fill_encoding else {}
     data.to_netcdf(path, engine="h5netcdf", encoding=encoding)
     return path
@@ -143,6 +146,19 @@ def test_a_non_monotone_latitude_axis_is_refused(tmp_path):
         cell_max(path, np.array([cell_at(10.025, 80.025)]))
 
 
+def test_a_file_whose_time_is_not_the_requested_day_at_midnight_utc_is_refused(tmp_path):
+    lat, lon = pixel_grid(10.0, 80.0, n_cells=1)
+    values = np.full((lat.size, lon.size), 0.2)
+    cells = np.array([cell_at(10.025, 80.025)])
+    good = write_nc(tmp_path / "a.nc4", lat, lon, values, stamp="2018-06-01")
+    assert cell_max(good, cells, day=date(2018, 6, 1)).tolist() == pytest.approx([0.2])
+    assert cell_max(good, cells).tolist() == pytest.approx([0.2])          # no day asked: no check
+    with pytest.raises(LhasaFormatError, match="2018-06-02"):
+        cell_max(write_nc(tmp_path / "b.nc4", lat, lon, values, stamp="2018-06-02"), cells, day=date(2018, 6, 1))
+    with pytest.raises(LhasaFormatError, match="00:00"):
+        cell_max(write_nc(tmp_path / "c.nc4", lat, lon, values, stamp="2018-06-01T12:00"), cells, day=date(2018, 6, 1))
+
+
 # ------------------------------------------------------------------------------------------ download
 
 
@@ -209,7 +225,8 @@ def test_build_year_aligns_days_and_cells_and_leaves_missing_days_nan(tmp_path):
 
     def fetch(day, cache):
         if day not in files:
-            files[day] = write_nc(tmp_path / f"{day}.nc4", lat, lon, np.full((lat.size, lon.size), present[day]))
+            files[day] = write_nc(tmp_path / f"{day}.nc4", lat, lon, np.full((lat.size, lon.size), present[day]),
+                                  stamp=day.isoformat())
         return files[day]
 
     out = build_year(2020, cells, tmp_path / "out", tmp_path / "raw", say=lambda m: None,
@@ -226,6 +243,12 @@ def test_build_year_aligns_days_and_cells_and_leaves_missing_days_nan(tmp_path):
     assert np.isnan(prob[2]).all()                       # a cell outside the file is never 0
     assert np.isnan(prob[:, 1]).all()                    # a day the archive lacks stays a NaN column
     assert not np.isnan(prob[:2, [0, 2, 213]]).any()
+    sidecar = json.loads(out.with_suffix(".json").read_text(encoding="utf-8"))
+    assert sidecar["day_convention"] == lhasa.DAY_CONVENTION
+    assert "granule date D = file time D 00:00 UTC" in sidecar["day_convention"]
+    assert "-1/0/+1" in sidecar["day_convention"]
+    assert sidecar["nan_note"] == lhasa.NAN_NOTE and "land cell" in sidecar["nan_note"]
+    assert "granule date D = file time D 00:00 UTC" in lhasa.__doc__
 
 
 def test_build_year_records_a_failed_day_and_does_not_drop_it(tmp_path):
@@ -236,7 +259,7 @@ def test_build_year_records_a_failed_day_and_does_not_drop_it(tmp_path):
     def fetch(day, cache):
         if day == date(2019, 6, 2):
             raise DownloadError("HTTP 500 from somewhere", retriable=True, status=500)
-        return write_nc(tmp_path / f"{day}.nc4", lat, lon, np.full((lat.size, lon.size), 0.5))
+        return write_nc(tmp_path / f"{day}.nc4", lat, lon, np.full((lat.size, lon.size), 0.5), stamp=day.isoformat())
 
     out = build_year(2019, cells, tmp_path / "out", tmp_path / "raw", say=lambda m: None,
                      available=days, fetch=fetch, workers=1)
@@ -245,6 +268,41 @@ def test_build_year_records_a_failed_day_and_does_not_drop_it(tmp_path):
         assert data["prob"].shape == (1, 214) and np.isnan(data["prob"][0, 1])
     sidecar = out.with_suffix(".json").read_text(encoding="utf-8")
     assert "2019-06-02" in sidecar and "failed" in sidecar
+
+
+def test_build_year_fails_a_day_whose_file_holds_another_day(tmp_path):
+    lat, lon = pixel_grid(10.0, 80.0, n_cells=1)
+    cells = np.array([cell_at(10.025, 80.025)])
+
+    def fetch(day, cache):
+        return write_nc(tmp_path / f"{day}.nc4", lat, lon, np.full((lat.size, lon.size), 0.5), stamp="2019-06-09")
+
+    out = build_year(2019, cells, tmp_path / "out", tmp_path / "raw", say=lambda m: None,
+                     available={date(2019, 6, 1)}, fetch=fetch, workers=1)
+    with np.load(out) as data:
+        assert not data["fetched"].any() and np.isnan(data["prob"]).all()
+    assert "2019-06-09" in out.with_suffix(".json").read_text(encoding="utf-8")
+
+
+def test_error_reasons_in_the_sidecar_never_carry_a_credential_or_oauth_code(tmp_path):
+    lat, lon = pixel_grid(10.0, 80.0, n_cells=1)
+    cells = np.array([cell_at(10.025, 80.025)])
+
+    def fetch(day, cache):
+        if day == date(2019, 6, 1):
+            raise OSError("redirect to https://urs.earthdata.nasa.gov/oauth/authorize?client_id=abc&code=SECRETCODE123&state=x")
+        raise DownloadError("ConnectionError: https://host/cb?code=SECRETCODE123&token=TOK456", retriable=True)
+
+    out = build_year(2019, cells, tmp_path / "out", tmp_path / "raw", say=lambda m: None,
+                     available={date(2019, 6, 1), date(2019, 6, 2)}, fetch=fetch, workers=1)
+    sidecar = out.with_suffix(".json").read_text(encoding="utf-8")
+    assert "SECRETCODE123" not in sidecar and "TOK456" not in sidecar
+    assert "code=***" in sidecar
+
+
+def test_redaction_covers_the_oauth_code_parameter():
+    assert redact_url("https://urs.earthdata.nasa.gov/cb?code=SECRET&state=ok") == "https://urs.earthdata.nasa.gov/cb?code=***&state=ok"
+    assert "SECRET" not in redact_text("HTTPSConnectionError: https://x/cb?a=1&code=SECRET")
 
 
 def test_build_year_aborts_when_every_request_fails(tmp_path):

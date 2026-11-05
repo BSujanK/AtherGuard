@@ -8,6 +8,10 @@ DAP4 service, which crops the domain box on the server (about 12 MB a day instea
 `p_landslide` as (time, lat, lon) on a global 1/120 degree lattice (14400 x 43200, latitude descending, pixel edges on the
 0.05 degree cell edges, so six pixels per cell side), fill value -9999. Auth: Earthdata login from the user's netrc.
 
+Day convention: LHASA granule date D = file time D 00:00 UTC; panels use the IMD/UTC day D; no offset applied; whether LHASA
+day D uses IMERG through the whole of UTC day D is not established - the verification report shows LHASA at day shifts
+-1/0/+1. `cell_max(..., day=D)` and `build_year` refuse a file whose time is not D at 00:00.
+
 Per day a cell takes the maximum probability of the pixels whose centres fall inside it; NaN when it has no valid pixel.
 `build_year` writes `lhasa_<year>.npz` (cell_id, days, prob float32 (cells, days), fetched) plus a JSON sidecar.
 """
@@ -32,6 +36,7 @@ from ..grid import ID_STRIDE, latlon_to_cell
 from ..hazard.jsonio import dump_json
 from ..http import DownloadError, download, fetch_json
 from ..manifest import Manifest
+from ..urlredact import redact_text
 
 CONCEPT_ID = "C2654319036-GES_DISC"
 CMR_URL = "https://cmr.earthdata.nasa.gov/search/granules.json"
@@ -53,6 +58,11 @@ MANIFEST_PATH = PROJECT_ROOT / "manifests" / "data_manifest.jsonl"
 SOURCE = "NASA LHASA v2.0.0 daily global landslide nowcast (Global_Landslide_Nowcast), GES DISC OPeNDAP domain subset"
 LICENCE = ("NASA Earth science data, open access (https://www.earthdata.nasa.gov/engage/open-data-services-software/"
            "data-use-policy); cite Stanley, T. A. et al. 2021, Frontiers in Earth Science 9, doi:10.3389/feart.2021.640043")
+
+DAY_CONVENTION = ("LHASA granule date D = file time D 00:00 UTC; panels use the IMD/UTC day D; no offset applied; whether "
+                  "LHASA day D uses IMERG through the whole of UTC day D is not established - the verification report "
+                  "shows LHASA at day shifts -1/0/+1")
+NAN_NOTE = "the NaN share is 0 because every panel cell is a land cell (LHASA has a valid value on land)"
 
 _GRANULE_DAY = re.compile(r"_(\d{8})\.nc4?$")
 
@@ -122,8 +132,8 @@ def fetch_lhasa(day: date, cache: Path, *, manifest: Manifest | None = None,
 
 # ------------------------------------------------------------------------------------------ reading one file
 
-def _read(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """(lat, lon, probability (lat, lon) float32 with NaN for fill, masked and out-of-range values)."""
+def _read(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.datetime64]:
+    """(lat, lon, probability (lat, lon) float32 with NaN for fill, masked and out-of-range values, time stamp)."""
     import xarray as xr
     path = Path(path)
     try:
@@ -136,6 +146,7 @@ def _read(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
                                        f"expected {FILE_DIMS} with one time step")
             lat, lon = ds["lat"].values.astype(np.float64), ds["lon"].values.astype(np.float64)
             values = np.asarray(array.values[0], dtype=np.float32)
+            stamp = ds["time"].values[0].astype("datetime64[s]")
     except LhasaFormatError:
         raise
     except (OSError, ValueError, KeyError, TypeError) as exc:
@@ -145,7 +156,7 @@ def _read(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         if not (np.all(steps > 0) or np.all(steps < 0)):
             raise LhasaFormatError(f"{path.name}: {name} is not strictly monotone")
     values[~np.isfinite(values) | (values < 0) | (values > 1)] = np.nan     # -9999 fill, masked, junk
-    return lat, lon, values
+    return lat, lon, values, stamp
 
 
 def _blocks(index: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -162,12 +173,14 @@ def _lookup(unique: np.ndarray, wanted: np.ndarray) -> tuple[np.ndarray, np.ndar
     return order[at], sorted_unique[at] == wanted
 
 
-def cell_max(path: Path, cell_ids: np.ndarray) -> np.ndarray:
+def cell_max(path: Path, cell_ids: np.ndarray, day: date | None = None) -> np.ndarray:
     """Maximum LHASA probability over the pixels whose centres fall inside each 0.05 degree cell: float32, one value per
     id in the given order. NaN where the cell has no valid pixel in the file (outside it, or only fill / masked pixels);
-    never 0 for missing."""
+    never 0 for missing. With `day`, the file's time must be that day at 00:00 UTC (LhasaFormatError otherwise)."""
     ids = np.asarray(cell_ids, dtype=np.int64)
-    lat, lon, values = _read(path)
+    lat, lon, values, stamp = _read(path)
+    if day is not None and stamp != np.datetime64(day.isoformat() + "T00:00:00"):
+        raise LhasaFormatError(f"{Path(path).name}: time is {stamp}, expected {day.isoformat()} 00:00 UTC")
     lat_cell = latlon_to_cell(lat, np.zeros_like(lat)) // ID_STRIDE
     lon_cell = latlon_to_cell(np.zeros_like(lon), lon) % ID_STRIDE
     lat_starts, lat_unique = _blocks(lat_cell)
@@ -242,14 +255,14 @@ def build_year(year: int, cell_ids: np.ndarray, out_dir: Path, cache: Path, say=
             for attempt in range(FORMAT_ATTEMPTS):
                 path = fetch(days[k], year_cache)
                 try:
-                    column = cell_max(path, ids)
+                    column = cell_max(path, ids, days[k])
                     break
                 except LhasaFormatError:
                     Path(path).unlink(missing_ok=True)      # never keep a file that does not decode
                     if attempt == FORMAT_ATTEMPTS - 1:
                         raise
         except (DownloadError, LhasaFormatError, OSError) as exc:
-            reason = f"{type(exc).__name__}: {exc}"
+            reason = redact_text(f"{type(exc).__name__}: {exc}")
             with lock:
                 consecutive[0] += 1
                 if consecutive[0] >= ABORT_AFTER:
@@ -286,6 +299,7 @@ def build_year(year: int, cell_ids: np.ndarray, out_dir: Path, cache: Path, say=
         "variable": VARIABLE, "reduction": "maximum over the pixels whose centres fall in the 0.05 degree cell",
         "window": [days[0].isoformat(), days[-1].isoformat()], "n_cells": int(ids.size), "n_days": len(days),
         "days_fetched": int(fetched.sum()), "days_missing_in_archive": missing, "days_failed": failed,
+        "day_convention": DAY_CONVENTION, "nan_note": NAN_NOTE,
         "nan_share_of_fetched_days": float(np.isnan(shown).mean()) if shown.size else None})
     _write_npz(path, cell_id=ids, days=np.array([d.isoformat() for d in days]), prob=prob, fetched=fetched)
     say(f"  {year}: written {path} ({int(fetched.sum())} of {len(days)} days)")

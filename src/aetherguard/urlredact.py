@@ -7,7 +7,7 @@ from urllib.parse import unquote
 REDACTED = "***"
 _SENSITIVE_NAMES = frozenset({
     "key", "token", "password", "passwd", "pwd", "secret", "apikey", "api_key", "access_token",
-    "sig", "signature", "auth",
+    "sig", "signature", "auth", "code",   # code: OAuth authorization code of an Earthdata redirect
 })
 _SENSITIVE_SUFFIXES = ("_key", "_token", "_secret", "_password", "_signature", "_sig")
 # Parameter name and its value inside free text; the name must follow a '?', '&', ';' or '#'.
