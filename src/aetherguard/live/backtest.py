@@ -497,15 +497,29 @@ def select_cells(cell_ids, cfg: dict | None = None) -> pd.DataFrame:
     return out
 
 
+SEASON_YEARS = tuple(range(2018, 2026))
+
+
+def season_year(name: str) -> int | None:
+    """The year of a `season_<year>` set name (2018-2025), None for any other name."""
+    prefix, _, tail = name.partition("_")
+    return int(tail) if prefix == "season" and tail.isdigit() and int(tail) in SEASON_YEARS else None
+
+
 def load_set(name: str, start: date | None = None, end: date | None = None, cfg: dict | None = None) -> BacktestSet:
-    """A named backtest set with its cells, labelled events and default dates (overridable with `start` / `end`)."""
+    """A named backtest set with its cells, labelled events and default dates (overridable with `start` / `end`). The
+    `season_<year>` sets of 2019-2025 hold the cells of `season_2018`, June-December, and no labelled events."""
     cfg = cfg or live_run.load_run_config()
     directory = features_dir()
-    if name == "season_2018":
+    year = season_year(name)
+    if year is not None:
         test = pd.read_parquet(directory / "test_2018_samples_features.parquet",
                                columns=["cell_id", "date", "kind", "in_domain"])
         positives = test[(test["kind"] == "positive") & test["in_domain"]][["cell_id", "date"]].reset_index(drop=True)
         cells = select_cells(np.union1d(universe_cell_ids(), positives["cell_id"].to_numpy()), cfg)
+        if year != 2018:
+            return BacktestSet(name, start or date(year, 6, 1), end or date(year, 12, 31), cells, None, "season",
+                               note=f"the cells of season_2018 over June-December {year}; no labelled events")
         first, last = start or date(2018, 6, 1), end or date(2018, 9, 30)
         events = positives[(positives["date"] >= pd.Timestamp(first)) & (positives["date"] <= pd.Timestamp(last))]
         return BacktestSet(name, first, last, cells, events.reset_index(drop=True), "season",
@@ -531,7 +545,8 @@ def load_set(name: str, start: date | None = None, end: date | None = None, cfg:
         return BacktestSet(name, first, last, select_cells(case["cell_id"].unique(), cfg), None, "case_series",
                            focus=(om.WAYANAD["lat"], om.WAYANAD["lon"]),
                            note="qualitative replay of the 30 July 2024 Mundakkai event; no NASA label exists")
-    raise ValueError(f"unknown backtest set {name!r}; choose one of {SET_NAMES}")
+    raise ValueError(f"unknown backtest set {name!r}; choose one of {SET_NAMES} or season_<year> for "
+                     f"{SEASON_YEARS[0]}-{SEASON_YEARS[-1]}")
 
 
 SET_NAMES = ("season_2018", "window_2023", "kerala_2018", "wayanad_2024")

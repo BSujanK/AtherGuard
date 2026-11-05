@@ -278,7 +278,7 @@ def test_run_backtest_takes_the_set_stores_and_model_it_is_given(tmp_path):
 
 def test_load_set_rejects_an_unknown_name():
     with pytest.raises(ValueError, match="unknown backtest set"):
-        bt.load_set("season_2019")
+        bt.load_set("season_2026")
 
 
 # ----------------------------------------------------------------------------------------------- report

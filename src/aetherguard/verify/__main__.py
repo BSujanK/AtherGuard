@@ -1,4 +1,4 @@
-"""`python -m aetherguard.verify baseline|ledger|inventory` (see aetherguard.verify.report, .ledger and .inventory)."""
+"""`python -m aetherguard.verify baseline|ledger|inventory|seasons` (see aetherguard.verify.report, .ledger, .inventory and .seasons)."""
 from __future__ import annotations
 
 import argparse
@@ -8,7 +8,7 @@ from pathlib import Path
 
 from ..config import PROJECT_ROOT
 from ..live import run as live_run
-from . import geocode, inventory, ledger, report
+from . import geocode, inventory, ledger, report, seasons
 from .geocode import GeocodeError
 
 
@@ -25,6 +25,10 @@ def main(argv=None) -> int:
     events.add_argument("--dir", type=Path, default=ledger.REPORTED_DIR, help="reported-events folder (default data/raw/manual/reported_events/)")
     events.add_argument("--offline", action="store_true",
                         help="answer from the Nominatim cache only: a query that is not cached is an error")
+    held = sub.add_parser("seasons", help="score June-December of the held-out years with the frozen model (training-style features)")
+    held.add_argument("--years", type=seasons.parse_years, default=seasons.parse_years("2018-2025"), help="YYYY or YYYY-YYYY (default 2018-2025)")
+    held.add_argument("--out", type=Path, default=None, help="panel directory (default data/processed/alerts/heldout_seasons)")
+    held.add_argument("--force", action="store_true", help="score a season again although its panel exists")
     args = parser.parse_args(argv)
     say = lambda m: print(m, flush=True)
     try:
@@ -32,6 +36,8 @@ def main(argv=None) -> int:
             report.write_baseline(args.out, say)
         elif args.command == "ledger":
             ledger.write_ledger(args.out, args.today, say)
+        elif args.command == "seasons":
+            seasons.run(args.years, args.out, args.force, say)
         else:
             inventory.write_inventory(args.dir, geocode.load_places(), say, offline=args.offline)
     except (live_run.LiveRunError, GeocodeError, ValueError, OSError) as exc:
