@@ -270,6 +270,77 @@ def test_cached_responses_are_recorded_in_the_manifest_with_the_odbl_licence_onc
     assert "ODbL" in entry.licence and "q=Puthumala" in entry.url and entry.path.startswith("cache/")
 
 
+# --- compound place texts ------------------------------------------------------------------------
+
+def test_a_compound_text_is_asked_whole_then_by_segment_with_and_without_the_district(tmp_path):
+    fetch = Fetch()
+    osm.osm_geocode("Alpha, Beta", "Wayanad", "Kerala", fetch=fetch, cache=tmp_path, places=PLACES)
+    assert fetch.queries == ["Alpha, Beta, Wayanad, Kerala, India", "Alpha, Beta, Kerala, India",
+                             "alpha, Wayanad, Kerala, India", "alpha, Kerala, India",
+                             "beta, Wayanad, Kerala, India", "beta, Kerala, India"]
+
+
+def test_a_match_on_the_first_segment_keeps_the_accuracy_of_its_kind(tmp_path):
+    for addresstype, km in (("village", 5.0), ("road", 10.0)):
+        fetch = Fetch(**{"puthumala, Wayanad, Kerala, India": [hit(addresstype=addresstype)]})
+        out = osm.osm_geocode("Puthumala, Meppadi", "Wayanad", "Kerala", fetch=fetch, cache=tmp_path / addresstype, places=PLACES)
+        assert out == (11.52, 76.18, km)
+
+
+def test_a_match_on_a_later_segment_is_good_to_fifteen_km_only(tmp_path):
+    fetch = Fetch(**{"puthumala, Kerala, India": [hit()]})
+    out = osm.osm_geocode("Meppadi, Puthumala", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES)
+    assert out == (11.52, 76.18, 15.0)
+    assert fetch.queries == ["Meppadi, Puthumala, Kerala, India", "meppadi, Kerala, India", "puthumala, Kerala, India"]
+
+
+def test_a_trailing_generic_word_is_dropped_in_a_segment_query(tmp_path):
+    fetch = Fetch(**{"pakshep, Kerala, India": [hit()]})
+    assert osm.osm_geocode("Pakshep village", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES) == (11.52, 76.18, 5.0)
+
+
+def test_a_near_segment_is_never_queried(tmp_path):
+    fetch = Fetch()
+    osm.osm_geocode("Puthumala, near Kalpetta, nr Meppadi", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES)
+    assert fetch.queries == ["Puthumala, near Kalpetta, nr Meppadi, Kerala, India", "puthumala, Kerala, India"]
+
+
+def test_a_text_that_starts_with_near_is_never_queried(tmp_path):
+    out, fetch = run([hit()], place="Near Kullu town", tmp=tmp_path)
+    assert out is None and fetch.queries == []
+
+
+def test_a_road_designation_segment_is_kept_as_its_own_query(tmp_path):
+    fetch = Fetch()
+    osm.osm_geocode("Tseipama, NH-29", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES)
+    assert "nh 29, Kerala, India" in fetch.queries
+
+
+def test_a_segment_shorter_than_three_characters_is_never_queried(tmp_path):
+    fetch = Fetch()
+    osm.osm_geocode("Puthumala, NH", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES)
+    assert all(not q.startswith("nh,") for q in fetch.queries)
+
+
+def test_an_ambiguous_segment_does_not_fall_through_to_the_next_segment(tmp_path):
+    fetch = Fetch(**{"alpha, Kerala, India": [hit(lat=11.5), hit(lat=11.5 + 30 / KM_PER_DEG)], "beta, Kerala, India": [hit()]})
+    assert osm.osm_geocode("Alpha, Beta", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES) is None
+    assert "beta, Kerala, India" not in fetch.queries
+
+
+def test_the_first_segment_wins_over_a_later_one(tmp_path):
+    fetch = Fetch(**{"alpha, Kerala, India": [hit(lat=11.0)], "beta, Kerala, India": [hit(lat=12.0)]})
+    assert osm.osm_geocode("Alpha, Beta", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES) == (11.0, 76.18, 5.0)
+
+
+def test_cached_segment_queries_are_not_fetched_again(tmp_path):
+    first = Fetch(**{"beta, Kerala, India": [hit()]})
+    out = osm.osm_geocode("Alpha, Beta", None, "Kerala", fetch=first, cache=tmp_path, places=PLACES)
+    again = Fetch()
+    assert osm.osm_geocode("Alpha, Beta", None, "Kerala", fetch=again, cache=tmp_path, places=PLACES) == out == (11.52, 76.18, 15.0)
+    assert again.queries == []
+
+
 # --- geocode_any ---------------------------------------------------------------------------------
 
 def test_geocode_any_uses_geonames_when_it_resolves_and_does_not_fetch(tmp_path):

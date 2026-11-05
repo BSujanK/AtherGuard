@@ -4,10 +4,13 @@
 None; the fourth element of its answer names the source, "geonames" or "osm". `osm_geocode` is the Nominatim half on its own.
 Both return None rather than a guess.
 
-Query. "<place>, <district>, <state>, India" first, then "<place>, <state>, India" when the first has no acceptable result
-(a first query with acceptable results decides, even when they are ambiguous). The state is the GeoNames admin1 name of
-`geocode.canonical_state`; a state outside the study domain returns None without a request. Parameters: countrycodes=in,
-format=jsonv2, addressdetails=1, limit=10.
+Queries, in order: the place text as written, then each segment of it (the segment logic of `geocode.candidate_queries`: comma /
+semicolon / bracket segments left to right, each also without a trailing village / hamlet / town / area, in its folded spelling;
+a segment starting with "near" or "nr" or shorter than 3 characters is never queried, "NH-29" is kept as "nh 29"). Each is asked
+as "<text>, <district>, <state>, India" and then, when a district is named, as "<text>, <state>, India". The first query with
+acceptable results decides, even when they are ambiguous (None): a later query is never tried past it. The state is the
+GeoNames admin1 name of `geocode.canonical_state`; a state outside the study domain returns None without a request. Parameters:
+countrycodes=in, format=jsonv2, addressdetails=1, limit=10.
 
 Acceptance. A result is discarded unless its `address.state` is the named state (same alias table as GeoNames) and, when a
 district is named, the first of its `address.state_district`, `address.county`, `address.city_district` that is present denotes
@@ -16,7 +19,9 @@ lacks, such as a district created after the GeoNames dump, matches a result of t
 result (`addresstype`, then `type`): villages, hamlets, neighbourhoods, localities, peaks, passes, ridges, valleys, bridges,
 tunnels and railway stations are good to 5 km; towns, roads (also `category` highway), tracks, rivers and streams to 10 km;
 cities, municipalities, counties, districts, states, regions and any other kind are rejected. Several accepted results are one
-place when within 10 km of their centroid (`geocode.merge_points`: accuracy max(coarsest kind, spread)), otherwise None.
+place when within 10 km of their centroid (`geocode.merge_points`: accuracy max(coarsest kind, spread)), otherwise None. A match
+on the whole text or its first segment keeps the accuracy of its kind; a match on a later segment is good to 15 km only
+(`geocode.LOCALITY_KM`).
 
 Usage policy (https://operations.osmfoundation.org/policies/nominatim/): an identifying User-Agent, at most one request per
 second, every response cached on disk and a cached query never fetched again. This module is for the one-off set of reported
@@ -176,6 +181,17 @@ def _accepted(results: list[dict], state: str, wanted: set[str] | None, scope: l
     return found
 
 
+def _texts(place: str) -> list[tuple[str, float]]:
+    """(text to ask Nominatim about, accuracy_km of a match on it): the place as written, then its segments (see the docstring)."""
+    texts = {}
+    if not gc.fold(place).startswith(("near ", "nr ")):
+        texts[place] = gc.NAMED_PLACE_KM
+    for key, accuracy in gc.candidate_queries(place):
+        if key != gc.fold(place):
+            texts.setdefault(key, accuracy)
+    return list(texts.items())
+
+
 # --- geocoding --------------------------------------------------------------------------------------------------
 
 def osm_geocode(place: str, district: str | None, state: str, fetch: Callable[[str], list[dict]] | None = None,
@@ -192,20 +208,21 @@ def osm_geocode(place: str, district: str | None, state: str, fetch: Callable[[s
         return None
     fetch = fetch or nominatim_fetch
     cache_dir = Path(cache) if cache is not None else data_root() / "raw" / "geocode_cache" / "nominatim"
-    queries = [f"{place}, {canonical}, India"]
     wanted, scope = None, []
+    given = ""
     if gc._district_key(district):
         scope = list(gc.known_districts(places if places is not None else gc.load_places(), canonical))
         wanted = gc.district_matches(district, scope)
         if not wanted:                                 # a district the places table lacks: it can only match by its own name
             scope.append(gc._district_key(district))
             wanted = {scope[-1]}
-        queries.insert(0, f"{place}, {_squash(district)}, {canonical}, India")
-    for query in queries:
-        found = _accepted(_search(query, fetch, cache_dir), canonical, wanted, scope)
-        if found:
-            lat, lon, accuracy = np.array(found).T
-            return gc.merge_points(lat, lon, float(accuracy.max()))
+        given = _squash(district)
+    for text, query_km in _texts(place):
+        for query in ([f"{text}, {given}, {canonical}, India"] if given else []) + [f"{text}, {canonical}, India"]:
+            found = _accepted(_search(query, fetch, cache_dir), canonical, wanted, scope)
+            if found:
+                lat, lon, accuracy = np.array(found).T
+                return gc.merge_points(lat, lon, max(float(accuracy.max()), query_km))
     return None
 
 
