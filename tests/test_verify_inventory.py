@@ -9,6 +9,7 @@ import pytest
 
 from aetherguard.verify import inventory as inv
 from aetherguard.verify import ledger
+from aetherguard.verify.geocode import GeocodeError
 
 HEADER = ["event_date", "date_basis", "place", "district", "state", "source_url", "outlet", "description"]
 # (lat, lon, accuracy_km, source) per place text; a missing place is ungeocodable. Wayanad and Mumbai are in the Western Ghats
@@ -126,6 +127,38 @@ def test_the_same_place_within_a_day_across_outlets_is_one_event(tmp_path):
     assert reasons(report) == {("Puthumala hamlet", "duplicate")}
 
 
+def test_a_duplicate_group_keeps_the_best_location_and_the_earliest_stated_date(tmp_path):
+    admitted, report = build(tmp_path, row(date="2024-08-01", outlet="A"),
+                             row(date="2024-08-02", place="Puthumala near", outlet="B", url="https://b.example/1"))
+    (event,) = admitted.to_dict("records")
+    assert (event["date"], event["place"], event["outlet"], event["latitude"], event["accuracy_km"]) ==         ("2024-08-01", "Puthumala near", "B", 11.501, 2.0)
+    assert "2024-08-01,11.501,76.101," in (tmp_path / "2024.csv").read_text(encoding="utf-8")
+    (merged,) = report["merged_events"]
+    assert merged["kept"] == {"place": "Puthumala near", "outlet": "B", "source_url": "https://b.example/1"}
+    assert (merged["stated_date"], merged["date"], merged["dates"]) == ("2024-08-02", "2024-08-01", ["2024-08-01", "2024-08-02"])
+    assert [(d["place"], d["event_date"], d["outlet"]) for d in merged["dropped"]] == [("Puthumala", "2024-08-01", "A")]
+
+
+def test_a_group_whose_kept_row_is_also_the_earliest_changes_no_date(tmp_path):
+    admitted, report = build(tmp_path, row(date="2024-08-01", place="Puthumala near"), row(date="2024-08-02", outlet="B"))
+    assert list(admitted["date"]) == ["2024-08-01"]
+    (merged,) = report["merged_events"]
+    assert merged["stated_date"] == merged["date"] == "2024-08-01"
+
+
+def test_a_row_without_duplicates_is_not_a_merged_event(tmp_path):
+    _, report = build(tmp_path, row())
+    assert report["merged_events"] == []
+
+
+def test_a_non_finite_accuracy_is_ungeocodable(tmp_path):
+    raw = write_raw(tmp_path, 2024, row(place="Nan"), row(place="Inf"), row(place="Puthumala"))
+    sites = {**SITES, "Nan": (11.5, 76.1, float("nan"), "osm"), "Inf": (11.6, 76.2, float("inf"), "osm")}
+    admitted = inv.build_inventory(raw, None, out_dir=tmp_path, geocoder=lambda p, d, s: sites.get(p))
+    assert list(admitted["place"]) == ["Puthumala"]
+    assert reasons(report_of(tmp_path)) == {("Nan", "ungeocodable"), ("Inf", "ungeocodable")}
+
+
 def test_a_place_more_than_five_km_away_or_two_days_later_is_a_separate_event(tmp_path):
     admitted, _ = build(tmp_path, row(), row(place="Meppadi", outlet="B"), row(date="2024-08-03", outlet="C"))
     assert len(admitted) == 3
@@ -138,11 +171,17 @@ def test_a_rejected_row_does_not_suppress_an_admitted_one(tmp_path):
 
 def test_the_combined_file_carries_the_qa_columns(tmp_path):
     build(tmp_path, row(outlet="Hindu", description="Slide at dusk"))
-    with (tmp_path / "inventory_admitted.csv").open(newline="", encoding="utf-8") as handle:
+    with (tmp_path / "qa" / "inventory_admitted.csv").open(newline="", encoding="utf-8") as handle:
         (record,) = list(csv.DictReader(handle))
     assert list(record) == ["date", "latitude", "longitude", "location_text", "source_url", "accuracy_km", "year", "place",
                             "district", "state", "outlet", "geocode_source", "description"]
     assert (record["year"], record["geocode_source"], record["outlet"]) == ("2024", "geonames", "Hindu")
+
+
+def test_the_combined_file_is_in_a_folder_the_ledger_does_not_scan(tmp_path):
+    admitted, _ = build(tmp_path, row(), row(date="2024-09-01", place="Gangtok", state="Sikkim"))
+    assert not (tmp_path / "inventory_admitted.csv").exists()
+    assert len(ledger.load_reported(tmp_path)) == len(admitted) == 2   # a count, not a set: no event is read twice
 
 
 def test_ledger_accepts_the_output(tmp_path):
@@ -188,6 +227,26 @@ def test_the_default_geocoder_is_geocode_any_with_the_cache_and_counts_fetches(t
     assert report_of(tmp_path)["osm_fetched"] == 1
 
 
+def test_offline_raises_on_a_cache_miss_naming_the_query_and_never_fetches(tmp_path, monkeypatch):
+    fetched = []
+
+    def fake_any(place, district, state, places, fetch=None, cache=None):
+        return fetch(f"{place}, {district}, {state}, India")
+
+    monkeypatch.setattr(inv, "geocode_any", fake_any)
+    raw = write_raw(tmp_path, 2024, row())
+    with pytest.raises(GeocodeError, match="Puthumala, Wayanad, Kerala, India"):
+        inv.build_inventory(raw, "PLACES", out_dir=tmp_path, fetch=fetched.append, offline=True)
+    assert fetched == []
+
+
+def test_offline_with_every_query_cached_builds(tmp_path, monkeypatch):
+    monkeypatch.setattr(inv, "geocode_any", lambda place, district, state, places, fetch=None, cache=None: SITES.get(place))
+    raw = write_raw(tmp_path, 2024, row())
+    admitted = inv.build_inventory(raw, "PLACES", out_dir=tmp_path, offline=True)
+    assert len(admitted) == 1 and report_of(tmp_path)["osm_fetched"] == 0
+
+
 def test_out_dir_defaults_to_the_parent_of_the_raw_folder(tmp_path):
     raw = write_raw(tmp_path, 2024, row())
     inv.build_inventory(raw, None, geocoder=geocoder)
@@ -224,3 +283,23 @@ def test_write_inventory_says_one_line_per_year_and_the_fetch_count(tmp_path, mo
     assert len(admitted) == 2
     assert said[:2] == ["2023: 1 raw, 1 stated, 1 geocoded, 1 admitted", "2024: 2 raw, 2 stated, 1 geocoded, 1 admitted"]
     assert said[2].startswith("2 admitted of 3; 0 Nominatim query(ies) fetched")
+
+
+def test_a_merged_event_is_filed_under_the_year_of_its_earliest_date(tmp_path):
+    raw = write_raw(tmp_path, 2023, row(date="2023-12-31"))
+    write_raw(tmp_path, 2024, row(date="2024-01-01", place="Puthumala near", outlet="B"))
+    admitted = inv.build_inventory(raw, None, out_dir=tmp_path, geocoder=geocoder)
+    assert list(admitted["year"]) == [2023]
+    assert "2023-12-31,11.501" in (tmp_path / "2023.csv").read_text(encoding="utf-8")
+    assert (tmp_path / "2024.csv").read_text(encoding="utf-8").count("\n") == 1
+
+
+def test_write_inventory_passes_offline_on(tmp_path, monkeypatch):
+    def fake_any(place, district, state, places, fetch=None, cache=None):
+        fetch("q")
+        return SITES[place]
+
+    monkeypatch.setattr(inv, "geocode_any", fake_any)
+    write_raw(tmp_path, 2024, row())
+    with pytest.raises(GeocodeError, match="offline"):
+        inv.write_inventory(tmp_path, None, lambda m: None, offline=True)

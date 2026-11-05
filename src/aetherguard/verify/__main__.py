@@ -23,6 +23,8 @@ def main(argv=None) -> int:
     events = sub.add_parser("inventory", help="geocode raw/<year>.csv of the reported-events folder into <year>.csv and "
                                               f"{inventory.REPORT_NAME}")
     events.add_argument("--dir", type=Path, default=ledger.REPORTED_DIR, help="reported-events folder (default data/raw/manual/reported_events/)")
+    events.add_argument("--offline", action="store_true",
+                        help="answer from the Nominatim cache only: a query that is not cached is an error")
     args = parser.parse_args(argv)
     say = lambda m: print(m, flush=True)
     try:
@@ -31,7 +33,7 @@ def main(argv=None) -> int:
         elif args.command == "ledger":
             ledger.write_ledger(args.out, args.today, say)
         else:
-            inventory.write_inventory(args.dir, geocode.load_places(), say)
+            inventory.write_inventory(args.dir, geocode.load_places(), say, offline=args.offline)
     except (live_run.LiveRunError, GeocodeError, ValueError, OSError) as exc:
         print(f"{type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

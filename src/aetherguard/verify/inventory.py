@@ -17,10 +17,15 @@ else:
 * its accuracy is at most `MAX_ACCURACY_KM` = 10 km (else `accuracy_over_10km`);
 * it is not a duplicate (else `duplicate`): two rows are one event when they fall in the same cell on the same day, or within
   one day of each other in the same cell or within `SAME_PLACE_KM` = 5 km. Of a group the row with the smallest accuracy is
-  kept, the earliest listed (by year file, then line) among equals.
+  kept, the earliest listed (by year file, then line) among equals; it keeps its place and source but takes the earliest stated
+  date of the group (reports of one slide often lag it by a day), and `merged_events` in the report lists each such group.
+
+A geocoder answer with a non-finite coordinate or accuracy counts as not found (`ungeocodable`).
 
 Admitted rows go to `<year>.csv` in the ledger format (`ledger.COLUMNS`, `location_text` = "place, district, state") and, with
-the extra columns `EXTRA_COLUMNS`, to `inventory_admitted.csv` for the spot-check against the source URLs.
+the extra columns `EXTRA_COLUMNS`, to `qa/inventory_admitted.csv` for the spot-check against the source URLs. That file is in a
+subfolder because `ledger.load_reported` reads every top-level `*.csv` and would count each event twice. An event's year is the
+year of its (merged) date; the report's per-year counts are by the raw file a row came from.
 `inventory_report.json` counts, per year and in total, the raw, stated and geocoded rows (by source and by region), the admitted
 rows and the rejections by reason, lists every rejected row with its reason, and says how many Nominatim queries were not in
 the cache and had to be fetched (`osm_fetched`; 0 on a rerun).
@@ -29,6 +34,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import re
 from collections import Counter
 from collections.abc import Callable
@@ -41,11 +47,12 @@ from .. import grid
 from ..hazard.jsonio import dump_json
 from . import geocode as gc
 from . import ledger
+from .geocode import GeocodeError
 from .geocode_osm import geocode_any, nominatim_fetch
 
 RAW_COLUMNS = ("event_date", "date_basis", "place", "district", "state", "source_url", "outlet", "description")
 EXTRA_COLUMNS = ("year", "place", "district", "state", "outlet", "geocode_source", "description")
-REPORT_NAME, COMBINED_NAME = "inventory_report.json", "inventory_admitted.csv"
+REPORT_NAME, QA_DIR, COMBINED_NAME = "inventory_report.json", "qa", "inventory_admitted.csv"
 MAX_ACCURACY_KM = 10.0
 SAME_PLACE_KM = 5.0
 OUTSIDE = "outside_domain"
@@ -122,6 +129,9 @@ def _locate(record: dict, geocoder: Geocoder) -> None:
         record["reason"] = "ungeocodable"
         return
     lat, lon, accuracy, source = found
+    if not all(math.isfinite(float(v)) for v in (lat, lon, accuracy)):
+        record["reason"] = "ungeocodable"
+        return
     record.update(lat=round(float(lat), DECIMALS), lon=round(float(lon), DECIMALS), accuracy_km=float(accuracy),
                   geocode_source=source)
     record["region"] = grid.region_of(record["lat"], record["lon"]) or OUTSIDE
@@ -134,15 +144,31 @@ def _locate(record: dict, geocoder: Geocoder) -> None:
 
 
 def _drop_duplicates(records: list[dict]) -> None:
-    """Mark as `duplicate` every candidate beaten by a kept one (smaller accuracy, then earlier listed)."""
-    kept = []
+    """Mark as `duplicate` every candidate beaten by a kept one (smaller accuracy, then earlier listed). A kept row takes the
+    earliest date of its group (the group is formed on the stated dates); its `merged` entry records the group."""
+    kept, groups = [], {}
     for record in sorted((r for r in records if r["reason"] is None), key=lambda r: (r["accuracy_km"], r["order"])):
         twin = next((k for k in kept if _duplicate(record, k)), None)
         if twin is None:
             kept.append(record)
+            groups[record["order"]] = [record]
         else:
             record["reason"] = "duplicate"
             record["duplicate_of"] = f"{twin['place']} on {twin['day'].isoformat()} ({twin['outlet']}, {twin['source_url']})"
+            groups[twin["order"]].append(record)
+    for record in kept:
+        group = groups[record["order"]]
+        if len(group) > 1:
+            stated = record["day"]
+            record["day"] = min(r["day"] for r in group)
+            record["merged"] = {
+                "kept": {"place": record["place"], "outlet": record["outlet"], "source_url": record["source_url"]},
+                "stated_date": stated.isoformat(),
+                "date": record["day"].isoformat(),
+                "dates": sorted({r["event_date"] for r in group}),
+                "dropped": [{"place": r["place"], "event_date": r["event_date"], "outlet": r["outlet"],
+                             "source_url": r["source_url"]} for r in group[1:]],
+            }
 
 
 # --- writing ------------------------------------------------------------------------------------------------------
@@ -154,7 +180,7 @@ def _location_text(record: dict) -> str:
 def _admitted_frame(records: list[dict]) -> pd.DataFrame:
     admitted = sorted((r for r in records if r["reason"] is None), key=lambda r: (r["day"], r["order"]))
     rows = [{"date": r["day"].isoformat(), "latitude": r["lat"], "longitude": r["lon"], "location_text": _location_text(r),
-             "source_url": r["source_url"], "accuracy_km": r["accuracy_km"], "year": r["year"], "place": r["place"],
+             "source_url": r["source_url"], "accuracy_km": r["accuracy_km"], "year": r["day"].year, "place": r["place"],
              "district": r["district"], "state": r["state"], "outlet": r["outlet"], "geocode_source": r["geocode_source"],
              "description": r["description"]} for r in admitted]
     return pd.DataFrame(rows, columns=[*ledger.COLUMNS, *EXTRA_COLUMNS])
@@ -196,18 +222,22 @@ def _rejected_entry(record: dict) -> dict:
 # --- the build ----------------------------------------------------------------------------------------------------
 
 def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | None = None, geocoder: Geocoder | None = None,
-                    fetch: Callable[[str], list[dict]] | None = None, cache: Path | None = None) -> pd.DataFrame:
+                    fetch: Callable[[str], list[dict]] | None = None, cache: Path | None = None,
+                    offline: bool = False) -> pd.DataFrame:
     """Geocode the rows of `<raw_dir>/<year>.csv`, admit those the module docstring allows and write the files into `out_dir`
-    (default the parent of `raw_dir`): `<year>.csv` per raw year, `inventory_admitted.csv` and `inventory_report.json`.
+    (default the parent of `raw_dir`): `<year>.csv` per raw year, `qa/inventory_admitted.csv` and `inventory_report.json`.
 
     Returns the admitted rows (ledger columns, then EXTRA_COLUMNS), by date. `places` is the table of `geocode.load_places()`;
     `fetch` and `cache` go to `geocode_any` (defaults: the throttled Nominatim call and its on-disk cache). `geocoder(place,
-    district, state) -> (lat, lon, accuracy_km, source) | None` replaces `geocode_any` (for tests)."""
+    district, state) -> (lat, lon, accuracy_km, source) | None` replaces `geocode_any` (for tests). With `offline` a Nominatim
+    query missing from the cache raises `GeocodeError` naming it instead of being fetched."""
     raw_dir = Path(raw_dir)
     out_dir = Path(out_dir) if out_dir is not None else raw_dir.parent
     fetched = []
 
     def counted(query: str) -> list[dict]:
+        if offline:
+            raise GeocodeError(f"offline: the Nominatim query {query!r} is not in the cache")
         fetched.append(query)
         return (fetch or nominatim_fetch)(query)
 
@@ -222,7 +252,8 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
     years = sorted({r["year"] for r in records})
     for year in years:
         _write_csv(out_dir / f"{year}.csv", admitted[admitted["year"] == year], ledger.COLUMNS)
-    _write_csv(out_dir / COMBINED_NAME, admitted, [*ledger.COLUMNS, *EXTRA_COLUMNS])
+    (out_dir / QA_DIR).mkdir(exist_ok=True)
+    _write_csv(out_dir / QA_DIR / COMBINED_NAME, admitted, [*ledger.COLUMNS, *EXTRA_COLUMNS])
     dump_json(out_dir / REPORT_NAME, {
         "max_accuracy_km": MAX_ACCURACY_KM,
         "same_place_km": SAME_PLACE_KM,
@@ -230,13 +261,14 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
         "totals": _summary(records),
         "years": {str(y): _summary([r for r in records if r["year"] == y]) for y in years},
         "rejected": [_rejected_entry(r) for r in records if r["reason"]],
+        "merged_events": [r["merged"] for r in records if "merged" in r],
     })
     return admitted
 
 
-def write_inventory(directory: Path, places: pd.DataFrame, say=print) -> pd.DataFrame:
+def write_inventory(directory: Path, places: pd.DataFrame, say=print, offline: bool = False) -> pd.DataFrame:
     """`build_inventory` of `<directory>/raw` into `directory`, saying one line per year and the number of Nominatim fetches."""
-    admitted = build_inventory(Path(directory) / "raw", places, out_dir=directory)
+    admitted = build_inventory(Path(directory) / "raw", places, out_dir=directory, offline=offline)
     report = json.loads((Path(directory) / REPORT_NAME).read_text(encoding="utf-8"))
     for year, entry in report["years"].items():
         say(f"{year}: {entry['raw']} raw, {entry['stated']} stated, {entry['geocoded']} geocoded, {entry['admitted']} admitted")
