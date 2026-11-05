@@ -1,0 +1,4935 @@
+{
+  "protocol": {
+    "alert_levels": {
+      "1": "Watch+",
+      "2": "Warning+",
+      "3": "Emergency"
+    },
+    "tolerances": {
+      "tolerant": {
+        "km": 10.0,
+        "days": 1
+      },
+      "cell_exact": {
+        "km": 0.0,
+        "days": 0
+      }
+    },
+    "models": {
+      "v3": "v3 (frozen model, section 11 rules)",
+      "rain_3d": "3-day rain, burden-matched to v3 in each season",
+      "rain_3d_devcuts": "3-day rain cuts fitted on the development seasons (the W0 baseline)",
+      "susceptibility": "static map (season-mean v3 risk), hindsight, at v3's shares",
+      "lhasa_v2_m1": "LHASA v2 nowcast, day shift -1 (panel day D reads LHASA day D-1), burden-matched",
+      "lhasa_v2": "LHASA v2 nowcast, same day (primary), burden-matched",
+      "lhasa_v2_p1": "LHASA v2 nowcast, day shift +1 (panel day D reads LHASA day D+1), burden-matched",
+      "ed_threshold": "rain event over the Brunetti et al. 2021 IMERG event-duration threshold, burden-matched",
+      "ed_threshold_refit": "the same threshold refitted on the development positives, burden-matched"
+    },
+    "sets": {
+      "S2018": "the 2018 panel; the in-domain season_2018 catalog events of June-September",
+      "S1925": "the 2019-2025 panels; admitted reported events and in-domain test_sparse catalog events",
+      "POOLED": "S2018 and S1925 together",
+      "L1820": "2018-2020, the years LHASA covers: every model, LHASA included, on the same days and events"
+    },
+    "ed_threshold": {
+      "published": {
+        "source": "Brunetti et al. 2021, HESS 25, 3267-3279, Table 1, IMERG Early run, 5% non-exceedance",
+        "alpha_hours": 5.3,
+        "gamma": 0.74,
+        "alpha_days": 55.67140584224783
+      },
+      "refitted": {
+        "alpha": 3.669846885018252,
+        "gamma": 1.2144354810380111,
+        "events_used": 592,
+        "events": 647
+      }
+    },
+    "bootstrap": {
+      "n": 2000,
+      "seed": 31337,
+      "level": 0.95
+    }
+  },
+  "seasons": {
+    "2018": {
+      "cells": 36792,
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "scored_share_mean": 1.0,
+      "days_below_half": 0,
+      "v3_realised_shares": [
+        0.3618417910842056,
+        0.13483223699585242,
+        0.05111241675862083
+      ],
+      "events": 56,
+      "lhasa": true
+    },
+    "2019": {
+      "cells": 36792,
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "scored_share_mean": 1.0,
+      "days_below_half": 0,
+      "v3_realised_shares": [
+        0.4409860026458413,
+        0.17912721782264734,
+        0.07460111706527019
+      ],
+      "events": 7,
+      "lhasa": true
+    },
+    "2020": {
+      "cells": 36792,
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "scored_share_mean": 1.0,
+      "days_below_half": 0,
+      "v3_realised_shares": [
+        0.40854675843793753,
+        0.16676852749378673,
+        0.06883239042213565
+      ],
+      "events": 2,
+      "lhasa": true
+    },
+    "2021": {
+      "cells": 36792,
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "scored_share_mean": 1.0,
+      "days_below_half": 0,
+      "v3_realised_shares": [
+        0.41681259944766536,
+        0.1692468446005125,
+        0.06902760250603036
+      ],
+      "events": 9,
+      "lhasa": false
+    },
+    "2022": {
+      "cells": 36792,
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "scored_share_mean": 1.0,
+      "days_below_half": 0,
+      "v3_realised_shares": [
+        0.40150527948985254,
+        0.1638555872568803,
+        0.06849061051467914
+      ],
+      "events": 4,
+      "lhasa": false
+    },
+    "2023": {
+      "cells": 36792,
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "scored_share_mean": 1.0,
+      "days_below_half": 0,
+      "v3_realised_shares": [
+        0.3772096941025375,
+        0.14849289158756576,
+        0.05892598045491401
+      ],
+      "events": 5,
+      "lhasa": false
+    },
+    "2024": {
+      "cells": 36792,
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "scored_share_mean": 1.0,
+      "days_below_half": 0,
+      "v3_realised_shares": [
+        0.4126380836549189,
+        0.1806276963907229,
+        0.08230392933855998
+      ],
+      "events": 6,
+      "lhasa": false
+    },
+    "2025": {
+      "cells": 36792,
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "scored_share_mean": 1.0,
+      "days_below_half": 0,
+      "v3_realised_shares": [
+        0.4295962602597477,
+        0.1724593979186861,
+        0.06970595497192604
+      ],
+      "events": 3,
+      "lhasa": false
+    }
+  },
+  "sets": {
+    "S2018": {
+      "years": [
+        2018
+      ],
+      "note": "the 2018 panel; the in-domain season_2018 catalog events of June-September",
+      "cells": 36792,
+      "days": 214,
+      "events": 56,
+      "distinct_events": 52,
+      "events_outside_panel_days": 0,
+      "events_by_source": {
+        "catalog_2018": 56
+      },
+      "shares": {
+        "v3": {
+          "target": null,
+          "realised": [
+            0.3618417910842056,
+            0.13483223699585242,
+            0.05111241675862083
+          ]
+        },
+        "rain_3d": {
+          "target": [
+            0.3618417910842056,
+            0.13483223699585242,
+            0.05111241675862083
+          ],
+          "realised": [
+            0.36184052099907943,
+            0.13483249101287764,
+            0.05111228975010821
+          ]
+        },
+        "rain_3d_devcuts": {
+          "target": [
+            0.5798374068554396,
+            0.2472156482861401,
+            0.1018548435171386
+          ],
+          "realised": [
+            0.3333504794825368,
+            0.12425801626928243,
+            0.04902287270902045
+          ]
+        },
+        "susceptibility": {
+          "target": [
+            0.3618417910842056,
+            0.13483223699585242,
+            0.05111241675862083
+          ],
+          "realised": [
+            0.3618417910842056,
+            0.13483223699585242,
+            0.05111241675862083
+          ]
+        },
+        "lhasa_v2_m1": {
+          "target": [
+            0.3618417910842056,
+            0.13483223699585242,
+            0.05111241675862083
+          ],
+          "realised": [
+            0.36014991068761393,
+            0.13420113169665085,
+            0.05087224366125915
+          ]
+        },
+        "lhasa_v2": {
+          "target": [
+            0.3618417910842056,
+            0.13483223699585242,
+            0.05111241675862083
+          ],
+          "realised": [
+            0.36184153706718036,
+            0.1349464176486965,
+            0.05111241675862083
+          ]
+        },
+        "lhasa_v2_p1": {
+          "target": [
+            0.3618417910842056,
+            0.13483223699585242,
+            0.05111241675862083
+          ],
+          "realised": [
+            0.3601506727386896,
+            0.13403817977496124,
+            0.05087351374638534
+          ]
+        },
+        "ed_threshold": {
+          "target": [
+            0.3618417910842056,
+            0.13483223699585242,
+            0.05111241675862083
+          ],
+          "realised": [
+            0.3617804459726109,
+            0.13481013751465679,
+            0.05110378017976277
+          ]
+        },
+        "ed_threshold_refit": {
+          "target": [
+            0.3618417910842056,
+            0.13483223699585242,
+            0.05111241675862083
+          ],
+          "realised": [
+            0.36178184306624966,
+            0.13481013751465679,
+            0.05110378017976277
+          ]
+        }
+      },
+      "models": {
+        "v3": {
+          "tolerant": {
+            "1": {
+              "events": 56,
+              "hits": 54,
+              "pod": 0.9642857142857143,
+              "alert_cell_days": 2848957,
+              "verified_alert_cell_days": 1339,
+              "precision": 0.0004699965636546989,
+              "alert_share": 0.3618417910842056,
+              "events_per_1000_alert_cell_days": 0.018954305031630873,
+              "alert_cell_days_ci": [
+                2599173.475,
+                3098512.45
+              ],
+              "precision_ci": [
+                0.00032633854129376076,
+                0.0006340614711426647
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9107142857142857,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 48,
+              "pod": 0.8571428571428571,
+              "alert_cell_days": 1061600,
+              "verified_alert_cell_days": 1027,
+              "precision": 0.0009674076865109269,
+              "alert_share": 0.13483223699585242,
+              "events_per_1000_alert_cell_days": 0.0452147701582517,
+              "alert_cell_days_ci": [
+                955287.4,
+                1174990.2
+              ],
+              "precision_ci": [
+                0.0006445867364597384,
+                0.0013231776591014024
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.75,
+                0.9464285714285714
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 45,
+              "pod": 0.8035714285714286,
+              "alert_cell_days": 402433,
+              "verified_alert_cell_days": 706,
+              "precision": 0.0017543292920809178,
+              "alert_share": 0.05111241675862083,
+              "events_per_1000_alert_cell_days": 0.11181985572753725,
+              "alert_cell_days_ci": [
+                355241.65,
+                454360.25
+              ],
+              "precision_ci": [
+                0.0010244625301441199,
+                0.0025343405559769545
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6964285714285714,
+                0.8928571428571429
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 56,
+              "hits": 49,
+              "pod": 0.875,
+              "alert_cell_days": 2848957,
+              "verified_alert_cell_days": 49,
+              "precision": 1.7199276787961348e-05,
+              "alert_share": 0.3618417910842056,
+              "events_per_1000_alert_cell_days": 0.01719927678796135,
+              "alert_cell_days_ci": [
+                2599173.475,
+                3098512.45
+              ],
+              "precision_ci": [
+                1.0185485333783948e-05,
+                2.5013119024284907e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7857142857142857,
+                0.9464285714285714
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 42,
+              "pod": 0.75,
+              "alert_cell_days": 1061600,
+              "verified_alert_cell_days": 42,
+              "precision": 3.9562923888470236e-05,
+              "alert_share": 0.13483223699585242,
+              "events_per_1000_alert_cell_days": 0.039562923888470235,
+              "alert_cell_days_ci": [
+                955287.4,
+                1174990.2
+              ],
+              "precision_ci": [
+                2.2537618787297356e-05,
+                5.818133035774766e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.625,
+                0.8571428571428571
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 30,
+              "pod": 0.5357142857142857,
+              "alert_cell_days": 402433,
+              "verified_alert_cell_days": 30,
+              "precision": 7.454657048502484e-05,
+              "alert_share": 0.05111241675862083,
+              "events_per_1000_alert_cell_days": 0.07454657048502483,
+              "alert_cell_days_ci": [
+                355241.65,
+                454360.25
+              ],
+              "precision_ci": [
+                3.5659611143378036e-05,
+                0.00011649033892224493
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4107142857142857,
+                0.6785714285714286
+              ]
+            }
+          }
+        },
+        "rain_3d": {
+          "tolerant": {
+            "1": {
+              "events": 56,
+              "hits": 53,
+              "pod": 0.9464285714285714,
+              "alert_cell_days": 2848947,
+              "verified_alert_cell_days": 1217,
+              "precision": 0.00042717537391885493,
+              "alert_share": 0.36184052099907943,
+              "events_per_1000_alert_cell_days": 0.018603364681757856,
+              "alert_cell_days_ci": [
+                2555675.5,
+                3147061.3499999996
+              ],
+              "precision_ci": [
+                0.0002915954384105569,
+                0.0005809313245742484
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.875,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 40,
+              "pod": 0.7142857142857143,
+              "alert_cell_days": 1061602,
+              "verified_alert_cell_days": 809,
+              "precision": 0.0007620558363680551,
+              "alert_share": 0.13483249101287764,
+              "events_per_1000_alert_cell_days": 0.0376789041467518,
+              "alert_cell_days_ci": [
+                932899.6250000001,
+                1194541.4
+              ],
+              "precision_ci": [
+                0.0004432272238295264,
+                0.0011064734516152406
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5892857142857143,
+                0.8214285714285714
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 33,
+              "pod": 0.5892857142857143,
+              "alert_cell_days": 402432,
+              "verified_alert_cell_days": 634,
+              "precision": 0.0015754214376590332,
+              "alert_share": 0.05111228975010821,
+              "events_per_1000_alert_cell_days": 0.08200143129770993,
+              "alert_cell_days_ci": [
+                344588.575,
+                464255.12499999994
+              ],
+              "precision_ci": [
+                0.0008640858875469028,
+                0.002343748311794935
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4642857142857143,
+                0.7142857142857143
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 56,
+              "hits": 44,
+              "pod": 0.7857142857142857,
+              "alert_cell_days": 2848947,
+              "verified_alert_cell_days": 44,
+              "precision": 1.54443027546669e-05,
+              "alert_share": 0.36184052099907943,
+              "events_per_1000_alert_cell_days": 0.0154443027546669,
+              "alert_cell_days_ci": [
+                2555675.5,
+                3147061.3499999996
+              ],
+              "precision_ci": [
+                8.765796811730427e-06,
+                2.268810945748393e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6785714285714286,
+                0.8928571428571429
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 32,
+              "pod": 0.5714285714285714,
+              "alert_cell_days": 1061602,
+              "verified_alert_cell_days": 32,
+              "precision": 3.0143123317401435e-05,
+              "alert_share": 0.13483249101287764,
+              "events_per_1000_alert_cell_days": 0.030143123317401436,
+              "alert_cell_days_ci": [
+                932899.6250000001,
+                1194541.4
+              ],
+              "precision_ci": [
+                1.3957720923258874e-05,
+                4.8007977110028085e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.44642857142857145,
+                0.6964285714285714
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 24,
+              "pod": 0.42857142857142855,
+              "alert_cell_days": 402432,
+              "verified_alert_cell_days": 24,
+              "precision": 5.963740458015267e-05,
+              "alert_share": 0.05111228975010821,
+              "events_per_1000_alert_cell_days": 0.059637404580152674,
+              "alert_cell_days_ci": [
+                344588.575,
+                464255.12499999994
+              ],
+              "precision_ci": [
+                2.594765264598493e-05,
+                9.697384870191638e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.30357142857142855,
+                0.5714285714285714
+              ]
+            }
+          }
+        },
+        "rain_3d_devcuts": {
+          "tolerant": {
+            "1": {
+              "events": 56,
+              "hits": 51,
+              "pod": 0.9107142857142857,
+              "alert_cell_days": 2624631,
+              "verified_alert_cell_days": 1186,
+              "precision": 0.00045187304424888677,
+              "alert_share": 0.3333504794825368,
+              "events_per_1000_alert_cell_days": 0.019431302914581134,
+              "alert_cell_days_ci": [
+                2346586.525,
+                2906275.75
+              ],
+              "precision_ci": [
+                0.0003049597455916037,
+                0.0006168290627818301
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8214285714285714,
+                0.9821428571428571
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 39,
+              "pod": 0.6964285714285714,
+              "alert_cell_days": 978344,
+              "verified_alert_cell_days": 794,
+              "precision": 0.0008115754785637772,
+              "alert_share": 0.12425801626928243,
+              "events_per_1000_alert_cell_days": 0.03986327917378754,
+              "alert_cell_days_ci": [
+                858049.5,
+                1102924.0999999999
+              ],
+              "precision_ci": [
+                0.0004652482101534871,
+                0.001184699530633901
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5714285714285714,
+                0.8035714285714286
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 33,
+              "pod": 0.5892857142857143,
+              "alert_cell_days": 385981,
+              "verified_alert_cell_days": 633,
+              "precision": 0.0016399770973182619,
+              "alert_share": 0.04902287270902045,
+              "events_per_1000_alert_cell_days": 0.08549643635308474,
+              "alert_cell_days_ci": [
+                329808.65,
+                445857.3
+              ],
+              "precision_ci": [
+                0.0008995392429619577,
+                0.0024404307131934097
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4642857142857143,
+                0.7142857142857143
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 56,
+              "hits": 43,
+              "pod": 0.7678571428571429,
+              "alert_cell_days": 2624631,
+              "verified_alert_cell_days": 43,
+              "precision": 1.638325539856841e-05,
+              "alert_share": 0.3333504794825368,
+              "events_per_1000_alert_cell_days": 0.016383255398568407,
+              "alert_cell_days_ci": [
+                2346586.525,
+                2906275.75
+              ],
+              "precision_ci": [
+                9.169237908840951e-06,
+                2.3984320317118112e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6607142857142857,
+                0.875
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 31,
+              "pod": 0.5535714285714286,
+              "alert_cell_days": 978344,
+              "verified_alert_cell_days": 31,
+              "precision": 3.1686196266343944e-05,
+              "alert_share": 0.12425801626928243,
+              "events_per_1000_alert_cell_days": 0.03168619626634395,
+              "alert_cell_days_ci": [
+                858049.5,
+                1102924.0999999999
+              ],
+              "precision_ci": [
+                1.4498198171971496e-05,
+                5.099841017359871e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.42857142857142855,
+                0.6964285714285714
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 24,
+              "pod": 0.42857142857142855,
+              "alert_cell_days": 385981,
+              "verified_alert_cell_days": 24,
+              "precision": 6.217922643860708e-05,
+              "alert_share": 0.04902287270902045,
+              "events_per_1000_alert_cell_days": 0.06217922643860708,
+              "alert_cell_days_ci": [
+                329808.65,
+                445857.3
+              ],
+              "precision_ci": [
+                2.704959450407028e-05,
+                0.00010115305831305955
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.30357142857142855,
+                0.5714285714285714
+              ]
+            }
+          }
+        },
+        "susceptibility": {
+          "tolerant": {
+            "1": {
+              "events": 56,
+              "hits": 52,
+              "pod": 0.9285714285714286,
+              "alert_cell_days": 2848957,
+              "verified_alert_cell_days": 1247,
+              "precision": 0.00043770404397117964,
+              "alert_share": 0.3618417910842056,
+              "events_per_1000_alert_cell_days": 0.018252293734163063,
+              "alert_cell_days_ci": [
+                2848948.0,
+                2848966.0
+              ],
+              "precision_ci": [
+                0.00030362040569567833,
+                0.000590742921527367
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8571428571428571,
+                0.9821428571428571
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 45,
+              "pod": 0.8035714285714286,
+              "alert_cell_days": 1061600,
+              "verified_alert_cell_days": 510,
+              "precision": 0.0004804069329314243,
+              "alert_share": 0.13483223699585242,
+              "events_per_1000_alert_cell_days": 0.042388847023360966,
+              "alert_cell_days_ci": [
+                1061587.0,
+                1061612.0
+              ],
+              "precision_ci": [
+                0.00032118828384860865,
+                0.0006641162525907045
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6964285714285714,
+                0.8928571428571429
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 30,
+              "pod": 0.5357142857142857,
+              "alert_cell_days": 402433,
+              "verified_alert_cell_days": 223,
+              "precision": 0.000554129507272018,
+              "alert_share": 0.05111241675862083,
+              "events_per_1000_alert_cell_days": 0.07454657048502483,
+              "alert_cell_days_ci": [
+                402418.0,
+                402448.0
+              ],
+              "precision_ci": [
+                0.0003379517588847084,
+                0.0007926872981938206
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4107142857142857,
+                0.6607142857142857
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 56,
+              "hits": 48,
+              "pod": 0.8571428571428571,
+              "alert_cell_days": 2848957,
+              "verified_alert_cell_days": 48,
+              "precision": 1.6848271139227442e-05,
+              "alert_share": 0.3618417910842056,
+              "events_per_1000_alert_cell_days": 0.016848271139227444,
+              "alert_cell_days_ci": [
+                2848948.0,
+                2848966.0
+              ],
+              "precision_ci": [
+                9.828130566714578e-06,
+                2.4921340046077702e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7678571428571429,
+                0.9464285714285714
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 19,
+              "pod": 0.3392857142857143,
+              "alert_cell_days": 1061600,
+              "verified_alert_cell_days": 19,
+              "precision": 1.7897513187641296e-05,
+              "alert_share": 0.13483223699585242,
+              "events_per_1000_alert_cell_days": 0.017897513187641295,
+              "alert_cell_days_ci": [
+                1061587.0,
+                1061612.0
+              ],
+              "precision_ci": [
+                9.41972603668795e-06,
+                2.7317154042373617e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.21428571428571427,
+                0.4642857142857143
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 13,
+              "pod": 0.23214285714285715,
+              "alert_cell_days": 402433,
+              "verified_alert_cell_days": 13,
+              "precision": 3.23035138768441e-05,
+              "alert_share": 0.05111241675862083,
+              "events_per_1000_alert_cell_days": 0.032303513876844096,
+              "alert_cell_days_ci": [
+                402418.0,
+                402448.0
+              ],
+              "precision_ci": [
+                1.490975775930421e-05,
+                4.9698331130040655e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.125,
+                0.3392857142857143
+              ]
+            }
+          }
+        },
+        "lhasa_v2_m1": {
+          "tolerant": {
+            "1": {
+              "events": 56,
+              "hits": 53,
+              "pod": 0.9464285714285714,
+              "alert_cell_days": 2835636,
+              "verified_alert_cell_days": 1303,
+              "precision": 0.00045950890734918024,
+              "alert_share": 0.36014991068761393,
+              "events_per_1000_alert_cell_days": 0.018690692317349617,
+              "alert_cell_days_ci": [
+                2597439.9,
+                3084612.275
+              ],
+              "precision_ci": [
+                0.00031429185968531373,
+                0.0006243890465835286
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.875,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 47,
+              "pod": 0.8392857142857143,
+              "alert_cell_days": 1056631,
+              "verified_alert_cell_days": 816,
+              "precision": 0.000772265814650526,
+              "alert_share": 0.13420113169665085,
+              "events_per_1000_alert_cell_days": 0.04448099667717491,
+              "alert_cell_days_ci": [
+                932924.6,
+                1188054.6749999998
+              ],
+              "precision_ci": [
+                0.0004653028827759038,
+                0.001097547739288511
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.75,
+                0.9285714285714286
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 35,
+              "pod": 0.625,
+              "alert_cell_days": 400542,
+              "verified_alert_cell_days": 566,
+              "precision": 0.0014130852694598818,
+              "alert_share": 0.05087224366125915,
+              "events_per_1000_alert_cell_days": 0.08738159793479836,
+              "alert_cell_days_ci": [
+                345869.6,
+                460730.6
+              ],
+              "precision_ci": [
+                0.0007380623720728334,
+                0.002110587158486451
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5,
+                0.75
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 56,
+              "hits": 48,
+              "pod": 0.8571428571428571,
+              "alert_cell_days": 2835636,
+              "verified_alert_cell_days": 48,
+              "precision": 1.6927419457222295e-05,
+              "alert_share": 0.36014991068761393,
+              "events_per_1000_alert_cell_days": 0.016927419457222294,
+              "alert_cell_days_ci": [
+                2597439.9,
+                3084612.275
+              ],
+              "precision_ci": [
+                9.862055612461274e-06,
+                2.506276764357872e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7678571428571429,
+                0.9464285714285714
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 30,
+              "pod": 0.5357142857142857,
+              "alert_cell_days": 1056631,
+              "verified_alert_cell_days": 30,
+              "precision": 2.8392125538622282e-05,
+              "alert_share": 0.13420113169665085,
+              "events_per_1000_alert_cell_days": 0.028392125538622283,
+              "alert_cell_days_ci": [
+                932924.6,
+                1188054.6749999998
+              ],
+              "precision_ci": [
+                1.4489409529884716e-05,
+                4.377950726011409e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4107142857142857,
+                0.6607142857142857
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 21,
+              "pod": 0.375,
+              "alert_cell_days": 400542,
+              "verified_alert_cell_days": 21,
+              "precision": 5.242895876087901e-05,
+              "alert_share": 0.05087224366125915,
+              "events_per_1000_alert_cell_days": 0.05242895876087901,
+              "alert_cell_days_ci": [
+                345869.6,
+                460730.6
+              ],
+              "precision_ci": [
+                2.0608783180108575e-05,
+                8.860844438047415e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.25,
+                0.5
+              ]
+            }
+          }
+        },
+        "lhasa_v2": {
+          "tolerant": {
+            "1": {
+              "events": 56,
+              "hits": 53,
+              "pod": 0.9464285714285714,
+              "alert_cell_days": 2848955,
+              "verified_alert_cell_days": 1326,
+              "precision": 0.0004654338169609559,
+              "alert_share": 0.36184153706718036,
+              "events_per_1000_alert_cell_days": 0.018603312442632473,
+              "alert_cell_days_ci": [
+                2612778.325,
+                3100686.6
+              ],
+              "precision_ci": [
+                0.0003200642388905699,
+                0.0006292502611177763
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.875,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 46,
+              "pod": 0.8214285714285714,
+              "alert_cell_days": 1062499,
+              "verified_alert_cell_days": 892,
+              "precision": 0.0008395302019107783,
+              "alert_share": 0.1349464176486965,
+              "events_per_1000_alert_cell_days": 0.04329415839450202,
+              "alert_cell_days_ci": [
+                942274.425,
+                1198329.175
+              ],
+              "precision_ci": [
+                0.0005130869985513106,
+                0.0011954257903751082
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7142857142857143,
+                0.9107142857142857
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 34,
+              "pod": 0.6071428571428571,
+              "alert_cell_days": 402433,
+              "verified_alert_cell_days": 551,
+              "precision": 0.0013691720112416227,
+              "alert_share": 0.05111241675862083,
+              "events_per_1000_alert_cell_days": 0.08448611321636149,
+              "alert_cell_days_ci": [
+                348124.025,
+                461369.27499999997
+              ],
+              "precision_ci": [
+                0.0007388021354884678,
+                0.0020595497354783444
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.48214285714285715,
+                0.7321428571428571
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 56,
+              "hits": 52,
+              "pod": 0.9285714285714286,
+              "alert_cell_days": 2848955,
+              "verified_alert_cell_days": 52,
+              "precision": 1.8252306547488464e-05,
+              "alert_share": 0.36184153706718036,
+              "events_per_1000_alert_cell_days": 0.018252306547488464,
+              "alert_cell_days_ci": [
+                2612778.325,
+                3100686.6
+              ],
+              "precision_ci": [
+                1.09792075982465e-05,
+                2.6303528937119363e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8571428571428571,
+                0.9821428571428571
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 33,
+              "pod": 0.5892857142857143,
+              "alert_cell_days": 1062499,
+              "verified_alert_cell_days": 33,
+              "precision": 3.105885276127319e-05,
+              "alert_share": 0.1349464176486965,
+              "events_per_1000_alert_cell_days": 0.031058852761273188,
+              "alert_cell_days_ci": [
+                942274.425,
+                1198329.175
+              ],
+              "precision_ci": [
+                1.4281126258569983e-05,
+                4.9380899352941056e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4642857142857143,
+                0.7142857142857143
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 24,
+              "pod": 0.42857142857142855,
+              "alert_cell_days": 402433,
+              "verified_alert_cell_days": 24,
+              "precision": 5.963725638801987e-05,
+              "alert_share": 0.05111241675862083,
+              "events_per_1000_alert_cell_days": 0.059637256388019866,
+              "alert_cell_days_ci": [
+                348124.025,
+                461369.27499999997
+              ],
+              "precision_ci": [
+                2.5570709632583507e-05,
+                9.955170794030185e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.30357142857142855,
+                0.5535714285714286
+              ]
+            }
+          }
+        },
+        "lhasa_v2_p1": {
+          "tolerant": {
+            "1": {
+              "events": 56,
+              "hits": 52,
+              "pod": 0.9285714285714286,
+              "alert_cell_days": 2835642,
+              "verified_alert_cell_days": 1294,
+              "precision": 0.00045633405063121507,
+              "alert_share": 0.3601506727386896,
+              "events_per_1000_alert_cell_days": 0.01833799894344914,
+              "alert_cell_days_ci": [
+                2598896.2750000004,
+                3089984.9
+              ],
+              "precision_ci": [
+                0.0003117909962441013,
+                0.0006186036115074244
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8571428571428571,
+                0.9821428571428571
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 40,
+              "pod": 0.7142857142857143,
+              "alert_cell_days": 1055348,
+              "verified_alert_cell_days": 841,
+              "precision": 0.0007968935365396059,
+              "alert_share": 0.13403817977496124,
+              "events_per_1000_alert_cell_days": 0.03790218960949374,
+              "alert_cell_days_ci": [
+                934125.2000000001,
+                1190314.625
+              ],
+              "precision_ci": [
+                0.0004906068049115504,
+                0.0011552299839556524
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5892857142857143,
+                0.8214285714285714
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 32,
+              "pod": 0.5714285714285714,
+              "alert_cell_days": 400552,
+              "verified_alert_cell_days": 448,
+              "precision": 0.0011184565299886158,
+              "alert_share": 0.05087351374638534,
+              "events_per_1000_alert_cell_days": 0.07988975214204398,
+              "alert_cell_days_ci": [
+                347307.05,
+                459336.925
+              ],
+              "precision_ci": [
+                0.0005836688996717319,
+                0.0017260457482652896
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.44642857142857145,
+                0.6964285714285714
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 56,
+              "hits": 48,
+              "pod": 0.8571428571428571,
+              "alert_cell_days": 2835642,
+              "verified_alert_cell_days": 48,
+              "precision": 1.6927383640106898e-05,
+              "alert_share": 0.3601506727386896,
+              "events_per_1000_alert_cell_days": 0.016927383640106895,
+              "alert_cell_days_ci": [
+                2598896.2750000004,
+                3089984.9
+              ],
+              "precision_ci": [
+                9.84731583363677e-06,
+                2.4702535964712222e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7678571428571429,
+                0.9464285714285714
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 33,
+              "pod": 0.5892857142857143,
+              "alert_cell_days": 1055348,
+              "verified_alert_cell_days": 33,
+              "precision": 3.1269306427832336e-05,
+              "alert_share": 0.13403817977496124,
+              "events_per_1000_alert_cell_days": 0.031269306427832336,
+              "alert_cell_days_ci": [
+                934125.2000000001,
+                1190314.625
+              ],
+              "precision_ci": [
+                1.5753065355030205e-05,
+                4.954870697043792e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4642857142857143,
+                0.7142857142857143
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 18,
+              "pod": 0.32142857142857145,
+              "alert_cell_days": 400552,
+              "verified_alert_cell_days": 18,
+              "precision": 4.4937985579899736e-05,
+              "alert_share": 0.05087351374638534,
+              "events_per_1000_alert_cell_days": 0.04493798557989974,
+              "alert_cell_days_ci": [
+                347307.05,
+                459336.925
+              ],
+              "precision_ci": [
+                1.427919810338854e-05,
+                8.301549021464564e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.21428571428571427,
+                0.44642857142857145
+              ]
+            }
+          }
+        },
+        "ed_threshold": {
+          "tolerant": {
+            "1": {
+              "events": 56,
+              "hits": 54,
+              "pod": 0.9642857142857143,
+              "alert_cell_days": 2848474,
+              "verified_alert_cell_days": 1172,
+              "precision": 0.00041144837551615357,
+              "alert_share": 0.3617804459726109,
+              "events_per_1000_alert_cell_days": 0.01895751900842346,
+              "alert_cell_days_ci": [
+                2570710.9,
+                3144146.6999999997
+              ],
+              "precision_ci": [
+                0.00027480066190903915,
+                0.0005629086149439758
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9107142857142857,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 40,
+              "pod": 0.7142857142857143,
+              "alert_cell_days": 1061426,
+              "verified_alert_cell_days": 836,
+              "precision": 0.000787619673910381,
+              "alert_share": 0.13481013751465679,
+              "events_per_1000_alert_cell_days": 0.037685151861740714,
+              "alert_cell_days_ci": [
+                932957.25,
+                1199961.15
+              ],
+              "precision_ci": [
+                0.0004679425567102859,
+                0.0011326449817841075
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5892857142857143,
+                0.8214285714285714
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 30,
+              "pod": 0.5357142857142857,
+              "alert_cell_days": 402365,
+              "verified_alert_cell_days": 602,
+              "precision": 0.0014961539895368633,
+              "alert_share": 0.05110378017976277,
+              "events_per_1000_alert_cell_days": 0.07455916891379717,
+              "alert_cell_days_ci": [
+                347027.5,
+                461202.69999999995
+              ],
+              "precision_ci": [
+                0.0007976233942779,
+                0.002258535166104721
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4107142857142857,
+                0.6785714285714286
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 56,
+              "hits": 46,
+              "pod": 0.8214285714285714,
+              "alert_cell_days": 2848474,
+              "verified_alert_cell_days": 46,
+              "precision": 1.6148997673842203e-05,
+              "alert_share": 0.3617804459726109,
+              "events_per_1000_alert_cell_days": 0.016148997673842206,
+              "alert_cell_days_ci": [
+                2570710.9,
+                3144146.6999999997
+              ],
+              "precision_ci": [
+                9.337825502626499e-06,
+                2.3491305247634016e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7142857142857143,
+                0.9285714285714286
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 34,
+              "pod": 0.6071428571428571,
+              "alert_cell_days": 1061426,
+              "verified_alert_cell_days": 34,
+              "precision": 3.203237908247961e-05,
+              "alert_share": 0.13481013751465679,
+              "events_per_1000_alert_cell_days": 0.032032379082479606,
+              "alert_cell_days_ci": [
+                932957.25,
+                1199961.15
+              ],
+              "precision_ci": [
+                1.590482458531703e-05,
+                4.987224674532027e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.48214285714285715,
+                0.7321428571428571
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 24,
+              "pod": 0.42857142857142855,
+              "alert_cell_days": 402365,
+              "verified_alert_cell_days": 24,
+              "precision": 5.964733513103774e-05,
+              "alert_share": 0.05110378017976277,
+              "events_per_1000_alert_cell_days": 0.05964733513103774,
+              "alert_cell_days_ci": [
+                347027.5,
+                461202.69999999995
+              ],
+              "precision_ci": [
+                2.5753735243354947e-05,
+                9.786763549975462e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.30357142857142855,
+                0.5714285714285714
+              ]
+            }
+          }
+        },
+        "ed_threshold_refit": {
+          "tolerant": {
+            "1": {
+              "events": 56,
+              "hits": 54,
+              "pod": 0.9642857142857143,
+              "alert_cell_days": 2848485,
+              "verified_alert_cell_days": 1163,
+              "precision": 0.00040828721232514826,
+              "alert_share": 0.36178184306624966,
+              "events_per_1000_alert_cell_days": 0.01895744580013586,
+              "alert_cell_days_ci": [
+                2571403.1,
+                3141817.5999999996
+              ],
+              "precision_ci": [
+                0.00027334080857121043,
+                0.000557200852214108
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9107142857142857,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 41,
+              "pod": 0.7321428571428571,
+              "alert_cell_days": 1061426,
+              "verified_alert_cell_days": 852,
+              "precision": 0.0008026937346550773,
+              "alert_share": 0.13481013751465679,
+              "events_per_1000_alert_cell_days": 0.03862728065828423,
+              "alert_cell_days_ci": [
+                939325.0,
+                1190207.5999999999
+              ],
+              "precision_ci": [
+                0.00047641703343704494,
+                0.0011624790299422099
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6071428571428571,
+                0.8392857142857143
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 33,
+              "pod": 0.5892857142857143,
+              "alert_cell_days": 402365,
+              "verified_alert_cell_days": 552,
+              "precision": 0.001371888708013868,
+              "alert_share": 0.05110378017976277,
+              "events_per_1000_alert_cell_days": 0.08201508580517688,
+              "alert_cell_days_ci": [
+                348264.9,
+                458544.675
+              ],
+              "precision_ci": [
+                0.0007016848343522152,
+                0.0021262913119412604
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4642857142857143,
+                0.7142857142857143
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 56,
+              "hits": 45,
+              "pod": 0.8035714285714286,
+              "alert_cell_days": 2848485,
+              "verified_alert_cell_days": 45,
+              "precision": 1.5797871500113216e-05,
+              "alert_share": 0.36178184306624966,
+              "events_per_1000_alert_cell_days": 0.01579787150011322,
+              "alert_cell_days_ci": [
+                2571403.1,
+                3141817.5999999996
+              ],
+              "precision_ci": [
+                9.012122583840444e-06,
+                2.313532600814922e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6964285714285714,
+                0.9107142857142857
+              ]
+            },
+            "2": {
+              "events": 56,
+              "hits": 34,
+              "pod": 0.6071428571428571,
+              "alert_cell_days": 1061426,
+              "verified_alert_cell_days": 34,
+              "precision": 3.203237908247961e-05,
+              "alert_share": 0.13481013751465679,
+              "events_per_1000_alert_cell_days": 0.032032379082479606,
+              "alert_cell_days_ci": [
+                939325.0,
+                1190207.5999999999
+              ],
+              "precision_ci": [
+                1.4975048317669328e-05,
+                5.088624169161203e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.48214285714285715,
+                0.7321428571428571
+              ]
+            },
+            "3": {
+              "events": 56,
+              "hits": 25,
+              "pod": 0.44642857142857145,
+              "alert_cell_days": 402365,
+              "verified_alert_cell_days": 25,
+              "precision": 6.213264076149765e-05,
+              "alert_share": 0.05110378017976277,
+              "events_per_1000_alert_cell_days": 0.062132640761497646,
+              "alert_cell_days_ci": [
+                348264.9,
+                458544.675
+              ],
+              "precision_ci": [
+                2.518587278506922e-05,
+                0.00010241155246080493
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.32142857142857145,
+                0.5714285714285714
+              ]
+            }
+          }
+        }
+      }
+    },
+    "S1925": {
+      "years": [
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "note": "the 2019-2025 panels; admitted reported events and in-domain test_sparse catalog events",
+      "cells": 36792,
+      "days": 1498,
+      "events": 36,
+      "distinct_events": 35,
+      "events_outside_panel_days": 1,
+      "events_by_source": {
+        "catalog_sparse": 6,
+        "reported": 30
+      },
+      "shares": {
+        "v3": {
+          "target": null,
+          "realised": [
+            0.4124706682912144,
+            0.16865402329582882,
+            0.07026965503907362
+          ]
+        },
+        "rain_3d": {
+          "target": [
+            0.4124706682912144,
+            0.16865402329582882,
+            0.07026965503907362
+          ],
+          "realised": [
+            0.4124714303422901,
+            0.16865364227029095,
+            0.0702695824627807
+          ]
+        },
+        "rain_3d_devcuts": {
+          "target": [
+            0.5798374068554396,
+            0.2472156482861401,
+            0.10185484351713858
+          ],
+          "realised": [
+            0.38816034991643567,
+            0.1569648129810538,
+            0.06585596407299317
+          ]
+        },
+        "susceptibility": {
+          "target": [
+            0.4124706682912144,
+            0.16865402329582882,
+            0.07026965503907362
+          ],
+          "realised": [
+            0.4124706682912144,
+            0.16865402329582882,
+            0.07026965503907362
+          ]
+        },
+        "ed_threshold": {
+          "target": [
+            0.4124706682912144,
+            0.16865402329582882,
+            0.07026965503907362
+          ],
+          "realised": [
+            0.4124305880334466,
+            0.1686379295028727,
+            0.07026303245234423
+          ]
+        },
+        "ed_threshold_refit": {
+          "target": [
+            0.4124706682912144,
+            0.16865402329582882,
+            0.07026965503907362
+          ],
+          "realised": [
+            0.4124309690589845,
+            0.16863780249436008,
+            0.07026286915568515
+          ]
+        }
+      },
+      "models": {
+        "v3": {
+          "tolerant": {
+            "1": {
+              "events": 36,
+              "hits": 36,
+              "pod": 1.0,
+              "alert_cell_days": 22733080,
+              "verified_alert_cell_days": 971,
+              "precision": 4.271308595227748e-05,
+              "alert_share": 0.4124706682912144,
+              "events_per_1000_alert_cell_days": 0.001583595359713686,
+              "alert_cell_days_ci": [
+                22074287.6,
+                23380490.3
+              ],
+              "precision_ci": [
+                3.3668854030620376e-05,
+                5.184046710044179e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                1.0,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 36,
+              "pod": 1.0,
+              "alert_cell_days": 9295268,
+              "verified_alert_cell_days": 746,
+              "precision": 8.025588934068388e-05,
+              "alert_share": 0.16865402329582882,
+              "events_per_1000_alert_cell_days": 0.003872938359604048,
+              "alert_cell_days_ci": [
+                8978131.6,
+                9612075.25
+              ],
+              "precision_ci": [
+                6.119050566341605e-05,
+                9.942609777960099e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                1.0,
+                1.0
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 33,
+              "pod": 0.9166666666666666,
+              "alert_cell_days": 3872871,
+              "verified_alert_cell_days": 555,
+              "precision": 0.0001433045407399317,
+              "alert_share": 0.07026965503907362,
+              "events_per_1000_alert_cell_days": 0.008520810530482426,
+              "alert_cell_days_ci": [
+                3713231.375,
+                4030905.525
+              ],
+              "precision_ci": [
+                0.00010372819469306108,
+                0.00018488461292907578
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8055555555555556,
+                1.0
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 36,
+              "hits": 35,
+              "pod": 0.9722222222222222,
+              "alert_cell_days": 22733080,
+              "verified_alert_cell_days": 35,
+              "precision": 1.5396065997216392e-06,
+              "alert_share": 0.4124706682912144,
+              "events_per_1000_alert_cell_days": 0.001539606599721639,
+              "alert_cell_days_ci": [
+                22074287.6,
+                23380490.3
+              ],
+              "precision_ci": [
+                9.756276029322281e-07,
+                2.1968920295981593e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9166666666666666,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 27,
+              "pod": 0.75,
+              "alert_cell_days": 9295268,
+              "verified_alert_cell_days": 27,
+              "precision": 2.904703769703036e-06,
+              "alert_share": 0.16865402329582882,
+              "events_per_1000_alert_cell_days": 0.002904703769703036,
+              "alert_cell_days_ci": [
+                8978131.6,
+                9612075.25
+              ],
+              "precision_ci": [
+                1.695583888122341e-06,
+                4.38736886513573e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6111111111111112,
+                0.8888888888888888
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 22,
+              "pod": 0.6111111111111112,
+              "alert_cell_days": 3872871,
+              "verified_alert_cell_days": 22,
+              "precision": 5.68054035365495e-06,
+              "alert_share": 0.07026965503907362,
+              "events_per_1000_alert_cell_days": 0.00568054035365495,
+              "alert_cell_days_ci": [
+                3713231.375,
+                4030905.525
+              ],
+              "precision_ci": [
+                3.0055151371315713e-06,
+                8.953555990408939e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4444444444444444,
+                0.7777777777777778
+              ]
+            }
+          }
+        },
+        "rain_3d": {
+          "tolerant": {
+            "1": {
+              "events": 36,
+              "hits": 35,
+              "pod": 0.9722222222222222,
+              "alert_cell_days": 22733122,
+              "verified_alert_cell_days": 867,
+              "precision": 3.8138184451744026e-05,
+              "alert_share": 0.4124714303422901,
+              "events_per_1000_alert_cell_days": 0.001539603755260716,
+              "alert_cell_days_ci": [
+                21953088.9,
+                23498192.3
+              ],
+              "precision_ci": [
+                2.93257783136634e-05,
+                4.6839833771262484e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9166666666666666,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 30,
+              "pod": 0.8333333333333334,
+              "alert_cell_days": 9295247,
+              "verified_alert_cell_days": 587,
+              "precision": 6.315055425638501e-05,
+              "alert_share": 0.16865364227029095,
+              "events_per_1000_alert_cell_days": 0.0032274559245171214,
+              "alert_cell_days_ci": [
+                8908072.925,
+                9691971.0
+              ],
+              "precision_ci": [
+                4.501814046960385e-05,
+                8.057728609923332e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6944444444444444,
+                0.9444444444444444
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 26,
+              "pod": 0.7222222222222222,
+              "alert_cell_days": 3872867,
+              "verified_alert_cell_days": 457,
+              "precision": 0.00011800043740205898,
+              "alert_share": 0.0702695824627807,
+              "events_per_1000_alert_cell_days": 0.006713372806244056,
+              "alert_cell_days_ci": [
+                3683012.9,
+                4064651.775
+              ],
+              "precision_ci": [
+                8.019328692064058e-05,
+                0.00015746965695421862
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5833333333333334,
+                0.8611111111111112
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 36,
+              "hits": 32,
+              "pod": 0.8888888888888888,
+              "alert_cell_days": 22733122,
+              "verified_alert_cell_days": 32,
+              "precision": 1.4076377190955119e-06,
+              "alert_share": 0.4124714303422901,
+              "events_per_1000_alert_cell_days": 0.0014076377190955119,
+              "alert_cell_days_ci": [
+                21953088.9,
+                23498192.3
+              ],
+              "precision_ci": [
+                8.670176130624484e-07,
+                2.0256040638324493e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7777777777777778,
+                0.9722222222222222
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 21,
+              "pod": 0.5833333333333334,
+              "alert_cell_days": 9295247,
+              "verified_alert_cell_days": 21,
+              "precision": 2.259219147161985e-06,
+              "alert_share": 0.16865364227029095,
+              "events_per_1000_alert_cell_days": 0.002259219147161985,
+              "alert_cell_days_ci": [
+                8908072.925,
+                9691971.0
+              ],
+              "precision_ci": [
+                1.1508086894390783e-06,
+                3.6012972584373127e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4166666666666667,
+                0.75
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 18,
+              "pod": 0.5,
+              "alert_cell_days": 3872867,
+              "verified_alert_cell_days": 18,
+              "precision": 4.647719635092039e-06,
+              "alert_share": 0.0702695824627807,
+              "events_per_1000_alert_cell_days": 0.004647719635092039,
+              "alert_cell_days_ci": [
+                3683012.9,
+                4064651.775
+              ],
+              "precision_ci": [
+                2.0923485794556275e-06,
+                7.779048564829963e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.3333333333333333,
+                0.6666666666666666
+              ]
+            }
+          }
+        },
+        "rain_3d_devcuts": {
+          "tolerant": {
+            "1": {
+              "events": 36,
+              "hits": 35,
+              "pod": 0.9722222222222222,
+              "alert_cell_days": 21393231,
+              "verified_alert_cell_days": 841,
+              "precision": 3.9311499978661476e-05,
+              "alert_share": 0.38816034991643567,
+              "events_per_1000_alert_cell_days": 0.0016360315092189674,
+              "alert_cell_days_ci": [
+                20630366.45,
+                22124910.55
+              ],
+              "precision_ci": [
+                2.9993618139784905e-05,
+                4.8475564948494086e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9166666666666666,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 30,
+              "pod": 0.8333333333333334,
+              "alert_cell_days": 8651024,
+              "verified_alert_cell_days": 576,
+              "precision": 6.658171333243325e-05,
+              "alert_share": 0.1569648129810538,
+              "events_per_1000_alert_cell_days": 0.003467797569397565,
+              "alert_cell_days_ci": [
+                8289163.075,
+                9023512.375
+              ],
+              "precision_ci": [
+                4.732205842755975e-05,
+                8.550272424503864e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6944444444444444,
+                0.9444444444444444
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 25,
+              "pod": 0.6944444444444444,
+              "alert_cell_days": 3629613,
+              "verified_alert_cell_days": 451,
+              "precision": 0.00012425567133465744,
+              "alert_share": 0.06585596407299317,
+              "events_per_1000_alert_cell_days": 0.006887786659349082,
+              "alert_cell_days_ci": [
+                3452090.375,
+                3810143.975
+              ],
+              "precision_ci": [
+                8.410375261076974e-05,
+                0.00016632104617650002
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5277777777777778,
+                0.8333333333333334
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 36,
+              "hits": 30,
+              "pod": 0.8333333333333334,
+              "alert_cell_days": 21393231,
+              "verified_alert_cell_days": 30,
+              "precision": 1.4023127221876863e-06,
+              "alert_share": 0.38816034991643567,
+              "events_per_1000_alert_cell_days": 0.0014023127221876863,
+              "alert_cell_days_ci": [
+                20630366.45,
+                22124910.55
+              ],
+              "precision_ci": [
+                8.47198978140245e-07,
+                2.045583479380952e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6944444444444444,
+                0.9444444444444444
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 21,
+              "pod": 0.5833333333333334,
+              "alert_cell_days": 8651024,
+              "verified_alert_cell_days": 21,
+              "precision": 2.4274582985782954e-06,
+              "alert_share": 0.1569648129810538,
+              "events_per_1000_alert_cell_days": 0.0024274582985782953,
+              "alert_cell_days_ci": [
+                8289163.075,
+                9023512.375
+              ],
+              "precision_ci": [
+                1.2370350251625866e-06,
+                3.870492098048144e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4166666666666667,
+                0.75
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 18,
+              "pod": 0.5,
+              "alert_cell_days": 3629613,
+              "verified_alert_cell_days": 18,
+              "precision": 4.959206394731339e-06,
+              "alert_share": 0.06585596407299317,
+              "events_per_1000_alert_cell_days": 0.0049592063947313395,
+              "alert_cell_days_ci": [
+                3452090.375,
+                3810143.975
+              ],
+              "precision_ci": [
+                2.233526623692785e-06,
+                8.289015082170188e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.3333333333333333,
+                0.6666666666666666
+              ]
+            }
+          }
+        },
+        "susceptibility": {
+          "tolerant": {
+            "1": {
+              "events": 36,
+              "hits": 36,
+              "pod": 1.0,
+              "alert_cell_days": 22733080,
+              "verified_alert_cell_days": 840,
+              "precision": 3.695055839331934e-05,
+              "alert_share": 0.4124706682912144,
+              "events_per_1000_alert_cell_days": 0.001583595359713686,
+              "alert_cell_days_ci": [
+                22679589.325,
+                22787138.8
+              ],
+              "precision_ci": [
+                2.8685902153888774e-05,
+                4.503250617040174e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                1.0,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 32,
+              "pod": 0.8888888888888888,
+              "alert_cell_days": 9295268,
+              "verified_alert_cell_days": 372,
+              "precision": 4.0020363049241826e-05,
+              "alert_share": 0.16865402329582882,
+              "events_per_1000_alert_cell_days": 0.0034426118752035983,
+              "alert_cell_days_ci": [
+                9266900.85,
+                9323491.3
+              ],
+              "precision_ci": [
+                2.9327182741702567e-05,
+                5.077626024542441e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7777777777777778,
+                0.9722222222222222
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 24,
+              "pod": 0.6666666666666666,
+              "alert_cell_days": 3872871,
+              "verified_alert_cell_days": 156,
+              "precision": 4.028019523500783e-05,
+              "alert_share": 0.07026965503907362,
+              "events_per_1000_alert_cell_days": 0.006196953113078127,
+              "alert_cell_days_ci": [
+                3854150.725,
+                3891114.375
+              ],
+              "precision_ci": [
+                2.7144974397903343e-05,
+                5.3475355145036615e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5,
+                0.8055555555555556
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 36,
+              "hits": 31,
+              "pod": 0.8611111111111112,
+              "alert_cell_days": 22733080,
+              "verified_alert_cell_days": 31,
+              "precision": 1.3636515597534518e-06,
+              "alert_share": 0.4124706682912144,
+              "events_per_1000_alert_cell_days": 0.0013636515597534517,
+              "alert_cell_days_ci": [
+                22679589.325,
+                22787138.8
+              ],
+              "precision_ci": [
+                8.352556724405737e-07,
+                1.979920165164412e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.75,
+                0.9722222222222222
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 13,
+              "pod": 0.3611111111111111,
+              "alert_cell_days": 9295268,
+              "verified_alert_cell_days": 13,
+              "precision": 1.3985610743014619e-06,
+              "alert_share": 0.16865402329582882,
+              "events_per_1000_alert_cell_days": 0.0013985610743014617,
+              "alert_cell_days_ci": [
+                9266900.85,
+                9323491.3
+              ],
+              "precision_ci": [
+                6.465701127281557e-07,
+                2.2575778336701154e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.2222222222222222,
+                0.5277777777777778
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 6,
+              "pod": 0.16666666666666666,
+              "alert_cell_days": 3872871,
+              "verified_alert_cell_days": 6,
+              "precision": 1.5492382782695319e-06,
+              "alert_share": 0.07026965503907362,
+              "events_per_1000_alert_cell_days": 0.0015492382782695319,
+              "alert_cell_days_ci": [
+                3854150.725,
+                3891114.375
+              ],
+              "precision_ci": [
+                5.160123102901258e-07,
+                2.8455724087392834e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.05555555555555555,
+                0.3055555555555556
+              ]
+            }
+          }
+        },
+        "ed_threshold": {
+          "tolerant": {
+            "1": {
+              "events": 36,
+              "hits": 34,
+              "pod": 0.9444444444444444,
+              "alert_cell_days": 22730871,
+              "verified_alert_cell_days": 870,
+              "precision": 3.8273940316673305e-05,
+              "alert_share": 0.4124305880334466,
+              "events_per_1000_alert_cell_days": 0.0014957631847895313,
+              "alert_cell_days_ci": [
+                21957988.675,
+                23465105.2
+              ],
+              "precision_ci": [
+                2.9513039452515108e-05,
+                4.688206422651911e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8611111111111112,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 30,
+              "pod": 0.8333333333333334,
+              "alert_cell_days": 9294381,
+              "verified_alert_cell_days": 647,
+              "precision": 6.961195156514457e-05,
+              "alert_share": 0.1686379295028727,
+              "events_per_1000_alert_cell_days": 0.0032277566413513713,
+              "alert_cell_days_ci": [
+                8892860.95,
+                9697891.775
+              ],
+              "precision_ci": [
+                5.131295185562497e-05,
+                8.830031200501685e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6944444444444444,
+                0.9444444444444444
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 26,
+              "pod": 0.7222222222222222,
+              "alert_cell_days": 3872506,
+              "verified_alert_cell_days": 436,
+              "precision": 0.00011258859250314912,
+              "alert_share": 0.07026303245234423,
+              "events_per_1000_alert_cell_days": 0.006713998635508893,
+              "alert_cell_days_ci": [
+                3678827.95,
+                4066492.125
+              ],
+              "precision_ci": [
+                7.651758252273407e-05,
+                0.00015203786004663736
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5555555555555556,
+                0.8611111111111112
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 36,
+              "hits": 33,
+              "pod": 0.9166666666666666,
+              "alert_cell_days": 22730871,
+              "verified_alert_cell_days": 33,
+              "precision": 1.4517701499427805e-06,
+              "alert_share": 0.4124305880334466,
+              "events_per_1000_alert_cell_days": 0.0014517701499427804,
+              "alert_cell_days_ci": [
+                21957988.675,
+                23465105.2
+              ],
+              "precision_ci": [
+                9.092208159310805e-07,
+                2.076927258729119e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8055555555555556,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 25,
+              "pod": 0.6944444444444444,
+              "alert_cell_days": 9294381,
+              "verified_alert_cell_days": 25,
+              "precision": 2.6897972011261427e-06,
+              "alert_share": 0.1686379295028727,
+              "events_per_1000_alert_cell_days": 0.002689797201126143,
+              "alert_cell_days_ci": [
+                8892860.95,
+                9697891.775
+              ],
+              "precision_ci": [
+                1.4998408794784326e-06,
+                4.1238749245676795e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5555555555555556,
+                0.8333333333333334
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 18,
+              "pod": 0.5,
+              "alert_cell_days": 3872506,
+              "verified_alert_cell_days": 18,
+              "precision": 4.648152901506156e-06,
+              "alert_share": 0.07026303245234423,
+              "events_per_1000_alert_cell_days": 0.004648152901506156,
+              "alert_cell_days_ci": [
+                3678827.95,
+                4066492.125
+              ],
+              "precision_ci": [
+                2.102493346294529e-06,
+                7.751183463363585e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.3333333333333333,
+                0.6666666666666666
+              ]
+            }
+          }
+        },
+        "ed_threshold_refit": {
+          "tolerant": {
+            "1": {
+              "events": 36,
+              "hits": 35,
+              "pod": 0.9722222222222222,
+              "alert_cell_days": 22730892,
+              "verified_alert_cell_days": 871,
+              "precision": 3.831789795138704e-05,
+              "alert_share": 0.4124309690589845,
+              "events_per_1000_alert_cell_days": 0.0015397547971280668,
+              "alert_cell_days_ci": [
+                21952875.75,
+                23470474.65
+              ],
+              "precision_ci": [
+                2.959233294830883e-05,
+                4.6958434379363005e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9166666666666666,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 32,
+              "pod": 0.8888888888888888,
+              "alert_cell_days": 9294374,
+              "verified_alert_cell_days": 640,
+              "precision": 6.88588602094127e-05,
+              "alert_share": 0.16863780249436008,
+              "events_per_1000_alert_cell_days": 0.003442943010470635,
+              "alert_cell_days_ci": [
+                8910011.125,
+                9683887.625
+              ],
+              "precision_ci": [
+                5.0586587936834295e-05,
+                8.737463677589786e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7777777777777778,
+                0.9722222222222222
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 27,
+              "pod": 0.75,
+              "alert_cell_days": 3872497,
+              "verified_alert_cell_days": 420,
+              "precision": 0.00010845715309785908,
+              "alert_share": 0.07026286915568515,
+              "events_per_1000_alert_cell_days": 0.006972245556290941,
+              "alert_cell_days_ci": [
+                3696033.375,
+                4052798.075
+              ],
+              "precision_ci": [
+                7.237117964059239e-05,
+                0.0001456836173542072
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6111111111111112,
+                0.8888888888888888
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 36,
+              "hits": 33,
+              "pod": 0.9166666666666666,
+              "alert_cell_days": 22730892,
+              "verified_alert_cell_days": 33,
+              "precision": 1.4517688087207488e-06,
+              "alert_share": 0.4124309690589845,
+              "events_per_1000_alert_cell_days": 0.0014517688087207488,
+              "alert_cell_days_ci": [
+                21952875.75,
+                23470474.65
+              ],
+              "precision_ci": [
+                9.089666920424612e-07,
+                2.077858733743955e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8055555555555556,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 36,
+              "hits": 23,
+              "pod": 0.6388888888888888,
+              "alert_cell_days": 9294374,
+              "verified_alert_cell_days": 23,
+              "precision": 2.474615288775769e-06,
+              "alert_share": 0.16863780249436008,
+              "events_per_1000_alert_cell_days": 0.0024746152887757692,
+              "alert_cell_days_ci": [
+                8910011.125,
+                9683887.625
+              ],
+              "precision_ci": [
+                1.3054482215779811e-06,
+                3.89332592781822e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4722222222222222,
+                0.7777777777777778
+              ]
+            },
+            "3": {
+              "events": 36,
+              "hits": 18,
+              "pod": 0.5,
+              "alert_cell_days": 3872497,
+              "verified_alert_cell_days": 18,
+              "precision": 4.648163704193961e-06,
+              "alert_share": 0.07026286915568515,
+              "events_per_1000_alert_cell_days": 0.00464816370419396,
+              "alert_cell_days_ci": [
+                3696033.375,
+                4052798.075
+              ],
+              "precision_ci": [
+                2.0860619402625445e-06,
+                7.677294955795576e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.3333333333333333,
+                0.6666666666666666
+              ]
+            }
+          }
+        }
+      }
+    },
+    "POOLED": {
+      "years": [
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "note": "S2018 and S1925 together",
+      "cells": 36792,
+      "days": 1712,
+      "events": 92,
+      "distinct_events": 87,
+      "events_outside_panel_days": 1,
+      "events_by_source": {
+        "catalog_2018": 56,
+        "catalog_sparse": 6,
+        "reported": 30
+      },
+      "shares": {
+        "v3": {
+          "target": null,
+          "realised": [
+            0.4061420586403383,
+            0.16442630000833175,
+            0.06787500025401702
+          ]
+        },
+        "rain_3d": {
+          "target": [
+            0.4061420586403383,
+            0.16442630000833175,
+            0.06787500025401702
+          ],
+          "realised": [
+            0.4061425666743888,
+            0.16442599836311428,
+            0.06787492087369663
+          ]
+        },
+        "rain_3d_devcuts": {
+          "target": [
+            0.5798374068554396,
+            0.2472156482861401,
+            0.1018548435171386
+          ],
+          "realised": [
+            0.3813091161121983,
+            0.15287646339208238,
+            0.06375182765249658
+          ]
+        },
+        "susceptibility": {
+          "target": [
+            0.4061420586403383,
+            0.16442630000833175,
+            0.06787500025401702
+          ],
+          "realised": [
+            0.4061420586403383,
+            0.16442630000833175,
+            0.06787500025401702
+          ]
+        },
+        "ed_threshold": {
+          "target": [
+            0.4061420586403383,
+            0.16442630000833175,
+            0.06787500025401702
+          ],
+          "realised": [
+            0.40609932027584217,
+            0.16440945550434571,
+            0.06786812591827154
+          ]
+        },
+        "ed_threshold_refit": {
+          "target": [
+            0.4061420586403383,
+            0.16442630000833175,
+            0.06787500025401702
+          ],
+          "realised": [
+            0.40609982830989266,
+            0.1644093443718972,
+            0.06786798303369485
+          ]
+        }
+      },
+      "models": {
+        "v3": {
+          "tolerant": {
+            "1": {
+              "events": 92,
+              "hits": 90,
+              "pod": 0.9782608695652174,
+              "alert_cell_days": 25582037,
+              "verified_alert_cell_days": 2310,
+              "precision": 9.029773508653748e-05,
+              "alert_share": 0.4061420586403383,
+              "events_per_1000_alert_cell_days": 0.0035180935748001614,
+              "alert_cell_days_ci": [
+                24875857.375,
+                26262683.225
+              ],
+              "precision_ci": [
+                7.087435648382587e-05,
+                0.00011119466962848224
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9456521739130435,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 84,
+              "pod": 0.9130434782608695,
+              "alert_cell_days": 10356868,
+              "verified_alert_cell_days": 1773,
+              "precision": 0.0001711907499448675,
+              "alert_share": 0.16442630000833175,
+              "events_per_1000_alert_cell_days": 0.008110560065069865,
+              "alert_cell_days_ci": [
+                10009273.375,
+                10700256.225
+              ],
+              "precision_ci": [
+                0.00013091749404550362,
+                0.0002141931361456057
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8478260869565217,
+                0.967391304347826
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 78,
+              "pod": 0.8478260869565217,
+              "alert_cell_days": 4275304,
+              "verified_alert_cell_days": 1261,
+              "precision": 0.00029494978602691177,
+              "alert_share": 0.06787500025401702,
+              "events_per_1000_alert_cell_days": 0.01824431666145846,
+              "alert_cell_days_ci": [
+                4103943.55,
+                4447475.4
+              ],
+              "precision_ci": [
+                0.0002139639036381191,
+                0.0003838798886184758
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7717391304347826,
+                0.9130434782608695
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 92,
+              "hits": 84,
+              "pod": 0.9130434782608695,
+              "alert_cell_days": 25582037,
+              "verified_alert_cell_days": 84,
+              "precision": 3.2835540031468174e-06,
+              "alert_share": 0.4061420586403383,
+              "events_per_1000_alert_cell_days": 0.0032835540031468176,
+              "alert_cell_days_ci": [
+                24875857.375,
+                26262683.225
+              ],
+              "precision_ci": [
+                2.310011675190541e-06,
+                4.368363837911222e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8478260869565217,
+                0.967391304347826
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 69,
+              "pod": 0.75,
+              "alert_cell_days": 10356868,
+              "verified_alert_cell_days": 69,
+              "precision": 6.662245767735961e-06,
+              "alert_share": 0.16442630000833175,
+              "events_per_1000_alert_cell_days": 0.0066622457677359605,
+              "alert_cell_days_ci": [
+                10009273.375,
+                10700256.225
+              ],
+              "precision_ci": [
+                4.398558947817719e-06,
+                9.019265081182578e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6630434782608695,
+                0.8369565217391305
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 52,
+              "pod": 0.5652173913043478,
+              "alert_cell_days": 4275304,
+              "verified_alert_cell_days": 52,
+              "precision": 1.216287777430564e-05,
+              "alert_share": 0.06787500025401702,
+              "events_per_1000_alert_cell_days": 0.01216287777430564,
+              "alert_cell_days_ci": [
+                4103943.55,
+                4447475.4
+              ],
+              "precision_ci": [
+                7.3561485450013036e-06,
+                1.7224808001726683e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.45652173913043476,
+                0.6739130434782609
+              ]
+            }
+          }
+        },
+        "rain_3d": {
+          "tolerant": {
+            "1": {
+              "events": 92,
+              "hits": 88,
+              "pod": 0.9565217391304348,
+              "alert_cell_days": 25582069,
+              "verified_alert_cell_days": 2084,
+              "precision": 8.146330932028992e-05,
+              "alert_share": 0.4061425666743888,
+              "events_per_1000_alert_cell_days": 0.0034399094146763502,
+              "alert_cell_days_ci": [
+                24742215.625,
+                26371578.125
+              ],
+              "precision_ci": [
+                6.339764229161058e-05,
+                0.0001010674280660624
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9130434782608695,
+                0.9891304347826086
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 70,
+              "pod": 0.7608695652173914,
+              "alert_cell_days": 10356849,
+              "verified_alert_cell_days": 1396,
+              "precision": 0.00013479003121509255,
+              "alert_share": 0.16442599836311428,
+              "events_per_1000_alert_cell_days": 0.006758812453478853,
+              "alert_cell_days_ci": [
+                9942206.525,
+                10770980.625
+              ],
+              "precision_ci": [
+                9.682448563828621e-05,
+                0.00017704980761544656
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6739130434782609,
+                0.8478260869565217
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 59,
+              "pod": 0.6413043478260869,
+              "alert_cell_days": 4275299,
+              "verified_alert_cell_days": 1091,
+              "precision": 0.000255186830207665,
+              "alert_share": 0.06787492087369663,
+              "events_per_1000_alert_cell_days": 0.013800204383365936,
+              "alert_cell_days_ci": [
+                4072910.925,
+                4481488.3
+              ],
+              "precision_ci": [
+                0.0001746714492086723,
+                0.00034477833266643434
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5434782608695652,
+                0.7391304347826086
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 92,
+              "hits": 76,
+              "pod": 0.8260869565217391,
+              "alert_cell_days": 25582069,
+              "verified_alert_cell_days": 76,
+              "precision": 2.970830858129575e-06,
+              "alert_share": 0.4061425666743888,
+              "events_per_1000_alert_cell_days": 0.002970830858129575,
+              "alert_cell_days_ci": [
+                24742215.625,
+                26371578.125
+              ],
+              "precision_ci": [
+                2.0308115629081717e-06,
+                3.997986837975794e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.75,
+                0.9021739130434783
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 53,
+              "pod": 0.5760869565217391,
+              "alert_cell_days": 10356849,
+              "verified_alert_cell_days": 53,
+              "precision": 5.1173865719197025e-06,
+              "alert_share": 0.16442599836311428,
+              "events_per_1000_alert_cell_days": 0.005117386571919702,
+              "alert_cell_days_ci": [
+                9942206.525,
+                10770980.625
+              ],
+              "precision_ci": [
+                2.9681058974840866e-06,
+                7.41451358101127e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4782608695652174,
+                0.6739130434782609
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 42,
+              "pod": 0.45652173913043476,
+              "alert_cell_days": 4275299,
+              "verified_alert_cell_days": 42,
+              "precision": 9.823874306802868e-06,
+              "alert_share": 0.06787492087369663,
+              "events_per_1000_alert_cell_days": 0.00982387430680287,
+              "alert_cell_days_ci": [
+                4072910.925,
+                4481488.3
+              ],
+              "precision_ci": [
+                5.535271622775223e-06,
+                1.4602701413031237e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.358695652173913,
+                0.5652173913043478
+              ]
+            }
+          }
+        },
+        "rain_3d_devcuts": {
+          "tolerant": {
+            "1": {
+              "events": 92,
+              "hits": 86,
+              "pod": 0.9347826086956522,
+              "alert_cell_days": 24017862,
+              "verified_alert_cell_days": 2027,
+              "precision": 8.439552196611006e-05,
+              "alert_share": 0.3813091161121983,
+              "events_per_1000_alert_cell_days": 0.0035806684208611076,
+              "alert_cell_days_ci": [
+                23210887.75,
+                24783418.849999998
+              ],
+              "precision_ci": [
+                6.5198971510129e-05,
+                0.00010516461778578539
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8804347826086957,
+                0.9782608695652174
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 69,
+              "pod": 0.75,
+              "alert_cell_days": 9629368,
+              "verified_alert_cell_days": 1370,
+              "precision": 0.0001422730962198142,
+              "alert_share": 0.15287646339208238,
+              "events_per_1000_alert_cell_days": 0.007165579298662176,
+              "alert_cell_days_ci": [
+                9237763.7,
+                10016647.525
+              ],
+              "precision_ci": [
+                0.00010120606129418042,
+                0.0001875342190987159
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6630434782608695,
+                0.8369565217391305
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 58,
+              "pod": 0.6304347826086957,
+              "alert_cell_days": 4015594,
+              "verified_alert_cell_days": 1084,
+              "precision": 0.000269947609245357,
+              "alert_share": 0.06375182765249658,
+              "events_per_1000_alert_cell_days": 0.01444369126958552,
+              "alert_cell_days_ci": [
+                3826892.275,
+                4210985.25
+              ],
+              "precision_ci": [
+                0.00018474178988442172,
+                0.00036545941185670645
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.532608695652174,
+                0.7282608695652174
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 92,
+              "hits": 73,
+              "pod": 0.7934782608695652,
+              "alert_cell_days": 24017862,
+              "verified_alert_cell_days": 73,
+              "precision": 3.0394045898007075e-06,
+              "alert_share": 0.3813091161121983,
+              "events_per_1000_alert_cell_days": 0.0030394045898007073,
+              "alert_cell_days_ci": [
+                23210887.75,
+                24783418.849999998
+              ],
+              "precision_ci": [
+                2.063625243106896e-06,
+                4.138569588803929e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.717391304347826,
+                0.8695652173913043
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 52,
+              "pod": 0.5652173913043478,
+              "alert_cell_days": 9629368,
+              "verified_alert_cell_days": 52,
+              "precision": 5.400146717832364e-06,
+              "alert_share": 0.15287646339208238,
+              "events_per_1000_alert_cell_days": 0.0054001467178323645,
+              "alert_cell_days_ci": [
+                9237763.7,
+                10016647.525
+              ],
+              "precision_ci": [
+                3.1139974259558488e-06,
+                7.909274710787414e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4673913043478261,
+                0.6630434782608695
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 42,
+              "pod": 0.45652173913043476,
+              "alert_cell_days": 4015594,
+              "verified_alert_cell_days": 42,
+              "precision": 1.045922471245848e-05,
+              "alert_share": 0.06375182765249658,
+              "events_per_1000_alert_cell_days": 0.01045922471245848,
+              "alert_cell_days_ci": [
+                3826892.275,
+                4210985.25
+              ],
+              "precision_ci": [
+                5.892419295714307e-06,
+                1.5545674716515024e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.358695652173913,
+                0.5652173913043478
+              ]
+            }
+          }
+        },
+        "susceptibility": {
+          "tolerant": {
+            "1": {
+              "events": 92,
+              "hits": 88,
+              "pod": 0.9565217391304348,
+              "alert_cell_days": 25582037,
+              "verified_alert_cell_days": 2087,
+              "precision": 8.158068100675486e-05,
+              "alert_share": 0.4061420586403383,
+              "events_per_1000_alert_cell_days": 0.00343991371758238,
+              "alert_cell_days_ci": [
+                25506437.3,
+                25655524.85
+              ],
+              "precision_ci": [
+                6.371057440133144e-05,
+                9.98448692203985e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9130434782608695,
+                0.9891304347826086
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 77,
+              "pod": 0.8369565217391305,
+              "alert_cell_days": 10356868,
+              "verified_alert_cell_days": 882,
+              "precision": 8.516088068323358e-05,
+              "alert_share": 0.16442630000833175,
+              "events_per_1000_alert_cell_days": 0.007434680059647376,
+              "alert_cell_days_ci": [
+                10313330.975,
+                10400534.475
+              ],
+              "precision_ci": [
+                6.528786200781237e-05,
+                0.00010636250991854875
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.75,
+                0.9130434782608695
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 54,
+              "pod": 0.5869565217391305,
+              "alert_cell_days": 4275304,
+              "verified_alert_cell_days": 379,
+              "precision": 8.864866685503534e-05,
+              "alert_share": 0.06787500025401702,
+              "events_per_1000_alert_cell_days": 0.012630680765625088,
+              "alert_cell_days_ci": [
+                4249604.8,
+                4301770.05
+              ],
+              "precision_ci": [
+                6.49544963256602e-05,
+                0.00011411474443472931
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4782608695652174,
+                0.6847826086956522
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 92,
+              "hits": 79,
+              "pod": 0.8586956521739131,
+              "alert_cell_days": 25582037,
+              "verified_alert_cell_days": 79,
+              "precision": 3.088104360102364e-06,
+              "alert_share": 0.4061420586403383,
+              "events_per_1000_alert_cell_days": 0.003088104360102364,
+              "alert_cell_days_ci": [
+                25506437.3,
+                25655524.85
+              ],
+              "precision_ci": [
+                2.102269543918555e-06,
+                4.108311781263308e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.782608695652174,
+                0.9239130434782609
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 32,
+              "pod": 0.34782608695652173,
+              "alert_cell_days": 10356868,
+              "verified_alert_cell_days": 32,
+              "precision": 3.089737167645663e-06,
+              "alert_share": 0.16442630000833175,
+              "events_per_1000_alert_cell_days": 0.003089737167645663,
+              "alert_cell_days_ci": [
+                10313330.975,
+                10400534.475
+              ],
+              "precision_ci": [
+                1.9330329694539957e-06,
+                4.255466338392592e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.25,
+                0.44565217391304346
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 19,
+              "pod": 0.20652173913043478,
+              "alert_cell_days": 4275304,
+              "verified_alert_cell_days": 19,
+              "precision": 4.4441284175347535e-06,
+              "alert_share": 0.06787500025401702,
+              "events_per_1000_alert_cell_days": 0.004444128417534753,
+              "alert_cell_days_ci": [
+                4249604.8,
+                4301770.05
+              ],
+              "precision_ci": [
+                2.5691623084091702e-06,
+                6.52129158700195e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.13043478260869565,
+                0.29347826086956524
+              ]
+            }
+          }
+        },
+        "ed_threshold": {
+          "tolerant": {
+            "1": {
+              "events": 92,
+              "hits": 88,
+              "pod": 0.9565217391304348,
+              "alert_cell_days": 25579345,
+              "verified_alert_cell_days": 2042,
+              "precision": 7.983003474092085e-05,
+              "alert_share": 0.40609932027584217,
+              "events_per_1000_alert_cell_days": 0.003440275738100409,
+              "alert_cell_days_ci": [
+                24777751.975,
+                26365702.375
+              ],
+              "precision_ci": [
+                6.151437131948405e-05,
+                9.926336536855418e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9130434782608695,
+                0.9891304347826086
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 70,
+              "pod": 0.7608695652173914,
+              "alert_cell_days": 10355807,
+              "verified_alert_cell_days": 1483,
+              "precision": 0.00014320467733707282,
+              "alert_share": 0.16440945550434571,
+              "events_per_1000_alert_cell_days": 0.006759492524339243,
+              "alert_cell_days_ci": [
+                9925357.125,
+                10797103.125
+              ],
+              "precision_ci": [
+                0.00010536893853120959,
+                0.0001856694814660059
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6739130434782609,
+                0.8478260869565217
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 56,
+              "pod": 0.6086956521739131,
+              "alert_cell_days": 4274871,
+              "verified_alert_cell_days": 1038,
+              "precision": 0.00024281434457320466,
+              "alert_share": 0.06786812591827154,
+              "events_per_1000_alert_cell_days": 0.013099810497205646,
+              "alert_cell_days_ci": [
+                4070226.5,
+                4489119.875
+              ],
+              "precision_ci": [
+                0.00016495097078558435,
+                0.0003298848723086762
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5108695652173914,
+                0.7065217391304348
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 92,
+              "hits": 79,
+              "pod": 0.8586956521739131,
+              "alert_cell_days": 25579345,
+              "verified_alert_cell_days": 79,
+              "precision": 3.0884293557946853e-06,
+              "alert_share": 0.40609932027584217,
+              "events_per_1000_alert_cell_days": 0.003088429355794685,
+              "alert_cell_days_ci": [
+                24777751.975,
+                26365702.375
+              ],
+              "precision_ci": [
+                2.145184192455456e-06,
+                4.129588952096591e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.782608695652174,
+                0.9239130434782609
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 59,
+              "pod": 0.6413043478260869,
+              "alert_cell_days": 10355807,
+              "verified_alert_cell_days": 59,
+              "precision": 5.69728655622879e-06,
+              "alert_share": 0.16440945550434571,
+              "events_per_1000_alert_cell_days": 0.005697286556228791,
+              "alert_cell_days_ci": [
+                9925357.125,
+                10797103.125
+              ],
+              "precision_ci": [
+                3.5191527961982294e-06,
+                7.961613325049214e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5434782608695652,
+                0.7391304347826086
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 42,
+              "pod": 0.45652173913043476,
+              "alert_cell_days": 4274871,
+              "verified_alert_cell_days": 42,
+              "precision": 9.824857872904236e-06,
+              "alert_share": 0.06786812591827154,
+              "events_per_1000_alert_cell_days": 0.009824857872904234,
+              "alert_cell_days_ci": [
+                4070226.5,
+                4489119.875
+              ],
+              "precision_ci": [
+                5.358050810152802e-06,
+                1.4641186101911897e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.3584239130434787,
+                0.5543478260869565
+              ]
+            }
+          }
+        },
+        "ed_threshold_refit": {
+          "tolerant": {
+            "1": {
+              "events": 92,
+              "hits": 89,
+              "pod": 0.967391304347826,
+              "alert_cell_days": 25579377,
+              "verified_alert_cell_days": 2034,
+              "precision": 7.951718292435347e-05,
+              "alert_share": 0.40609982830989266,
+              "events_per_1000_alert_cell_days": 0.003479365427860108,
+              "alert_cell_days_ci": [
+                24767985.55,
+                26369094.65
+              ],
+              "precision_ci": [
+                6.146902394287392e-05,
+                9.878342383103595e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9239130434782609,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 73,
+              "pod": 0.7934782608695652,
+              "alert_cell_days": 10355800,
+              "verified_alert_cell_days": 1492,
+              "precision": 0.0001440738523339578,
+              "alert_share": 0.1644093443718972,
+              "events_per_1000_alert_cell_days": 0.007049189825991232,
+              "alert_cell_days_ci": [
+                9953675.575,
+                10752956.35
+              ],
+              "precision_ci": [
+                0.00010548719114012421,
+                0.00018688328625222995
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7065217391304348,
+                0.8804347826086957
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 60,
+              "pod": 0.6521739130434783,
+              "alert_cell_days": 4274862,
+              "verified_alert_cell_days": 972,
+              "precision": 0.00022737576090175543,
+              "alert_share": 0.06786798303369485,
+              "events_per_1000_alert_cell_days": 0.014035540796404657,
+              "alert_cell_days_ci": [
+                4093973.425,
+                4465052.1
+              ],
+              "precision_ci": [
+                0.0001525699030482237,
+                0.00030949996000823206
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5543478260869565,
+                0.75
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 92,
+              "hits": 78,
+              "pod": 0.8478260869565217,
+              "alert_cell_days": 25579377,
+              "verified_alert_cell_days": 78,
+              "precision": 3.049331498574027e-06,
+              "alert_share": 0.40609982830989266,
+              "events_per_1000_alert_cell_days": 0.003049331498574027,
+              "alert_cell_days_ci": [
+                24767985.55,
+                26369094.65
+              ],
+              "precision_ci": [
+                2.1068982867960124e-06,
+                4.090657434182383e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7717391304347826,
+                0.9130434782608695
+              ]
+            },
+            "2": {
+              "events": 92,
+              "hits": 57,
+              "pod": 0.6195652173913043,
+              "alert_cell_days": 10355800,
+              "verified_alert_cell_days": 57,
+              "precision": 5.504161918924661e-06,
+              "alert_share": 0.1644093443718972,
+              "events_per_1000_alert_cell_days": 0.005504161918924661,
+              "alert_cell_days_ci": [
+                9953675.575,
+                10752956.35
+              ],
+              "precision_ci": [
+                3.2846227733902486e-06,
+                7.864863436926988e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5217391304347826,
+                0.717391304347826
+              ]
+            },
+            "3": {
+              "events": 92,
+              "hits": 43,
+              "pod": 0.4673913043478261,
+              "alert_cell_days": 4274862,
+              "verified_alert_cell_days": 43,
+              "precision": 1.0058804237423337e-05,
+              "alert_share": 0.06786798303369485,
+              "events_per_1000_alert_cell_days": 0.010058804237423337,
+              "alert_cell_days_ci": [
+                4093973.425,
+                4465052.1
+              ],
+              "precision_ci": [
+                5.3860342722521875e-06,
+                1.4947754686066142e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.3695652173913043,
+                0.5652173913043478
+              ]
+            }
+          }
+        }
+      }
+    },
+    "L1820": {
+      "years": [
+        2018,
+        2019,
+        2020
+      ],
+      "note": "2018-2020, the years LHASA covers: every model, LHASA included, on the same days and events",
+      "cells": 36792,
+      "days": 642,
+      "events": 65,
+      "distinct_events": 60,
+      "events_outside_panel_days": 1,
+      "events_by_source": {
+        "catalog_2018": 56,
+        "catalog_sparse": 4,
+        "reported": 5
+      },
+      "shares": {
+        "v3": {
+          "target": null,
+          "realised": [
+            0.40379151738932817,
+            0.16024266077076216,
+            0.06484864141534222
+          ]
+        },
+        "rain_3d": {
+          "target": [
+            0.40379151738932817,
+            0.16024266077076216,
+            0.06484864141534222
+          ],
+          "realised": [
+            0.4037910093552777,
+            0.16024261843459128,
+            0.06484834506214611
+          ]
+        },
+        "rain_3d_devcuts": {
+          "target": [
+            0.5798374068554396,
+            0.2472156482861401,
+            0.1018548435171386
+          ],
+          "realised": [
+            0.3780058257958015,
+            0.1492990146171557,
+            0.06221410383809564
+          ]
+        },
+        "susceptibility": {
+          "target": [
+            0.40379151738932817,
+            0.16024266077076216,
+            0.06484864141534222
+          ],
+          "realised": [
+            0.40379151738932817,
+            0.16024266077076216,
+            0.06484864141534222
+          ]
+        },
+        "lhasa_v2_m1": {
+          "target": [
+            0.40379151738932817,
+            0.16024266077076216,
+            0.06484864141534222
+          ],
+          "realised": [
+            0.4019175914579832,
+            0.15949813686979222,
+            0.06454526041486738
+          ]
+        },
+        "lhasa_v2": {
+          "target": [
+            0.40379151738932817,
+            0.16024266077076216,
+            0.06484864141534222
+          ],
+          "realised": [
+            0.4036626884213621,
+            0.16028148303945258,
+            0.0648482180536335
+          ]
+        },
+        "lhasa_v2_p1": {
+          "target": [
+            0.40379151738932817,
+            0.16024266077076216,
+            0.06484864141534222
+          ],
+          "realised": [
+            0.4018932904959022,
+            0.1594392049199372,
+            0.06454496406167128
+          ]
+        },
+        "ed_threshold": {
+          "target": [
+            0.40379151738932817,
+            0.16024266077076216,
+            0.06484864141534222
+          ],
+          "realised": [
+            0.40373584532463036,
+            0.16022132334064226,
+            0.06484004717265503
+          ]
+        },
+        "ed_threshold_refit": {
+          "target": [
+            0.40379151738932817,
+            0.16024266077076216,
+            0.06484864141534222
+          ],
+          "realised": [
+            0.40373698840124395,
+            0.16022119633212964,
+            0.06483992016414242
+          ]
+        }
+      },
+      "models": {
+        "v3": {
+          "tolerant": {
+            "1": {
+              "events": 65,
+              "hits": 63,
+              "pod": 0.9692307692307692,
+              "alert_cell_days": 9537743,
+              "verified_alert_cell_days": 1551,
+              "precision": 0.00016261708875988794,
+              "alert_share": 0.40379151738932817,
+              "events_per_1000_alert_cell_days": 0.006605336293921947,
+              "alert_cell_days_ci": [
+                9133857.525,
+                9956581.1
+              ],
+              "precision_ci": [
+                0.00011338446887175404,
+                0.00021753152805664512
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9230769230769231,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 57,
+              "pod": 0.8769230769230769,
+              "alert_cell_days": 3785006,
+              "verified_alert_cell_days": 1205,
+              "precision": 0.00031836145041778003,
+              "alert_share": 0.16024266077076216,
+              "events_per_1000_alert_cell_days": 0.015059421306069264,
+              "alert_cell_days_ci": [
+                3586373.525,
+                3992318.575
+              ],
+              "precision_ci": [
+                0.00021428882007864505,
+                0.0004334845862994804
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7846153846153846,
+                0.9538461538461539
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 54,
+              "pod": 0.8307692307692308,
+              "alert_cell_days": 1531755,
+              "verified_alert_cell_days": 858,
+              "precision": 0.0005601417981335135,
+              "alert_share": 0.06484864141534222,
+              "events_per_1000_alert_cell_days": 0.03525367960280854,
+              "alert_cell_days_ci": [
+                1432790.5,
+                1635558.325
+              ],
+              "precision_ci": [
+                0.00034139226682198143,
+                0.0008014122489705114
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7230769230769231,
+                0.9076923076923077
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 65,
+              "hits": 58,
+              "pod": 0.8923076923076924,
+              "alert_cell_days": 9537743,
+              "verified_alert_cell_days": 58,
+              "precision": 6.0811032547217935e-06,
+              "alert_share": 0.40379151738932817,
+              "events_per_1000_alert_cell_days": 0.006081103254721793,
+              "alert_cell_days_ci": [
+                9133857.525,
+                9956581.1
+              ],
+              "precision_ci": [
+                3.626728916639456e-06,
+                8.963724395096183e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8153846153846154,
+                0.9538461538461539
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 50,
+              "pod": 0.7692307692307693,
+              "alert_cell_days": 3785006,
+              "verified_alert_cell_days": 50,
+              "precision": 1.3210018689534441e-05,
+              "alert_share": 0.16024266077076216,
+              "events_per_1000_alert_cell_days": 0.013210018689534442,
+              "alert_cell_days_ci": [
+                3586373.525,
+                3992318.575
+              ],
+              "precision_ci": [
+                7.702196594689918e-06,
+                1.9797720204563854e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6615384615384615,
+                0.8615384615384616
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 37,
+              "pod": 0.5692307692307692,
+              "alert_cell_days": 1531755,
+              "verified_alert_cell_days": 37,
+              "precision": 2.4155298987109557e-05,
+              "alert_share": 0.06484864141534222,
+              "events_per_1000_alert_cell_days": 0.024155298987109556,
+              "alert_cell_days_ci": [
+                1432790.5,
+                1635558.325
+              ],
+              "precision_ci": [
+                1.2455982033910642e-05,
+                3.853459822856358e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4461538461538462,
+                0.6923076923076923
+              ]
+            }
+          }
+        },
+        "rain_3d": {
+          "tolerant": {
+            "1": {
+              "events": 65,
+              "hits": 62,
+              "pod": 0.9538461538461539,
+              "alert_cell_days": 9537731,
+              "verified_alert_cell_days": 1428,
+              "precision": 0.00014972114436861346,
+              "alert_share": 0.4037910093552777,
+              "events_per_1000_alert_cell_days": 0.006500497864743721,
+              "alert_cell_days_ci": [
+                9064347.175,
+                10037441.075
+              ],
+              "precision_ci": [
+                0.00010371971180751659,
+                0.00020307056140251626
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8923076923076924,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 48,
+              "pod": 0.7384615384615385,
+              "alert_cell_days": 3785005,
+              "verified_alert_cell_days": 978,
+              "precision": 0.0002583880338335088,
+              "alert_share": 0.16024261843459128,
+              "events_per_1000_alert_cell_days": 0.01268162129244215,
+              "alert_cell_days_ci": [
+                3548371.85,
+                4048435.3249999997
+              ],
+              "precision_ci": [
+                0.00016004299772858356,
+                0.00037563816379101127
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6307692307692307,
+                0.8461538461538461
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 41,
+              "pod": 0.6307692307692307,
+              "alert_cell_days": 1531748,
+              "verified_alert_cell_days": 782,
+              "precision": 0.0005105278413942764,
+              "alert_share": 0.06484834506214611,
+              "events_per_1000_alert_cell_days": 0.02676680498358738,
+              "alert_cell_days_ci": [
+                1418534.175,
+                1660825.95
+              ],
+              "precision_ci": [
+                0.00030447221780213795,
+                0.000739471356877158
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5076923076923077,
+                0.7538461538461538
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 65,
+              "hits": 53,
+              "pod": 0.8153846153846154,
+              "alert_cell_days": 9537731,
+              "verified_alert_cell_days": 53,
+              "precision": 5.556877206958342e-06,
+              "alert_share": 0.4037910093552777,
+              "events_per_1000_alert_cell_days": 0.005556877206958343,
+              "alert_cell_days_ci": [
+                9064347.175,
+                10037441.075
+              ],
+              "precision_ci": [
+                3.283709181401294e-06,
+                8.380902807375404e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7230769230769231,
+                0.9076923076923077
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 39,
+              "pod": 0.6,
+              "alert_cell_days": 3785005,
+              "verified_alert_cell_days": 39,
+              "precision": 1.0303817300109246e-05,
+              "alert_share": 0.16024261843459128,
+              "events_per_1000_alert_cell_days": 0.010303817300109246,
+              "alert_cell_days_ci": [
+                3548371.85,
+                4048435.3249999997
+              ],
+              "precision_ci": [
+                5.2168541303530275e-06,
+                1.6540151281981846e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.47692307692307695,
+                0.7076923076923077
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 31,
+              "pod": 0.47692307692307695,
+              "alert_cell_days": 1531748,
+              "verified_alert_cell_days": 31,
+              "precision": 2.0238315963200213e-05,
+              "alert_share": 0.06484834506214611,
+              "events_per_1000_alert_cell_days": 0.020238315963200214,
+              "alert_cell_days_ci": [
+                1418534.175,
+                1660825.95
+              ],
+              "precision_ci": [
+                9.631656109394989e-06,
+                3.333601462487601e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.35384615384615387,
+                0.6
+              ]
+            }
+          }
+        },
+        "rain_3d_devcuts": {
+          "tolerant": {
+            "1": {
+              "events": 65,
+              "hits": 60,
+              "pod": 0.9230769230769231,
+              "alert_cell_days": 8928673,
+              "verified_alert_cell_days": 1394,
+              "precision": 0.00015612622390807682,
+              "alert_share": 0.3780058257958015,
+              "events_per_1000_alert_cell_days": 0.006719923554149648,
+              "alert_cell_days_ci": [
+                8476933.2,
+                9410870.975
+              ],
+              "precision_ci": [
+                0.00010718079341090376,
+                0.00021207985473030384
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8615384615384616,
+                0.9846153846153847
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 47,
+              "pod": 0.7230769230769231,
+              "alert_cell_days": 3526512,
+              "verified_alert_cell_days": 959,
+              "precision": 0.0002719400926467853,
+              "alert_share": 0.1492990146171557,
+              "events_per_1000_alert_cell_days": 0.013327616636495211,
+              "alert_cell_days_ci": [
+                3303767.325,
+                3773499.65
+              ],
+              "precision_ci": [
+                0.00016672239642722157,
+                0.00039473102719837327
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6,
+                0.8307692307692308
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 41,
+              "pod": 0.6307692307692307,
+              "alert_cell_days": 1469526,
+              "verified_alert_cell_days": 781,
+              "precision": 0.0005314638869948541,
+              "alert_share": 0.06221410383809564,
+              "events_per_1000_alert_cell_days": 0.02790015283839823,
+              "alert_cell_days_ci": [
+                1358618.7750000001,
+                1594290.5499999998
+              ],
+              "precision_ci": [
+                0.00031700722783740336,
+                0.0007698777873986845
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5076923076923077,
+                0.7538461538461538
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 65,
+              "hits": 52,
+              "pod": 0.8,
+              "alert_cell_days": 8928673,
+              "verified_alert_cell_days": 52,
+              "precision": 5.8239337469296945e-06,
+              "alert_share": 0.3780058257958015,
+              "events_per_1000_alert_cell_days": 0.005823933746929695,
+              "alert_cell_days_ci": [
+                8476933.2,
+                9410870.975
+              ],
+              "precision_ci": [
+                3.4034093853379953e-06,
+                8.761563799879904e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6923076923076923,
+                0.8923076923076924
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 38,
+              "pod": 0.5846153846153846,
+              "alert_cell_days": 3526512,
+              "verified_alert_cell_days": 38,
+              "precision": 1.0775519833762086e-05,
+              "alert_share": 0.1492990146171557,
+              "events_per_1000_alert_cell_days": 0.010775519833762086,
+              "alert_cell_days_ci": [
+                3303767.325,
+                3773499.65
+              ],
+              "precision_ci": [
+                5.372832215199786e-06,
+                1.7483273096650212e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4461538461538462,
+                0.7076923076923077
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 31,
+              "pod": 0.47692307692307695,
+              "alert_cell_days": 1469526,
+              "verified_alert_cell_days": 31,
+              "precision": 2.1095237511959638e-05,
+              "alert_share": 0.06221410383809564,
+              "events_per_1000_alert_cell_days": 0.021095237511959637,
+              "alert_cell_days_ci": [
+                1358618.7750000001,
+                1594290.5499999998
+              ],
+              "precision_ci": [
+                1.0053761178986998e-05,
+                3.468035579343884e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.35384615384615387,
+                0.6
+              ]
+            }
+          }
+        },
+        "susceptibility": {
+          "tolerant": {
+            "1": {
+              "events": 65,
+              "hits": 61,
+              "pod": 0.9384615384615385,
+              "alert_cell_days": 9537743,
+              "verified_alert_cell_days": 1436,
+              "precision": 0.0001505597288582844,
+              "alert_share": 0.40379151738932817,
+              "events_per_1000_alert_cell_days": 0.0063956430782418855,
+              "alert_cell_days_ci": [
+                9478443.85,
+                9596294.5
+              ],
+              "precision_ci": [
+                0.0001058636601054693,
+                0.00020214199253939738
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8769230769230769,
+                0.9846153846153847
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 53,
+              "pod": 0.8153846153846154,
+              "alert_cell_days": 3785006,
+              "verified_alert_cell_days": 600,
+              "precision": 0.0001585202242744133,
+              "alert_share": 0.16024266077076216,
+              "events_per_1000_alert_cell_days": 0.014002619810906508,
+              "alert_cell_days_ci": [
+                3750687.4,
+                3817801.775
+              ],
+              "precision_ci": [
+                0.00010665083647319094,
+                0.00021780348001514534
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7230769230769231,
+                0.8926923076923057
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 36,
+              "pod": 0.5538461538461539,
+              "alert_cell_days": 1531755,
+              "verified_alert_cell_days": 259,
+              "precision": 0.0001690870929097669,
+              "alert_share": 0.06484864141534222,
+              "events_per_1000_alert_cell_days": 0.023502453068539028,
+              "alert_cell_days_ci": [
+                1513289.775,
+                1549320.15
+              ],
+              "precision_ci": [
+                0.00010687522744784865,
+                0.00024007754066466495
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4307692307692308,
+                0.6615384615384615
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 65,
+              "hits": 57,
+              "pod": 0.8769230769230769,
+              "alert_cell_days": 9537743,
+              "verified_alert_cell_days": 57,
+              "precision": 5.9762566468817625e-06,
+              "alert_share": 0.40379151738932817,
+              "events_per_1000_alert_cell_days": 0.005976256646881763,
+              "alert_cell_days_ci": [
+                9478443.85,
+                9596294.5
+              ],
+              "precision_ci": [
+                3.5676038059787395e-06,
+                8.8061837793795e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7846153846153846,
+                0.9538461538461539
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 22,
+              "pod": 0.3384615384615385,
+              "alert_cell_days": 3785006,
+              "verified_alert_cell_days": 22,
+              "precision": 5.812408223395155e-06,
+              "alert_share": 0.16024266077076216,
+              "events_per_1000_alert_cell_days": 0.005812408223395155,
+              "alert_cell_days_ci": [
+                3750687.4,
+                3817801.775
+              ],
+              "precision_ci": [
+                3.1522068701935472e-06,
+                8.786831201138128e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.23076923076923078,
+                0.4461538461538462
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 14,
+              "pod": 0.2153846153846154,
+              "alert_cell_days": 1531755,
+              "verified_alert_cell_days": 14,
+              "precision": 9.1398428599874e-06,
+              "alert_share": 0.06484864141534222,
+              "events_per_1000_alert_cell_days": 0.0091398428599874,
+              "alert_cell_days_ci": [
+                1513289.775,
+                1549320.15
+              ],
+              "precision_ci": [
+                4.544831180653606e-06,
+                1.4336672578231371e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.12307692307692308,
+                0.3230769230769231
+              ]
+            }
+          }
+        },
+        "lhasa_v2_m1": {
+          "tolerant": {
+            "1": {
+              "events": 65,
+              "hits": 62,
+              "pod": 0.9538461538461539,
+              "alert_cell_days": 9493480,
+              "verified_alert_cell_days": 1509,
+              "precision": 0.0001589511959787138,
+              "alert_share": 0.4019175914579832,
+              "events_per_1000_alert_cell_days": 0.006530797979244702,
+              "alert_cell_days_ci": [
+                9100871.375,
+                9897589.95
+              ],
+              "precision_ci": [
+                0.00010987007378781115,
+                0.00021352703014788989
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9076923076923077,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 55,
+              "pod": 0.8461538461538461,
+              "alert_cell_days": 3767420,
+              "verified_alert_cell_days": 989,
+              "precision": 0.0002625138689076344,
+              "alert_share": 0.15949813686979222,
+              "events_per_1000_alert_cell_days": 0.01459885014147613,
+              "alert_cell_days_ci": [
+                3537408.65,
+                4003423.3
+              ],
+              "precision_ci": [
+                0.00016555495994492904,
+                0.00037156797605283074
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7538461538461538,
+                0.9230769230769231
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 43,
+              "pod": 0.6615384615384615,
+              "alert_cell_days": 1524589,
+              "verified_alert_cell_days": 723,
+              "precision": 0.0004742261684952469,
+              "alert_share": 0.06454526041486738,
+              "events_per_1000_alert_cell_days": 0.02820432260760113,
+              "alert_cell_days_ci": [
+                1415097.075,
+                1641031.5999999999
+              ],
+              "precision_ci": [
+                0.00027641853845849243,
+                0.000698103595956936
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5384615384615384,
+                0.7846153846153846
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 65,
+              "hits": 57,
+              "pod": 0.8769230769230769,
+              "alert_cell_days": 9493480,
+              "verified_alert_cell_days": 57,
+              "precision": 6.004120722854001e-06,
+              "alert_share": 0.4019175914579832,
+              "events_per_1000_alert_cell_days": 0.0060041207228540006,
+              "alert_cell_days_ci": [
+                9100871.375,
+                9897589.95
+              ],
+              "precision_ci": [
+                3.5508434374864585e-06,
+                8.802495393847468e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7846153846153846,
+                0.9538461538461539
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 38,
+              "pod": 0.5846153846153846,
+              "alert_cell_days": 3767420,
+              "verified_alert_cell_days": 38,
+              "precision": 1.0086478279565325e-05,
+              "alert_share": 0.15949813686979222,
+              "events_per_1000_alert_cell_days": 0.010086478279565325,
+              "alert_cell_days_ci": [
+                3537408.65,
+                4003423.3
+              ],
+              "precision_ci": [
+                5.582134398256324e-06,
+                1.5632125447982482e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.46153846153846156,
+                0.7076923076923077
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 28,
+              "pod": 0.4307692307692308,
+              "alert_cell_days": 1524589,
+              "verified_alert_cell_days": 28,
+              "precision": 1.836560541890306e-05,
+              "alert_share": 0.06454526041486738,
+              "events_per_1000_alert_cell_days": 0.01836560541890306,
+              "alert_cell_days_ci": [
+                1415097.075,
+                1641031.5999999999
+              ],
+              "precision_ci": [
+                8.34209207958461e-06,
+                3.078828154611489e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.3076923076923077,
+                0.5538461538461539
+              ]
+            }
+          }
+        },
+        "lhasa_v2": {
+          "tolerant": {
+            "1": {
+              "events": 65,
+              "hits": 62,
+              "pod": 0.9538461538461539,
+              "alert_cell_days": 9534700,
+              "verified_alert_cell_days": 1529,
+              "precision": 0.00016036162648011998,
+              "alert_share": 0.4036626884213621,
+              "events_per_1000_alert_cell_days": 0.006502564317702707,
+              "alert_cell_days_ci": [
+                9152873.675,
+                9945000.975
+              ],
+              "precision_ci": [
+                0.00011072292816220081,
+                0.00021613668640681972
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9076923076923077,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 54,
+              "pod": 0.8307692307692308,
+              "alert_cell_days": 3785923,
+              "verified_alert_cell_days": 1069,
+              "precision": 0.0002823617912989778,
+              "alert_share": 0.16028148303945258,
+              "events_per_1000_alert_cell_days": 0.014263364574504025,
+              "alert_cell_days_ci": [
+                3558609.65,
+                4030207.625
+              ],
+              "precision_ci": [
+                0.00018130645805692716,
+                0.0003983191496040633
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7384615384615385,
+                0.908076923076921
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 42,
+              "pod": 0.6461538461538462,
+              "alert_cell_days": 1531745,
+              "verified_alert_cell_days": 717,
+              "precision": 0.0004680935795448981,
+              "alert_share": 0.0648482180536335,
+              "events_per_1000_alert_cell_days": 0.027419707588404073,
+              "alert_cell_days_ci": [
+                1420584.6,
+                1652518.525
+              ],
+              "precision_ci": [
+                0.00028274094641808964,
+                0.0006831434547924686
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5230769230769231,
+                0.7692307692307693
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 65,
+              "hits": 61,
+              "pod": 0.9384615384615385,
+              "alert_cell_days": 9534700,
+              "verified_alert_cell_days": 61,
+              "precision": 6.397684248062341e-06,
+              "alert_share": 0.4036626884213621,
+              "events_per_1000_alert_cell_days": 0.0063976842480623405,
+              "alert_cell_days_ci": [
+                9152873.675,
+                9945000.975
+              ],
+              "precision_ci": [
+                3.934122956387578e-06,
+                9.246507229802572e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8769230769230769,
+                0.9846153846153847
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 41,
+              "pod": 0.6307692307692307,
+              "alert_cell_days": 3785923,
+              "verified_alert_cell_days": 41,
+              "precision": 1.0829591621382685e-05,
+              "alert_share": 0.16028148303945258,
+              "events_per_1000_alert_cell_days": 0.010829591621382684,
+              "alert_cell_days_ci": [
+                3558609.65,
+                4030207.625
+              ],
+              "precision_ci": [
+                5.562314725275105e-06,
+                1.721597244454484e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5076923076923077,
+                0.7384615384615385
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 32,
+              "pod": 0.49230769230769234,
+              "alert_cell_days": 1531745,
+              "verified_alert_cell_days": 32,
+              "precision": 2.08912057816412e-05,
+              "alert_share": 0.0648482180536335,
+              "events_per_1000_alert_cell_days": 0.0208912057816412,
+              "alert_cell_days_ci": [
+                1420584.6,
+                1652518.525
+              ],
+              "precision_ci": [
+                1.0214443323043156e-05,
+                3.3961416882632895e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.36923076923076925,
+                0.6153846153846154
+              ]
+            }
+          }
+        },
+        "lhasa_v2_p1": {
+          "tolerant": {
+            "1": {
+              "events": 65,
+              "hits": 61,
+              "pod": 0.9384615384615385,
+              "alert_cell_days": 9492906,
+              "verified_alert_cell_days": 1501,
+              "precision": 0.00015811807259020577,
+              "alert_share": 0.4018932904959022,
+              "events_per_1000_alert_cell_days": 0.006425851051300835,
+              "alert_cell_days_ci": [
+                9104938.875,
+                9901562.875
+              ],
+              "precision_ci": [
+                0.00010854395687451678,
+                0.0002140131527010396
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.8769230769230769,
+                0.9846153846153847
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 48,
+              "pod": 0.7384615384615385,
+              "alert_cell_days": 3766028,
+              "verified_alert_cell_days": 1011,
+              "precision": 0.00026845259780330894,
+              "alert_share": 0.1594392049199372,
+              "events_per_1000_alert_cell_days": 0.012745523931314371,
+              "alert_cell_days_ci": [
+                3539557.1,
+                4005128.35
+              ],
+              "precision_ci": [
+                0.00017080050820273687,
+                0.000379474953734667
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6153846153846154,
+                0.8307692307692308
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 40,
+              "pod": 0.6153846153846154,
+              "alert_cell_days": 1524582,
+              "verified_alert_cell_days": 614,
+              "precision": 0.00040273333936777423,
+              "alert_share": 0.06454496406167128,
+              "events_per_1000_alert_cell_days": 0.026236699633079754,
+              "alert_cell_days_ci": [
+                1414063.225,
+                1644486.55
+              ],
+              "precision_ci": [
+                0.0002454996963397563,
+                0.0005916796781477742
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.49230769230769234,
+                0.7230769230769231
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 65,
+              "hits": 56,
+              "pod": 0.8615384615384616,
+              "alert_cell_days": 9492906,
+              "verified_alert_cell_days": 56,
+              "precision": 5.8991419487351925e-06,
+              "alert_share": 0.4018932904959022,
+              "events_per_1000_alert_cell_days": 0.005899141948735192,
+              "alert_cell_days_ci": [
+                9104938.875,
+                9901562.875
+              ],
+              "precision_ci": [
+                3.546363810272839e-06,
+                8.665793599439293e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7692307692307693,
+                0.9384615384615385
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 41,
+              "pod": 0.6307692307692307,
+              "alert_cell_days": 3766028,
+              "verified_alert_cell_days": 41,
+              "precision": 1.0886801691331026e-05,
+              "alert_share": 0.1594392049199372,
+              "events_per_1000_alert_cell_days": 0.010886801691331025,
+              "alert_cell_days_ci": [
+                3539557.1,
+                4005128.35
+              ],
+              "precision_ci": [
+                5.691565482917488e-06,
+                1.725965388990099e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5076923076923077,
+                0.7388461538461518
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 25,
+              "pod": 0.38461538461538464,
+              "alert_cell_days": 1524582,
+              "verified_alert_cell_days": 25,
+              "precision": 1.6397937270674846e-05,
+              "alert_share": 0.06454496406167128,
+              "events_per_1000_alert_cell_days": 0.01639793727067485,
+              "alert_cell_days_ci": [
+                1414063.225,
+                1644486.55
+              ],
+              "precision_ci": [
+                6.80616679887273e-06,
+                2.890760979915324e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.26153846153846155,
+                0.5076923076923077
+              ]
+            }
+          }
+        },
+        "ed_threshold": {
+          "tolerant": {
+            "1": {
+              "events": 65,
+              "hits": 63,
+              "pod": 0.9692307692307692,
+              "alert_cell_days": 9536428,
+              "verified_alert_cell_days": 1391,
+              "precision": 0.0001458617419436292,
+              "alert_share": 0.40373584532463036,
+              "events_per_1000_alert_cell_days": 0.0066062471189422284,
+              "alert_cell_days_ci": [
+                9071804.65,
+                10016571.575
+              ],
+              "precision_ci": [
+                0.00010050227003042025,
+                0.00019853195074244866
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9230769230769231,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 49,
+              "pod": 0.7538461538461538,
+              "alert_cell_days": 3784502,
+              "verified_alert_cell_days": 1024,
+              "precision": 0.0002705772120083435,
+              "alert_share": 0.16022132334064226,
+              "events_per_1000_alert_cell_days": 0.012947542371492999,
+              "alert_cell_days_ci": [
+                3534461.4,
+                4048967.725
+              ],
+              "precision_ci": [
+                0.00017094719679952228,
+                0.00038545603205658265
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6461538461538462,
+                0.8465384615384595
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 37,
+              "pod": 0.5692307692307692,
+              "alert_cell_days": 1531552,
+              "verified_alert_cell_days": 744,
+              "precision": 0.0004857817429639999,
+              "alert_share": 0.06484004717265503,
+              "events_per_1000_alert_cell_days": 0.02415850065815591,
+              "alert_cell_days_ci": [
+                1414017.675,
+                1657584.35
+              ],
+              "precision_ci": [
+                0.00028062717147491324,
+                0.0007160373228147432
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.4461538461538462,
+                0.676923076923077
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 65,
+              "hits": 55,
+              "pod": 0.8461538461538461,
+              "alert_cell_days": 9536428,
+              "verified_alert_cell_days": 55,
+              "precision": 5.767358595901946e-06,
+              "alert_share": 0.40373584532463036,
+              "events_per_1000_alert_cell_days": 0.005767358595901946,
+              "alert_cell_days_ci": [
+                9071804.65,
+                10016571.575
+              ],
+              "precision_ci": [
+                3.467199344693072e-06,
+                8.466251777861108e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7538461538461538,
+                0.9230769230769231
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 42,
+              "pod": 0.6461538461538462,
+              "alert_cell_days": 3784502,
+              "verified_alert_cell_days": 42,
+              "precision": 1.1097893461279713e-05,
+              "alert_share": 0.16022132334064226,
+              "events_per_1000_alert_cell_days": 0.011097893461279713,
+              "alert_cell_days_ci": [
+                3534461.4,
+                4048967.725
+              ],
+              "precision_ci": [
+                5.986441372125069e-06,
+                1.746722386805472e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5230769230769231,
+                0.7538461538461538
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 31,
+              "pod": 0.47692307692307695,
+              "alert_cell_days": 1531552,
+              "verified_alert_cell_days": 31,
+              "precision": 2.024090595683333e-05,
+              "alert_share": 0.06484004717265503,
+              "events_per_1000_alert_cell_days": 0.02024090595683333,
+              "alert_cell_days_ci": [
+                1414017.675,
+                1657584.35
+              ],
+              "precision_ci": [
+                1.002423742586182e-05,
+                3.350620518744638e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.35384615384615387,
+                0.6
+              ]
+            }
+          }
+        },
+        "ed_threshold_refit": {
+          "tolerant": {
+            "1": {
+              "events": 65,
+              "hits": 63,
+              "pod": 0.9692307692307692,
+              "alert_cell_days": 9536455,
+              "verified_alert_cell_days": 1382,
+              "precision": 0.00014491758205748361,
+              "alert_share": 0.40373698840124395,
+              "events_per_1000_alert_cell_days": 0.006606228415066186,
+              "alert_cell_days_ci": [
+                9073117.8,
+                10016506.075
+              ],
+              "precision_ci": [
+                9.958266732625981e-05,
+                0.00019772156309691533
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.9230769230769231,
+                1.0
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 50,
+              "pod": 0.7692307692307693,
+              "alert_cell_days": 3784499,
+              "verified_alert_cell_days": 1041,
+              "precision": 0.00027506943455395284,
+              "alert_share": 0.16022119633212964,
+              "events_per_1000_alert_cell_days": 0.013211788403167763,
+              "alert_cell_days_ci": [
+                3549707.175,
+                4027785.6999999997
+              ],
+              "precision_ci": [
+                0.0001732645349827662,
+                0.00039220584874854076
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.6615384615384615,
+                0.8615384615384616
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 41,
+              "pod": 0.6307692307692307,
+              "alert_cell_days": 1531549,
+              "verified_alert_cell_days": 705,
+              "precision": 0.00046031827907562863,
+              "alert_share": 0.06483992016414242,
+              "events_per_1000_alert_cell_days": 0.026770282896596845,
+              "alert_cell_days_ci": [
+                1421956.525,
+                1640788.625
+              ],
+              "precision_ci": [
+                0.00026144146006799727,
+                0.0006935723587212598
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5076923076923077,
+                0.7384615384615385
+              ]
+            }
+          },
+          "cell_exact": {
+            "1": {
+              "events": 65,
+              "hits": 54,
+              "pod": 0.8307692307692308,
+              "alert_cell_days": 9536455,
+              "verified_alert_cell_days": 54,
+              "precision": 5.662481498628159e-06,
+              "alert_share": 0.40373698840124395,
+              "events_per_1000_alert_cell_days": 0.005662481498628159,
+              "alert_cell_days_ci": [
+                9073117.8,
+                10016506.075
+              ],
+              "precision_ci": [
+                3.4272963264106198e-06,
+                8.329319465183483e-06
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.7384615384615385,
+                0.9230769230769231
+              ]
+            },
+            "2": {
+              "events": 65,
+              "hits": 42,
+              "pod": 0.6461538461538462,
+              "alert_cell_days": 3784499,
+              "verified_alert_cell_days": 42,
+              "precision": 1.1097902258660922e-05,
+              "alert_share": 0.16022119633212964,
+              "events_per_1000_alert_cell_days": 0.011097902258660922,
+              "alert_cell_days_ci": [
+                3549707.175,
+                4027785.6999999997
+              ],
+              "precision_ci": [
+                5.775686604947244e-06,
+                1.7806094634672744e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.5230769230769231,
+                0.7538461538461538
+              ]
+            },
+            "3": {
+              "events": 65,
+              "hits": 32,
+              "pod": 0.49230769230769234,
+              "alert_cell_days": 1531549,
+              "verified_alert_cell_days": 32,
+              "precision": 2.0893879333929244e-05,
+              "alert_share": 0.06483992016414242,
+              "events_per_1000_alert_cell_days": 0.020893879333929243,
+              "alert_cell_days_ci": [
+                1421956.525,
+                1640788.625
+              ],
+              "precision_ci": [
+                9.644761193438005e-06,
+                3.520227754343009e-05
+              ],
+              "precision_ci_replicates": 2000,
+              "pod_ci": [
+                0.36923076923076925,
+                0.6153846153846154
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "gate": {
+    "gate": 150,
+    "events": 92,
+    "distinct_events": 87,
+    "met": false,
+    "line": "Held-out events: 92 against the 150-event gate: NOT MET, 58 short."
+  },
+  "seconds": 136.09000079999896
+}
