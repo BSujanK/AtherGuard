@@ -1,4 +1,4 @@
-"""`python -m aetherguard.verify baseline|ledger|inventory|seasons` (see aetherguard.verify.report, .ledger, .inventory and .seasons)."""
+"""`python -m aetherguard.verify baseline|heldout|ledger|inventory|seasons` (see aetherguard.verify.report, .heldout, .ledger, .inventory and .seasons)."""
 from __future__ import annotations
 
 import argparse
@@ -8,7 +8,7 @@ from pathlib import Path
 
 from ..config import PROJECT_ROOT
 from ..live import run as live_run
-from . import geocode, inventory, ledger, report, seasons
+from . import geocode, heldout, inventory, ledger, report, seasons
 from .geocode import GeocodeError
 
 
@@ -17,6 +17,8 @@ def main(argv=None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     baseline = sub.add_parser("baseline", help=f"write reports/{report.REPORT_STEM}.{{json,md}}")
     baseline.add_argument("--out", type=Path, default=PROJECT_ROOT / "reports", help="report directory (default reports/)")
+    expanded = sub.add_parser("heldout", help=f"write reports/{heldout.REPORT_STEM}.{{json,md}}: v3 and the benchmarks on the 2018-2025 season panels")
+    expanded.add_argument("--out", type=Path, default=PROJECT_ROOT / "reports", help="report directory (default reports/)")
     live = sub.add_parser("ledger", help=f"write reports/{ledger.REPORT_STEM}.{{json,md}}: published alerts against reported events")
     live.add_argument("--out", type=Path, default=PROJECT_ROOT / "reports", help="report directory (default reports/)")
     live.add_argument("--today", type=date.fromisoformat, default=None, help="YYYY-MM-DD, default the IST date today")
@@ -34,6 +36,8 @@ def main(argv=None) -> int:
     try:
         if args.command == "baseline":
             report.write_baseline(args.out, say)
+        elif args.command == "heldout":
+            heldout.write_heldout(args.out, say)
         elif args.command == "ledger":
             ledger.write_ledger(args.out, args.today, say)
         elif args.command == "seasons":

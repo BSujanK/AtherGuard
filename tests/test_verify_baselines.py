@@ -3,8 +3,13 @@ import pytest
 
 from aetherguard.verify.baselines import (
     burden_matched_cuts,
+    burden_matched_levels,
+    ed_ratio,
+    ed_threshold_levels,
+    fit_ed_threshold,
     realised_shares,
     rain_baseline,
+    rain_events,
     susceptibility_baseline,
     threshold_levels,
 )
@@ -125,3 +130,94 @@ def test_susceptibility_baseline_carries_the_remainder_so_rare_levels_appear():
     nested = susceptibility_baseline(static, 30, scored, (0.1, 0.01, 0.0004))
     assert [(nested >= k).sum() for k in (1, 2, 3)] == [3000, 300, 12]
     assert realised_shares(nested, scored) == pytest.approx((0.1, 0.01, 0.0004))
+
+
+# ---------------------------------------------------------------------------------- event-duration threshold
+
+def test_rain_events_total_and_length_of_the_wet_run_ending_each_day():
+    daily = np.array([[0.0, 2.0, 3.0, 0.5, 4.0, np.nan, 2.0, 2.0, 0.0, 3.0]])
+    event, duration = rain_events(daily)
+    nan = np.nan
+    assert np.allclose(event[0], [0.0, 2.0, 5.0, 0.0, 4.0, nan, nan, nan, 0.0, 3.0], equal_nan=True)
+    assert np.allclose(duration[0], [0, 1, 2, 0, 1, nan, nan, nan, 0, 1], equal_nan=True)
+
+
+def test_rain_events_a_run_that_starts_with_the_series_is_unknown():
+    event, duration = rain_events(np.array([[5.0, 5.0, 0.0, 5.0]]))
+    assert np.allclose(event[0], [np.nan, np.nan, 0.0, 5.0], equal_nan=True)
+    assert np.allclose(duration[0], [np.nan, np.nan, 0.0, 1.0], equal_nan=True)
+
+
+def test_rain_events_wet_threshold_is_inclusive_and_cells_are_independent():
+    event, duration = rain_events(np.array([[0.0, 1.0, 1.0], [0.0, 0.9, 1.0]]))
+    assert event.tolist() == [[0.0, 1.0, 2.0], [0.0, 0.0, 1.0]]
+    assert duration.tolist() == [[0.0, 1.0, 2.0], [0.0, 0.0, 1.0]]
+
+
+def test_ed_ratio_is_one_on_the_threshold_curve():
+    duration = np.array([1.0, 2.0, 5.0])
+    assert ed_ratio(7.0 * duration**0.8, duration, 7.0, 0.8) == pytest.approx([1.0, 1.0, 1.0])
+
+
+def test_ed_ratio_above_one_is_an_event_over_the_threshold_and_no_event_is_zero():
+    ratio = ed_ratio(np.array([20.0, 5.0, 0.0, np.nan]), np.array([2.0, 2.0, 0.0, 2.0]), 4.0, 1.0)
+    assert ratio[0] > 1.0 > ratio[1]
+    assert ratio[2] == 0.0
+    assert np.isnan(ratio[3])
+
+
+def test_burden_matched_levels_reach_the_shares_and_leave_unscored_cell_days_dry():
+    values = np.arange(1000.0)
+    scored = np.ones(1000, bool)
+    scored[:100] = False
+    levels = burden_matched_levels(values, scored, (0.5, 0.2, 0.05))
+    assert levels.dtype == np.int8
+    assert (levels[:100] == 0).all()
+    assert realised_shares(levels, scored) == pytest.approx((0.5, 0.2, 0.05), abs=0.002)
+
+
+def test_ed_threshold_levels_rank_by_the_ratio_to_the_curve_not_by_total_rain():
+    duration = np.array([1.0, 10.0, 1.0, 0.0])
+    event = np.array([30.0, 40.0, 5.0, 0.0])      # alpha 5, gamma 1: ratios 6, 0.8, 1, 0
+    levels = ed_threshold_levels(event, duration, 5.0, 1.0, (0.5, 0.25, 0.25), np.ones(4, bool))
+    assert levels.tolist() == [3, 0, 1, 0]
+
+
+def test_ed_threshold_levels_never_alert_without_an_event_or_on_unscored_cell_days():
+    event = np.array([[0.0, 9.0, 9.0, np.nan]])
+    duration = np.array([[0.0, 1.0, 1.0, 1.0]])
+    scored = np.array([[True, True, False, True]])
+    levels = ed_threshold_levels(event, duration, 1.0, 1.0, (1.0, 1.0, 1.0), scored)
+    assert levels.tolist() == [[0, 3, 0, 0]]
+
+
+def test_ed_threshold_levels_reach_v3_shares_over_many_cell_days():
+    rng = np.random.default_rng(3)
+    duration = rng.integers(1, 8, (50, 40)).astype(float)
+    event = duration * rng.gamma(2.0, 8.0, duration.shape)
+    scored = np.ones(duration.shape, bool)
+    levels = ed_threshold_levels(event, duration, 5.0, 0.8, (0.3, 0.1, 0.02), scored)
+    assert realised_shares(levels, scored) == pytest.approx((0.3, 0.1, 0.02), abs=0.005)
+
+
+def test_fit_ed_threshold_recovers_the_slope_and_puts_five_percent_of_events_below_the_curve():
+    rng = np.random.default_rng(11)
+    duration = rng.integers(1, 12, 4000).astype(float)
+    event = 6.0 * duration**0.8 * np.exp(rng.normal(0.4, 0.5, 4000))
+    alpha, gamma = fit_ed_threshold(duration, event)
+    assert gamma == pytest.approx(0.8, abs=0.03)
+    assert (event < alpha * duration**gamma).mean() == pytest.approx(0.05, abs=0.002)
+    assert alpha < 6.0 * np.exp(0.4)
+
+
+def test_fit_ed_threshold_ignores_cell_days_without_an_event_or_rain_total():
+    duration = np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, np.nan, 6.0])
+    event = np.array([0.0, 4.0, 9.0, 12.0, 17.0, 20.0, 99.0, np.nan])
+    assert fit_ed_threshold(duration, event) == fit_ed_threshold(duration[1:6], event[1:6])
+
+
+def test_fit_ed_threshold_needs_at_least_a_few_events_with_different_durations():
+    with pytest.raises(ValueError, match="events"):
+        fit_ed_threshold(np.array([1.0, 1.0, 1.0]), np.array([3.0, 4.0, 5.0]))
+    with pytest.raises(ValueError, match="events"):
+        fit_ed_threshold(np.array([1.0, 2.0]), np.array([3.0, 4.0]))

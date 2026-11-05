@@ -188,6 +188,13 @@ def pooled(parts: list[Part], field: str) -> np.ndarray:
     return np.concatenate([getattr(p, field) for p in parts], axis=1)
 
 
+def fit_rain(parts: list[Part], universe: np.ndarray | None) -> RainFit:
+    """The rain baseline's fit on the `universe` cells of `parts` pooled over days: their 3-day rain and v3's realised shares."""
+    rows = np.ones(len(parts[0].cell_ids), dtype=bool) if universe is None else universe
+    scored = pooled(parts, "scored")[rows]
+    return RainFit(pooled(parts, "acc_3")[rows], scored, realised_shares(pooled(parts, "v3")[rows], scored))
+
+
 def measure(name: str, parts: list[Part], universe: np.ndarray | None, fit: RainFit | None, say) -> tuple[dict, RainFit]:
     """The model table of a set of seasons pooled over days; `fit=None` fits the rain baseline on this set's own universe."""
     cell_ids = parts[0].cell_ids
@@ -197,7 +204,7 @@ def measure(name: str, parts: list[Part], universe: np.ndarray | None, fit: Rain
     rows = np.ones(len(cell_ids), dtype=bool) if universe is None else universe
     v3_shares = realised_shares(v3[rows], scored[rows])
     if fit is None:
-        fit = RainFit(acc_3[rows], scored[rows], v3_shares)
+        fit = fit_rain(parts, universe)
     rain = rain_baseline(acc_3, scored, fit.acc_3, fit.scored, fit.shares)
     susceptibility = np.concatenate(
         [susceptibility_levels(p.static_score, len(p.days), p.scored, v3_shares, universe) for p in parts], axis=1)
@@ -260,9 +267,14 @@ def _interval(ci: list[float], digits: int = 1) -> str:
     return "[n/a]" if any(v != v for v in ci) else f"[{100 * ci[0]:.{digits}f}, {100 * ci[1]:.{digits}f}]"
 
 
-def _rows(entry: dict) -> list[str]:
+TABLE_HEADER = ("| model | tolerance | level | events | hits | POD [95% CI] | alert cell-days | precision [95% CI] | realised share |"
+                "\n|---|---|---|---|---|---|---|---|---|")
+SHARE_HEADER = "| model | target Watch+ / Warning+ / Emergency | realised |\n|---|---|---|"
+
+
+def _rows(entry: dict, models=MODELS) -> list[str]:
     rows = []
-    for model in MODELS:
+    for model in models:
         for tolerance in TOLERANCES:
             for level in LEVELS:
                 s = entry["models"][model][tolerance][str(level)]
@@ -273,9 +285,9 @@ def _rows(entry: dict) -> list[str]:
     return rows
 
 
-def _share_rows(entry: dict) -> list[str]:
+def _share_rows(entry: dict, models=MODELS) -> list[str]:
     rows = []
-    for model in MODELS:
+    for model in models:
         s = entry["shares"][model]
         target = "n/a" if s["target"] is None else " / ".join(_pct(v, 2) for v in s["target"])
         rows.append(f"| {model} | {target} | {' / '.join(_pct(v, 2) for v in s['realised'])} |")
