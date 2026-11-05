@@ -483,8 +483,8 @@ def markdown(result: dict) -> str:
         f"{published['source']}: E = {published['alpha_hours']} * D_hours^{published['gamma']}, that is alpha = "
         f"{published['alpha_days']:.1f} for D in days; only the exponent shapes a burden-matched ranking. "
         f"`ed_threshold_refit` is refitted: E = {refit['alpha']:.2f} * D^{refit['gamma']:.3f} at the 5% non-exceedance of "
-        f"{refit['events_used']} of {refit['events']} development positives (the rest have no rain event ending on their "
-        "day). A cell-day with no event never alerts.",
+        f"{refit['events_used']} of {refit['events']} development positives (the rest have no usable rain event ending on "
+        "their day). A cell-day with no event never alerts.",
         "",
         "## Seasons",
         "",
