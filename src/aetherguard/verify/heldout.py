@@ -66,7 +66,7 @@ from .matching import Tolerance, rows_within
 from .report import (
     LEVEL_NAMES,
     SHARE_HEADER,
-    TABLE_HEADER,
+    TABLE_HEADER_SLIDES,
     TOLERANCES,
     Part,
     RainFit,
@@ -133,9 +133,10 @@ def days_below_half(scored: np.ndarray) -> int:
     return int((np.asarray(scored, dtype=bool).mean(axis=0) < 0.5).sum())
 
 
-def gate_line(events: int, gate: int = GATE_EVENTS) -> str:
-    verdict = f"MET, {events - gate} over" if events >= gate else f"NOT MET, {gate - events} short"
-    return f"Held-out events: {events} against the {gate}-event gate: {verdict}."
+def gate_line(records: int, slides: int, gate: int = GATE_EVENTS) -> str:
+    """The gate is read on `slides`, the independent slides behind the `records` (see `event_clusters`)."""
+    verdict = f"MET, {slides - gate} over" if slides >= gate else f"NOT MET, {gate - slides} short"
+    return f"Held-out events: {records} records of {slides} independent slides against the {gate}-event gate: {verdict}."
 
 
 # ------------------------------------------------------------------------------------------------------ events
@@ -160,13 +161,16 @@ def held_out_events(
     return pd.concat(frames, ignore_index=True)
 
 
-def distinct_events(events: pd.DataFrame, tolerance: Tolerance = TOLERANCES["tolerant"]) -> int:
-    """Events left when those within `tolerance` of each other (single linkage) are merged into one."""
-    unique = pd.DataFrame({"cell_id": events["cell_id"].to_numpy(dtype=np.int64),
-                           "ordinal": pd.to_datetime(events["date"]).map(lambda t: t.toordinal()).to_numpy(dtype=np.int64)}
-                          ).drop_duplicates().reset_index(drop=True)
+def event_clusters(events: pd.DataFrame, tolerance: Tolerance = TOLERANCES["tolerant"]) -> np.ndarray:
+    """A label per row of `events`: rows within `tolerance` of each other (single linkage) share one, as records of one slide.
+
+    The same cell and day in two sources, or neighbouring cells a day apart, are one slide.
+    """
+    keys = pd.DataFrame({"cell_id": events["cell_id"].to_numpy(dtype=np.int64),
+                         "ordinal": pd.to_datetime(events["date"]).map(lambda t: t.toordinal()).to_numpy(dtype=np.int64)})
+    unique = keys.drop_duplicates().reset_index(drop=True)
     if unique.empty:
-        return 0
+        return np.zeros(0, dtype=np.int64)
     near = rows_within(unique["cell_id"].to_numpy(), unique["cell_id"].to_numpy(), tolerance.km)
     first, second = [], []
     for i, rows in enumerate(near):
@@ -174,7 +178,13 @@ def distinct_events(events: pd.DataFrame, tolerance: Tolerance = TOLERANCES["tol
         first.extend([i] * len(close))
         second.extend(close.tolist())
     graph = csr_matrix((np.ones(len(first)), (first, second)), shape=(len(unique), len(unique)))
-    return int(connected_components(graph, directed=False)[0])
+    unique["label"] = connected_components(graph, directed=False)[1]
+    return keys.merge(unique, on=["cell_id", "ordinal"], how="left")["label"].to_numpy()
+
+
+def distinct_events(events: pd.DataFrame, tolerance: Tolerance = TOLERANCES["tolerant"]) -> int:
+    """Independent slides among `events`: the clusters of `event_clusters`."""
+    return len(np.unique(event_clusters(events, tolerance)))
 
 
 def events_on_days(events: pd.DataFrame, days: list[date]) -> tuple[pd.DataFrame, int]:
@@ -323,7 +333,7 @@ def measure_set(name: str, results: list[SeasonResult], events: pd.DataFrame, ce
         "events_outside_panel_days": outside,
         "events_by_source": {k: int(v) for k, v in kept.drop_duplicates(["cell_id", "date"]).groupby("source").size().items()},
         "shares": pooled_shares(results, SETS[name], levels, scored),
-        "models": model_table(levels, scored, cell_ids, days, kept, TOLERANCES, None, BOOTSTRAP),
+        "models": model_table(levels, scored, cell_ids, days, kept, TOLERANCES, None, BOOTSTRAP, event_clusters),
     }
 
 
@@ -401,7 +411,7 @@ def run(cfg: dict, say=print) -> dict:
         del part, event_rain, duration, lhasa
     store.close()
     sets = {name: measure_set(name, results, events, reference, say) for name in SETS}
-    held_out = sets["POOLED"]["events"]
+    held_out, slides = sets["POOLED"]["events"], sets["POOLED"]["distinct_events"]
     return {
         "protocol": {
             "alert_levels": LEVEL_NAMES,
@@ -417,8 +427,8 @@ def run(cfg: dict, say=print) -> dict:
         },
         "seasons": per_season,
         "sets": sets,
-        "gate": {"gate": GATE_EVENTS, "events": held_out, "distinct_events": sets["POOLED"]["distinct_events"],
-                 "met": held_out >= GATE_EVENTS, "line": gate_line(held_out)},
+        "gate": {"gate": GATE_EVENTS, "events": held_out, "distinct_events": slides, "met": slides >= GATE_EVENTS,
+                 "line": gate_line(held_out, slides)},
         "seconds": time.perf_counter() - started,
     }
 
@@ -427,14 +437,17 @@ def run(cfg: dict, say=print) -> dict:
 
 def _set_section(name: str, entry: dict) -> list[str]:
     sources = ", ".join(f"{k} {v}" for k, v in entry["events_by_source"].items())
+    outside = entry["events_outside_panel_days"]
+    outside_text = f"{outside} further event is" if outside == 1 else f"{outside} further events are"
     return [
         f"## {name} ({entry['cells']:,} cells, {entry['days']} days, {entry['events']} events)",
         "",
-        f"{entry['note']}. Events by source: {sources}. {entry['distinct_events']} distinct when events within 10 km and a "
-        f"day are merged; {entry['events_outside_panel_days']} further events are dated outside the panel days and not scored.",
+        f"{entry['note']}. Events by source: {sources}. {entry['distinct_events']} independent slides when events within "
+        f"10 km and a day are merged (`POD (independent slides)` counts a slide as detected when any of its records is); "
+        f"{outside_text} dated outside the panel days and not scored.",
         "",
-        TABLE_HEADER,
-        *_rows(entry, entry["models"]),
+        TABLE_HEADER_SLIDES,
+        *_rows(entry, entry["models"], independent=True),
         "",
         "Alert shares, target against realised (pooled over the set's seasons):",
         "",
@@ -454,7 +467,8 @@ def markdown(result: dict) -> str:
     lines = [
         "# Held-out verification, expanded (phase 7, W1)",
         "",
-        f"**{gate['line']}** ({gate['distinct_events']} distinct when events within 10 km and a day are merged.)",
+        f"**{gate['line']}** Records are merged into slides when they lie within 10 km and a day of each other (the same slide "
+        "in two sources, or in neighbouring cells).",
         "",
         "v3 against 3-day rain, a static map, the NASA LHASA v2 nowcast and a rainfall event-duration threshold, on the "
         "June-December panels of 2018-2025 (frozen model, training-style features). POD is the share of events whose highest "
@@ -470,6 +484,10 @@ def markdown(result: dict) -> str:
         "- Every benchmark except `rain_3d_devcuts` is burden-matched, season by season, to the shares v3 realised in that "
         "season, ranking the cell-days by its own score; the realised shares are in the tables. `lhasa_v2` has no score on "
         "days its archive lacks, so it can fall short of the target.",
+        "- `ed_threshold` applies Brunetti et al.'s hourly-event exponent to daily wet-day runs, so `ed_threshold_refit`, "
+        "fitted on the same kind of daily events, is the fairer threshold benchmark.",
+        "- The LHASA shift rows (-1, +1) realise about 0.2 percentage points less burden than v3 and the other benchmarks "
+        "(shift 0 matches): one boundary day per season has no granule for the shifted day.",
         "- `susceptibility` is computed from v3's risk over the season it is scored on (hindsight), an optimistic baseline.",
         "- S2018 events are the June-September catalog events while the 2018 panel runs to December: alerts in October-"
         "December cannot be verified there, which lowers S2018 precision for every model alike.",

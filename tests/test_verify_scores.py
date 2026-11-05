@@ -7,7 +7,7 @@ import pytest
 
 from aetherguard.live.backtest import BOOTSTRAP
 from aetherguard.verify.matching import Match
-from aetherguard.verify.scores import bootstrap_scores, level_scores, paired_change
+from aetherguard.verify.scores import bootstrap_scores, grouped_pod, level_scores, paired_change
 
 # 4 cells x 5 days; 8 cell-days are Warning or above (level >= 2).
 LEVELS = np.array(
@@ -141,3 +141,27 @@ def test_paired_change_needs_the_same_events_for_both_sides():
     bare = Match(MATCH.event_level, VERIFIED, EVENTS, 0)
     with pytest.raises(ValueError, match="event_day"):
         paired_change(LEVELS, LEVELS, SCORED, bare, bare, 2)
+
+
+# ------------------------------------------------------------------------------------- grouped detection
+
+def test_a_group_of_events_is_detected_when_any_member_is():
+    out = grouped_pod(np.array([2, 0, 3, -1], dtype=np.int8), np.array([0, 0, 1, 2]), 2)
+    assert (out["groups"], out["group_hits"]) == (3, 2)
+    assert out["group_pod"] == pytest.approx(2 / 3)
+    assert grouped_pod(np.array([2, 0, 3, -1], dtype=np.int8), np.array([0, 0, 1, 2]), 3)["group_hits"] == 1
+
+
+def test_grouped_pod_has_a_seeded_interval_over_groups():
+    level = np.array([2, 0, 3, -1, 2, 2, 0, 1, 3, 0, 2, 0, 3, 1, 0, 2, 3, 0, 1, 2], dtype=np.int8)
+    groups = np.arange(20) // 2
+    a, b = grouped_pod(level, groups, 2), grouped_pod(level, groups, 2)
+    assert a == b and a["group_pod_ci"][0] <= a["group_pod"] <= a["group_pod_ci"][1]
+    assert 0.0 <= a["group_pod_ci"][0] < a["group_pod_ci"][1] <= 1.0
+
+
+def test_grouped_pod_without_events_is_nan_and_mismatched_groups_are_rejected():
+    out = grouped_pod(np.zeros(0, dtype=np.int8), np.zeros(0, dtype=np.int64), 1)
+    assert out["groups"] == 0 and math.isnan(out["group_pod"]) and all(math.isnan(v) for v in out["group_pod_ci"])
+    with pytest.raises(ValueError, match="groups"):
+        grouped_pod(np.array([1, 2], dtype=np.int8), np.array([0]), 1)

@@ -53,11 +53,12 @@ def test_days_below_half_counts_days_on_which_fewer_than_half_the_cells_are_scor
     assert heldout.days_below_half(scored) == 1       # day 2 scores none; day 1 scores exactly half and is not below
 
 
-def test_gate_line_states_the_count_against_the_gate():
-    short = heldout.gate_line(91)
-    assert "91" in short and "150" in short and "NOT MET" in short and "59" in short
-    met = heldout.gate_line(160)
-    assert "MET" in met and "NOT MET" not in met and "160" in met
+def test_gate_line_states_records_and_independent_slides_against_the_gate():
+    short = heldout.gate_line(92, 87)
+    assert short.startswith("Held-out events: 92 records of 87 independent slides against the 150-event gate: NOT MET")
+    assert "63 short" in short
+    met = heldout.gate_line(170, 160)
+    assert "MET, 10 over" in met and "NOT MET" not in met
 
 
 # -------------------------------------------------------------------------------------------------- the events
@@ -94,6 +95,15 @@ def test_distinct_events_merge_neighbours_within_the_tolerance_in_space_and_time
         ["2019-08-08", "2019-08-09", "2019-08-20", "2019-08-08", "2019-08-08"])})
     assert heldout.distinct_events(events) == 3        # A with NEXT a day later and its repeat, A on the 20th, FAR
     assert heldout.distinct_events(events.iloc[:0]) == 0
+
+
+def test_events_of_one_slide_in_neighbouring_cells_or_two_sources_form_one_cluster():
+    events = pd.DataFrame({"cell_id": [A, NEXT, A, FAR, A], "date": pd.to_datetime(
+        ["2019-08-08", "2019-08-09", "2019-08-08", "2019-08-08", "2019-08-20"])})
+    labels = heldout.event_clusters(events)
+    assert labels[0] == labels[1] == labels[2]          # the same cell and day twice, and the cell next to it a day later
+    assert len({labels[0], labels[3], labels[4]}) == 3  # 96 km away, and twelve days later
+    assert heldout.event_clusters(events.iloc[:0]).tolist() == []
 
 
 def test_events_on_panel_days_are_kept_and_the_rest_counted_outside():
@@ -286,6 +296,7 @@ def test_measure_set_scores_every_model_on_the_events_inside_the_panel_days():
     assert entry["events_by_source"] == {"catalog_2018": 1, "reported": 1}
     assert set(entry["models"]) == set(result.levels) == set(entry["shares"])
     assert entry["models"]["v3"]["tolerant"]["1"]["events"] == 2
+    assert entry["models"]["v3"]["tolerant"]["1"]["groups"] == 1               # one slide, in two neighbouring cells
     assert entry["shares"]["rain_3d"]["target"] == pytest.approx(entry["shares"]["v3"]["realised"])
 
 
@@ -315,14 +326,20 @@ def test_markdown_states_the_gate_the_seasons_and_a_row_for_every_model():
             "refitted": {"alpha": 4.1, "gamma": 0.8, "events_used": 40, "events": 50}}},
         "seasons": {"2018": heldout.season_summary(part, result, events, False)},
         "sets": {"S2018": entry},
-        "gate": {"line": heldout.gate_line(2), "distinct_events": 1},
+        "gate": {"line": heldout.gate_line(5, 4), "distinct_events": 4},
     }
     text = heldout.markdown(result_json)
-    assert "NOT MET" in text and "148 short" in text
+    assert "5 records of 4 independent slides" in text and "NOT MET" in text
+    assert "POD (independent slides)" in text and "fairer" in text and "boundary day" in text
+    assert "1 further event is dated" in text
     assert "| 2018 |" in text and "days below half" in text
     assert "relative" in text and "refitted" in text
     for model in result.levels:
         assert text.count(f"| {model} | tolerant | Warning+ |") == 1
+    row = next(line for line in text.splitlines() if line.startswith("| v3 | tolerant | Warning+ |"))
+    stats = entry["models"]["v3"]["tolerant"]["2"]
+    header = next(line for line in text.splitlines() if "POD (independent slides)" in line and line.startswith("| model"))
+    assert f"({stats['group_hits']}/{stats['groups']})" in row and row.count("|") == header.count("|")
 
 
 def test_the_heldout_command_writes_the_report_to_the_chosen_folder(monkeypatch, tmp_path):

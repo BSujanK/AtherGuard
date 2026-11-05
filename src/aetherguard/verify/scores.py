@@ -124,6 +124,26 @@ def bootstrap_scores(levels: np.ndarray, scored: np.ndarray, m: Match, min_level
     return out
 
 
+def grouped_pod(event_level: np.ndarray, groups: np.ndarray, min_level: int, boot: dict = BOOTSTRAP) -> dict:
+    """Detection of groups of events (records of one slide): a group is detected when any member reached `min_level`.
+
+    `groups` labels each event of `event_level` (`Match.event_level`); the interval resamples the groups.
+    """
+    event_level, groups = np.asarray(event_level), np.asarray(groups)
+    if groups.shape != event_level.shape:
+        raise ValueError(f"groups {groups.shape} must label each of the {event_level.shape} events")
+    labels, inverse = np.unique(groups, return_inverse=True)
+    detected = np.zeros(len(labels), dtype=bool)
+    np.logical_or.at(detected, inverse, event_level >= min_level)
+    out = {"groups": int(len(labels)), "group_hits": int(detected.sum()), "group_pod": _ratio(detected.sum(), len(labels))}
+    if len(labels):
+        rng = np.random.default_rng(boot["seed"])
+        out["group_pod_ci"] = _interval(detected[rng.integers(0, len(labels), (boot["n"], len(labels)))].mean(axis=1), boot["level"])
+    else:
+        out["group_pod_ci"] = [math.nan, math.nan]
+    return out
+
+
 def paired_change(
     levels_a: np.ndarray,
     levels_b: np.ndarray,

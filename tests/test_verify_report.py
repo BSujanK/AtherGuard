@@ -97,3 +97,12 @@ def test_the_baseline_markdown_states_what_is_and_is_not_burden_matched():
     text = markdown(result)
     assert "raise the same alert burden" not in text
     assert "not burden-matched" in text and "(hindsight)" in text and "optimistic baseline" in text
+
+
+def test_groups_add_the_detection_of_independent_slides_to_every_row():
+    events = pd.DataFrame({"cell_id": [A, C], "date": [DAYS[1], DAYS[1]]})       # one slide reported in two cells
+    t = model_table({"a": LEVELS_A}, SCORED, CELLS, DAYS, events, TOLERANCES, groups=lambda frame: np.zeros(len(frame), dtype=int))
+    scores = t["a"]["cell_exact"]["2"]
+    assert (scores["events"], scores["hits"]) == (2, 1) and scores["pod"] == pytest.approx(0.5)
+    assert (scores["groups"], scores["group_hits"]) == (1, 1) and scores["group_pod"] == pytest.approx(1.0)
+    assert "group_pod" not in model_table({"a": LEVELS_A}, SCORED, CELLS, DAYS, events, TOLERANCES)["a"]["cell_exact"]["2"]

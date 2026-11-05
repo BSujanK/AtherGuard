@@ -21,6 +21,7 @@ import time
 from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -37,7 +38,7 @@ from ..live import run as live_run
 from ..live.backtest import BOOTSTRAP
 from .baselines import Shares, rain_baseline, realised_shares, susceptibility_baseline
 from .matching import CELL_EXACT, Tolerance, match
-from .scores import bootstrap_scores
+from .scores import bootstrap_scores, grouped_pod
 
 LEVELS = (1, 2, 3)
 LEVEL_NAMES = {1: "Watch+", 2: "Warning+", 3: "Emergency"}
@@ -59,11 +60,13 @@ def model_table(
     tolerances: dict[str, Tolerance],
     universe: np.ndarray | None = None,
     boot: dict = BOOTSTRAP,
+    groups: Callable[[pd.DataFrame], np.ndarray] | None = None,
 ) -> dict:
     """`bootstrap_scores` per model, tolerance name and alert level (keys "1", "2", "3" for Watch+, Warning+, Emergency).
 
     `universe` (bool per cell) restricts alert cell-days, precision and alert share to those cells while POD stays over all
-    events matched against every cell.
+    events matched against every cell. `groups` maps the matched events (`Match.events`) to one label each, e.g. the slide
+    they record, and adds `grouped_pod` (POD of the groups) to every score.
     """
     scored = np.asarray(scored, dtype=bool)
     if universe is not None:
@@ -79,7 +82,10 @@ def model_table(
             if universe is not None:
                 m = replace(m, alert_verified=m.alert_verified[universe])
                 view, view_scored = levels[universe], scored[universe]
-            table[model][name] = {str(k): bootstrap_scores(view, view_scored, m, k, boot) for k in LEVELS}
+            labels = None if groups is None else groups(m.events)
+            table[model][name] = {
+                str(k): bootstrap_scores(view, view_scored, m, k, boot)
+                | ({} if labels is None else grouped_pod(m.event_level, labels, k, boot)) for k in LEVELS}
     return table
 
 
@@ -269,18 +275,22 @@ def _interval(ci: list[float], digits: int = 1) -> str:
 
 TABLE_HEADER = ("| model | tolerance | level | events | hits | POD [95% CI] | alert cell-days | precision [95% CI] | realised share |"
                 "\n|---|---|---|---|---|---|---|---|---|")
+TABLE_HEADER_SLIDES = TABLE_HEADER.replace("POD [95% CI] |", "POD [95% CI] | POD (independent slides) |").replace("|---|", "|---|---|", 1)
 SHARE_HEADER = "| model | target Watch+ / Warning+ / Emergency | realised |\n|---|---|---|"
 
 
-def _rows(entry: dict, models=MODELS) -> list[str]:
+def _rows(entry: dict, models=MODELS, independent: bool = False) -> list[str]:
+    """Table rows of `entry`; `independent` adds the POD of event groups (`model_table(groups=...)`) beside the POD."""
     rows = []
     for model in models:
         for tolerance in TOLERANCES:
             for level in LEVELS:
                 s = entry["models"][model][tolerance][str(level)]
+                slides = (f"{_pct(s['group_pod'])} {_interval(s['group_pod_ci'])} ({s['group_hits']}/{s['groups']}) | "
+                          if independent else "")
                 rows.append(
                     f"| {model} | {tolerance} | {LEVEL_NAMES[level]} | {s['events']} | {s['hits']} | "
-                    f"{_pct(s['pod'])} {_interval(s['pod_ci'])} | {s['alert_cell_days']:,} | "
+                    f"{_pct(s['pod'])} {_interval(s['pod_ci'])} | {slides}{s['alert_cell_days']:,} | "
                     f"{_pct(s['precision'], 3)} {_interval(s['precision_ci'], 3)} | {_pct(s['alert_share'], 2)} |")
     return rows
 
