@@ -310,10 +310,24 @@ def test_a_text_that_starts_with_near_is_never_queried(tmp_path):
     assert out is None and fetch.queries == []
 
 
-def test_a_road_designation_segment_is_kept_as_its_own_query(tmp_path):
+@pytest.mark.parametrize("line", ["NH-29", "SH 12", "MDR-4", "National Highway", "Kedarnath route", "Manali-Kullu stretch", "Teesta bypass",
+                                  "Thamarassery ghat road", "road to Kedarnath"])
+def test_a_segment_naming_a_road_or_route_is_never_queried(tmp_path, line):
     fetch = Fetch()
-    osm.osm_geocode("Tseipama, NH-29", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES)
-    assert "nh 29, Kerala, India" in fetch.queries
+    osm.osm_geocode(f"Tseipama, {line}", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES)
+    assert fetch.queries == ["tseipama, Kerala, India"]
+
+
+def test_a_text_that_is_only_a_road_designation_is_never_queried(tmp_path):
+    out, fetch = run([hit()], place="NH-10", tmp=tmp_path)
+    assert out is None and fetch.queries == []
+
+
+def test_a_road_segment_does_not_stop_a_normal_later_segment_from_resolving_at_fifteen_km(tmp_path):
+    fetch = Fetch(**{"puthumala, Kerala, India": [hit()]})
+    out = osm.osm_geocode("Meppadi, NH-766, Puthumala", None, "Kerala", fetch=fetch, cache=tmp_path, places=PLACES)
+    assert out == (11.52, 76.18, 15.0)
+    assert fetch.queries == ["meppadi, Kerala, India", "puthumala, Kerala, India"]
 
 
 def test_a_segment_shorter_than_three_characters_is_never_queried(tmp_path):

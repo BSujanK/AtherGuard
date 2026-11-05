@@ -11,7 +11,9 @@ fuzzy matching: "Mundakkai" and "Mundakai" are different places here.
 Messy place text ("Kavalappara, near Pothukal (Muthappan Hill)", "Pakshep village"). The queries are, in order: the whole
 text, then each comma / semicolon / bracket segment left to right, each as written and without a trailing generic word
 (village, hamlet, town, area). A query that starts with "near" or "nr" is never used, so "near Gangtok" never places an event in
-Gangtok. The whole text and the first non-empty segment name the place and are good to 5 km; a match on a later segment (a locality
+Gangtok. Nor is a query that names a line instead of a place (`names_a_line`: a road designation such as "NH-10", "highway",
+"route", "stretch", "bypass", "ghat road", "road to ..."): the point it would find is not where the slide was. The whole text
+and the first non-empty segment name the place and are good to 5 km; a match on a later segment (a locality
 the place lies in or beside) is good to 15 km only. Segment queries shorter than 3 characters are ignored. The first query
 with candidates in the state (and district) decides, even when it is ambiguous.
 
@@ -73,6 +75,8 @@ MIN_SEGMENT_CHARS = 3
 QUALIFIERS = frozenset({"east", "west", "north", "south", "upper", "lower", "central", "new", "old"})
 FEATURE_ORDER = ("P", "S", "T", "H", "L", "R")         # populated places first, then the other named features
 GENERIC_WORDS = ("village", "hamlet", "town", "area")  # dropped from the end of a place text
+LINE_PATTERN = re.compile(r"\b(?:nh|sh|mdr)\s*\d|"                    # a text that names a road or route, not a place
+                          r"\b(?:national highway|state highway|highway|route|road to|stretch|bypass|ghat road)\b")
 STATE_ALIASES = {                                      # folded spelling -> GeoNames admin1 name
     "jammu and kashmir": "Jammu and Kashmir", "jammu kashmir": "Jammu and Kashmir", "j k": "Jammu and Kashmir",
     "jk": "Jammu and Kashmir", "ladakh": "Ladakh", "leh ladakh": "Ladakh", "himachal pradesh": "Himachal Pradesh",
@@ -169,12 +173,17 @@ def district_matches(district: str | None, known: list[str]) -> set[str]:
     return matched
 
 
+def names_a_line(key: str) -> bool:
+    """Whether a folded text names a road or route (NH-10, highway, route, stretch, bypass, ghat road, road to ...) rather than a place."""
+    return LINE_PATTERN.search(key) is not None
+
+
 def candidate_queries(place: str) -> list[tuple[str, float]]:
     """(folded name, accuracy_km) to look up for the place text of a report, most specific first (see the module docstring)."""
     queries: dict[str, float] = {}
 
     def add(key: str, accuracy: float, segment: bool) -> None:
-        if key and not key.startswith(("near ", "nr ")) and not (segment and len(key) < MIN_SEGMENT_CHARS):
+        if key and not key.startswith(("near ", "nr ")) and not names_a_line(key) and not (segment and len(key) < MIN_SEGMENT_CHARS):
             queries.setdefault(key, accuracy)
 
     def variants(key: str, accuracy: float, segment: bool) -> None:

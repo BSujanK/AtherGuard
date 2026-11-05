@@ -317,6 +317,19 @@ def test_segments_shorter_than_three_characters_are_ignored():
     assert gc.geocode("Dokan Dara, Ur, Gangtok", None, "Sikkim", frame) == (27.33, 88.61, 15.0)
 
 
+@pytest.mark.parametrize("line", ["NH-10", "nh10", "SH 12", "MDR-4", "National Highway 10", "State Highway", "the highway", "Kedarnath route",
+                                  "Manali-Kullu stretch", "Teesta bypass", "Thamarassery ghat road", "road to Kedarnath"])
+def test_a_segment_naming_a_road_or_route_is_never_a_query(line):
+    frame = places((line, "Sikkim", "East Sikkim", 27.0, 88.0, "R"), ("Gangtok", "Sikkim", "East Sikkim", 27.33, 88.61))
+    assert gc.geocode(f"Dokan Dara, {line}", None, "Sikkim", frame) is None
+    assert gc.geocode(line, None, "Sikkim", frame) is None
+
+
+def test_a_road_segment_does_not_stop_a_normal_later_segment_from_resolving_at_fifteen_km():
+    frame = places(("Rongyek", "Sikkim", "East Sikkim", 27.3, 88.5), ("NH 10", "Sikkim", "East Sikkim", 27.0, 88.0, "R"))
+    assert gc.geocode("Dokan Dara, NH-10, Rongyek", None, "Sikkim", frame) == (27.3, 88.5, 15.0)
+
+
 def test_the_whole_text_wins_over_its_segments():
     frame = places(("Sangla Chitkul road", "Himachal Pradesh", "Kinnaur", 31.4, 78.4, "R"), ("Sangla", "Himachal Pradesh", "Kinnaur", 31.42, 78.26))
     assert gc.geocode("Sangla Chitkul road", None, "Himachal Pradesh", frame) == (31.4, 78.4, 5.0)

@@ -6,7 +6,8 @@ Both return None rather than a guess.
 
 Queries, in order: the place text as written, then each segment of it (the segment logic of `geocode.candidate_queries`: comma /
 semicolon / bracket segments left to right, each also without a trailing village / hamlet / town / area, in its folded spelling;
-a segment starting with "near" or "nr" or shorter than 3 characters is never queried, "NH-29" is kept as "nh 29"). Each is asked
+a segment starting with "near" or "nr", shorter than 3 characters, or naming a line (`geocode.names_a_line`: "NH-29", "highway",
+"route", "stretch", "bypass", "ghat road", "road to ...") is never queried). Each is asked
 as "<text>, <district>, <state>, India" and then, when a district is named, as "<text>, <state>, India". The first query with
 acceptable results decides, even when they are ambiguous (None): a later query is never tried past it. The state is the
 GeoNames admin1 name of `geocode.canonical_state`; a state outside the study domain returns None without a request. Parameters:
@@ -184,7 +185,7 @@ def _accepted(results: list[dict], state: str, wanted: set[str] | None, scope: l
 def _texts(place: str) -> list[tuple[str, float]]:
     """(text to ask Nominatim about, accuracy_km of a match on it): the place as written, then its segments (see the docstring)."""
     texts = {}
-    if not gc.fold(place).startswith(("near ", "nr ")):
+    if not gc.fold(place).startswith(("near ", "nr ")) and not gc.names_a_line(gc.fold(place)):
         texts[place] = gc.NAMED_PLACE_KM
     for key, accuracy in gc.candidate_queries(place):
         if key != gc.fold(place):
