@@ -1,4 +1,4 @@
-"""`python -m aetherguard.verify baseline|heldout|ledger|inventory|seasons` (see aetherguard.verify.report, .heldout, .ledger, .inventory and .seasons)."""
+"""`python -m aetherguard.verify baseline|heldout|ledger|inventory|seasons|operating-point` (see aetherguard.verify.report, .heldout, .ledger, .inventory, .seasons and .operating_point)."""
 from __future__ import annotations
 
 import argparse
@@ -8,7 +8,7 @@ from pathlib import Path
 
 from ..config import PROJECT_ROOT
 from ..live import run as live_run
-from . import geocode, heldout, inventory, ledger, report, seasons
+from . import geocode, heldout, inventory, ledger, operating_point, report, seasons
 from .geocode import GeocodeError
 
 
@@ -31,6 +31,9 @@ def main(argv=None) -> int:
     held.add_argument("--years", type=seasons.parse_years, default=seasons.parse_years("2018-2025"), help="YYYY or YYYY-YYYY (default 2018-2025)")
     held.add_argument("--out", type=Path, default=None, help="panel directory (default data/processed/alerts/heldout_seasons)")
     held.add_argument("--force", action="store_true", help="score a season again although its panel exists")
+    point = sub.add_parser("operating-point", help=f"write reports/{operating_point.REPORT_STEM}.{{json,md}}: fit region x month thresholds on "
+                                                   "development and take the single held-out look (refuses to run twice)")
+    point.add_argument("--out", type=Path, default=PROJECT_ROOT / "reports", help="report directory (default reports/)")
     args = parser.parse_args(argv)
     say = lambda m: print(m, flush=True)
     try:
@@ -42,6 +45,8 @@ def main(argv=None) -> int:
             ledger.write_ledger(args.out, args.today, say)
         elif args.command == "seasons":
             seasons.run(args.years, args.out, args.force, say)
+        elif args.command == "operating-point":
+            operating_point.run(args.out, say)
         else:
             inventory.write_inventory(args.dir, geocode.load_places(), say, offline=args.offline)
     except (live_run.LiveRunError, GeocodeError, ValueError, OSError) as exc:

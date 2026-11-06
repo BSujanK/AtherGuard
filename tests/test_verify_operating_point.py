@@ -1,14 +1,18 @@
 import itertools
+import json
 from datetime import date, timedelta
 
 import numpy as np
 import pandas as pd
 import pytest
 
+from aetherguard import grid
 from aetherguard.alerts import levels as lv
+from aetherguard.hazard.jsonio import jsonable
 from aetherguard.live import hardening as H
 from aetherguard.live import hardening_dev as D
 from aetherguard.live import postrules as pr
+from aetherguard.verify import operating_point as op
 from aetherguard.verify.operating_point import Allocation, allocate, candidate_levels, monotone, stratum_curves
 
 from alerts_helpers import CONFIG
@@ -324,3 +328,297 @@ def test_candidate_levels_need_the_three_levels():
     season = _season([[2e-5]], ["himalaya"], date(2010, 7, 1))
     with pytest.raises(ValueError, match="levels 1, 2 and 3"):
         candidate_levels(season, {1: {}, 2: {}}, CONFIG, None, False)
+
+
+# ------------------------------------------------------------------------------- fit on development seasons
+
+def _fit_season():
+    """Four days over a June/July boundary, four cells. Himalaya June, Himalaya July and Western Ghats June hold events; Western
+    Ghats July holds none. Cell 4 is outside the alert universe: its 2e-4 alerts nowhere and holds no event."""
+    low = 1e-6
+    risk = [[2e-4, low, 1.5e-4, low],
+            [low, low, low, 5e-5],
+            [low, 9e-5, low, low],
+            [2e-4, low, low, low]]
+    season = _season(risk, ["himalaya", "himalaya", "western_ghats", "western_ghats"], date(2010, 6, 29))
+    season.panel.cells["in_universe"] = [True, True, True, False]
+    season.events = pd.DataFrame({"cell_id": [1, 1, 2, 3, 1],
+                                  "date": pd.to_datetime(["2010-06-29", "2010-07-01", "2010-07-02", "2010-06-30", "2010-06-29"])})
+    return season
+
+
+GRID = np.array([1e-5, 3e-5, 1e-4])
+
+
+def _load(*seasons):
+    return lambda: iter(seasons)
+
+
+def test_fit_targets_the_v3_point_hits_of_the_active_strata_and_keeps_inactive_strata_at_v3():
+    fit = op.fit(_load(_fit_season()), GRID)
+    assert fit.targets == {1: 4, 2: 4, 3: 2}
+    assert fit.v3_point == {1: {"hits": 4, "alerts": 4}, 2: {"hits": 4, "alerts": 4}, 3: {"hits": 2, "alerts": 2}}
+    assert {level: (a.hits, a.alerts) for level, a in fit.allocations.items()} == {1: (4, 4), 2: (4, 4), 3: (2, 2)}
+    assert fit.thresholds == {
+        1: {H6: 1e-4, H7: 3e-5, W6: 3e-5, W7: None},
+        2: {H6: 1e-4, H7: 3e-5, W6: 3e-5, W7: None},
+        3: {H6: 1e-4, H7: 1e-4, W6: 1e-4, W7: None},
+    }
+    assert fit.grid.tolist() == GRID.tolist()
+
+
+def test_fit_adds_the_curves_of_all_seasons_and_makes_the_thresholds_monotone():
+    one = op.fit(_load(_fit_season()), GRID)
+    two = op.fit(_load(_fit_season(), _fit_season()), GRID)
+    assert two.targets == {level: 2 * target for level, target in one.targets.items()}
+    assert two.thresholds == one.thresholds
+    for stratum in (H6, H7, W6):
+        values = [two.thresholds[level][stratum] for level in (1, 2, 3)]
+        assert values == sorted(values)
+
+
+def test_candidate_grid_is_the_risk_quantiles_of_the_scored_universe_cell_days():
+    low = 1e-6
+    values = np.array([2e-4, low, 1.5e-4, low, low, low, low, 5e-5, low, 9e-5, low, low])   # cells 1-3, not cell 4
+    grid_ = op.candidate_grid(_load(_fit_season()))
+    assert len(grid_) == 200
+    assert grid_.tolist() == np.quantile(values, op.QUANTILES).tolist()
+    assert op.QUANTILES[0] == 0.5 and op.QUANTILES[-1] == 0.999
+
+
+def test_development_table_counts_cell_exact_hits_and_universe_alerts_over_seasons():
+    everywhere = {"two": lambda s: np.full(s.panel["risk"].shape, 2, dtype=np.int8),
+                  "one": lambda s: np.ones(s.panel["risk"].shape, dtype=np.int8)}
+    table = op.development_table(_load(_fit_season(), _fit_season()), everywhere)
+    # 4 distinct events a season (the repeated one counts once); 3 universe cells x 4 days of alerts a season
+    assert table["two"] == {1: {"events": 8, "hits": 8, "alerts": 24}, 2: {"events": 8, "hits": 8, "alerts": 24},
+                            3: {"events": 8, "hits": 0, "alerts": 0}}
+    assert table["one"][2] == {"events": 8, "hits": 0, "alerts": 0}
+
+
+def test_development_table_reads_the_level_on_the_event_day_in_the_events_own_cell():
+    levels = np.zeros((4, 4), dtype=np.int8)
+    levels[0, 0], levels[1, 3] = 3, 2           # events (cell 1, 29 June) and (cell 2, 2 July); (cell 1, 1 July) sits at 0
+    levels[2, 0] = 3                            # a level in another cell on another day is no hit
+    table = op.development_table(_load(_fit_season()), {"m": lambda s: levels})
+    assert [table["m"][k]["hits"] for k in (1, 2, 3)] == [2, 2, 1]
+
+
+# ---------------------------------------------------------------------------------------------- selection
+
+def _dev(hits, alerts):
+    return {level: {"events": 100, "hits": h, "alerts": a} for level, h, a in zip((1, 2, 3), hits, alerts)}
+
+
+def test_selection_takes_c2_only_with_fewer_warning_alerts_at_equal_or_higher_detection_everywhere():
+    c1 = _dev((90, 80, 60), (1000, 500, 200))
+    assert op.select({"C1": c1, "C2": _dev((90, 80, 60), (1000, 480, 150))}) == "C2"       # same detection, fewer alerts
+    assert op.select({"C1": c1, "C2": _dev((91, 80, 61), (1000, 499, 150))}) == "C2"       # higher detection is fine
+    assert op.select({"C1": c1, "C2": _dev((90, 80, 59), (1000, 400, 100))}) == "C1"       # one event lost at Emergency
+    assert op.select({"C1": c1, "C2": _dev((89, 80, 60), (1000, 400, 100))}) == "C1"       # ... at Watch+
+    assert op.select({"C1": c1, "C2": _dev((90, 79, 60), (1000, 400, 100))}) == "C1"       # ... at Warning+
+
+
+def test_selection_ties_go_to_c1_and_more_warning_alerts_never_win():
+    c1 = _dev((90, 80, 60), (1000, 500, 200))
+    assert op.select({"C1": c1, "C2": _dev((90, 80, 60), (900, 500, 100))}) == "C1"        # equal Warning+ alerts
+    assert op.select({"C1": c1, "C2": _dev((95, 85, 65), (1000, 501, 200))}) == "C1"       # more Warning+ alerts
+    assert op.select({"C1": c1, "C2": c1}) == "C1"
+
+
+# ------------------------------------------------------------------------------------------- the decision
+
+def _scores(slides):
+    return {level: {"group_hits": n, "groups": 87} for level, n in zip((1, 2, 3), slides)}
+
+
+def _evaluation(lost=(0, 0, 0), change=-1000, ci=(-1500.0, -500.0), exact_lost=None, exact_ci=None):
+    v3 = (85, 79, 73)
+    out = {}
+    for name, loss, interval in (("tolerant", lost, ci), ("cell_exact", exact_lost or lost, exact_ci or ci)):
+        out[name] = {
+            "v3": _scores(v3),
+            "candidate": _scores(tuple(n - x for n, x in zip(v3, loss))),
+            "change": {level: {"alert_cell_days_change": change if level == 2 else 0,
+                               "alert_cell_days_change_ci": list(interval)} for level in (1, 2, 3)},
+        }
+    return out
+
+
+def _results(decision):
+    return {(c["tolerance"], c["condition"]): c["passed"] for c in decision["conditions"]}
+
+
+def test_decision_passes_when_every_condition_holds_in_both_tolerances():
+    decision = op.decide(_evaluation())
+    assert decision["adopt"] is True
+    assert all(_results(decision).values()) and len(decision["conditions"]) == 8
+
+
+def test_decision_allows_one_slide_lost_at_warning_and_emergency_and_two_at_watch():
+    assert op.decide(_evaluation(lost=(2, 1, 1)))["adopt"] is True
+    assert op.decide(_evaluation(lost=(0, 0, 0), exact_lost=(2, 1, 1)))["adopt"] is True
+    assert op.decide(_evaluation(lost=(-3, -2, -1)))["adopt"] is True            # more slides than v3 is fine
+
+
+@pytest.mark.parametrize("lost, failing", [((3, 0, 0), "watch_detection"), ((0, 2, 0), "warning_detection"),
+                                           ((0, 0, 2), "emergency_detection")])
+def test_decision_fails_one_slide_beyond_the_allowance_in_either_tolerance(lost, failing):
+    for evaluation, tolerance in ((_evaluation(lost=lost, exact_lost=(0, 0, 0)), "tolerant"), (_evaluation(exact_lost=lost), "cell_exact")):
+        decision = op.decide(evaluation)
+        assert decision["adopt"] is False
+        assert [key for key, passed in _results(decision).items() if not passed] == [(tolerance, failing)]
+
+
+@pytest.mark.parametrize("change, ci", [(-1000, (-1500.0, 0.0)),        # the interval touches 0
+                                        (-1000, (-1500.0, 20.0)),       # the interval contains 0
+                                        (50, (20.0, 80.0)),             # an increase, interval excluding 0
+                                        (0, (-10.0, -5.0)),             # no reduction
+                                        (-1000, (float("nan"), float("nan")))])
+def test_decision_requires_a_reduction_whose_interval_excludes_zero(change, ci):
+    decision = op.decide(_evaluation(change=change, ci=ci))
+    assert decision["adopt"] is False
+    assert _results(decision)[("tolerant", "warning_burden")] is False
+
+
+def test_decision_fails_when_only_the_cell_exact_burden_interval_touches_zero():
+    decision = op.decide(_evaluation(exact_ci=(-1500.0, 0.0)))
+    assert decision["adopt"] is False
+    assert [key for key, passed in _results(decision).items() if not passed] == [("cell_exact", "warning_burden")]
+
+
+def test_decision_records_the_numbers_behind_each_condition():
+    decision = op.decide(_evaluation(lost=(0, 2, 1), change=-700, ci=(-900.0, -100.0)))
+    by_key = {(c["tolerance"], c["condition"]): c for c in decision["conditions"]}
+    warning = by_key[("tolerant", "warning_detection")]
+    assert (warning["v3"], warning["candidate"], warning["lost"], warning["allowed"], warning["passed"]) == (79, 77, 2, 1, False)
+    burden = by_key[("cell_exact", "warning_burden")]
+    assert (burden["change"], burden["ci"], burden["passed"]) == (-700, [-900.0, -100.0], True)
+    assert decision["failed"] == ["tolerant: warning_detection", "cell_exact: warning_detection"]
+
+
+# ----------------------------------------------------------------------------- the single held-out look
+
+A_CELL = int(grid.latlon_to_cell(30.025, 78.025))
+CELLS = np.array([A_CELL, A_CELL + 1, A_CELL + 20])           # a cell, its neighbour 4.8 km away, one 96 km away
+BOOT = {"n": 60, "seed": 5, "level": 0.95}
+
+
+def _pool():
+    days = [date(2019, 7, 1) + timedelta(days=k) for k in range(5)]
+    v3 = np.zeros((3, 5), dtype=np.int8)
+    v3[0, 1], v3[1, 1], v3[2, 3], v3[0, 3] = 2, 2, 3, 1                       # Warning+ on 3 cell-days
+    candidate = np.zeros((3, 5), dtype=np.int8)
+    candidate[0, 1], candidate[2, 3] = 2, 3                                   # the neighbour's alert is dropped
+    events = pd.DataFrame({"cell_id": [A_CELL, A_CELL + 1, A_CELL + 20],
+                           "date": pd.to_datetime(["2019-07-02", "2019-07-02", "2019-07-04"])})
+    return op.HeldOut(CELLS, days, np.ones((3, 5), dtype=bool), v3, candidate, events, 1)
+
+
+GOOD = {"hits": 3, "alert_cell_days": 3, "group_hits": 2, "groups": 2}
+
+
+def test_score_heldout_counts_slides_burden_and_the_paired_change_per_tolerance_and_level():
+    scores = op.score_heldout(_pool(), BOOT)
+    assert scores["events"] == 3 and scores["slides"] == 2 and scores["events_outside_panel_days"] == 1
+    for tolerance in ("tolerant", "cell_exact"):
+        entry = scores[tolerance]
+        assert entry["v3"][2]["group_hits"] == 2 and entry["candidate"][2]["group_hits"] == 2
+        assert entry["v3"][2]["alert_cell_days"] == 3 and entry["candidate"][2]["alert_cell_days"] == 2
+        assert entry["change"][2]["alert_cell_days_change"] == -1
+        assert len(entry["change"][2]["alert_cell_days_change_ci"]) == 2
+    assert scores["cell_exact"]["v3"][2]["hits"] == 3 and scores["cell_exact"]["candidate"][2]["hits"] == 2
+
+
+def test_score_heldout_stops_when_v3_does_not_reproduce_the_published_numbers():
+    assert op.score_heldout(_pool(), BOOT, {t: {2: GOOD} for t in ("tolerant", "cell_exact")})["slides"] == 2
+    with pytest.raises(ValueError, match="differ from the published"):
+        op.score_heldout(_pool(), BOOT, {"tolerant": {2: {**GOOD, "hits": 4}}})
+
+
+def test_the_held_out_look_happens_once(tmp_path):
+    path = tmp_path / "w2_heldout.json"
+    built = []
+
+    def build():
+        built.append(1)
+        return _pool()
+
+    result = op.evaluate_once(path, build, BOOT)
+    assert built == [1] and path.is_file()
+    assert result["decision"]["adopt"] in (True, False) and result["scores"]["slides"] == 2
+    stored = json.loads(path.read_text(encoding="utf-8"))
+    assert stored["decision"]["adopt"] == result["decision"]["adopt"]
+    with pytest.raises(FileExistsError, match="w2_heldout.json"):
+        op.evaluate_once(path, build, BOOT)
+    assert built == [1]                           # the second call did not even load the held-out panels
+    assert json.loads(path.read_text(encoding="utf-8")) == stored
+
+
+def test_a_failed_look_leaves_no_result_file_and_may_be_repeated(tmp_path):
+    path = tmp_path / "w2_heldout.json"
+    with pytest.raises(ValueError):
+        op.evaluate_once(path, _pool, BOOT, {"tolerant": {2: {**GOOD, "hits": 9}}})
+    assert not path.exists()
+    assert op.evaluate_once(path, _pool, BOOT)["scores"]["slides"] == 2
+
+
+# ---------------------------------------------------------------------------------------------- the report
+
+def _document(tmp_path):
+    season = _fit_season()
+    fit = op.fit(_load(season), GRID)
+    models = {"v3": lambda s: D.season_levels(s, "new_hi", CONFIG, None),
+              "C1": lambda s: candidate_levels(s, fit.thresholds, CONFIG, None, False),
+              "C2": lambda s: candidate_levels(s, fit.thresholds, CONFIG, None, True)}
+    table = op.development_table(_load(season), models)
+    selected = op.select({name: table[name] for name in ("C1", "C2")})
+    heldout = op.evaluate_once(tmp_path / "w2_heldout.json", _pool, BOOT)
+    return fit, table, selected, heldout
+
+
+def test_the_report_names_the_thresholds_tables_decision_and_caveats(tmp_path):
+    fit, table, selected, heldout = _document(tmp_path)
+    result = op.report_result(fit, table, selected, heldout, V3)
+    text = op.markdown(result)
+    for needle in ("Himalaya", "Western Ghats", "C1", "Adopt", "relative", "chance floor", "Warning+", "Emergency"):
+        assert needle.lower() in text.lower(), needle
+    json.dumps(jsonable(result), allow_nan=False)          # strict JSON, no stray objects
+
+
+def test_the_thresholds_document_lists_both_candidates_and_the_selection(tmp_path):
+    fit, _, selected, _ = _document(tmp_path)
+    out = op.thresholds_document(fit, selected, V3)
+    assert out["selected"] == selected and set(out["candidates"]) == {"C1", "C2"}
+    assert out["candidates"]["C2"]["confirm_emergency"] is True and out["candidates"]["C1"]["confirm_emergency"] is False
+    assert out["candidates"]["C1"]["thresholds"]["warning"]["himalaya"]["6"] == 1e-4
+    assert out["candidates"]["C1"]["thresholds"]["warning"]["western_ghats"]["7"] is None
+    assert out["v3"]["himalaya"]["watch"] == HIM.watch
+
+
+# --------------------------------------------------------------------------- the published references
+
+def _entry(hits, alerts, group_hits, events=92, groups=87):
+    return {"events": events, "hits": hits, "alert_cell_days": alerts, "group_hits": group_hits, "groups": groups, "pod": 0.9}
+
+
+def test_published_v3_reads_the_pooled_numbers_by_tolerance_and_integer_level(tmp_path):
+    models = {"v3": {t: {"1": _entry(90, 300, 85), "2": _entry(84, 200, 79), "3": _entry(78, 100, 73)} for t in ("tolerant", "cell_exact")}}
+    path = tmp_path / "w1.json"
+    path.write_text(json.dumps({"sets": {"POOLED": {"models": models}, "S2018": {"models": {}}}}), encoding="utf-8")
+    published = op.published_v3(path)
+    assert set(published) == {"tolerant", "cell_exact"} and set(published["tolerant"]) == {1, 2, 3}
+    assert published["cell_exact"][2] == {"events": 92, "hits": 84, "alert_cell_days": 200, "group_hits": 79, "groups": 87}
+
+
+def test_development_v3_must_reproduce_the_baseline_report(tmp_path):
+    cell_exact = {str(k): {"events": 10, "hits": h, "alert_cell_days": a} for k, h, a in ((1, 9, 90), (2, 7, 50), (3, 4, 20))}
+    path = tmp_path / "baseline.json"
+    path.write_text(json.dumps({"sets": {"development": {"models": {"v3": {"cell_exact": cell_exact}}}}}), encoding="utf-8")
+    table = {"v3": _dev((9, 7, 4), (90, 50, 20))}
+    for level in table["v3"].values():
+        level["events"] = 10
+    op._check_development_v3(table, path)
+    table["v3"][2]["alerts"] = 51
+    with pytest.raises(ValueError, match="differ from the published"):
+        op._check_development_v3(table, path)

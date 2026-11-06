@@ -349,14 +349,18 @@ def measure_set(name: str, results: list[SeasonResult], events: pd.DataFrame, ce
 
 # ------------------------------------------------------------------------------------------------------ loading
 
-def load_season(year: int, reference_cells: np.ndarray, model, config, base_rules) -> Part:
-    """The training-style panel of `year` as v3 levels and baseline inputs; its cells must be the 2018 operational panel's."""
+def load_panel_season(year: int, reference_cells: np.ndarray, model) -> D.Season:
+    """The training-style panel of `year` from 1 June, without events; its cells must be the 2018 operational panel's."""
     panel = H.load_panel(seasons.season_path(None, year))
     check_cell_order(panel.cells["cell_id"].to_numpy(), reference_cells, f"season {year}")
-    season = D.Season(year, panel, panel.days.index(date(year, *seasons.SEASON_START)),
-                      pd.DataFrame({"cell_id": np.zeros(0, dtype=np.int64), "date": pd.to_datetime([])}),
-                      lv.card_region_thresholds(model.card, panel.cells["region"]))
-    return extract(season, config, base_rules)
+    return D.Season(year, panel, panel.days.index(date(year, *seasons.SEASON_START)),
+                    pd.DataFrame({"cell_id": np.zeros(0, dtype=np.int64), "date": pd.to_datetime([])}),
+                    lv.card_region_thresholds(model.card, panel.cells["region"]))
+
+
+def load_season(year: int, reference_cells: np.ndarray, model, config, base_rules) -> Part:
+    """The training-style panel of `year` as v3 levels and baseline inputs; its cells must be the 2018 operational panel's."""
+    return extract(load_panel_season(year, reference_cells, model), config, base_rules)
 
 
 def lhasa_path(year: int) -> Path:

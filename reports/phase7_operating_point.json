@@ -1,0 +1,801 @@
+{
+  "protocol": {
+    "spec": "docs/superpowers/specs/2026-11-06-aetherguard-w2-operating-point.md",
+    "alert_levels": {
+      "1": "Watch+",
+      "2": "Warning+",
+      "3": "Emergency"
+    },
+    "tolerances": {
+      "tolerant": {
+        "km": 10.0,
+        "days": 1
+      },
+      "cell_exact": {
+        "km": 0.0,
+        "days": 0
+      }
+    },
+    "development": "out-of-fold seasons 2007-2017 from 1 June; alert cell-days on the universe-sample cells only, detection cell-exact on all development events",
+    "heldout": "POOLED 2018-2025, the training-style panels of verify.seasons",
+    "bootstrap": {
+      "n": 2000,
+      "seed": 31337,
+      "level": 0.95
+    },
+    "candidates": {
+      "C1": "region x month thresholds",
+      "C2": "region x month thresholds and the Emergency confirmation"
+    }
+  },
+  "thresholds": {
+    "version": 1,
+    "status": "candidate; not read by the live run until adopted and wired in a separate, reviewed step (spec section 4)",
+    "strata": "region x month, June-September; a null threshold and October-December keep v3's region threshold",
+    "grid": {
+      "quantiles": [
+        0.5,
+        0.999
+      ],
+      "steps": 200,
+      "lowest": 1.3237828777306057e-06,
+      "highest": 0.00031879321996786163
+    },
+    "selected": "C1",
+    "candidates": {
+      "C1": {
+        "confirm_emergency": false,
+        "thresholds": {
+          "watch": {
+            "himalaya": {
+              "6": 5.9975045595670215e-06,
+              "7": 2.782149847271763e-06,
+              "8": 1.3237828777306057e-06,
+              "9": 5.9975045595670215e-06
+            },
+            "western_ghats": {
+              "6": 2.0912899360648384e-06,
+              "7": 2.0912899360648384e-06,
+              "8": 3.8084629480536887e-06,
+              "9": 3.8084629480536887e-06
+            }
+          },
+          "warning": {
+            "himalaya": {
+              "6": 1.3765576493023059e-05,
+              "7": 1.5363747671330964e-05,
+              "8": 7.329125468735094e-06,
+              "9": 2.5081266242654546e-05
+            },
+            "western_ghats": {
+              "6": 1.3681137059859508e-05,
+              "7": 7.075533935140168e-05,
+              "8": 2.5642648636983134e-05,
+              "9": 4.8120833711412515e-05
+            }
+          },
+          "emergency": {
+            "himalaya": {
+              "6": 3.931274209199474e-05,
+              "7": 4.9226520385570795e-05,
+              "8": 3.931274209199474e-05,
+              "9": 4.9226520385570795e-05
+            },
+            "western_ghats": {
+              "6": 4.8120833711412515e-05,
+              "7": 0.0001187400315556849,
+              "8": 2.5642648636983134e-05,
+              "9": 7.075533935140168e-05
+            }
+          }
+        }
+      },
+      "C2": {
+        "confirm_emergency": true,
+        "thresholds": {
+          "watch": {
+            "himalaya": {
+              "6": 5.9975045595670215e-06,
+              "7": 2.782149847271763e-06,
+              "8": 1.3237828777306057e-06,
+              "9": 5.9975045595670215e-06
+            },
+            "western_ghats": {
+              "6": 2.0912899360648384e-06,
+              "7": 2.0912899360648384e-06,
+              "8": 3.8084629480536887e-06,
+              "9": 3.8084629480536887e-06
+            }
+          },
+          "warning": {
+            "himalaya": {
+              "6": 1.3765576493023059e-05,
+              "7": 1.5363747671330964e-05,
+              "8": 7.329125468735094e-06,
+              "9": 2.5081266242654546e-05
+            },
+            "western_ghats": {
+              "6": 1.3681137059859508e-05,
+              "7": 7.075533935140168e-05,
+              "8": 2.5642648636983134e-05,
+              "9": 4.8120833711412515e-05
+            }
+          },
+          "emergency": {
+            "himalaya": {
+              "6": 3.931274209199474e-05,
+              "7": 4.9226520385570795e-05,
+              "8": 3.931274209199474e-05,
+              "9": 4.9226520385570795e-05
+            },
+            "western_ghats": {
+              "6": 4.8120833711412515e-05,
+              "7": 0.0001187400315556849,
+              "8": 2.5642648636983134e-05,
+              "9": 7.075533935140168e-05
+            }
+          }
+        }
+      }
+    },
+    "v3": {
+      "himalaya": {
+        "watch": 2.782149847271763e-06,
+        "warning": 1.3765576493023059e-05,
+        "emergency": 4.9226520385570795e-05
+      },
+      "western_ghats": {
+        "watch": 3.8084629480536887e-06,
+        "warning": 1.3681137059859508e-05,
+        "emergency": 2.5642648636983134e-05
+      }
+    }
+  },
+  "fit": {
+    "1": {
+      "target_hits": 613,
+      "allocated_hits": 613,
+      "allocated_alerts": 2977642,
+      "v3_point_hits": 613,
+      "v3_point_alerts": 3227158
+    },
+    "2": {
+      "target_hits": 520,
+      "allocated_hits": 520,
+      "allocated_alerts": 1250642,
+      "v3_point_hits": 520,
+      "v3_point_alerts": 1319037
+    },
+    "3": {
+      "target_hits": 363,
+      "allocated_hits": 363,
+      "allocated_alerts": 449616,
+      "v3_point_hits": 363,
+      "v3_point_alerts": 497212
+    }
+  },
+  "development": {
+    "v3": {
+      "1": {
+        "events": 636,
+        "hits": 618,
+        "alerts": 3890709
+      },
+      "2": {
+        "events": 636,
+        "hits": 539,
+        "alerts": 1658817
+      },
+      "3": {
+        "events": 636,
+        "hits": 402,
+        "alerts": 683446
+      }
+    },
+    "C1": {
+      "1": {
+        "events": 636,
+        "hits": 618,
+        "alerts": 3737048
+      },
+      "2": {
+        "events": 636,
+        "hits": 538,
+        "alerts": 1618522
+      },
+      "3": {
+        "events": 636,
+        "hits": 397,
+        "alerts": 623940
+      }
+    },
+    "C2": {
+      "1": {
+        "events": 636,
+        "hits": 618,
+        "alerts": 3736207
+      },
+      "2": {
+        "events": 636,
+        "hits": 538,
+        "alerts": 1599803
+      },
+      "3": {
+        "events": 636,
+        "hits": 367,
+        "alerts": 565473
+      }
+    }
+  },
+  "selected": "C1",
+  "heldout": {
+    "selected": "C1",
+    "thresholds_file": "data/processed/alerts/thresholds_w2_candidate.json",
+    "scores": {
+      "events": 92,
+      "slides": 87,
+      "events_outside_panel_days": 1,
+      "tolerant": {
+        "v3": {
+          "1": {
+            "events": 92,
+            "hits": 90,
+            "pod": 0.9782608695652174,
+            "alert_cell_days": 25582037,
+            "verified_alert_cell_days": 2310,
+            "precision": 9.029773508653748e-05,
+            "alert_share": 0.4061420586403383,
+            "events_per_1000_alert_cell_days": 0.0035180935748001614,
+            "alert_cell_days_ci": [
+              24875857.375,
+              26262683.225
+            ],
+            "precision_ci": [
+              7.087435648382587e-05,
+              0.00011119466962848224
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.9456521739130435,
+              1.0
+            ],
+            "groups": 87,
+            "group_hits": 85,
+            "group_pod": 0.9770114942528736,
+            "group_pod_ci": [
+              0.9425287356321839,
+              1.0
+            ]
+          },
+          "2": {
+            "events": 92,
+            "hits": 84,
+            "pod": 0.9130434782608695,
+            "alert_cell_days": 10356868,
+            "verified_alert_cell_days": 1773,
+            "precision": 0.0001711907499448675,
+            "alert_share": 0.16442630000833175,
+            "events_per_1000_alert_cell_days": 0.008110560065069865,
+            "alert_cell_days_ci": [
+              10009273.375,
+              10700256.225
+            ],
+            "precision_ci": [
+              0.00013091749404550362,
+              0.0002141931361456057
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.8478260869565217,
+              0.967391304347826
+            ],
+            "groups": 87,
+            "group_hits": 79,
+            "group_pod": 0.9080459770114943,
+            "group_pod_ci": [
+              0.8390804597701149,
+              0.9655172413793104
+            ]
+          },
+          "3": {
+            "events": 92,
+            "hits": 78,
+            "pod": 0.8478260869565217,
+            "alert_cell_days": 4275304,
+            "verified_alert_cell_days": 1261,
+            "precision": 0.00029494978602691177,
+            "alert_share": 0.06787500025401702,
+            "events_per_1000_alert_cell_days": 0.01824431666145846,
+            "alert_cell_days_ci": [
+              4103943.55,
+              4447475.4
+            ],
+            "precision_ci": [
+              0.0002139639036381191,
+              0.0003838798886184758
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.7717391304347826,
+              0.9130434782608695
+            ],
+            "groups": 87,
+            "group_hits": 73,
+            "group_pod": 0.8390804597701149,
+            "group_pod_ci": [
+              0.7586206896551724,
+              0.9080459770114943
+            ]
+          }
+        },
+        "candidate": {
+          "1": {
+            "events": 92,
+            "hits": 90,
+            "pod": 0.9782608695652174,
+            "alert_cell_days": 24722060,
+            "verified_alert_cell_days": 2276,
+            "precision": 9.206352545054903e-05,
+            "alert_share": 0.392489008683318,
+            "events_per_1000_alert_cell_days": 0.0036404733262519386,
+            "alert_cell_days_ci": [
+              24016874.875,
+              25395716.3
+            ],
+            "precision_ci": [
+              7.224678776016374e-05,
+              0.00011314872774853358
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.9456521739130435,
+              1.0
+            ],
+            "groups": 87,
+            "group_hits": 85,
+            "group_pod": 0.9770114942528736,
+            "group_pod_ci": [
+              0.9425287356321839,
+              1.0
+            ]
+          },
+          "2": {
+            "events": 92,
+            "hits": 83,
+            "pod": 0.9021739130434783,
+            "alert_cell_days": 10041684,
+            "verified_alert_cell_days": 1734,
+            "precision": 0.00017268019985492474,
+            "alert_share": 0.15942241862818612,
+            "events_per_1000_alert_cell_days": 0.008265545898476789,
+            "alert_cell_days_ci": [
+              9680946.575,
+              10394714.4
+            ],
+            "precision_ci": [
+              0.0001326871800528233,
+              0.00021472933556268117
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.8369565217391305,
+              0.9565217391304348
+            ],
+            "groups": 87,
+            "group_hits": 78,
+            "group_pod": 0.896551724137931,
+            "group_pod_ci": [
+              0.8275862068965517,
+              0.9540229885057471
+            ]
+          },
+          "3": {
+            "events": 92,
+            "hits": 77,
+            "pod": 0.8369565217391305,
+            "alert_cell_days": 3850098,
+            "verified_alert_cell_days": 1228,
+            "precision": 0.0003189529201594349,
+            "alert_share": 0.06112440255195664,
+            "events_per_1000_alert_cell_days": 0.019999490922049258,
+            "alert_cell_days_ci": [
+              3697274.65,
+              3999837.0999999996
+            ],
+            "precision_ci": [
+              0.0002297483740838984,
+              0.00041651943315247473
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.7608695652173914,
+              0.9130434782608695
+            ],
+            "groups": 87,
+            "group_hits": 72,
+            "group_pod": 0.8275862068965517,
+            "group_pod_ci": [
+              0.7471264367816092,
+              0.9080459770114943
+            ]
+          }
+        },
+        "change": {
+          "1": {
+            "alert_cell_days_change": -859977,
+            "hits_change": 0,
+            "precision_change": 1.7657903640115504e-06,
+            "alert_cell_days_change_ci": [
+              -1003595.2,
+              -731775.175
+            ],
+            "hits_change_ci": [
+              0.0,
+              0.0
+            ],
+            "precision_change_ci": [
+              4.1767534132781176e-07,
+              2.855335368419858e-06
+            ]
+          },
+          "2": {
+            "alert_cell_days_change": -315184,
+            "hits_change": -1,
+            "precision_change": 1.4894499100572337e-06,
+            "alert_cell_days_change_ci": [
+              -471841.39999999997,
+              -160536.8000000001
+            ],
+            "hits_change_ci": [
+              -3.0,
+              0.0
+            ],
+            "precision_change_ci": [
+              -5.072745828766291e-06,
+              7.480476371637515e-06
+            ]
+          },
+          "3": {
+            "alert_cell_days_change": -425206,
+            "hits_change": -1,
+            "precision_change": 2.4003134132523157e-05,
+            "alert_cell_days_change_ci": [
+              -468110.14999999997,
+              -383385.25
+            ],
+            "hits_change_ci": [
+              -3.0,
+              0.0
+            ],
+            "precision_change_ci": [
+              1.1979163777822379e-05,
+              3.6136247027940415e-05
+            ]
+          }
+        }
+      },
+      "cell_exact": {
+        "v3": {
+          "1": {
+            "events": 92,
+            "hits": 84,
+            "pod": 0.9130434782608695,
+            "alert_cell_days": 25582037,
+            "verified_alert_cell_days": 84,
+            "precision": 3.2835540031468174e-06,
+            "alert_share": 0.4061420586403383,
+            "events_per_1000_alert_cell_days": 0.0032835540031468176,
+            "alert_cell_days_ci": [
+              24875857.375,
+              26262683.225
+            ],
+            "precision_ci": [
+              2.310011675190541e-06,
+              4.368363837911222e-06
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.8478260869565217,
+              0.967391304347826
+            ],
+            "groups": 87,
+            "group_hits": 79,
+            "group_pod": 0.9080459770114943,
+            "group_pod_ci": [
+              0.8390804597701149,
+              0.9655172413793104
+            ]
+          },
+          "2": {
+            "events": 92,
+            "hits": 69,
+            "pod": 0.75,
+            "alert_cell_days": 10356868,
+            "verified_alert_cell_days": 69,
+            "precision": 6.662245767735961e-06,
+            "alert_share": 0.16442630000833175,
+            "events_per_1000_alert_cell_days": 0.0066622457677359605,
+            "alert_cell_days_ci": [
+              10009273.375,
+              10700256.225
+            ],
+            "precision_ci": [
+              4.398558947817719e-06,
+              9.019265081182578e-06
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.6630434782608695,
+              0.8369565217391305
+            ],
+            "groups": 87,
+            "group_hits": 65,
+            "group_pod": 0.7471264367816092,
+            "group_pod_ci": [
+              0.6551724137931034,
+              0.8390804597701149
+            ]
+          },
+          "3": {
+            "events": 92,
+            "hits": 52,
+            "pod": 0.5652173913043478,
+            "alert_cell_days": 4275304,
+            "verified_alert_cell_days": 52,
+            "precision": 1.216287777430564e-05,
+            "alert_share": 0.06787500025401702,
+            "events_per_1000_alert_cell_days": 0.01216287777430564,
+            "alert_cell_days_ci": [
+              4103943.55,
+              4447475.4
+            ],
+            "precision_ci": [
+              7.3561485450013036e-06,
+              1.7224808001726683e-05
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.45652173913043476,
+              0.6739130434782609
+            ],
+            "groups": 87,
+            "group_hits": 48,
+            "group_pod": 0.5517241379310345,
+            "group_pod_ci": [
+              0.4482758620689655,
+              0.6551724137931034
+            ]
+          }
+        },
+        "candidate": {
+          "1": {
+            "events": 92,
+            "hits": 82,
+            "pod": 0.8913043478260869,
+            "alert_cell_days": 24722060,
+            "verified_alert_cell_days": 82,
+            "precision": 3.3168756972517663e-06,
+            "alert_share": 0.392489008683318,
+            "events_per_1000_alert_cell_days": 0.0033168756972517663,
+            "alert_cell_days_ci": [
+              24016874.875,
+              25395716.3
+            ],
+            "precision_ci": [
+              2.3290566460816645e-06,
+              4.393905821546875e-06
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.8260869565217391,
+              0.9456521739130435
+            ],
+            "groups": 87,
+            "group_hits": 77,
+            "group_pod": 0.8850574712643678,
+            "group_pod_ci": [
+              0.8160919540229885,
+              0.9540229885057471
+            ]
+          },
+          "2": {
+            "events": 92,
+            "hits": 66,
+            "pod": 0.717391304347826,
+            "alert_cell_days": 10041684,
+            "verified_alert_cell_days": 66,
+            "precision": 6.572602762644194e-06,
+            "alert_share": 0.15942241862818612,
+            "events_per_1000_alert_cell_days": 0.006572602762644194,
+            "alert_cell_days_ci": [
+              9680946.575,
+              10394714.4
+            ],
+            "precision_ci": [
+              4.4341517564064485e-06,
+              8.886805333102626e-06
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.6195652173913043,
+              0.8043478260869565
+            ],
+            "groups": 87,
+            "group_hits": 62,
+            "group_pod": 0.7126436781609196,
+            "group_pod_ci": [
+              0.6206896551724138,
+              0.8045977011494253
+            ]
+          },
+          "3": {
+            "events": 92,
+            "hits": 52,
+            "pod": 0.5652173913043478,
+            "alert_cell_days": 3850098,
+            "verified_alert_cell_days": 52,
+            "precision": 1.3506149713591705e-05,
+            "alert_share": 0.06112440255195664,
+            "events_per_1000_alert_cell_days": 0.013506149713591707,
+            "alert_cell_days_ci": [
+              3697274.65,
+              3999837.0999999996
+            ],
+            "precision_ci": [
+              8.151678926616023e-06,
+              1.914886789744251e-05
+            ],
+            "precision_ci_replicates": 2000,
+            "pod_ci": [
+              0.45652173913043476,
+              0.6739130434782609
+            ],
+            "groups": 87,
+            "group_hits": 48,
+            "group_pod": 0.5517241379310345,
+            "group_pod_ci": [
+              0.4482758620689655,
+              0.6551724137931034
+            ]
+          }
+        },
+        "change": {
+          "1": {
+            "alert_cell_days_change": -859977,
+            "hits_change": -2,
+            "precision_change": 3.332169410494896e-08,
+            "alert_cell_days_change_ci": [
+              -1003595.2,
+              -731775.175
+            ],
+            "hits_change_ci": [
+              -5.0,
+              0.0
+            ],
+            "precision_change_ci": [
+              -9.235582689896145e-08,
+              1.2050742265666928e-07
+            ]
+          },
+          "2": {
+            "alert_cell_days_change": -315184,
+            "hits_change": -3,
+            "precision_change": -8.96430050917667e-08,
+            "alert_cell_days_change_ci": [
+              -471841.39999999997,
+              -160536.8000000001
+            ],
+            "hits_change_ci": [
+              -11.0,
+              3.0
+            ],
+            "precision_change_ci": [
+              -9.084538511633364e-07,
+              4.952356432077159e-07
+            ]
+          },
+          "3": {
+            "alert_cell_days_change": -425206,
+            "hits_change": 0,
+            "precision_change": 1.3432719392860653e-06,
+            "alert_cell_days_change_ci": [
+              -468110.14999999997,
+              -383385.25
+            ],
+            "hits_change_ci": [
+              0.0,
+              0.0
+            ],
+            "precision_change_ci": [
+              8.108746549457716e-07,
+              1.91165870672282e-06
+            ]
+          }
+        }
+      }
+    },
+    "decision": {
+      "adopt": false,
+      "conditions": [
+        {
+          "tolerance": "tolerant",
+          "condition": "watch_detection",
+          "v3": 85,
+          "candidate": 85,
+          "lost": 0,
+          "allowed": 2,
+          "passed": true
+        },
+        {
+          "tolerance": "tolerant",
+          "condition": "warning_detection",
+          "v3": 79,
+          "candidate": 78,
+          "lost": 1,
+          "allowed": 1,
+          "passed": true
+        },
+        {
+          "tolerance": "tolerant",
+          "condition": "emergency_detection",
+          "v3": 73,
+          "candidate": 72,
+          "lost": 1,
+          "allowed": 1,
+          "passed": true
+        },
+        {
+          "tolerance": "tolerant",
+          "condition": "warning_burden",
+          "change": -315184,
+          "ci": [
+            -471841.39999999997,
+            -160536.8000000001
+          ],
+          "passed": true
+        },
+        {
+          "tolerance": "cell_exact",
+          "condition": "watch_detection",
+          "v3": 79,
+          "candidate": 77,
+          "lost": 2,
+          "allowed": 2,
+          "passed": true
+        },
+        {
+          "tolerance": "cell_exact",
+          "condition": "warning_detection",
+          "v3": 65,
+          "candidate": 62,
+          "lost": 3,
+          "allowed": 1,
+          "passed": false
+        },
+        {
+          "tolerance": "cell_exact",
+          "condition": "emergency_detection",
+          "v3": 48,
+          "candidate": 48,
+          "lost": 0,
+          "allowed": 1,
+          "passed": true
+        },
+        {
+          "tolerance": "cell_exact",
+          "condition": "warning_burden",
+          "change": -315184,
+          "ci": [
+            -471841.39999999997,
+            -160536.8000000001
+          ],
+          "passed": true
+        }
+      ],
+      "failed": [
+        "cell_exact: warning_detection"
+      ]
+    }
+  },
+  "seconds": 114.32469370000035
+}
