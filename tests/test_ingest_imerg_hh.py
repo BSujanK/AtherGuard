@@ -704,3 +704,52 @@ def test_cli_rejects_more_than_four_workers_and_reports_an_abort(monkeypatch, ca
     monkeypatch.setattr(imerg_hh, "build", abort)
     assert imerg_hh.main(["--run", "late", "--start", "2018-08-01", "--end", "2018-08-02"]) == 2
     assert "30 consecutive failed days" in capsys.readouterr().err
+
+
+def test_a_network_outage_waits_and_retries_the_same_day_instead_of_failing(monkeypatch):
+    """A DNS/connection failure makes the build wait for the network and try the day again (no failed day)."""
+    from aetherguard.ingest import imerg_hh as hh
+    from aetherguard.http import DownloadError
+    calls = {"n": 0}
+
+    def flaky(*args, **kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise DownloadError("ConnectionError: Failed to resolve 'cmr.earthdata.nasa.gov'")
+        return {"ok": True}
+
+    monkeypatch.setattr(hh, "_half_hour_listing", lambda run, day: {})
+    monkeypatch.setattr(hh, "_reduce_from_archive", flaky)
+    probes = iter([False, False, True])
+    slept = []
+    out = hh._fetch_day_waiting_out_outages("late", None, None, None, 48, reachable=lambda: next(probes),
+                                            sleep=slept.append, wait_s=3600)
+    assert out == {"ok": True} and calls["n"] == 2 and len(slept) == 2
+
+
+def test_a_data_error_is_not_mistaken_for_an_outage(monkeypatch):
+    from aetherguard.ingest import imerg_hh as hh
+    from aetherguard.http import DownloadError
+    monkeypatch.setattr(hh, "_half_hour_listing", lambda run, day: {})
+
+    def bad(*args, **kwargs):
+        raise DownloadError("3 listed half-hour(s) not fetched; the day is not written")
+
+    monkeypatch.setattr(hh, "_reduce_from_archive", bad)
+    with pytest.raises(DownloadError):
+        hh._fetch_day_waiting_out_outages("late", None, None, None, 48, reachable=lambda: True,
+                                          sleep=lambda s: None, wait_s=3600)
+
+
+def test_an_outage_longer_than_the_budget_still_fails_the_day(monkeypatch):
+    from aetherguard.ingest import imerg_hh as hh
+    from aetherguard.http import DownloadError
+    monkeypatch.setattr(hh, "_half_hour_listing", lambda run, day: {})
+
+    def down(*args, **kwargs):
+        raise DownloadError("ConnectionError: Max retries exceeded")
+
+    monkeypatch.setattr(hh, "_reduce_from_archive", down)
+    with pytest.raises(DownloadError):
+        hh._fetch_day_waiting_out_outages("late", None, None, None, 48, reachable=lambda: False,
+                                          sleep=lambda s: None, wait_s=120)

@@ -314,6 +314,47 @@ def _prepare(run: str, start: date, end: date, workers: int, months, manifest: M
     return manifest, days
 
 
+OUTAGE_WAIT_S = 6 * 3600          # how long a build waits for the network to come back before it counts a failed day
+OUTAGE_POLL_S = 60
+_OUTAGE_MARKERS = ("NameResolutionError", "getaddrinfo", "Failed to resolve", "ConnectionError", "Max retries exceeded")
+
+
+def network_outage(exc: Exception) -> bool:
+    """True when `exc` looks like the whole network being down (DNS or connection refused), not a data problem."""
+    text = f"{type(exc).__name__}: {exc}"
+    return any(marker in text for marker in _OUTAGE_MARKERS)
+
+
+def network_reachable(timeout: float = 10.0) -> bool:
+    try:
+        requests.head("https://cmr.earthdata.nasa.gov/search/", timeout=timeout)
+        return True
+    except requests.RequestException:
+        return False
+
+
+def _fetch_day_waiting_out_outages(run, day, pool, sessions, n_slots, *, reachable=None, sleep=None,
+                                   wait_s: float | None = None):
+    """`_reduce_from_archive` for one day; when it fails because the network is down, wait (polling every
+    `OUTAGE_POLL_S`, at most `OUTAGE_WAIT_S`) for the network to return and try the day again instead of counting a
+    failed day, so a short laptop-side outage does not burn the consecutive-failure budget."""
+    reachable = reachable or network_reachable
+    sleep = sleep or time.sleep
+    budget = OUTAGE_WAIT_S if wait_s is None else wait_s
+    while True:
+        try:
+            return _reduce_from_archive(run, day, _half_hour_listing(run, day), pool, sessions, n_slots)
+        except DownloadError as exc:
+            if not network_outage(exc) or budget <= 0:
+                raise
+            log.warning("%s %s: network down (%s); waiting for it to return", run, day, type(exc).__name__)
+            while budget > 0 and not reachable():
+                sleep(OUTAGE_POLL_S)
+                budget -= OUTAGE_POLL_S
+            if budget <= 0:
+                raise
+
+
 def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *, months=None,
           manifest: Manifest | None = None, live_window: bool = False, year_window=None) -> None:
     """Reduce every IMD day in [start, end] (restricted to `months`, a set of month numbers, when given) of the
@@ -345,7 +386,7 @@ def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *,
                     continue
                 started = time.monotonic()
                 try:
-                    maps = _reduce_from_archive(run, day, _half_hour_listing(run, day), pool, sessions, n_slots)
+                    maps = _fetch_day_waiting_out_outages(run, day, pool, sessions, n_slots)
                 except DownloadError as exc:
                     failed += 1
                     consecutive += 1
