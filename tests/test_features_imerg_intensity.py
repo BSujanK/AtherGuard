@@ -273,6 +273,7 @@ def tables(tiny_store, tmp_path):
 
 def build(tables, **kwargs):
     inputs, out, root, panels = tables
+    kwargs.setdefault("allow_missing", True)
     return I.build_iint_tables(inputs, out, root, panels, years=(2018,), **kwargs)
 
 
@@ -381,7 +382,7 @@ def test_verify_detects_a_changed_day_file_panel_or_config(tables):
 def test_a_missing_panel_or_sample_manifest_is_reported_not_guessed(tables):
     inputs, out, root, panels = tables
     with pytest.raises(FileNotFoundError, match="season_2019"):
-        I.build_iint_tables(inputs, out, root, panels, years=(2019,))
+        I.build_iint_tables(inputs, out, root, panels, years=(2019,), allow_missing=True)
     (inputs.features_dir / "features_manifest.json").unlink()
     with pytest.raises(FileNotFoundError):
         build(tables)
@@ -428,7 +429,7 @@ def test_gap_counts_only_wet_cell_days_nan_and_missing_days(tmp_path):
     cells = gap_roots(tmp_path,
                       [(0.5, 20.0), (10.0, np.nan), (10.0, 20.0), (10.0, 20.0)],
                       [(5.0, 21.0), (np.nan, 20.0), (10.0, 20.0), None])
-    result = I.train_serve_gap(cells, GAP_DAYS, tmp_path)
+    result = I.train_serve_gap(cells, GAP_DAYS, tmp_path, require_complete=False)
     stats = result["cells"]
     assert stats["n_wet"] == 4                       # 0.5 mm is dry, a NaN full value is not wet, day 4 has no live file
     assert stats["n_wet_live_nan"] == 1
@@ -487,6 +488,103 @@ def test_gap_cli_reports_a_missing_panel(tmp_path, capsys):
 def test_tables_cli_builds_and_reuses(tables, monkeypatch, capsys):
     inputs, out, root, panels = tables
     monkeypatch.setattr(B, "default_inputs", lambda: inputs)
-    args = ["tables", "--out-dir", str(out), "--root", str(root), "--panels-dir", str(panels), "--years", "2018"]
+    args = ["tables", "--out-dir", str(out), "--root", str(root), "--panels-dir", str(panels), "--years", "2018",
+            "--allow-missing"]
     assert I.main(args) == 0 and "built and frozen" in capsys.readouterr().out
     assert I.main(args) == 0 and "reused" in capsys.readouterr().out
+
+
+# ----------------------------------------------------------------------------------------------- completeness
+
+def test_gap_refuses_when_a_day_is_missing_in_either_store(tmp_path):
+    cells = gap_roots(tmp_path, [(10.0, 20.0), None, (10.0, 20.0), (10.0, 20.0)],
+                      [(9.0, 18.0), (9.0, 18.0), (9.0, 18.0), None])
+    with pytest.raises(I.IncompleteGapError) as caught:
+        I.train_serve_gap(cells, GAP_DAYS, tmp_path)
+    message = str(caught.value)
+    assert "2024-06-02" in message and "2024-06-04" in message and "Late" in message and "live-window" in message
+
+
+def test_gap_cli_exits_nonzero_listing_the_missing_days_and_writes_no_report(tmp_path, capsys):
+    root, panels = tmp_path / "intensity", tmp_path / "panels"
+    cells = gap_roots(root, [(10.0, 20.0)] * 4, [(9.0, 18.0), (9.0, 18.0), None, (9.0, 18.0)])
+    write_panel(panels, 2024, cells, GAP_DAYS)
+    out = tmp_path / "gap.json"
+    code = I.main(["gap", "--root", str(root), "--panels-dir", str(panels), "--start", "2024-06-01", "--end", "2024-06-04",
+                   "--out", str(out)])
+    assert code == 1 and not out.exists()
+    assert "2024-06-03" in capsys.readouterr().err
+
+
+def test_gap_output_shows_n_wet_live_nan_and_the_report_states_its_scope(tmp_path, capsys):
+    root, panels = tmp_path / "intensity", tmp_path / "panels"
+    cells = gap_roots(root, [(10.0, 20.0)] * 4, [(9.0, np.nan)] * 4)
+    write_panel(panels, 2024, cells, GAP_DAYS)
+    out = tmp_path / "gap.json"
+    assert I.main(["gap", "--root", str(root), "--panels-dir", str(panels), "--start", "2024-06-01", "--end", "2024-06-04",
+                   "--out", str(out)]) == 0
+    assert "n_wet_live_nan: 4" in capsys.readouterr().out
+    scope = json.loads(out.read_text())["scope"]
+    assert "max3h" in scope and "max1h" in scope and "wet_hours" in scope
+
+
+def complete_store_days(root, inputs, panels_days):
+    """Day files for every date any sample table or the panel needs, D-2 included."""
+    dates = set()
+    for stem in B._sample_stems(inputs)[0]:
+        for stamp in pd.read_parquet(inputs.features_dir / B.base_name(stem), columns=["date"])["date"]:
+            dates.update(stamp.date() - timedelta(days=k) for k in range(3))
+    for day in panels_days:
+        dates.update(day - timedelta(days=k) for k in range(3))
+    random_root(root, sorted(dates), real_cells()[:3], nan_rate=0.0)
+    return sorted(dates)
+
+
+def test_tables_refuse_when_a_needed_day_is_missing_unless_allowed(tables):
+    inputs, out, root, panels = tables
+    with pytest.raises(I.IncompleteStoreError) as caught:
+        I.build_iint_tables(inputs, out, root, panels, years=(2018,))
+    message = str(caught.value)
+    assert "--allow-missing" in message and "2018-05-27" in message and not out.exists()    # D-2 of the first panel day
+    manifest, _ = I.build_iint_tables(inputs, out, root, panels, years=(2018,), allow_missing=True)
+    assert manifest["allow_missing"] is True and manifest["required_days_missing"] > 0
+
+
+def test_tables_build_without_the_flag_once_every_needed_day_exists(tables):
+    inputs, out, root, panels = tables
+    panel_days = read_days(panels)
+    complete_store_days(root, inputs, panel_days)
+    manifest, reused = I.build_iint_tables(inputs, out, root, panels, years=(2018,))
+    assert not reused and manifest["allow_missing"] is False and manifest["required_days_missing"] == 0
+
+
+def read_days(panels):
+    return I.read_panel(panels, 2018)[1]
+
+
+def test_only_development_rows_and_panel_days_are_required():
+    needed = I.required_days([date(2017, 12, 31), date(2018, 1, 5), date(2007, 3, 1)], [date(2018, 6, 1)])
+    assert needed == I.window_days([date(2007, 3, 1), date(2017, 12, 31), date(2018, 6, 1)])
+    assert date(2018, 1, 5) not in needed and date(2018, 5, 30) in needed and date(2007, 2, 27) in needed
+
+
+def test_a_missing_window_day_of_a_panel_day_is_listed(tmp_path):
+    root = tmp_path / "intensity"
+    write_day(root, "late", date(2018, 5, 31))
+    write_day(root, "late", date(2018, 6, 1))
+    missing = I.missing_days(root, I.window_days([date(2018, 6, 1), date(2018, 6, 2)]))
+    assert missing == [date(2018, 5, 30), date(2018, 6, 2)]
+
+
+def test_ranges_collapse_consecutive_days():
+    days = [date(2018, 5, 30), date(2018, 5, 31), date(2018, 6, 1), date(2019, 1, 5)]
+    assert I.format_ranges(days) == "2018-05-30..2018-06-01 (3), 2019-01-05 (1)"
+
+
+def test_tables_cli_refuses_with_the_missing_days_listed(tables, monkeypatch, capsys):
+    inputs, out, root, panels = tables
+    monkeypatch.setattr(B, "default_inputs", lambda: inputs)
+    code = I.main(["tables", "--out-dir", str(out), "--root", str(root), "--panels-dir", str(panels), "--years", "2018"])
+    assert code == 1
+    err = capsys.readouterr().err
+    assert "2018-05-27" in err and "--allow-missing" in err

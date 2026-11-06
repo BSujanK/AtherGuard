@@ -4,23 +4,26 @@
   and the frozen iint feature tables.
 
 .DESCRIPTION
-  Run it only after the Late background build (aetherguard.ingest.imerg_hh --run late, June-September 2007-2017, then
-  June-December 2018-2025; log logs\imerg_hh.log) has finished: it refuses to start while any imerg_hh process is running,
+  Run it only after the Late background builds (aetherguard.ingest.imerg_hh --run late: all months of 2007-2017 and
+  June-December 2018-2025; log logs\imerg_hh.log) have finished: it refuses to start while any imerg_hh process is running,
   because the half-hourly downloads share the 4-connection politeness limit. Each step stops the script on failure; every
   step is resumable, so run it again after fixing the cause.
 
   Steps (durations measured on the Late build's ~24 s per IMD day at 4 workers; the table steps are estimates)
-    1. Edge days   Late 30-31 May of every year 2007-2025 (38 days, ~15 min). The three-day maxima of 1-2 June need them;
-                   without them those two days are NaN. Skip with -SkipEdgeDays.
+    1. Edge days   Late 23-31 May of 2018-2025 in one process (72 days, ~30 min): the season panels start 7 warm-up days
+                   before 1 June (25 May) and their three-day maxima need 23-24 May. 2007-2017 are already complete.
+                   Skip with -SkipEdgeDays.
     2. Live window Early 2024-06-01..2024-12-31, first 44 half-hours of each day into data\processed\imerg_intensity\early_live
                    (214 days, ~1.3 h).
     3. Gap         median relative error of max3h, truncated Early vs complete Late, over the wet 2024 cell-days of the
                    season_2024 panel; applies the 20% rule; writes reports\phase7_rain_intensity_gap.json (~2 min).
+                   Fails (writes nothing) when any 2024 June-December day is missing in either store.
     4. Tables      the frozen `iint` group next to the other IMERG groups in data\processed\features\imerg: the nine sample
-                   tables and the 2018-2025 season panels (~10 min). Nothing already frozen is modified; an existing iint
-                   build is verified and reused, -Force rebuilds it.
+                   tables and the 2018-2025 season panels (~10 min). Fails, listing the days, when a Late day needed by a
+                   development row or a season panel day (window D-2..D) is missing; --allow-missing is deliberately not
+                   passed. Nothing already frozen is modified; an existing iint build is verified and reused, -Force rebuilds it.
 
-.PARAMETER SkipEdgeDays   Do not fetch 30-31 May.
+.PARAMETER SkipEdgeDays   Do not fetch 23-31 May of 2018-2025.
 .PARAMETER Force          Rebuild an existing frozen iint group.
 #>
 [CmdletBinding()]
@@ -49,10 +52,8 @@ if ($running) {
 }
 
 if (-not $SkipEdgeDays) {
-    foreach ($year in 2007..2025) {
-        Invoke-Step "Late edge days $year" @('-m', 'aetherguard.ingest.imerg_hh', '--run', 'late',
-            '--start', "$year-05-30", '--end', "$year-05-31")
-    }
+    Invoke-Step 'Late edge days 23-31 May 2018-2025' @('-m', 'aetherguard.ingest.imerg_hh', '--run', 'late',
+        '--start', '2018-05-23', '--end', '2025-05-31', '--days', '05-23:05-31')
 }
 
 Invoke-Step 'Early live-window build 2024' @('-m', 'aetherguard.ingest.imerg_hh', '--run', 'early', '--live-window',

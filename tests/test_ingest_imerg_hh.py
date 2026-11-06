@@ -621,6 +621,31 @@ def test_live_window_and_complete_day_files_do_not_collide(nasa, store):
     assert day_file(store, "early", day).exists() and (store["root"] / "early_live" / "2024" / "20240801.npz").exists()
 
 
+def test_year_window_builds_only_those_days_of_every_year(nasa, store):
+    run_build(store, "late", date(2018, 5, 30), date(2019, 6, 1), year_window=((5, 31), (6, 1)))
+    built = sorted(p.stem for p in store["root"].rglob("*.npz"))
+    assert built == ["20180531", "20180601", "20190531", "20190601"]
+
+
+def test_parse_year_window():
+    assert imerg_hh.parse_year_window("05-23:05-31") == ((5, 23), (5, 31))
+    assert imerg_hh.parse_year_window("02-29:03-01") == ((2, 29), (3, 1))
+    for bad in ("05-23", "05-31:05-23", "13-01:13-02", "x:y", ""):
+        with pytest.raises(ValueError):
+            imerg_hh.parse_year_window(bad)
+
+
+def test_cli_days_option_reaches_build_and_excludes_repair(tmp_path, monkeypatch):
+    calls = []
+    monkeypatch.setattr(imerg_hh, "build", lambda *a, **k: calls.append(k))
+    assert imerg_hh.main(["--run", "late", "--start", "2018-05-23", "--end", "2025-05-31", "--days", "05-23:05-31",
+                          "--root", str(tmp_path)]) == 0
+    assert calls[0]["year_window"] == ((5, 23), (5, 31))
+    with pytest.raises(SystemExit):
+        imerg_hh.main(["--run", "late", "--start", "2018-05-23", "--end", "2018-05-31", "--days", "05-23:05-31",
+                       "--repair"])
+
+
 def test_parse_months():
     assert imerg_hh.parse_months("6-9") == {6, 7, 8, 9}
     assert imerg_hh.parse_months("6-12") == set(range(6, 13))
@@ -638,7 +663,7 @@ def test_cli_passes_its_arguments_to_build(tmp_path, monkeypatch):
     assert code == 0
     (args, kwargs), = calls
     assert args == ("late", date(2007, 1, 1), date(2017, 12, 31), tmp_path / "out")
-    assert kwargs == {"workers": 2, "months": {6, 7, 8, 9}, "live_window": False}
+    assert kwargs == {"workers": 2, "months": {6, 7, 8, 9}, "live_window": False, "year_window": None}
 
 
 def test_cli_live_window_flag_reaches_build_and_excludes_repair(tmp_path, monkeypatch):

@@ -26,7 +26,13 @@ of the frozen feature store; `season_<year>_iint.parquet` has the cells x days o
 `imerg_hh --run early --live-window`) and the complete Late days over the wet cell-days (full max3h >= 1 mm); above 20% the live
 run must use the previous complete IMD day (declared lag 1) and the model is trained the same way.
 
-CLI: python -m aetherguard.features.imerg_intensity tables [--out-dir DIR] [--root DIR] [--panels-dir DIR] [--years 2018-2025] [--force]
+Completeness. `tables` refuses (exit 1, missing days listed by range) when a Late day file is missing that a development
+sample row (date up to 2017-12-31) or a season panel day needs, window D-2..D included; `--allow-missing` builds anyway with
+NaN there and records it in the manifest. `gap` refuses when any requested day lacks a file in the Late or the live-window
+store.
+
+CLI: python -m aetherguard.features.imerg_intensity tables [--out-dir DIR] [--root DIR] [--panels-dir DIR] [--years 2018-2025]
+         [--force] [--allow-missing]
      python -m aetherguard.features.imerg_intensity gap [--root DIR] [--panels-dir DIR] [--start 2024-06-01] [--end 2024-12-31] [--out FILE]
 """
 from __future__ import annotations
@@ -62,6 +68,7 @@ MAX_DAYS = 3
 CACHE_DAYS = 6                                         # day maps kept while a date-sorted frame is read
 REPORT_NAME = "iint_report.json"
 HELDOUT_YEARS = tuple(range(2018, 2026))
+DEVELOPMENT_END = date(2017, 12, 31)                   # sample rows up to here are development rows (train + validation)
 PANELS_SUBDIR = ("alerts", "heldout_seasons")          # under the processed directory: verify.seasons.OUT_DIR
 
 WET_MAX3H_MM = 1.0                                     # a cell-day is wet when the complete Late max3h reaches this
@@ -73,6 +80,14 @@ WET_DEFINITION = f"full Late max3h >= {WET_MAX3H_MM} mm"
 
 class IintIntegrityError(RuntimeError):
     """The frozen iint directory is damaged, stale or incompatible with the current inputs / configuration."""
+
+
+class IncompleteStoreError(RuntimeError):
+    """Late day files that the development rows or the season panels need are missing."""
+
+
+class IncompleteGapError(RuntimeError):
+    """The gap cannot be decided: some 2024 day lacks a file in the Late or the live-window store."""
 
 
 def feature_names() -> list[str]:
@@ -181,6 +196,35 @@ def frame_features(frame: pd.DataFrame, loader: DayLoader) -> pd.DataFrame:
     return pd.DataFrame(values, columns=feature_names(), index=frame.index)
 
 
+# ------------------------------------------------------------------------------------------ completeness
+
+def window_days(days) -> list[date]:
+    """Every day whose file a feature of one of `days` reads: D-2, D-1 and D."""
+    return sorted({day - timedelta(days=k) for day in days for k in range(MAX_DAYS)})
+
+
+def required_days(sample_dates, panel_days) -> list[date]:
+    """Days with a Late file that the build needs: the windows of the development sample dates (up to
+    `DEVELOPMENT_END`) and of every season panel day."""
+    development = [d for d in set(sample_dates) if d <= DEVELOPMENT_END]
+    return window_days([*development, *panel_days])
+
+
+def missing_days(root, days, run: str = RUN) -> list[date]:
+    return [day for day in days if not imerg_hh._day_path(Path(root), run, day).is_file()]
+
+
+def format_ranges(days) -> str:
+    """'2018-05-30..2018-06-01 (3), 2019-01-05 (1)': runs of consecutive days."""
+    runs: list[list[date]] = []
+    for day in sorted(set(days)):
+        if runs and day - runs[-1][-1] == timedelta(days=1):
+            runs[-1].append(day)
+        else:
+            runs.append([day])
+    return ", ".join(f"{r[0]}..{r[-1]} ({len(r)})" if len(r) > 1 else f"{r[0]} (1)" for r in runs)
+
+
 # ------------------------------------------------------------------------------------------ held-out panels
 
 def panel_path(panels_dir, year: int) -> Path:
@@ -244,9 +288,11 @@ def _table_report(frame: pd.DataFrame, features: pd.DataFrame, loader: DayLoader
 
 
 def build_iint_tables(inputs: B.ImergInputs, out_dir, root, panels_dir, years=HELDOUT_YEARS, force: bool = False,
-                      cfg: dict | None = None) -> tuple[dict, bool]:
+                      cfg: dict | None = None, allow_missing: bool = False) -> tuple[dict, bool]:
     """Write the frozen iint tables; returns (manifest, reused). With a manifest present and `force` False nothing is
-    rewritten: files, inputs and configuration are verified (IintIntegrityError on any problem)."""
+    rewritten: files, inputs and configuration are verified (IintIntegrityError on any problem). A Late day file that a
+    development row or a season panel day needs (`required_days`) and that is missing raises IncompleteStoreError before
+    anything is written, unless `allow_missing` (the manifest then records it)."""
     out_dir, root, panels_dir = Path(out_dir), Path(root), Path(panels_dir)
     cfg = cfg if cfg is not None else build_config(years)
     manifest_path = out_dir / B.manifest_name(GROUP)
@@ -260,6 +306,14 @@ def build_iint_tables(inputs: B.ImergInputs, out_dir, root, panels_dir, years=HE
     started = time.perf_counter()
     stems, _ = B._sample_stems(inputs)
     panels = {y: read_panel(panels_dir, y) for y in years}
+    sample_dates = {stamp.date() for stem in stems
+                    for stamp in pd.read_parquet(inputs.features_dir / B.base_name(stem), columns=["date"])["date"].unique()}
+    absent = missing_days(root, required_days(sample_dates, [d for _, days in panels.values() for d in days]))
+    if absent and not allow_missing:
+        raise IncompleteStoreError(
+            f"{len(absent)} Late day files needed by development rows or season panels are missing from "
+            f"{Path(root) / RUN}: {format_ranges(absent)}; finish the half-hourly Late build, or pass --allow-missing "
+            "to build with NaN there")
     out_dir.mkdir(parents=True, exist_ok=True)
     B._set_mode(_managed(out_dir, stems, years), stat.S_IWRITE | stat.S_IREAD)
     rows: dict[str, int] = {}
@@ -289,6 +343,7 @@ def build_iint_tables(inputs: B.ImergInputs, out_dir, root, panels_dir, years=HE
         "created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "frozen": True, "group": GROUP,
         "config": cfg, "inputs": _input_records(inputs, root, panels_dir, years),
         "sample_files": [B.base_name(s) for s in stems], "season_files": [season_name(y) for y in years],
+        "allow_missing": allow_missing, "required_days_missing": len(absent),
         "files": files, "runtime_seconds": total})
     B._set_mode(_managed(out_dir, stems, years), stat.S_IREAD)
     return json.loads(manifest_path.read_text(encoding="utf-8")), False
@@ -416,11 +471,13 @@ class _GapStats:
                              for m in sorted(set(months.tolist()))}}
 
 
-def train_serve_gap(cell_ids, days: Sequence[date], root, full_run: str = RUN, live_run: str = LIVE_RUN) -> dict:
+def train_serve_gap(cell_ids, days: Sequence[date], root, full_run: str = RUN, live_run: str = LIVE_RUN,
+                    require_complete: bool = True) -> dict:
     """Median relative error of max3h, truncated (`live_run` day files) vs complete (`full_run`), over the wet cell-days of
     `days` (full max3h >= `WET_MAX3H_MM`), plus the decision of the 20% rule. The rule is applied to the `cells`
-    cell-days; the same statistics over all pixels of the domain are reported as `domain`. Days without a file in either run
-    are left out and listed."""
+    cell-days; the same statistics over all pixels of the domain are reported as `domain`. Only the truncation error of max3h
+    is measured. A day without a file in either run raises IncompleteGapError (nothing is decided on a partial year), or with
+    `require_complete=False` is left out and listed."""
     cell_pixels = F.cell_pixels(cell_ids)
     all_pixels = np.arange(imerg_mod.ROWS * imerg_mod.COLS, dtype=np.int64)
     cells, domain = _GapStats(), _GapStats()
@@ -438,10 +495,17 @@ def train_serve_gap(cell_ids, days: Sequence[date], root, full_run: str = RUN, l
         compared += 1
         for stats, pixels in ((cells, cell_pixels), (domain, all_pixels)):
             stats.add(day_features(full, pixels)[:, 1], day_features(live, pixels)[:, 1], f"{day:%Y-%m}")
+    if require_complete and compared != len(days):
+        raise IncompleteGapError(
+            f"{len(days) - compared} of {len(days)} days cannot be compared. Missing in the complete Late store: "
+            f"{format_ranges(map(date.fromisoformat, missing_full)) or 'none'}; missing in the live-window store: "
+            f"{format_ranges(map(date.fromisoformat, missing_live)) or 'none'}")
     cell_result = cells.result()
     decision, lag = decide(cell_result["median_relative_error"])
     return {"year": days[0].year, "limit": GAP_LIMIT, "wet_definition": WET_DEFINITION,
             "measure": "median over wet cell-days of |max3h(truncated Early day) - max3h(complete Late day)| / max3h(complete Late day)",
+            "scope": "only the truncation error of max3h is measured; max1h and max6h are not, and wet_hours over the "
+                     "22 h window cannot be compared with the 24 h day",
             "truncated_half_hours": imerg_hh.LIVE_HALF_HOURS, "complete_half_hours": imerg_hh.HALF_HOURS,
             "days": {"first": days[0].isoformat(), "last": days[-1].isoformat(), "requested": len(days),
                      "compared": compared, "missing_full": missing_full, "missing_live": missing_live},
@@ -462,7 +526,8 @@ def parse_years(text: str) -> tuple[int, ...]:
 def _tables(args) -> int:
     inputs = B.default_inputs()
     out_dir = args.out_dir or B.default_out_dir()
-    manifest, reused = build_iint_tables(inputs, out_dir, args.root, args.panels_dir, args.years, force=args.force)
+    manifest, reused = build_iint_tables(inputs, out_dir, args.root, args.panels_dir, args.years, force=args.force,
+                                         allow_missing=args.allow_missing)
     report = json.loads((out_dir / REPORT_NAME).read_text(encoding="utf-8"))
     print(f"iint {'reused (verified intact)' if reused else 'built and frozen'} in {out_dir} "
           f"({manifest['runtime_seconds']} s to build)")
@@ -478,6 +543,7 @@ def _gap(args) -> int:
     result = train_serve_gap(cells, days, args.root)
     dump_json(args.out, result)
     stats = result["cells"]
+    print(f"n_wet_live_nan: {stats['n_wet_live_nan']} (wet cell-days whose truncated max3h is NaN, excluded from the median)")
     print(f"train-serve gap {days[0]}..{days[-1]}: median relative error of max3h {stats['median_relative_error']:.1%} over "
           f"{stats['n_compared']} wet cell-days ({result['days']['compared']}/{len(days)} days) -> {result['decision']} "
           f"(lag {result['declared_lag_days']} d); written to {args.out}")
@@ -491,6 +557,8 @@ def main(argv: list[str] | None = None) -> int:
     tables.add_argument("--out-dir", type=Path, help="default: <data>/processed/features/imerg")
     tables.add_argument("--years", type=parse_years, default=HELDOUT_YEARS, help="held-out seasons, e.g. 2018-2025")
     tables.add_argument("--force", action="store_true", help="replace an existing frozen build")
+    tables.add_argument("--allow-missing", action="store_true",
+                        help="build although Late day files needed by development rows or season panels are missing (NaN there)")
     gap = sub.add_parser("gap", help="measure the 2024 train-serve gap and apply the 20%% rule")
     gap.add_argument("--start", type=date.fromisoformat, default=date(GAP_YEAR, 6, 1))
     gap.add_argument("--end", type=date.fromisoformat, default=date(GAP_YEAR, 12, 31))
@@ -504,7 +572,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"empty range: {args.start} is after {args.end}")
     try:
         return (_tables if args.command == "tables" else _gap)(args)
-    except (IintIntegrityError, B.ImergFeaturesIntegrityError, FileNotFoundError, ValueError) as exc:
+    except (IintIntegrityError, IncompleteStoreError, IncompleteGapError, B.ImergFeaturesIntegrityError, FileNotFoundError,
+            ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

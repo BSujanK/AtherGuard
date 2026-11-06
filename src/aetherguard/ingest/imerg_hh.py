@@ -31,7 +31,7 @@ and `n_expected=44`. Those truncated days go to `<root>/<run>_live/` so they nev
 train-serve gap compares them with the Late days of the same IMD day.
 
 CLI: python -m aetherguard.ingest.imerg_hh --run late|early --start YYYY-MM-DD --end YYYY-MM-DD [--months 6-9]
-[--workers 4] [--root DIR] [--repair | --live-window]
+[--days MM-DD:MM-DD] [--workers 4] [--root DIR] [--repair | --live-window]
 """
 from __future__ import annotations
 
@@ -296,8 +296,9 @@ def _versions(listing: dict[int, _Listing]) -> np.ndarray:
     return np.array(sorted({listed.version for listed in listing.values()}))
 
 
-def _prepare(run: str, start: date, end: date, workers: int, months, manifest: Manifest | None):
-    """The manifest to use and the IMD days to visit (restricted to `months` when given); validates the arguments."""
+def _prepare(run: str, start: date, end: date, workers: int, months, manifest: Manifest | None, year_window=None):
+    """The manifest to use and the IMD days to visit (restricted to `months` and to `year_window`, a pair of
+    (month, day) bounds applied in every year, when given); validates the arguments."""
     _check_run(run)
     if not 1 <= workers <= MAX_WORKERS:
         raise ValueError(f"workers must be between 1 and {MAX_WORKERS}, got {workers}")
@@ -307,11 +308,14 @@ def _prepare(run: str, start: date, end: date, workers: int, months, manifest: M
     days = [start + timedelta(k) for k in range((end - start).days + 1)]
     if months is not None:
         days = [d for d in days if d.month in months]
+    if year_window is not None:
+        first, last = year_window
+        days = [d for d in days if first <= (d.month, d.day) <= last]
     return manifest, days
 
 
 def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *, months=None,
-          manifest: Manifest | None = None, live_window: bool = False) -> None:
+          manifest: Manifest | None = None, live_window: bool = False, year_window=None) -> None:
     """Reduce every IMD day in [start, end] (restricted to `months`, a set of month numbers, when given) of the
     half-hourly `run` archive into `<root>/<run>/<yyyy>/<yyyymmdd>.npz`; resumable. With `live_window` only the first
     `LIVE_HALF_HOURS` half-hours of each day are fetched and reduced (n_halfhours is then 44), into `<root>/<run>_live/`.
@@ -321,7 +325,7 @@ def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *,
     run retries it, and `ABORT_AFTER` consecutive failed days raise BuildAborted. Half-hours CMR does not list are
     NaN (logged), never dry.
     """
-    manifest, days = _prepare(run, start, end, workers, months, manifest)
+    manifest, days = _prepare(run, start, end, workers, months, manifest, year_window)
     root = Path(root)
     n_slots = LIVE_HALF_HOURS if live_window else HALF_HOURS
     store = store_name(run, live_window)
@@ -436,6 +440,21 @@ def parse_months(text: str) -> set[int]:
     return set(range(first, last + 1))
 
 
+def parse_year_window(text: str) -> tuple[tuple[int, int], tuple[int, int]]:
+    """'05-23:05-31' -> ((5, 23), (5, 31)): the days of a year from 23 May through 31 May. Raises ValueError otherwise."""
+    low, sep, high = text.partition(":")
+    if not sep:
+        raise ValueError(f"days must be MM-DD:MM-DD, got {text!r}")
+    bounds = []
+    for part in (low, high):
+        month, _, day = part.partition("-")
+        date(2000, int(month), int(day))                 # 2000 is a leap year: 02-29 is valid
+        bounds.append((int(month), int(day)))
+    if bounds[0] > bounds[1]:
+        raise ValueError(f"days must not run backwards within a year, got {text!r}")
+    return bounds[0], bounds[1]
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Reduce IMERG half-hourly rain to daily intensity fields per IMD day.")
     parser.add_argument("--run", choices=tuple(CONCEPT_IDS), required=True, help="late (HHL) or early (HHE)")
@@ -443,6 +462,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--end", type=date.fromisoformat, required=True, help="last IMD day, YYYY-MM-DD")
     parser.add_argument("--months", type=parse_months, help="only these months of the year, e.g. 6-9")
     parser.add_argument("--workers", type=int, default=MAX_WORKERS, help=f"parallel requests, 1..{MAX_WORKERS}")
+    parser.add_argument("--days", type=parse_year_window, dest="year_window",
+                        help="only these days of each year, MM-DD:MM-DD inclusive, e.g. 05-23:05-31 (build only)")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--repair", action="store_true",
                       help="instead of building, revisit existing day files: refetch days with missing half-hours "
@@ -457,6 +478,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"--workers must be between 1 and {MAX_WORKERS} (the politeness limit)")
     if args.end < args.start:
         parser.error(f"empty range: {args.start} is after {args.end}")
+    if args.repair and args.year_window:
+        parser.error("--days applies to a build, not to --repair")
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     root = args.root if args.root is not None else data_root() / "processed" / "imerg_intensity"
     try:
@@ -464,7 +487,7 @@ def main(argv: list[str] | None = None) -> int:
             repair(args.run, args.start, args.end, root, workers=args.workers, months=args.months)
         else:
             build(args.run, args.start, args.end, root, workers=args.workers, months=args.months,
-                  live_window=args.live_window)
+                  live_window=args.live_window, year_window=args.year_window)
     except BuildAborted as exc:
         print(f"aborted: {exc}; re-run the same command to resume", file=sys.stderr)
         return 2
