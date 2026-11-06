@@ -2,11 +2,13 @@
 # before any result of the study):
 #   python -m aetherguard.hazard.v4_int dev        # year-blocked CV of v3 (reference) and v4-int, pooled OOF FA@90, stage 1
 #   python -m aetherguard.hazard.v4_int seasons    # v4-int scored on the 2018-2025 season panels (no outcome is read)
+#   python -m aetherguard.hazard.v4_int preflight  # the held-out assembly and all its checks, no outcome computed
 #   python -m aetherguard.hazard.v4_int heldout    # stage 2: the single held-out look (refuses to run a second time)
 #   python -m aetherguard.hazard.v4_int report     # reports/phase7_rain_intensity.{md,json}
 # v4-int is the frozen v3-live configuration named by `base_config` (folds, seeds, hyper-parameters, tree-count rule,
 # 20-member ensemble, per-region isotonic calibration, monotone constraints, bootstrap) plus the six intensity inputs of
 # `add_increasing`, each constrained non-decreasing. Nothing else differs: that file is never edited here.
+# The intensity tables come in the lag the train-serve gap report declares (group iint or iint_lag1, see hazard.v4_int).
 base_config: configs/hazard_v3.yaml
 output_dir: v4_int                      # under data/processed/hazard: OOF scores, dev_results.json, heldout.json, models/<candidate>
 seasons_dir: v4_int_seasons             # under data/processed/alerts: v4-int's season panels (never heldout_seasons, which holds v3's)
@@ -32,3 +34,14 @@ candidates:
       - iint_max3h_max3d
       - iint_max6h_max3d
       - iint_wet_hours_1
+reproduction_tolerance: 1.0e-12         # C0 must reproduce the frozen pooled OOF FA@90 this closely and its tree count exactly
+preflight:                              # facts of the W1 held-out assembly (reports/phase7_heldout_expanded.json) the preflight asserts
+  burden_tolerance: 1.0e-4              # |realised - target| of the ranked levels, per season and level
+  pooled_alert_tolerance: 5.0e-4        # pooled alert cell-days of v3_ranked and v4-int within 0.05% of v3's with the rules
+  cells: 36792
+  days: 1712
+  v3_alert_cell_days: [25582037, 10356868, 4275304]     # Watch+ / Warning+ / Emergency, v3 with the section 11 rules
+  events: 92
+  events_outside_panel_days: 1
+  distinct_slides: 87
+  events_by_source: {catalog_2018: 56, catalog_sparse: 6, reported: 30}

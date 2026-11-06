@@ -489,7 +489,7 @@ def test_tables_cli_builds_and_reuses(tables, monkeypatch, capsys):
     inputs, out, root, panels = tables
     monkeypatch.setattr(B, "default_inputs", lambda: inputs)
     args = ["tables", "--out-dir", str(out), "--root", str(root), "--panels-dir", str(panels), "--years", "2018",
-            "--allow-missing"]
+            "--allow-missing", "--lag", "0"]
     assert I.main(args) == 0 and "built and frozen" in capsys.readouterr().out
     assert I.main(args) == 0 and "reused" in capsys.readouterr().out
 
@@ -584,7 +584,77 @@ def test_ranges_collapse_consecutive_days():
 def test_tables_cli_refuses_with_the_missing_days_listed(tables, monkeypatch, capsys):
     inputs, out, root, panels = tables
     monkeypatch.setattr(B, "default_inputs", lambda: inputs)
-    code = I.main(["tables", "--out-dir", str(out), "--root", str(root), "--panels-dir", str(panels), "--years", "2018"])
+    code = I.main(["tables", "--out-dir", str(out), "--root", str(root), "--panels-dir", str(panels), "--years", "2018",
+                   "--lag", "0"])
     assert code == 1
     err = capsys.readouterr().err
     assert "2018-05-27" in err and "--allow-missing" in err
+
+
+# ----------------------------------------------------------------------------------------------- the declared lag
+
+def test_a_lag_of_one_day_gives_every_feature_of_day_d_from_the_previous_complete_day(tmp_path):
+    p = imerg_pixel(WAYANAD)
+    write_window(tmp_path, "late", D - timedelta(days=1), [
+        {"max1h": {p: 1.0}, "max3h": {p: 2.0}, "max6h": {p: 3.0}, "wet_hours": {p: 4.0}},
+        {"max1h": {p: 5.0}, "max3h": {p: 9.0}, "max6h": {p: 7.0}, "wet_hours": {p: 6.0}},
+        {"max1h": {p: 8.0}, "max3h": {p: 3.0}, "max6h": {p: 6.0}, "wet_hours": {p: 2.0}}])
+    write_day(tmp_path, "late", D, max1h={p: 99.0}, max3h={p: 99.0})          # day D itself is ignored by the lagged features
+    lagged = I.cell_features(D, [WAYANAD], tmp_path, lag_days=1).iloc[0]
+    yesterday = I.cell_features(D - timedelta(days=1), [WAYANAD], tmp_path).iloc[0]
+    assert lagged.to_dict() == yesterday.to_dict()
+    assert lagged["iint_max1h_1"] == 8.0 and lagged["iint_max3h_max3d"] == 9.0 and lagged["iint_wet_hours_1"] == 2.0
+    assert I.cell_features(D, [WAYANAD], tmp_path).iloc[0]["iint_max1h_1"] == 99.0
+
+
+def test_frame_features_with_a_lag_equal_the_per_day_lagged_features(tmp_path):
+    cells = real_cells()[:3]
+    random_root(tmp_path, [D - timedelta(days=k) for k in range(6)], cells, seed=3)
+    frame = pd.DataFrame({"cell_id": cells, "date": pd.Timestamp(D)})
+    out = I.frame_features(frame, I.DayLoader(tmp_path), lag_days=1)
+    expected = I.cell_features(D, cells, tmp_path, lag_days=1)
+    np.testing.assert_array_equal(out.to_numpy(), expected.to_numpy())
+    assert not np.array_equal(np.nan_to_num(out.to_numpy()), np.nan_to_num(I.frame_features(frame, I.DayLoader(tmp_path)).to_numpy()))
+
+
+def test_lag_names_and_the_days_a_lagged_window_needs():
+    assert I.group_name(0) == "iint" and I.group_name(1) == "iint_lag1" and I.season_name(2019, 1) == "season_2019_iint_lag1.parquet"
+    assert I.season_name(2019) == "season_2019_iint.parquet" and I.report_name(1) == "iint_lag1_report.json"
+    with pytest.raises(ValueError, match="lag_days"):
+        I.group_name(2)
+    assert I.window_days([date(2018, 6, 1)], 1) == [date(2018, 5, 29), date(2018, 5, 30), date(2018, 5, 31)]
+    assert I.required_days([date(2018, 1, 5)], [date(2018, 6, 1)], 1) == I.window_days([date(2018, 6, 1)], 1)
+
+
+def test_a_lag_one_build_is_its_own_group_next_to_the_untouched_lag_zero_build(tables):
+    inputs, out, root, panels = tables
+    zero, _ = build(tables)
+    before = {p.name: p.read_bytes() for p in out.glob("*iint*")}
+    one, reused = build(tables, lag_days=1)
+    assert not reused and one["lag_days"] == 1 and one["config"]["lag_days"] == 1 and zero["config"]["lag_days"] == 0
+    assert (out / "iint_lag1_manifest.json").is_file() and (out / "season_2018_iint_lag1.parquet").is_file()
+    assert {p.name: p.read_bytes() for p in out.glob("*iint*") if "lag1" not in p.name} == before
+    assert json.loads((out / "iint_lag1_columns.json").read_text(encoding="utf-8")) == {c: "iint" for c in NAMES}
+    assert I.verify_iint_tables(out, inputs, root, panels, lag_days=1)["ok"]
+    lagged = pd.read_parquet(out / "season_2018_iint_lag1.parquet")
+    row = lagged.iloc[len(lagged) // 2]
+    expected = I.cell_features(row["date"].date(), [int(row["cell_id"])], root, lag_days=1).iloc[0]
+    np.testing.assert_array_equal(row[NAMES].to_numpy(dtype=np.float32), expected.to_numpy())
+
+
+def test_the_declared_lag_is_read_from_the_gap_report_and_a_missing_report_is_refused(tmp_path, tables, monkeypatch, capsys):
+    with pytest.raises(FileNotFoundError, match="gap"):
+        I.read_declared_lag(tmp_path / "none.json")
+    report = tmp_path / "gap.json"
+    report.write_text(json.dumps({"declared_lag_days": 1}), encoding="utf-8")
+    assert I.read_declared_lag(report) == 1
+    report.write_text(json.dumps({"declared_lag_days": 3}), encoding="utf-8")
+    with pytest.raises(ValueError, match="declares lag"):
+        I.read_declared_lag(report)
+    inputs, out, root, panels = tables
+    monkeypatch.setattr(B, "default_inputs", lambda: inputs)
+    args = ["tables", "--out-dir", str(out), "--root", str(root), "--panels-dir", str(panels), "--years", "2018", "--allow-missing"]
+    assert I.main([*args, "--gap-report", str(tmp_path / "none.json")]) == 1 and "gap" in capsys.readouterr().err
+    report.write_text(json.dumps({"declared_lag_days": 1}), encoding="utf-8")
+    assert I.main([*args, "--gap-report", str(report)]) == 0
+    assert (out / "iint_lag1_manifest.json").is_file() and not (out / "iint_manifest.json").exists()

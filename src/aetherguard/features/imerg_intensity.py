@@ -26,13 +26,19 @@ of the frozen feature store; `season_<year>_iint.parquet` has the cells x days o
 `imerg_hh --run early --live-window`) and the complete Late days over the wet cell-days (full max3h >= 1 mm); above 20% the live
 run must use the previous complete IMD day (declared lag 1) and the model is trained the same way.
 
+Lag (`lag_days`, 0 or 1): with lag 1 every feature of IMD day D is that of D-1 (`*_1` from the file of D-1, the three-day
+maxima over D-3..D-1), by the same functions with the window ending a day earlier, for the sample tables and the season tables
+alike. A lag-1 build is the group `iint_lag1` (`<name>_iint_lag1.parquet`, `iint_lag1_columns.json`, `iint_lag1_manifest.json`);
+its columns are the same six, mapped to the group `iint`, and the lag-0 files are never touched. `tables --lag auto` (the
+default) builds the lag the gap report declares and refuses without that report.
+
 Completeness. `tables` refuses (exit 1, missing days listed by range) when a Late day file is missing that a development
 sample row (date up to 2017-12-31) or a season panel day needs, window D-2..D included; `--allow-missing` builds anyway with
 NaN there and records it in the manifest. `gap` refuses when any requested day lacks a file in the Late or the live-window
 store.
 
 CLI: python -m aetherguard.features.imerg_intensity tables [--out-dir DIR] [--root DIR] [--panels-dir DIR] [--years 2018-2025]
-         [--force] [--allow-missing]
+         [--force] [--allow-missing] [--lag auto|0|1] [--gap-report FILE]
      python -m aetherguard.features.imerg_intensity gap [--root DIR] [--panels-dir DIR] [--start 2024-06-01] [--end 2024-12-31] [--out FILE]
 """
 from __future__ import annotations
@@ -61,6 +67,7 @@ from . import imerg_features as F
 from .build import MANIFEST_NAME as FEATURES_MANIFEST
 
 GROUP = "iint"
+LAGS = (0, 1)                                          # declared lag in IMD days (spec section 1): 1 = the previous complete day
 RUN = "late"                                           # training-style days: complete HHL
 LIVE_RUN = imerg_hh.store_name("early", live_window=True)       # truncated HHE days of the gap study
 FIELDS = ("max1h", "max3h", "max6h", "wet_hours")
@@ -92,6 +99,18 @@ class IncompleteGapError(RuntimeError):
 
 def feature_names() -> list[str]:
     return ["iint_max1h_1", "iint_max3h_1", "iint_max6h_1", "iint_max3h_max3d", "iint_max6h_max3d", "iint_wet_hours_1"]
+
+
+def group_name(lag_days: int = 0) -> str:
+    """The name the files of the group built with lag `lag_days` carry: `iint` (day D) or `iint_lag1` (day D-1). The model
+    inputs are the same six columns either way, and the columns file maps them to the group `iint`."""
+    if lag_days not in LAGS:
+        raise ValueError(f"lag_days must be one of {LAGS}, got {lag_days!r}")
+    return GROUP if lag_days == 0 else f"{GROUP}_lag{lag_days}"
+
+
+def report_name(lag_days: int = 0) -> str:
+    return REPORT_NAME if lag_days == 0 else f"{group_name(lag_days)}_report.json"
 
 
 def default_root() -> Path:
@@ -181,33 +200,37 @@ def truncated_from_halfhours(fields: np.ndarray, n_available: int = imerg_hh.LIV
     return imerg_hh.reduce_day(fields[:n_available], n_available)
 
 
-def cell_features(day: date, cell_ids, root, run: str = RUN) -> pd.DataFrame:
-    """The six features of IMD day `day` for each cell (one row per entry of `cell_ids`, in its order, default index)."""
+def cell_features(day: date, cell_ids, root, run: str = RUN, lag_days: int = 0) -> pd.DataFrame:
+    """The six features of IMD day `day` for each cell (one row per entry of `cell_ids`, in its order, default index). With
+    `lag_days` = 1 every feature of `day` is that of the previous complete day (the one-day features from D-1, the three-day
+    maxima over D-3..D-1): the same function with the window ending a day earlier."""
     pixels = F.cell_pixels(cell_ids)
-    return pd.DataFrame(features_from_maps(DayLoader(root, run).window(day), pixels), columns=feature_names())
+    window = DayLoader(root, run).window(day - timedelta(days=lag_days))
+    return pd.DataFrame(features_from_maps(window, pixels), columns=feature_names())
 
 
-def frame_features(frame: pd.DataFrame, loader: DayLoader) -> pd.DataFrame:
-    """The six features for the (cell_id, date) rows of `frame`, in its row order and with its index."""
+def frame_features(frame: pd.DataFrame, loader: DayLoader, lag_days: int = 0) -> pd.DataFrame:
+    """The six features for the (cell_id, date) rows of `frame`, in its row order and with its index; with `lag_days` the
+    features of the day that many days earlier (see `cell_features`)."""
     pixels = F.cell_pixels(frame["cell_id"].to_numpy(dtype=np.int64))
     values = np.full((len(frame), len(feature_names())), np.nan, dtype=np.float32)
     for stamp, rows in frame.groupby("date", sort=True).indices.items():
-        values[rows] = features_from_maps(loader.window(pd.Timestamp(stamp).date()), pixels[rows])
+        values[rows] = features_from_maps(loader.window(pd.Timestamp(stamp).date() - timedelta(days=lag_days)), pixels[rows])
     return pd.DataFrame(values, columns=feature_names(), index=frame.index)
 
 
 # ------------------------------------------------------------------------------------------ completeness
 
-def window_days(days) -> list[date]:
-    """Every day whose file a feature of one of `days` reads: D-2, D-1 and D."""
-    return sorted({day - timedelta(days=k) for day in days for k in range(MAX_DAYS)})
+def window_days(days, lag_days: int = 0) -> list[date]:
+    """Every day whose file a feature of one of `days` reads: D-2, D-1 and D, each `lag_days` earlier."""
+    return sorted({day - timedelta(days=lag_days + k) for day in days for k in range(MAX_DAYS)})
 
 
-def required_days(sample_dates, panel_days) -> list[date]:
+def required_days(sample_dates, panel_days, lag_days: int = 0) -> list[date]:
     """Days with a Late file that the build needs: the windows of the development sample dates (up to
     `DEVELOPMENT_END`) and of every season panel day."""
     development = [d for d in set(sample_dates) if d <= DEVELOPMENT_END]
-    return window_days([*development, *panel_days])
+    return window_days([*development, *panel_days], lag_days)
 
 
 def missing_days(root, days, run: str = RUN) -> list[date]:
@@ -246,15 +269,15 @@ def panel_frame(cell_ids: np.ndarray, days: list[date]) -> pd.DataFrame:
     return pd.DataFrame({"cell_id": np.repeat(cell_ids, len(days)), "date": np.tile(stamps, len(cell_ids))})
 
 
-def season_name(year: int) -> str:
-    return f"season_{year}_{GROUP}.parquet"
+def season_name(year: int, lag_days: int = 0) -> str:
+    return f"season_{year}_{group_name(lag_days)}.parquet"
 
 
 # ------------------------------------------------------------------------------------------ build and freeze
 
-def build_config(years=HELDOUT_YEARS) -> dict:
+def build_config(years=HELDOUT_YEARS, lag_days: int = 0) -> dict:
     """Everything that changes a feature value."""
-    return {"features": feature_names(), "run": RUN, "max_days": MAX_DAYS, "half_hours_per_day": imerg_hh.HALF_HOURS,
+    return {"features": feature_names(), "run": RUN, "lag_days": lag_days, "max_days": MAX_DAYS, "half_hours_per_day": imerg_hh.HALF_HOURS,
             "window_slots": dict(imerg_hh.WINDOW_SLOTS), "wet_mm_per_h": float(imerg_hh.WET_MM_PER_H),
             "heldout_years": [int(y) for y in years]}
 
@@ -275,9 +298,10 @@ def _input_records(inputs: B.ImergInputs, root, panels_dir, years) -> dict:
                                        "sha256": sha256_file(panel_path(panels_dir, y))} for y in years}}
 
 
-def _managed(out_dir: Path, stems: list[str], years) -> list[Path]:
-    return [*(out_dir / B.table_name(s, GROUP) for s in stems), *(out_dir / season_name(y) for y in years),
-            out_dir / B.columns_name(GROUP), out_dir / B.manifest_name(GROUP), out_dir / REPORT_NAME]
+def _managed(out_dir: Path, stems: list[str], years, lag_days: int = 0) -> list[Path]:
+    group = group_name(lag_days)
+    return [*(out_dir / B.table_name(s, group) for s in stems), *(out_dir / season_name(y, lag_days) for y in years),
+            out_dir / B.columns_name(group), out_dir / B.manifest_name(group), out_dir / report_name(lag_days)]
 
 
 def _table_report(frame: pd.DataFrame, features: pd.DataFrame, loader: DayLoader, seconds: float) -> dict:
@@ -288,16 +312,18 @@ def _table_report(frame: pd.DataFrame, features: pd.DataFrame, loader: DayLoader
 
 
 def build_iint_tables(inputs: B.ImergInputs, out_dir, root, panels_dir, years=HELDOUT_YEARS, force: bool = False,
-                      cfg: dict | None = None, allow_missing: bool = False) -> tuple[dict, bool]:
+                      cfg: dict | None = None, allow_missing: bool = False, lag_days: int = 0) -> tuple[dict, bool]:
     """Write the frozen iint tables; returns (manifest, reused). With a manifest present and `force` False nothing is
     rewritten: files, inputs and configuration are verified (IintIntegrityError on any problem). A Late day file that a
     development row or a season panel day needs (`required_days`) and that is missing raises IncompleteStoreError before
-    anything is written, unless `allow_missing` (the manifest then records it)."""
+    anything is written, unless `allow_missing` (the manifest then records it). With `lag_days` = 1 the tables hold, for each
+    row of day D, the features of day D-1, under the group name `iint_lag1` (the lag-0 files are not touched)."""
     out_dir, root, panels_dir = Path(out_dir), Path(root), Path(panels_dir)
-    cfg = cfg if cfg is not None else build_config(years)
-    manifest_path = out_dir / B.manifest_name(GROUP)
+    group = group_name(lag_days)
+    cfg = cfg if cfg is not None else build_config(years, lag_days)
+    manifest_path = out_dir / B.manifest_name(group)
     if not force and manifest_path.exists():
-        result = verify_iint_tables(out_dir, inputs, root, panels_dir, cfg)
+        result = verify_iint_tables(out_dir, inputs, root, panels_dir, cfg, lag_days)
         if not result["ok"]:
             raise IintIntegrityError(f"{out_dir} is frozen but not intact (pass force=True to rebuild): "
                                      + "; ".join(result["problems"]))
@@ -308,55 +334,57 @@ def build_iint_tables(inputs: B.ImergInputs, out_dir, root, panels_dir, years=HE
     panels = {y: read_panel(panels_dir, y) for y in years}
     sample_dates = {stamp.date() for stem in stems
                     for stamp in pd.read_parquet(inputs.features_dir / B.base_name(stem), columns=["date"])["date"].unique()}
-    absent = missing_days(root, required_days(sample_dates, [d for _, days in panels.values() for d in days]))
+    absent = missing_days(root, required_days(sample_dates, [d for _, days in panels.values() for d in days], lag_days))
     if absent and not allow_missing:
         raise IncompleteStoreError(
             f"{len(absent)} Late day files needed by development rows or season panels are missing from "
             f"{Path(root) / RUN}: {format_ranges(absent)}; finish the half-hourly Late build, or pass --allow-missing "
             "to build with NaN there")
     out_dir.mkdir(parents=True, exist_ok=True)
-    B._set_mode(_managed(out_dir, stems, years), stat.S_IWRITE | stat.S_IREAD)
+    B._set_mode(_managed(out_dir, stems, years, lag_days), stat.S_IWRITE | stat.S_IREAD)
     rows: dict[str, int] = {}
     per_file: dict[str, dict] = {}
-    jobs = [(B.base_name(stem), B.table_name(stem, GROUP),
+    jobs = [(B.base_name(stem), B.table_name(stem, group),
              lambda stem=stem: pd.read_parquet(inputs.features_dir / B.base_name(stem), columns=["cell_id", "date"]))
             for stem in stems]
-    jobs += [(f"season_{y}_training.npz", season_name(y), lambda y=y: panel_frame(*panels[y])) for y in years]
+    jobs += [(f"season_{y}_training.npz", season_name(y, lag_days), lambda y=y: panel_frame(*panels[y])) for y in years]
     for source, name, make_frame in jobs:
         tick = time.perf_counter()
         frame = make_frame()
         loader = DayLoader(root)
-        features = frame_features(frame, loader)
+        features = frame_features(frame, loader, lag_days)
         pd.concat([frame[["cell_id", "date"]].reset_index(drop=True), features.reset_index(drop=True)],
                   axis=1).to_parquet(out_dir / name, index=False)
         rows[name] = len(frame)
         per_file[source] = _table_report(frame, features, loader, time.perf_counter() - tick)
-    B._write_json(out_dir / B.columns_name(GROUP), {c: GROUP for c in feature_names()})
+    B._write_json(out_dir / B.columns_name(group), {c: GROUP for c in feature_names()})
     total = round(time.perf_counter() - started, 1)
-    B._write_json(out_dir / REPORT_NAME, {"files": per_file, "seconds": {"total": total}})
+    B._write_json(out_dir / report_name(lag_days), {"files": per_file, "seconds": {"total": total}})
     files = {n: {"sha256": sha256_file(out_dir / n), "size_bytes": (out_dir / n).stat().st_size, "n_rows": None}
-             for n in (B.columns_name(GROUP), REPORT_NAME)}
+             for n in (B.columns_name(group), report_name(lag_days))}
     for name, n_rows in rows.items():
         files[name] = {"sha256": sha256_file(out_dir / name), "size_bytes": (out_dir / name).stat().st_size,
                        "n_rows": n_rows}
     B._write_json(manifest_path, {
-        "created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "frozen": True, "group": GROUP,
+        "created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "frozen": True, "group": GROUP, "lag_days": lag_days,
         "config": cfg, "inputs": _input_records(inputs, root, panels_dir, years),
-        "sample_files": [B.base_name(s) for s in stems], "season_files": [season_name(y) for y in years],
+        "sample_files": [B.base_name(s) for s in stems], "season_files": [season_name(y, lag_days) for y in years],
         "allow_missing": allow_missing, "required_days_missing": len(absent),
         "files": files, "runtime_seconds": total})
-    B._set_mode(_managed(out_dir, stems, years), stat.S_IREAD)
+    B._set_mode(_managed(out_dir, stems, years, lag_days), stat.S_IREAD)
     return json.loads(manifest_path.read_text(encoding="utf-8")), False
 
 
 def verify_iint_tables(out_dir, inputs: B.ImergInputs | None = None, root=None, panels_dir=None,
-                       cfg: dict | None = None) -> dict:
+                       cfg: dict | None = None, lag_days: int = 0) -> dict:
     """Check the frozen files against the manifest; returns {"ok": bool, "problems": [str]}. Raises FileNotFoundError
     when there is no manifest. With `inputs`: unchanged feature-store manifest, keys of the sample tables identical to the
     base tables; with `root`: unchanged day files of the intensity store; with `panels_dir`: unchanged season panels and
-    keys of the season tables equal to their cells x days; with `cfg`: configuration equal to the frozen one."""
+    keys of the season tables equal to their cells x days; with `cfg`: configuration equal to the frozen one. `lag_days`
+    selects the group (`iint` or `iint_lag1`)."""
     out_dir = Path(out_dir)
-    path = out_dir / B.manifest_name(GROUP)
+    group = group_name(lag_days)
+    path = out_dir / B.manifest_name(group)
     if not path.is_file():
         raise FileNotFoundError(f"{path} not found")
     try:
@@ -367,6 +395,8 @@ def verify_iint_tables(out_dir, inputs: B.ImergInputs | None = None, root=None, 
     problems: list[str] = []
     if manifest.get("frozen") is not True:
         problems.append(f"{path.name} says the features are not frozen")
+    if manifest.get("lag_days", 0) != lag_days:
+        problems.append(f"{path.name} was built with lag_days {manifest.get('lag_days')}, not {lag_days}")
     if cfg is not None and json.loads(json.dumps(cfg)) != manifest["config"]:
         problems.append("configuration changed after freezing")
     for name, entry in manifest["files"].items():
@@ -387,19 +417,20 @@ def verify_iint_tables(out_dir, inputs: B.ImergInputs | None = None, root=None, 
                 problems.append(f"input changed after freezing: {panel.name}")
     if problems:
         return {"ok": False, "problems": problems}
-    return {"ok": True, "problems": _content_problems(out_dir, manifest, inputs, panels_dir)}
+    return {"ok": True, "problems": _content_problems(out_dir, manifest, inputs, panels_dir, lag_days)}
 
 
-def _content_problems(out_dir: Path, manifest: dict, inputs, panels_dir) -> list[str]:
+def _content_problems(out_dir: Path, manifest: dict, inputs, panels_dir, lag_days: int = 0) -> list[str]:
     expected = feature_names()
+    group = group_name(lag_days)
     problems: list[str] = []
     try:
-        columns = json.loads((out_dir / B.columns_name(GROUP)).read_text(encoding="utf-8"))
+        columns = json.loads((out_dir / B.columns_name(group)).read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
-        return [f"cannot read {B.columns_name(GROUP)}: {exc}"]
+        return [f"cannot read {B.columns_name(group)}: {exc}"]
     if columns != {c: GROUP for c in expected}:
-        problems.append(f"{B.columns_name(GROUP)} does not map exactly the iint columns to `{GROUP}`")
-    tables = [(B.table_name(B.base_stem(base).removesuffix("_features"), GROUP), base) for base in manifest["sample_files"]]
+        problems.append(f"{B.columns_name(group)} does not map exactly the iint columns to `{GROUP}`")
+    tables = [(B.table_name(B.base_stem(base).removesuffix("_features"), group), base) for base in manifest["sample_files"]]
     tables += [(name, None) for name in manifest["season_files"]]
     for name, base in tables:
         try:
@@ -523,13 +554,25 @@ def parse_years(text: str) -> tuple[int, ...]:
     return years
 
 
+def read_declared_lag(path: Path | str = GAP_REPORT) -> int:
+    """The lag (0 or 1 IMD days) that the train-serve gap report at `path` declares; FileNotFoundError without the report."""
+    path = Path(path)
+    if not path.is_file():
+        raise FileNotFoundError(f"{path} not found; run the train-serve gap first (python -m aetherguard.features.imerg_intensity gap)")
+    lag = json.loads(path.read_text(encoding="utf-8")).get("declared_lag_days")
+    if lag not in LAGS:
+        raise ValueError(f"{path.name} declares lag {lag!r}; expected one of {LAGS}")
+    return int(lag)
+
+
 def _tables(args) -> int:
     inputs = B.default_inputs()
     out_dir = args.out_dir or B.default_out_dir()
+    lag_days = read_declared_lag(args.gap_report) if args.lag == "auto" else int(args.lag)
     manifest, reused = build_iint_tables(inputs, out_dir, args.root, args.panels_dir, args.years, force=args.force,
-                                         allow_missing=args.allow_missing)
-    report = json.loads((out_dir / REPORT_NAME).read_text(encoding="utf-8"))
-    print(f"iint {'reused (verified intact)' if reused else 'built and frozen'} in {out_dir} "
+                                         allow_missing=args.allow_missing, lag_days=lag_days)
+    report = json.loads((out_dir / report_name(lag_days)).read_text(encoding="utf-8"))
+    print(f"{group_name(lag_days)} (lag {lag_days} d) {'reused (verified intact)' if reused else 'built and frozen'} in {out_dir} "
           f"({manifest['runtime_seconds']} s to build)")
     for name, entry in report["files"].items():
         print(f"{name}: {entry['rows']} rows ({entry['rows_outside_grid']} outside the grid); mean NaN share "
@@ -557,6 +600,9 @@ def main(argv: list[str] | None = None) -> int:
     tables.add_argument("--out-dir", type=Path, help="default: <data>/processed/features/imerg")
     tables.add_argument("--years", type=parse_years, default=HELDOUT_YEARS, help="held-out seasons, e.g. 2018-2025")
     tables.add_argument("--force", action="store_true", help="replace an existing frozen build")
+    tables.add_argument("--lag", choices=["auto", "0", "1"], default="auto",
+                        help="IMD days the features lag (default: the lag the train-serve gap report declares)")
+    tables.add_argument("--gap-report", type=Path, default=GAP_REPORT, help="the gap report `--lag auto` reads")
     tables.add_argument("--allow-missing", action="store_true",
                         help="build although Late day files needed by development rows or season panels are missing (NaN there)")
     gap = sub.add_parser("gap", help="measure the 2024 train-serve gap and apply the 20%% rule")
