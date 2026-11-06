@@ -360,10 +360,67 @@ def test_an_exclusion_rejects_the_row_with_the_given_reason(tmp_path):
     assert report["corrections"][0]["action"] == "exclude"
 
 
-def test_an_exclusion_wins_over_a_duplicate_choice(tmp_path):
-    write_corrections(tmp_path, correction("exclude", place="Puthumala near", lat="", lon="", accuracy=""))
-    admitted, _ = build(tmp_path, row(), row(place="Puthumala near", outlet="B"))
-    assert list(admitted["outlet"]) == ["A"]
+def test_an_exclusion_applies_to_the_whole_duplicate_group_whichever_row_is_keyed(tmp_path):
+    write_corrections(tmp_path, correction("exclude", place="Puthumala near", lat="", lon="", accuracy="", reason="not a slide"))
+    admitted, report = build(tmp_path, row(), row(place="Puthumala near", outlet="B"))
+    assert admitted.empty
+    by_place = {r["place"]: r for r in report["rejected"]}
+    assert {p: r["reason"] for p, r in by_place.items()} == {"Puthumala": "qa_excluded", "Puthumala near": "qa_excluded"}
+    assert by_place["Puthumala near"]["qa_reason"] == "not a slide"
+    assert by_place["Puthumala"]["qa_reason"] == "not a slide (same event as Puthumala near on 2024-08-01)"
+
+
+def test_an_exclusion_also_removes_a_differently_spelled_twin_within_a_day_and_five_km(tmp_path):
+    write_corrections(tmp_path, correction("exclude", lat="", lon="", accuracy="", reason="wall collapse"))
+    admitted, report = build(tmp_path, row(), row(date="2024-08-02", place="Puthumala hamlet", outlet="B"),
+                             row(date="2024-08-01", place="Gangtok", district="", state="Sikkim"))
+    assert list(admitted["place"]) == ["Gangtok"]
+    assert reasons(report) == {("Puthumala", "qa_excluded"), ("Puthumala hamlet", "qa_excluded")}
+    assert report["totals"]["rejected"] == {"qa_excluded": 2}
+    assert report["corrections"][0]["group_rows"] == 2
+
+
+def test_an_exclusion_leaves_a_row_beyond_the_duplicate_rule_alone(tmp_path):
+    write_corrections(tmp_path, correction("exclude", lat="", lon="", accuracy=""))
+    admitted, _ = build(tmp_path, row(), row(place="Meppadi", outlet="B"), row(date="2024-08-03", outlet="C"))
+    assert sorted(admitted["outlet"]) == ["B", "C"]
+
+
+def test_a_correction_moves_the_groups_survivor_and_leaves_no_twin_as_a_separate_event(tmp_path):
+    write_corrections(tmp_path, correction(lat="11.4", lon="76.2", accuracy="4"))
+    admitted, report = build(tmp_path, row(), row(date="2024-08-02", place="Puthumala hamlet", outlet="B"))
+    (event,) = admitted.to_dict("records")
+    assert (event["place"], event["date"], event["latitude"], event["geocode_source"]) == ("Puthumala", "2024-08-01", 11.4, "qa_correction")
+    assert reasons(report) == {("Puthumala hamlet", "duplicate")}
+    (merged,) = report["merged_events"]
+    assert merged["dates"] == ["2024-08-01", "2024-08-02"] and [d["place"] for d in merged["dropped"]] == ["Puthumala hamlet"]
+
+
+def test_a_correction_keyed_on_the_beaten_twin_moves_the_survivor(tmp_path):
+    write_corrections(tmp_path, correction(place="Puthumala hamlet", date="2024-08-02", lat="11.4", lon="76.2", accuracy="4"))
+    admitted, report = build(tmp_path, row(), row(date="2024-08-02", place="Puthumala hamlet", outlet="B"))
+    (event,) = admitted.to_dict("records")
+    assert (event["place"], event["latitude"], event["geocode_source"]) == ("Puthumala", 11.4, "qa_correction")
+    assert reasons(report) == {("Puthumala hamlet", "duplicate")}
+
+
+def test_a_corrected_survivor_still_meets_a_duplicate_it_was_moved_onto(tmp_path):
+    write_corrections(tmp_path, correction(place="Puthumala", lat="11.56", lon="76.13", accuracy="9"))
+    admitted, report = build(tmp_path, row(), row(place="Meppadi", outlet="B"))
+    assert list(admitted["place"]) == ["Meppadi"]
+    assert reasons(report) == {("Puthumala", "duplicate")}
+
+
+def test_an_exclusion_wins_over_a_correction_in_the_same_group(tmp_path):
+    write_corrections(tmp_path, correction(), correction("exclude", place="Puthumala near", lat="", lon="", accuracy=""))
+    admitted, report = build(tmp_path, row(), row(place="Puthumala near", outlet="B"))
+    assert admitted.empty and report["totals"]["rejected"] == {"qa_excluded": 2}
+
+
+def test_two_corrections_in_one_duplicate_group_raise(tmp_path):
+    write_corrections(tmp_path, correction(), correction(place="Puthumala near", lat="11.41"))
+    with pytest.raises(ValueError, match="same duplicate group"):
+        build(tmp_path, row(), row(place="Puthumala near", outlet="B"))
 
 
 def test_a_correction_matching_no_raw_row_raises_naming_the_key(tmp_path):
@@ -412,3 +469,54 @@ def test_two_corrections_for_one_event_raise(tmp_path):
     write_corrections(tmp_path, correction(), correction())
     with pytest.raises(ValueError, match="line 3: .*twice"):
         build(tmp_path, row())
+
+
+# --- QA coverage ------------------------------------------------------------------------------------------------------
+
+QA_HEADER = ["date", "place", "district", "state", "source_url", "date_ok", "place_ok", "is_landslide", "geocode_ok", "note"]
+
+
+def write_qa_results(tmp_path, *keys):
+    (tmp_path / "qa").mkdir(exist_ok=True)
+    with (tmp_path / "qa" / "qa_results.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(QA_HEADER)
+        for date, place, state in keys:
+            writer.writerow([date, place, "", state, "u", "yes", "yes", "yes", "yes", ""])
+
+
+def test_admitted_rows_without_a_qa_result_are_listed_as_unchecked(tmp_path):
+    write_qa_results(tmp_path, ("2024-08-01", "Puthumala", "Kerala"))
+    admitted, report = build(tmp_path, row(), row(date="2024-09-01", place="Gangtok", district="", state="Sikkim"))
+    assert len(admitted) == 2
+    assert [(u["date"], u["place"], u["state"]) for u in report["unchecked"]] == [("2024-09-01", "Gangtok", "Sikkim")]
+    assert report["totals"]["unchecked"] == 1
+
+
+def test_every_admitted_row_checked_leaves_nothing_unchecked(tmp_path):
+    write_qa_results(tmp_path, ("2024-08-01", "Puthumala", "Kerala"), ("2024-07-01", "Elsewhere", "Kerala"))
+    _, report = build(tmp_path, row())
+    assert report["unchecked"] == [] and report["totals"]["unchecked"] == 0
+
+
+def test_without_a_qa_results_file_every_admitted_row_is_unchecked(tmp_path):
+    _, report = build(tmp_path, row())
+    assert [u["place"] for u in report["unchecked"]] == ["Puthumala"]
+
+
+def test_a_merged_event_is_checked_by_its_admitted_date(tmp_path):
+    write_qa_results(tmp_path, ("2024-08-01", "Puthumala near", "Kerala"))
+    _, report = build(tmp_path, row(date="2024-08-02"), row(date="2024-08-01", place="Puthumala near", outlet="B"))
+    assert report["unchecked"] == []
+
+
+def test_write_inventory_says_how_many_admitted_rows_are_unchecked(tmp_path, monkeypatch):
+    monkeypatch.setattr(inv, "geocode_any", lambda place, district, state, places, fetch=None, cache=None: SITES.get(place))
+    write_raw(tmp_path, 2024, row())
+    said = []
+    inv.write_inventory(tmp_path, None, said.append)
+    assert said[-1] == "1 admitted row(s) have no result in qa/qa_results.csv"
+    write_qa_results(tmp_path, ("2024-08-01", "Puthumala", "Kerala"))
+    said.clear()
+    inv.write_inventory(tmp_path, None, said.append)
+    assert said[-1] == "every admitted row has a result in qa/qa_results.csv"

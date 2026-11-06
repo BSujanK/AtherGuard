@@ -24,11 +24,21 @@ A geocoder answer with a non-finite coordinate or accuracy counts as not found (
 
 QA corrections. The optional `qa/corrections.csv` of the reported-events folder (`CORRECTION_COLUMNS`) overrides the geocoder
 for single events after the spot-check against the sources. A row names the raw row by `date`, `place` and `state` exactly as
-written there and either gives the true point (`action` = correct, with latitude, longitude and accuracy_km; the row's
-`geocode_source` becomes "qa_correction" and it still goes through the domain, accuracy and duplicate checks) or throws the row
-out (`action` = exclude, those three empty; reason `qa_excluded`, with the given `reason` as `qa_reason` in the report).
+written there and either gives the true point (`action` = correct, with latitude, longitude and accuracy_km; the surviving row's
+`geocode_source` becomes "qa_correction" and it still goes through the domain, accuracy and duplicate checks) or throws the
+event out (`action` = exclude, those three empty; reason `qa_excluded`, with the given `reason` as `qa_reason` in the report).
 `reason` and `source_url` (where the correction comes from) are required. A key matching no raw row, or only a report-dated
 one, is an error; so is a malformed line. The report lists every correction with what the geocoder had answered.
+
+A correction applies to the whole duplicate group of its keyed row, not to that raw row alone: the groups are formed on the
+uncorrected geocoded points (the rule above), then an exclude rejects every member (a twin reads `qa_reason` "<reason> (same
+event as <keyed place> on <keyed date>)") and a correct moves the group's surviving row, whose twins stay `duplicate`s of it
+whatever the corrected point. An exclude wins over a correct in the same group; two corrects in one group are an error. A
+keyed row that is not a candidate (ungeocodable, over 10 km, outside the boxes) is a group of its own.
+
+QA coverage. `qa/qa_results.csv` (columns `date`, `place`, `state`, ...) holds the spot-check of the admitted events, one row
+each, by the admitted date, place and state. `unchecked` in the report lists every admitted event that has no row there (all
+of them when the file does not exist) and the command prints their number.
 
 Admitted rows go to `<year>.csv` in the ledger format (`ledger.COLUMNS`, `location_text` = "place, district, state") and, with
 the extra columns `EXTRA_COLUMNS`, to `qa/inventory_admitted.csv` for the spot-check against the source URLs. That file is in a
@@ -61,6 +71,7 @@ from .geocode_osm import geocode_any, nominatim_fetch
 RAW_COLUMNS = ("event_date", "date_basis", "place", "district", "state", "source_url", "outlet", "description")
 EXTRA_COLUMNS = ("year", "place", "district", "state", "outlet", "geocode_source", "description")
 REPORT_NAME, QA_DIR, COMBINED_NAME, CORRECTIONS_NAME = "inventory_report.json", "qa", "inventory_admitted.csv", "corrections.csv"
+QA_RESULTS_NAME = "qa_results.csv"
 CORRECTION_COLUMNS = ("date", "place", "state", "action", "latitude", "longitude", "accuracy_km", "reason", "source_url")
 MAX_ACCURACY_KM = 10.0
 SAME_PLACE_KM = 5.0
@@ -198,22 +209,19 @@ def _duplicate(a: dict, b: dict) -> bool:
     return a["cell_id"] == b["cell_id"] or float(gc._haversine_km(a["lat"], a["lon"], b["lat"], b["lon"])) <= SAME_PLACE_KM
 
 
-def _locate(record: dict, geocoder: Geocoder, correction: dict | None = None) -> None:
-    """Geocode a stated row, apply its QA correction and set its `reason` (None = still a candidate) and, when placed, its
-    point and region."""
-    record.update(reason=None, lat=None, lon=None, accuracy_km=None, geocode_source=None, region=None, cell_id=None)
+def _locate(record: dict, geocoder: Geocoder) -> None:
+    """Geocode a stated row and set its `reason` (None = still a candidate) and, when placed, its point and region. The point
+    is the geocoder's: QA corrections come later (`_apply_corrections`)."""
+    _reset(record)
     if record["date_basis"] != "stated":
         record["reason"] = "report_dated"
         return
-    found = geocoder(record["place"], record["district"], record["state"])
-    if correction is not None:
-        correction["geocoded"] = None if found is None else dict(zip(("latitude", "longitude", "accuracy_km", "source"), found))
-        correction["rows"] = correction.get("rows", 0) + 1
-        if correction["action"] == "correct":
-            found = (correction["latitude"], correction["longitude"], correction["accuracy_km"], "qa_correction")
-    _place(record, found)
-    if correction is not None and correction["action"] == "exclude":
-        record["reason"], record["qa_reason"] = "qa_excluded", correction["reason"]
+    record["found"] = geocoder(record["place"], record["district"], record["state"])
+    _place(record, record["found"])
+
+
+def _reset(record: dict) -> None:
+    record.update(reason=None, lat=None, lon=None, accuracy_km=None, geocode_source=None, region=None, cell_id=None)
 
 
 def _place(record: dict, found: tuple[float, float, float, str] | None) -> None:
@@ -236,31 +244,79 @@ def _place(record: dict, found: tuple[float, float, float, str] | None) -> None:
         record["reason"] = "accuracy_over_10km"
 
 
+def _group(candidates: list[dict]) -> list[list[dict]]:
+    """The candidates as duplicate groups, the row to keep first: smaller accuracy, then earlier listed. A row joins the first
+    kept row it duplicates."""
+    groups: list[list[dict]] = []
+    for record in sorted(candidates, key=lambda r: (r["accuracy_km"], r["order"])):
+        group = next((g for g in groups if _duplicate(record, g[0])), None)
+        if group is None:
+            groups.append([record])
+        else:
+            group.append(record)
+    return groups
+
+
+def _beaten_by(record: dict, kept: dict) -> None:
+    record["reason"] = "duplicate"
+    record["duplicate_of"] = f"{kept['place']} on {kept['day'].isoformat()} ({kept['outlet']}, {kept['source_url']})"
+
+
+def _apply_corrections(records: list[dict], corrections: dict[tuple[str, str, str], dict]) -> None:
+    """Apply the QA corrections to the duplicate group of each keyed row (see the module docstring).
+
+    The groups are formed on the points the geocoder gave. An exclude rejects every member; a correct moves the group's
+    surviving row to the given point and makes the other members its duplicates, so none of them is admitted on its own. Each
+    correction learns what the geocoder had answered (`geocoded`), the raw `rows` it matched and the `group_rows` they stand for.
+    """
+    groups = {r["order"]: g for g in _group([r for r in records if r["reason"] is None]) for r in g}
+    moved: dict[int, tuple[tuple[str, str, str], list[dict]]] = {}
+    for key, entry in corrections.items():
+        rows = [r for r in records if (r["event_date"], r["place"], r["state"]) == key and r["date_basis"] == "stated"]
+        members = {m["order"]: m for r in rows for m in groups.get(r["order"], [r])}
+        entry.update(rows=len(rows), group_rows=len(members), geocoded=None if rows[-1]["found"] is None else
+                     dict(zip(("latitude", "longitude", "accuracy_km", "source"), rows[-1]["found"])))
+        for row in rows:
+            group = groups.get(row["order"], [row])
+            if entry["action"] == "exclude":
+                for member in group:
+                    member["reason"] = "qa_excluded"
+                    member["qa_reason"] = entry["reason"] if member is row else                         f"{entry['reason']} (same event as {row['place']} on {row['event_date']})"
+            else:
+                survivor = group[0]
+                if survivor["order"] in moved and moved[survivor["order"]][0] != key:
+                    raise ValueError(f"{CORRECTIONS_NAME}: {moved[survivor['order']][0]} and {key} correct the same duplicate group")
+                moved[survivor["order"]] = (key, group)
+    for key, group in moved.values():
+        survivor, entry = group[0], corrections[key]
+        if survivor["reason"] == "qa_excluded":
+            continue
+        _reset(survivor)
+        _place(survivor, (entry["latitude"], entry["longitude"], entry["accuracy_km"], "qa_correction"))
+        survivor["twins"] = group[1:]
+        for twin in group[1:]:
+            _beaten_by(twin, survivor)
+
+
 def _drop_duplicates(records: list[dict]) -> None:
     """Mark as `duplicate` every candidate beaten by a kept one (smaller accuracy, then earlier listed). A kept row takes the
-    earliest date of its group (the group is formed on the stated dates); its `merged` entry records the group."""
-    kept, groups = [], {}
-    for record in sorted((r for r in records if r["reason"] is None), key=lambda r: (r["accuracy_km"], r["order"])):
-        twin = next((k for k in kept if _duplicate(record, k)), None)
-        if twin is None:
-            kept.append(record)
-            groups[record["order"]] = [record]
-        else:
-            record["reason"] = "duplicate"
-            record["duplicate_of"] = f"{twin['place']} on {twin['day'].isoformat()} ({twin['outlet']}, {twin['source_url']})"
-            groups[twin["order"]].append(record)
-    for record in kept:
-        group = groups[record["order"]]
-        if len(group) > 1:
-            stated = record["day"]
-            record["day"] = min(r["day"] for r in group)
-            record["merged"] = {
-                "kept": {"place": record["place"], "outlet": record["outlet"], "source_url": record["source_url"]},
+    earliest date of its group (the group is formed on the stated dates), counting the twins a QA correction already folded
+    into any member; its `merged` entry records the group."""
+    for group in _group([r for r in records if r["reason"] is None]):
+        kept = group[0]
+        for record in group[1:]:
+            _beaten_by(record, kept)
+        full = [m for r in group for m in (r, *r.get("twins", []))]
+        if len(full) > 1:
+            stated = kept["day"]
+            kept["day"] = min(r["day"] for r in full)
+            kept["merged"] = {
+                "kept": {"place": kept["place"], "outlet": kept["outlet"], "source_url": kept["source_url"]},
                 "stated_date": stated.isoformat(),
-                "date": record["day"].isoformat(),
-                "dates": sorted({r["event_date"] for r in group}),
+                "date": kept["day"].isoformat(),
+                "dates": sorted({r["event_date"] for r in full}),
                 "dropped": [{"place": r["place"], "event_date": r["event_date"], "outlet": r["outlet"],
-                             "source_url": r["source_url"]} for r in group[1:]],
+                             "source_url": r["source_url"]} for r in full[1:]],
             }
 
 
@@ -302,6 +358,25 @@ def _summary(records: list[dict]) -> dict:
     }
 
 
+def _read_qa_keys(path: Path) -> set[tuple[str, str, str]]:
+    """The (date, place, state) of every row of the QA results at `path`; empty when the file does not exist."""
+    if not Path(path).is_file():
+        return set()
+    with Path(path).open(newline="", encoding="utf-8-sig") as handle:
+        reader = csv.DictReader(handle)
+        missing = [c for c in ("date", "place", "state") if c not in (reader.fieldnames or [])]
+        if missing:
+            raise ValueError(f"{Path(path).name}: missing column(s) {missing}")
+        return {(row["date"].strip(), row["place"].strip(), row["state"].strip()) for row in reader}
+
+
+def _unchecked(admitted: pd.DataFrame, qa_results: Path) -> list[dict]:
+    """The admitted events (date, place, state, source_url) that have no row in the QA results at `qa_results`."""
+    checked = _read_qa_keys(qa_results)
+    return [{"date": r["date"], "place": r["place"], "state": r["state"], "source_url": r["source_url"]}
+            for r in admitted.to_dict("records") if (r["date"], r["place"], r["state"]) not in checked]
+
+
 def _rejected_entry(record: dict) -> dict:
     entry = {"year": record["year"], "event_date": record["event_date"], "place": record["place"],
              "district": record["district"], "state": record["state"], "source_url": record["source_url"],
@@ -317,7 +392,7 @@ def _rejected_entry(record: dict) -> dict:
 
 def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | None = None, geocoder: Geocoder | None = None,
                     fetch: Callable[[str], list[dict]] | None = None, cache: Path | None = None,
-                    offline: bool = False, corrections: Path | None = None) -> pd.DataFrame:
+                    offline: bool = False, corrections: Path | None = None, qa_results: Path | None = None) -> pd.DataFrame:
     """Geocode the rows of `<raw_dir>/<year>.csv`, admit those the module docstring allows and write the files into `out_dir`
     (default the parent of `raw_dir`): `<year>.csv` per raw year, `qa/inventory_admitted.csv` and `inventory_report.json`.
 
@@ -325,7 +400,8 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
     `fetch` and `cache` go to `geocode_any` (defaults: the throttled Nominatim call and its on-disk cache). `geocoder(place,
     district, state) -> (lat, lon, accuracy_km, source) | None` replaces `geocode_any` (for tests). With `offline` a Nominatim
     query missing from the cache raises `GeocodeError` naming it instead of being fetched. `corrections` is the QA corrections file
-    (default `<out_dir>/qa/corrections.csv`, used when it exists)."""
+    (default `<out_dir>/qa/corrections.csv`, used when it exists) and `qa_results` the spot-check results the admitted rows are
+    held against (default `<out_dir>/qa/qa_results.csv`)."""
     raw_dir = Path(raw_dir)
     out_dir = Path(out_dir) if out_dir is not None else raw_dir.parent
     fetched = []
@@ -341,7 +417,8 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
     corrections = _read_corrections(corrections if corrections is not None else out_dir / QA_DIR / CORRECTIONS_NAME)
     _check_corrections(corrections, records)
     for record in records:
-        _locate(record, geocoder, corrections.get((record["event_date"], record["place"], record["state"])))
+        _locate(record, geocoder)
+    _apply_corrections(records, corrections)
     _drop_duplicates(records)
 
     admitted = _admitted_frame(records)
@@ -351,14 +428,16 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
         _write_csv(out_dir / f"{year}.csv", admitted[admitted["year"] == year], ledger.COLUMNS)
     (out_dir / QA_DIR).mkdir(exist_ok=True)
     _write_csv(out_dir / QA_DIR / COMBINED_NAME, admitted, [*ledger.COLUMNS, *EXTRA_COLUMNS])
+    unchecked = _unchecked(admitted, qa_results if qa_results is not None else out_dir / QA_DIR / QA_RESULTS_NAME)
     dump_json(out_dir / REPORT_NAME, {
         "max_accuracy_km": MAX_ACCURACY_KM,
         "same_place_km": SAME_PLACE_KM,
         "osm_fetched": len(fetched),
-        "totals": _summary(records),
+        "totals": {**_summary(records), "unchecked": len(unchecked)},
         "years": {str(y): _summary([r for r in records if r["year"] == y]) for y in years},
         "rejected": [_rejected_entry(r) for r in records if r["reason"]],
         "merged_events": [r["merged"] for r in records if "merged" in r],
+        "unchecked": unchecked,
         "corrections": [{"date": c["key"][0], "place": c["key"][1], "state": c["key"][2],
                          **{k: v for k, v in c.items() if k != "key"}} for c in corrections.values()],
     })
@@ -373,4 +452,7 @@ def write_inventory(directory: Path, places: pd.DataFrame, say=print, offline: b
         say(f"{year}: {entry['raw']} raw, {entry['stated']} stated, {entry['geocoded']} geocoded, {entry['admitted']} admitted")
     say(f"{len(admitted)} admitted of {report['totals']['raw']}; {report['osm_fetched']} Nominatim query(ies) fetched; "
         f"wrote {Path(directory) / REPORT_NAME}")
+    unchecked = report["totals"]["unchecked"]
+    say(f"{unchecked} admitted row(s) have no result in {QA_DIR}/{QA_RESULTS_NAME}" if unchecked
+        else f"every admitted row has a result in {QA_DIR}/{QA_RESULTS_NAME}")
     return admitted
