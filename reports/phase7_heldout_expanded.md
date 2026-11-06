@@ -6,15 +6,24 @@ v3 against 3-day rain, a static map, the NASA LHASA v2 nowcast and a rainfall ev
 
 ## Reading this report
 
+- Days are IMD days: day D runs from 03 UTC of the previous day to 03 UTC of D (08:30 IST to 08:30 IST).
+- Tolerant POD has a high chance floor at Watch+ and Warning+: the 10 km / ±1 day window covers about 30-40 cell-days, so alerts placed at random at the same burden would also hit often. It is meaningful only as a comparison between models at matched burden; the cell-exact rows are the check that does not reward scattered alerts (v3 leads there too).
 - Ground truth after 2018 is very incomplete: the reported and catalog events are a small fraction of the slides that happened. Precision on S1925 and POOLED is therefore relative, for comparing models that raise the same burden, and is not an absolute false-alarm rate.
 - Every benchmark except `rain_3d_devcuts` is burden-matched, season by season, to the shares v3 realised in that season, ranking the cell-days by its own score; the realised shares are in the tables. `lhasa_v2` has no score on days its archive lacks, so it can fall short of the target.
 - `ed_threshold` applies Brunetti et al.'s hourly-event exponent to daily wet-day runs, so `ed_threshold_refit`, fitted on the same kind of daily events, is the fairer threshold benchmark.
-- The LHASA shift rows (-1, +1) realise about 0.2 percentage points less burden than v3 and the other benchmarks (shift 0 matches): one boundary day per season has no granule for the shifted day.
+- The LHASA shift rows (-1, +1) realise up to 0.2 points (Watch+; 0.08 at Warning+, 0.03 at Emergency) less burden than v3 and the other benchmarks (shift 0 matches): one boundary day per season has no granule for the shifted day.
 - `susceptibility` is computed from v3's risk over the season it is scored on (hindsight), an optimistic baseline.
 - S2018 events are the June-September catalog events while the 2018 panel runs to December: alerts in October-December cannot be verified there, which lowers S2018 precision for every model alike.
 - Every set holds the same panel cells, which are not all cells of India; an event is matched to the panel cells within tolerance.
 - `lhasa_v2` covers 2018-2020 only, so it appears in S2018 and in L1820, which holds every model on the same days and events. Shift 0 (panel day D with LHASA day D) is primary; whether LHASA day D uses rain through the whole of UTC day D is not established, hence the -1 and +1 rows.
 - `ed_threshold`: the rain event ending on the cell-day (consecutive IMD days with at least 1 mm of IMERG Late; E its total, D its length in days) over E = alpha * D^gamma. Published: Brunetti et al. 2021, HESS 25, 3267-3279, Table 1, IMERG Early run, 5% non-exceedance: E = 5.3 * D_hours^0.74, that is alpha = 55.7 for D in days; only the exponent shapes a burden-matched ranking. `ed_threshold_refit` is refitted: E = 3.67 * D^1.214 at the 5% non-exceedance of 592 of 647 development positives (the rest have no usable rain event ending on their day). A cell-day with no event never alerts.
+
+## Data sources
+
+- Event locations geocoded with GeoNames (CC BY 4.0) and © OpenStreetMap contributors (ODbL) via Nominatim
+- LHASA v2: NASA GES DISC, Stanley et al. 2021
+- Rainfall threshold: Brunetti et al. 2021 (HESS)
+- IMERG: NASA GES DISC
 
 ## Seasons
 
@@ -96,7 +105,7 @@ Alert shares, target against realised (pooled over the set's seasons):
 |---|---|---|
 | v3 | n/a | 36.18% / 13.48% / 5.11% |
 | rain_3d | 36.18% / 13.48% / 5.11% | 36.18% / 13.48% / 5.11% |
-| rain_3d_devcuts | 57.98% / 24.72% / 10.19% | 33.34% / 12.43% / 4.90% |
+| rain_3d_devcuts | development shares (not matched): 57.98% / 24.72% / 10.19% | 33.34% / 12.43% / 4.90% |
 | susceptibility | 36.18% / 13.48% / 5.11% | 36.18% / 13.48% / 5.11% |
 | lhasa_v2_m1 | 36.18% / 13.48% / 5.11% | 36.01% / 13.42% / 5.09% |
 | lhasa_v2 | 36.18% / 13.48% / 5.11% | 36.18% / 13.49% / 5.11% |
@@ -107,6 +116,8 @@ Alert shares, target against realised (pooled over the set's seasons):
 ## S1925 (36,792 cells, 1498 days, 36 events)
 
 the 2019-2025 panels; admitted reported events and in-domain test_sparse catalog events. Events by source: catalog_sparse 6, reported 30. 35 independent slides when events within 10 km and a day are merged (`POD (independent slides)` counts a slide as detected when any of its records is); 1 further event is dated outside the panel days and not scored.
+
+1 of the 36 events lies outside the panel cells and can be detected only tolerantly (by a panel cell within 10 km), never cell-exact.
 
 | model | tolerance | level | events | hits | POD [95% CI] | POD (independent slides) | alert cell-days | precision [95% CI] | realised share |
 |---|---|---|---|---|---|---|---|---|---|
@@ -153,7 +164,7 @@ Alert shares, target against realised (pooled over the set's seasons):
 |---|---|---|
 | v3 | n/a | 41.25% / 16.87% / 7.03% |
 | rain_3d | 41.25% / 16.87% / 7.03% | 41.25% / 16.87% / 7.03% |
-| rain_3d_devcuts | 57.98% / 24.72% / 10.19% | 38.82% / 15.70% / 6.59% |
+| rain_3d_devcuts | development shares (not matched): 57.98% / 24.72% / 10.19% | 38.82% / 15.70% / 6.59% |
 | susceptibility | 41.25% / 16.87% / 7.03% | 41.25% / 16.87% / 7.03% |
 | ed_threshold | 41.25% / 16.87% / 7.03% | 41.24% / 16.86% / 7.03% |
 | ed_threshold_refit | 41.25% / 16.87% / 7.03% | 41.24% / 16.86% / 7.03% |
@@ -161,6 +172,8 @@ Alert shares, target against realised (pooled over the set's seasons):
 ## POOLED (36,792 cells, 1712 days, 92 events)
 
 S2018 and S1925 together. Events by source: catalog_2018 56, catalog_sparse 6, reported 30. 87 independent slides when events within 10 km and a day are merged (`POD (independent slides)` counts a slide as detected when any of its records is); 1 further event is dated outside the panel days and not scored.
+
+1 of the 92 events lies outside the panel cells and can be detected only tolerantly (by a panel cell within 10 km), never cell-exact.
 
 | model | tolerance | level | events | hits | POD [95% CI] | POD (independent slides) | alert cell-days | precision [95% CI] | realised share |
 |---|---|---|---|---|---|---|---|---|---|
@@ -207,7 +220,7 @@ Alert shares, target against realised (pooled over the set's seasons):
 |---|---|---|
 | v3 | n/a | 40.61% / 16.44% / 6.79% |
 | rain_3d | 40.61% / 16.44% / 6.79% | 40.61% / 16.44% / 6.79% |
-| rain_3d_devcuts | 57.98% / 24.72% / 10.19% | 38.13% / 15.29% / 6.38% |
+| rain_3d_devcuts | development shares (not matched): 57.98% / 24.72% / 10.19% | 38.13% / 15.29% / 6.38% |
 | susceptibility | 40.61% / 16.44% / 6.79% | 40.61% / 16.44% / 6.79% |
 | ed_threshold | 40.61% / 16.44% / 6.79% | 40.61% / 16.44% / 6.79% |
 | ed_threshold_refit | 40.61% / 16.44% / 6.79% | 40.61% / 16.44% / 6.79% |
@@ -279,7 +292,7 @@ Alert shares, target against realised (pooled over the set's seasons):
 |---|---|---|
 | v3 | n/a | 40.38% / 16.02% / 6.48% |
 | rain_3d | 40.38% / 16.02% / 6.48% | 40.38% / 16.02% / 6.48% |
-| rain_3d_devcuts | 57.98% / 24.72% / 10.19% | 37.80% / 14.93% / 6.22% |
+| rain_3d_devcuts | development shares (not matched): 57.98% / 24.72% / 10.19% | 37.80% / 14.93% / 6.22% |
 | susceptibility | 40.38% / 16.02% / 6.48% | 40.38% / 16.02% / 6.48% |
 | lhasa_v2_m1 | 40.38% / 16.02% / 6.48% | 40.19% / 15.95% / 6.45% |
 | lhasa_v2 | 40.38% / 16.02% / 6.48% | 40.37% / 16.03% / 6.48% |

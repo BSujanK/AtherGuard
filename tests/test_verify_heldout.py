@@ -315,19 +315,31 @@ def test_pooled_shares_weight_each_seasons_target_by_its_scored_cell_days():
     assert shares["v3"]["realised"] == pytest.approx(list(realised_shares(levels["v3"], scored)))
 
 
-def test_markdown_states_the_gate_the_seasons_and_a_row_for_every_model():
-    part, result = toy_season()
+def lhasa_levels(part: Part):
+    rng = np.random.default_rng(1)
+    return toy_models(part, {shift: rng.random(part.scored.shape) for shift in (-1, 0, 1)})
+
+
+def markdown_inputs():
+    part, _ = toy_season()
+    levels, shares = lhasa_levels(part)
+    result = heldout.SeasonResult(2018, part.days, part.scored, levels, shares)
     events = toy_events(part)
     entry = heldout.measure_set("S2018", [result], events, part.cell_ids, lambda m: None)
     published = heldout.published_ed_threshold()
     result_json = {
-        "protocol": {"ed_threshold": {
+        "protocol": {"sources": heldout.SOURCES, "ed_threshold": {
             "published": {"source": "Brunetti et al. 2021", "alpha_hours": 5.3, "gamma": 0.74, "alpha_days": published[0]},
             "refitted": {"alpha": 4.1, "gamma": 0.8, "events_used": 40, "events": 50}}},
-        "seasons": {"2018": heldout.season_summary(part, result, events, False)},
+        "seasons": {"2018": heldout.season_summary(part, result, events, True)},
         "sets": {"S2018": entry},
         "gate": {"line": heldout.gate_line(5, 4), "distinct_events": 4},
     }
+    return result, entry, result_json
+
+
+def test_markdown_states_the_gate_the_seasons_and_a_row_for_every_model():
+    result, entry, result_json = markdown_inputs()
     text = heldout.markdown(result_json)
     assert "5 records of 4 independent slides" in text and "NOT MET" in text
     assert "POD (independent slides)" in text and "fairer" in text and "boundary day" in text
@@ -342,6 +354,78 @@ def test_markdown_states_the_gate_the_seasons_and_a_row_for_every_model():
     assert f"({stats['group_hits']}/{stats['groups']})" in row and row.count("|") == header.count("|")
 
 
+def test_markdown_warns_that_tolerant_pod_has_a_chance_floor_and_points_to_the_cell_exact_rows():
+    text = heldout.markdown(markdown_inputs()[2])
+    bullet = next(line for line in text.splitlines() if "chance floor" in line)
+    assert "30-40 cell-days" in bullet and "Watch+ and Warning+" in bullet
+    assert "matched burden" in bullet and "cell-exact" in bullet and "scattered alerts" in bullet
+
+
+def test_markdown_lists_the_data_sources_with_their_attribution():
+    text = heldout.markdown(markdown_inputs()[2])
+    section = text.split("## Data sources")[1].split("\n## ")[0]
+    for source in heldout.SOURCES:
+        assert f"- {source}" in section
+    assert "GeoNames (CC BY 4.0)" in section and "OpenStreetMap contributors (ODbL)" in section
+    assert "Stanley et al. 2021" in section and "Brunetti et al. 2021 (HESS)" in section and "IMERG: NASA GES DISC" in section
+
+
+def test_markdown_defines_the_imd_day_once():
+    text = heldout.markdown(markdown_inputs()[2])
+    assert text.count("03 UTC of the previous day to 03 UTC") == 1
+
+
+def test_lhasa_shift_gap_is_the_largest_burden_shortfall_of_a_shifted_row_in_percentage_points():
+    def shares(*realised):
+        return {"realised": list(realised)}
+
+    result = {"sets": {
+        "S2018": {"shares": {"v3": shares(0.4, 0.16, 0.065), "lhasa_v2_m1": shares(0.3983, 0.1594, 0.0648),
+                             "lhasa_v2": shares(0.4, 0.1601, 0.065), "lhasa_v2_p1": shares(0.3985, 0.1595, 0.0647)}},
+        "L1820": {"shares": {"v3": shares(0.4, 0.16, 0.065), "lhasa_v2_m1": shares(0.3981, 0.1592, 0.0647),
+                             "lhasa_v2_p1": shares(0.3990, 0.1593, 0.0648)}},
+        "POOLED": {"shares": {"v3": shares(0.4, 0.16, 0.065)}}}}
+    assert heldout.lhasa_shift_gap(result) == pytest.approx([0.19, 0.08, 0.03])
+    assert heldout.lhasa_shift_gap({"sets": {"POOLED": {"shares": {"v3": shares(0.4, 0.16, 0.065)}}}}) is None
+
+
+def test_markdown_reads_the_lhasa_shift_footnote_from_the_shares():
+    result, entry, result_json = markdown_inputs()
+    gap = heldout.lhasa_shift_gap(result_json)
+    text = heldout.markdown(result_json)
+    assert f"up to {gap[0]:.1f} points (Watch+; {gap[1]:.2f} at Warning+, {gap[2]:.2f} at Emergency)" in text
+    assert "about 0.2" not in text
+
+
+def test_markdown_leaves_the_lhasa_footnote_out_when_no_set_has_a_shifted_row():
+    _, _, result_json = markdown_inputs()
+    for model in ("lhasa_v2_m1", "lhasa_v2", "lhasa_v2_p1"):
+        for table in ("models", "shares"):
+            del result_json["sets"]["S2018"][table][model]
+    assert "boundary day" not in heldout.markdown(result_json)
+
+
+def test_markdown_labels_the_development_cuts_target_as_not_matched():
+    _, entry, result_json = markdown_inputs()
+    text = heldout.markdown(result_json)
+    rows = {line.split("|")[1].strip(): line for line in text.splitlines() if line.startswith("| ") and "%" in line and "tolerant" not in line}
+    assert "development shares (not matched)" in rows["rain_3d_devcuts"]
+    assert "20.00% / 10.00% / 5.00%" in rows["rain_3d_devcuts"]
+    assert "development" not in rows["rain_3d"]
+
+
+def test_measure_set_counts_the_events_in_cells_off_the_panel():
+    part, result = toy_season()
+    events = pd.DataFrame({"cell_id": [A + 3, A + 5000, A + 5000], "date": pd.to_datetime(["2018-06-10", "2018-06-10", "2018-06-11"]),
+                           "source": "reported"})
+    entry = heldout.measure_set("S2018", [result], events, part.cell_ids, lambda m: None)
+    assert entry["events"] == 3 and entry["events_off_panel_cells"] == 2
+    result_json = markdown_inputs()[2]
+    result_json["sets"]["S2018"]["events_off_panel_cells"] = 2
+    text = heldout.markdown(result_json)
+    assert "2 of the " in text and "outside the panel cells" in text and "only tolerantly" in text
+
+
 def test_the_heldout_command_writes_the_report_to_the_chosen_folder(monkeypatch, tmp_path):
     calls = []
     monkeypatch.setattr(heldout, "write_heldout", lambda out, say=print: calls.append(out))
@@ -349,3 +433,12 @@ def test_the_heldout_command_writes_the_report_to_the_chosen_folder(monkeypatch,
     with pytest.raises(SystemExit) as stop:
         runpy.run_module("aetherguard.verify", run_name="__main__")
     assert stop.value.code == 0 and calls == [tmp_path]
+
+
+def test_markdown_says_lies_for_one_event_off_the_panel_and_nothing_for_none():
+    result_json = markdown_inputs()[2]
+    entry = result_json["sets"]["S2018"]
+    entry["events_off_panel_cells"] = 1
+    assert f"1 of the {entry['events']} events lies outside the panel cells" in heldout.markdown(result_json)
+    entry["events_off_panel_cells"] = 0
+    assert "outside the panel cells" not in heldout.markdown(result_json)

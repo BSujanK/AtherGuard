@@ -4,7 +4,8 @@ the June-December panels of 2018-2025 and on the reported events.
     python -m aetherguard.verify heldout    # reports/phase7_heldout_expanded.{json,md}
 
 The panels are the training-style season panels of `verify.seasons`, loaded and turned into v3 levels exactly as the W0
-baseline report does (`report.extract`; the section 11 rules). Sets, each a pooling of seasons over days:
+baseline report does (`report.extract`; the section 11 rules). Days throughout are IMD days: day D runs from 03 UTC of the
+previous day to 03 UTC of D (08:30 IST to 08:30 IST). Sets, each a pooling of seasons over days:
 
 * `S2018`: the 2018 panel and the in-domain `season_2018` catalog events of June-September;
 * `S1925`: the 2019-2025 panels and the admitted reported events (`ledger.load_reported`) plus the in-domain `test_sparse`
@@ -24,8 +25,10 @@ events are not the daily events used here, so `ed_threshold_refit` is the same p
 positives' (D, E) at the 5% non-exceedance with the same frequentist method, labelled "refitted".
 
 Ground truth after 2018 is very incomplete, so precision there is relative (between models), not absolute. Events are
-de-duplicated on (cell, day) only; the same slide in two sources, a cell apart, counts twice, and `distinct_events` says how
-many remain when events within 10 km and a day are merged. Events dated outside the panel days are counted, not scored.
+de-duplicated on (cell, day) only, so the same slide in two sources, or in neighbouring cells, is several records;
+`distinct_events` merges records within 10 km and a day into independent slides, and the 150-event gate is read on those
+slides, not on the records. Events dated outside the panel days are counted, not scored; events in cells outside the panel
+(`events_off_panel_cells`) can be matched only tolerantly, never cell-exact.
 """
 from __future__ import annotations
 
@@ -72,7 +75,6 @@ from .report import (
     RainFit,
     _pct,
     _rows,
-    _share_rows,
     extract,
     fit_rain,
     load_development,
@@ -86,6 +88,13 @@ HELD_OUT_YEARS = tuple(range(2019, 2026))
 SEASON_YEARS = bt.SEASON_YEARS
 LHASA_YEARS = (2018, 2019, 2020)
 LHASA_SHIFTS = {"lhasa_v2_m1": -1, "lhasa_v2": 0, "lhasa_v2_p1": 1}
+SOURCES = (
+    "Event locations geocoded with GeoNames (CC BY 4.0) and © OpenStreetMap contributors (ODbL) via Nominatim",
+    "LHASA v2: NASA GES DISC, Stanley et al. 2021",
+    "Rainfall threshold: Brunetti et al. 2021 (HESS)",
+    "IMERG: NASA GES DISC",
+)
+DEV_CUTS = "rain_3d_devcuts"
 ED_LOOKBACK_DAYS = 60            # rain read before the first day, so a run that began in May is measured from its start
 BRUNETTI_ALPHA_HOURS, BRUNETTI_GAMMA = 5.3, 0.74
 SETS = {
@@ -331,6 +340,7 @@ def measure_set(name: str, results: list[SeasonResult], events: pd.DataFrame, ce
         "events": int(len(kept[["cell_id", "date"]].drop_duplicates())),
         "distinct_events": distinct_events(kept),
         "events_outside_panel_days": outside,
+        "events_off_panel_cells": int((~kept[["cell_id", "date"]].drop_duplicates()["cell_id"].isin(cell_ids)).sum()),
         "events_by_source": {k: int(v) for k, v in kept.drop_duplicates(["cell_id", "date"]).groupby("source").size().items()},
         "shares": pooled_shares(results, SETS[name], levels, scored),
         "models": model_table(levels, scored, cell_ids, days, kept, TOLERANCES, None, BOOTSTRAP, event_clusters),
@@ -418,6 +428,7 @@ def run(cfg: dict, say=print) -> dict:
             "tolerances": {n: {"km": t.km, "days": t.days} for n, t in TOLERANCES.items()},
             "models": MODELS,
             "sets": SET_NOTES,
+            "sources": list(SOURCES),
             "ed_threshold": {
                 "published": {"source": "Brunetti et al. 2021, HESS 25, 3267-3279, Table 1, IMERG Early run, 5% non-exceedance",
                               "alpha_hours": BRUNETTI_ALPHA_HOURS, "gamma": BRUNETTI_GAMMA, "alpha_days": published[0]},
@@ -435,10 +446,38 @@ def run(cfg: dict, say=print) -> dict:
 
 # ------------------------------------------------------------------------------------------------------- output
 
+def lhasa_shift_gap(result: dict) -> list[float] | None:
+    """The largest burden shortfall, in percentage points per level (Watch+, Warning+, Emergency), of a shifted LHASA row
+    against v3 over the sets that hold one; None when no set does."""
+    gaps = []
+    for entry in result["sets"].values():
+        shares = entry["shares"]
+        for name, shift in LHASA_SHIFTS.items():
+            if shift != 0 and name in shares:
+                gaps.append([100.0 * (v - w) for v, w in zip(shares["v3"]["realised"], shares[name]["realised"])])
+    return None if not gaps else [max(level) for level in zip(*gaps)]
+
+
+def _share_rows(entry: dict) -> list[str]:
+    """The share table rows; the target of the development-cuts baseline is not a matched one and says so."""
+    rows = []
+    for model in entry["models"]:
+        s = entry["shares"][model]
+        target = "n/a" if s["target"] is None else " / ".join(_pct(v, 2) for v in s["target"])
+        if model == DEV_CUTS:
+            target = f"development shares (not matched): {target}"
+        rows.append(f"| {model} | {target} | {' / '.join(_pct(v, 2) for v in s['realised'])} |")
+    return rows
+
+
 def _set_section(name: str, entry: dict) -> list[str]:
     sources = ", ".join(f"{k} {v}" for k, v in entry["events_by_source"].items())
     outside = entry["events_outside_panel_days"]
     outside_text = f"{outside} further event is" if outside == 1 else f"{outside} further events are"
+    off = entry["events_off_panel_cells"]
+    verb = "lies" if off == 1 else "lie"
+    off_panel = [f"{off} of the {entry['events']} events {verb} outside the panel cells and can be detected only tolerantly (by a "
+                 "panel cell within 10 km), never cell-exact.", ""] if off else []
     return [
         f"## {name} ({entry['cells']:,} cells, {entry['days']} days, {entry['events']} events)",
         "",
@@ -446,13 +485,14 @@ def _set_section(name: str, entry: dict) -> list[str]:
         f"10 km and a day are merged (`POD (independent slides)` counts a slide as detected when any of its records is); "
         f"{outside_text} dated outside the panel days and not scored.",
         "",
+        *off_panel,
         TABLE_HEADER_SLIDES,
         *_rows(entry, entry["models"], independent=True),
         "",
         "Alert shares, target against realised (pooled over the set's seasons):",
         "",
         SHARE_HEADER,
-        *_share_rows(entry, entry["models"]),
+        *_share_rows(entry),
         "",
     ]
 
@@ -460,6 +500,11 @@ def _set_section(name: str, entry: dict) -> list[str]:
 def markdown(result: dict) -> str:
     ed, gate = result["protocol"]["ed_threshold"], result["gate"]
     published, refit = ed["published"], ed["refitted"]
+    gap = lhasa_shift_gap(result)
+    shift_note = [] if gap is None else [
+        f"- The LHASA shift rows (-1, +1) realise up to {gap[0]:.1f} points (Watch+; {gap[1]:.2f} at Warning+, {gap[2]:.2f} at "
+        "Emergency) less burden than v3 and the other benchmarks (shift 0 matches): one boundary day per season has no "
+        "granule for the shifted day."]
     season_rows = [
         f"| {year} | {_pct(s['scored_share_mean'])} | {s['days_below_half']} of {s['days']} | "
         f"{' / '.join(_pct(v, 2) for v in s['v3_realised_shares'])} | {s['events']} | {'yes' if s['lhasa'] else 'no'} |"
@@ -478,6 +523,11 @@ def markdown(result: dict) -> str:
         "",
         "## Reading this report",
         "",
+        "- Days are IMD days: day D runs from 03 UTC of the previous day to 03 UTC of D (08:30 IST to 08:30 IST).",
+        "- Tolerant POD has a high chance floor at Watch+ and Warning+: the 10 km / ±1 day window covers about 30-40 "
+        "cell-days, so alerts placed at random at the same burden would also hit often. It is meaningful only as a comparison "
+        "between models at matched burden; the cell-exact rows are the check that does not reward scattered alerts (v3 leads "
+        "there too).",
         "- Ground truth after 2018 is very incomplete: the reported and catalog events are a small fraction of the slides "
         "that happened. Precision on S1925 and POOLED is therefore relative, for comparing models that raise the same "
         "burden, and is not an absolute false-alarm rate.",
@@ -486,8 +536,7 @@ def markdown(result: dict) -> str:
         "days its archive lacks, so it can fall short of the target.",
         "- `ed_threshold` applies Brunetti et al.'s hourly-event exponent to daily wet-day runs, so `ed_threshold_refit`, "
         "fitted on the same kind of daily events, is the fairer threshold benchmark.",
-        "- The LHASA shift rows (-1, +1) realise about 0.2 percentage points less burden than v3 and the other benchmarks "
-        "(shift 0 matches): one boundary day per season has no granule for the shifted day.",
+        *shift_note,
         "- `susceptibility` is computed from v3's risk over the season it is scored on (hindsight), an optimistic baseline.",
         "- S2018 events are the June-September catalog events while the 2018 panel runs to December: alerts in October-"
         "December cannot be verified there, which lowers S2018 precision for every model alike.",
@@ -503,6 +552,10 @@ def markdown(result: dict) -> str:
         f"`ed_threshold_refit` is refitted: E = {refit['alpha']:.2f} * D^{refit['gamma']:.3f} at the 5% non-exceedance of "
         f"{refit['events_used']} of {refit['events']} development positives (the rest have no usable rain event ending on "
         "their day). A cell-day with no event never alerts.",
+        "",
+        "## Data sources",
+        "",
+        *[f"- {source}" for source in result["protocol"]["sources"]],
         "",
         "## Seasons",
         "",

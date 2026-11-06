@@ -32,6 +32,12 @@
       "POOLED": "S2018 and S1925 together",
       "L1820": "2018-2020, the years LHASA covers: every model, LHASA included, on the same days and events"
     },
+    "sources": [
+      "Event locations geocoded with GeoNames (CC BY 4.0) and \u00a9 OpenStreetMap contributors (ODbL) via Nominatim",
+      "LHASA v2: NASA GES DISC, Stanley et al. 2021",
+      "Rainfall threshold: Brunetti et al. 2021 (HESS)",
+      "IMERG: NASA GES DISC"
+    ],
     "ed_threshold": {
       "published": {
         "source": "Brunetti et al. 2021, HESS 25, 3267-3279, Table 1, IMERG Early run, 5% non-exceedance",
@@ -177,6 +183,7 @@
       "events": 56,
       "distinct_events": 52,
       "events_outside_panel_days": 0,
+      "events_off_panel_cells": 0,
       "events_by_source": {
         "catalog_2018": 56
       },
@@ -1979,6 +1986,7 @@
       "events": 36,
       "distinct_events": 35,
       "events_outside_panel_days": 1,
+      "events_off_panel_cells": 1,
       "events_by_source": {
         "catalog_sparse": 6,
         "reported": 30
@@ -3189,6 +3197,7 @@
       "events": 92,
       "distinct_events": 87,
       "events_outside_panel_days": 1,
+      "events_off_panel_cells": 1,
       "events_by_source": {
         "catalog_2018": 56,
         "catalog_sparse": 6,
@@ -4395,6 +4404,7 @@
       "events": 65,
       "distinct_events": 60,
       "events_outside_panel_days": 1,
+      "events_off_panel_cells": 0,
       "events_by_source": {
         "catalog_2018": 56,
         "catalog_sparse": 4,
@@ -6191,5 +6201,5 @@
     "met": false,
     "line": "Held-out events: 92 records of 87 independent slides against the 150-event gate: NOT MET, 63 short."
   },
-  "seconds": 147.3261814999987
+  "seconds": 136.2880444000001
 }
