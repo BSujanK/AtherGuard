@@ -3,7 +3,7 @@
 #   python -m aetherguard.hazard.v4_int dev        # year-blocked CV of v3 (reference) and v4-int, pooled OOF FA@90, stage 1
 #   python -m aetherguard.hazard.v4_int seasons    # v4-int scored on the 2018-2025 season panels (no outcome is read)
 #   python -m aetherguard.hazard.v4_int preflight  # the held-out assembly and all its checks, no outcome computed
-#   python -m aetherguard.hazard.v4_int heldout    # stage 2: the single held-out look (refuses to run a second time)
+#   python -m aetherguard.hazard.v4_int heldout    # stage 2: the single held-out look (refuses a second one, or one started and not completed)
 #   python -m aetherguard.hazard.v4_int report     # reports/phase7_rain_intensity.{md,json}
 # v4-int is the frozen v3-live configuration named by `base_config` (folds, seeds, hyper-parameters, tree-count rule,
 # 20-member ensemble, per-region isotonic calibration, monotone constraints, bootstrap) plus the six intensity inputs of
@@ -34,9 +34,11 @@ candidates:
       - iint_max3h_max3d
       - iint_max6h_max3d
       - iint_wet_hours_1
+tie_seed: 20261106                      # final tie-break of the ranking: a seeded key of (cell_id, date), not the array position
 reproduction_tolerance: 1.0e-12         # C0 must reproduce the frozen pooled OOF FA@90 this closely and its tree count exactly
 preflight:                              # facts of the W1 held-out assembly (reports/phase7_heldout_expanded.json) the preflight asserts
   burden_tolerance: 1.0e-4              # |realised - target| of the ranked levels, per season and level
+  straddle_tolerance: 0.01               # full ties straddling a Warning+ / Emergency cut, as a share of that level's alert cell-days
   pooled_alert_tolerance: 5.0e-4        # pooled alert cell-days of v3_ranked and v4-int within 0.05% of v3's with the rules
   cells: 36792
   days: 1712

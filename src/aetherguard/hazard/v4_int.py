@@ -75,6 +75,8 @@ from .jsonio import dump_json, jsonable
 DEFAULT_CONFIG = PROJECT_ROOT / "configs" / "hazard_v4_int.yaml"
 DEV_RESULTS = "dev_results.json"
 HELDOUT = "heldout.json"
+STARTED = "heldout.started"         # written, exclusively, once v3 has reproduced the W1 numbers and before any candidate outcome
+TIE_SEED = 20261106                 # seed of the final tie-break key of the ranking (configs/hazard_v4_int.yaml `tie_seed`)
 PREFLIGHT = "preflight.json"
 OOF_SUBDIR = "oof"
 MODEL_SUBDIR = "models"
@@ -100,6 +102,10 @@ class IintTableError(RuntimeError):
 
 class BurdenMatchError(RuntimeError):
     """A ranked level set does not realise the target shares of its season."""
+
+
+class LookStartedError(RuntimeError):
+    """A look was started and not completed: only a human decides what happens next."""
 
 
 class PreflightError(RuntimeError):
@@ -264,8 +270,9 @@ def run_dev(study: dict, features_dir: Path | None = None, say=print, force: boo
     Uses the lag the gap report declares."""
     started = time.perf_counter()
     base, out = study["base"], output_dir(study)
-    if (out / HELDOUT).exists():
-        raise FileExistsError(f"{out / HELDOUT} exists: the look has been taken on the models of those results; `dev` will not rerun")
+    if (out / HELDOUT).exists() or (out / STARTED).exists():
+        raise FileExistsError(f"{out / HELDOUT} or {out / STARTED} exists: the look has been taken (or started) on the models "
+                              "of those results; `dev` will not rerun")
     if (out / DEV_RESULTS).exists() and not force:
         raise FileExistsError(f"{out / DEV_RESULTS} exists; pass --force to rerun the development stage and overwrite it")
     lag = declared_lag()
@@ -449,25 +456,48 @@ def run_seasons(study: dict, features_dir: Path | None = None, years=bt.SEASON_Y
 
 # ---------------------------------------------------------------------------------------- burden matching
 
-def match_burden(risk: np.ndarray, raw: np.ndarray, scored: np.ndarray, v3_levels: np.ndarray,
-                 tolerance: float = 1e-4) -> tuple[np.ndarray, dict]:
+def _splitmix64(z: np.ndarray) -> np.ndarray:
+    """One round of SplitMix64 on a uint64 array (wrapping arithmetic, the same on every platform)."""
+    z = z + np.uint64(0x9E3779B97F4A7C15)
+    z = (z ^ (z >> np.uint64(30))) * np.uint64(0xBF58476D1CE4E5B9)
+    z = (z ^ (z >> np.uint64(27))) * np.uint64(0x94D049BB133111EB)
+    return z ^ (z >> np.uint64(31))
+
+
+def tie_keys(cell_ids, ordinals, seed: int = TIE_SEED) -> np.ndarray:
+    """A pseudo-random uint64 per (cell_id, day ordinal) pair, deterministic across runs and platforms: SplitMix64 of the
+    seed mixed with the cell and then with the day. It depends on the pair only, never on its position in an array."""
+    cells, days = np.asarray(cell_ids).astype(np.uint64), np.asarray(ordinals).astype(np.uint64)
+    with np.errstate(over="ignore"):
+        z = _splitmix64(np.uint64(seed) ^ (cells * np.uint64(0xD1B54A32D192ED03)))
+        return _splitmix64(z ^ (days * np.uint64(0x8CB92BA72F3D8DD7)))
+
+
+def match_burden(risk: np.ndarray, raw: np.ndarray, scored: np.ndarray, v3_levels: np.ndarray, cell_ids, days: list[date],
+                 tolerance: float = 1e-4, seed: int = TIE_SEED) -> tuple[np.ndarray, dict]:
     """Levels (cells x days) for one season by ranking: the scored cell-days sorted by calibrated `risk`, ties by `raw`
-    (the panel's raw score), and the top ones cut to the Watch+ / Warning+ / Emergency shares `v3_levels` realised on them
-    (the cut sizes are those shares of the scored cell-days, rounded). Raises BurdenMatchError when a realised share is more
-    than `tolerance` from its target. Also the targets, the realised shares and, per level, the tie mass at the cut: how many
-    scored cell-days share the (risk, raw) of the last cell-day taken (and how many of them are taken), and how many share
-    its risk alone."""
+    (the panel's raw score), cell-days still tied on both by `tie_keys` of (cell_id, day) (never by array position), and the
+    top ones cut to the Watch+ / Warning+ / Emergency shares `v3_levels` realised on them (the cut sizes are those shares of
+    the scored cell-days, rounded). `cell_ids` has one entry per row and `days` one date per column. Raises BurdenMatchError
+    when a realised share is more than `tolerance` from its target. Also the targets, the realised shares and, per level, the
+    tie mass at the cut: how many scored cell-days share the (risk, raw) of the last cell-day taken, how many of them are taken,
+    how many of them a straddled tie leaves out (`straddle`), and how many share its risk alone."""
     risk, raw, scored = np.asarray(risk, dtype=np.float64), np.asarray(raw, dtype=np.float64), np.asarray(scored, dtype=bool)
     if not (risk.shape == raw.shape == scored.shape == np.shape(v3_levels)):
         raise ValueError(f"risk {risk.shape}, raw {raw.shape}, scored {scored.shape} and v3 levels {np.shape(v3_levels)} must share one shape")
+    cell_ids = np.asarray(cell_ids, dtype=np.int64)
+    if cell_ids.shape != (scored.shape[0],) or len(days) != scored.shape[1]:
+        raise ValueError(f"cell_ids {cell_ids.shape} and {len(days)} days do not match the {scored.shape} cells x days")
     rows = np.flatnonzero(scored.ravel())
     if not len(rows):
         raise ValueError("no scored cell-day to rank")
+    ordinals = np.array([d.toordinal() for d in days], dtype=np.int64)
+    keys = tie_keys(cell_ids[rows // scored.shape[1]], ordinals[rows % scored.shape[1]], seed)
     r, w = risk.ravel()[rows], raw.ravel()[rows]
     if not (np.isfinite(r).all() and np.isfinite(w).all()):
         raise ValueError("risk and raw must be finite on every scored cell-day")
     target = realised_shares(v3_levels, scored)
-    order = np.lexsort((w, r))[::-1]                                  # highest risk first, ties by the higher raw score
+    order = np.lexsort((keys, w, r))[::-1]                            # highest risk first, then raw score, then the seeded key
     flat = np.zeros(scored.size, dtype=np.int8)
     cuts = {}
     for level, share in zip(LEVELS, target):
@@ -476,12 +506,13 @@ def match_burden(risk: np.ndarray, raw: np.ndarray, scored: np.ndarray, v3_level
         if k:
             last = order[k - 1]
             same = (r == r[last]) & (w == w[last])
+            tied, taken = int(same.sum()), int(same[order[:k]].sum())
             cuts[level] = {"cell_days_taken": k, "cut_risk": float(r[last]), "cut_raw": float(w[last]),
-                           "tied_cell_days": int(same.sum()), "tied_taken": int(same[order[:k]].sum()),
+                           "tied_cell_days": tied, "tied_taken": taken, "straddle": tied - taken if taken else 0,
                            "risk_tied_cell_days": int((r == r[last]).sum())}
         else:
             cuts[level] = {"cell_days_taken": 0, "cut_risk": None, "cut_raw": None, "tied_cell_days": 0, "tied_taken": 0,
-                           "risk_tied_cell_days": 0}
+                           "straddle": 0, "risk_tied_cell_days": 0}
     levels = flat.reshape(scored.shape)
     realised = realised_shares(levels, scored)
     off = [f"level {k}: {got:.6f} against {want:.6f}" for k, got, want in zip(LEVELS, realised, target) if abs(got - want) > tolerance]
@@ -544,7 +575,8 @@ class Assembly:
     info: dict
 
 
-def assemble(inputs: Iterable[SeasonInput], reference: np.ndarray, events: pd.DataFrame, tolerance: float = 1e-4) -> Assembly:
+def assemble(inputs: Iterable[SeasonInput], reference: np.ndarray, events: pd.DataFrame, tolerance: float = 1e-4,
+             seed: int = TIE_SEED) -> Assembly:
     """Pool the seasons as `verify.operating_point.build_heldout` does, with v4-int's and v3_ranked's burden-matched levels
     beside v3's levels with the rules. Nothing here joins an event with a level."""
     reference = np.asarray(reference, dtype=np.int64)
@@ -554,8 +586,9 @@ def assemble(inputs: Iterable[SeasonInput], reference: np.ndarray, events: pd.Da
         first = inp.first
         part = inp.part
         v4_levels, v4_info = match_burden(np.asarray(inp.v4["risk"])[:, first:], np.asarray(inp.v4["raw"])[:, first:], part.scored,
-                                          part.v3, tolerance)
-        ranked_levels, ranked_info = match_burden(inp.v3_risk[:, first:], inp.v3_raw[:, first:], part.scored, part.v3, tolerance)
+                                          part.v3, reference, part.days, tolerance, seed)
+        ranked_levels, ranked_info = match_burden(inp.v3_risk[:, first:], inp.v3_raw[:, first:], part.scored, part.v3,
+                                                  reference, part.days, tolerance, seed)
         seasons[str(inp.year)] = {
             "cells": int(len(reference)), "days": len(part.days), "panel_days": len(inp.days),
             "scored_cell_days": int(part.scored.sum()), "v3_realised_shares": list(realised_shares(part.v3, part.scored)),
@@ -575,7 +608,10 @@ def assemble(inputs: Iterable[SeasonInput], reference: np.ndarray, events: pd.Da
         "pooled": {"cells": int(len(reference)), "days": len(days), "scored_cell_days": int(scored.sum()),
                    # counted as the W1 report counts them: every cell-day at the level, held levels on unscored rows included
                    "alert_cell_days": {name: [int((levels >= k).sum()) for k in LEVELS]
-                                       for name, levels in (("v3_rules", v3), ("v3_ranked", ranked), ("v4_int", v4))}},
+                                       for name, levels in (("v3_rules", v3), ("v3_ranked", ranked), ("v4_int", v4))},
+                   # the three on the same scored cell-days, which the pooled burden comparison uses
+                   "alert_cell_days_scored": {name: [int(((levels >= k) & scored).sum()) for k in LEVELS]
+                                              for name, levels in (("v3_rules", v3), ("v3_ranked", ranked), ("v4_int", v4))}},
         "events": {"events": int(len(unique)), "outside_panel_days": int(outside), "distinct_slides": vh.distinct_events(kept),
                    "by_source": {k: int(v) for k, v in unique.groupby("source").size().items()}},
         "events_sha256": events_digest(kept)}
@@ -675,6 +711,7 @@ def check_guard(study: dict, dev: dict, lag_days: int) -> list[dict]:
     out = output_dir(study)
     return [_check("no held-out result in data/", not (out / HELDOUT).exists(), str(out / HELDOUT)),
             _check("no committed report", not report_path(study).exists(), str(report_path(study))),
+            _check("no look-started marker", not (out / STARTED).exists(), str(out / STARTED)),
             _check("stage 1 passed", dev["stage_one"]["passed"], dev["stage_one"]["verdict"]),
             _check("gap report present with its lag, the lag the model was built with", dev["lag_days"] == lag_days,
                    {"gap_report": str(gap_report_path()), "declared_lag_days": lag_days, "dev_lag_days": dev["lag_days"]})]
@@ -731,13 +768,35 @@ def check_assembly(study: dict, info: dict, w1: dict) -> list[dict]:
     rules = pooled["alert_cell_days"]["v3_rules"]
     checks.append(_check("pooled v3 alert cell-days equal W1", rules == list(expect["v3_alert_cell_days"]), rules))
     for name in ("v3_ranked", "v4_int"):
-        gap = max(abs(a - b) / b for a, b in zip(pooled["alert_cell_days"][name], rules))
+        scored_counts = pooled["alert_cell_days_scored"]
+        gap = max(abs(a - b) / b for a, b in zip(scored_counts[name], scored_counts["v3_rules"]))
         checks.append(_check(f"pooled {name} alert cell-days within {expect['pooled_alert_tolerance']:.2%} of v3's",
                              gap <= float(expect["pooled_alert_tolerance"]), gap))
+    checks += check_straddle(study, info)
     events = info["events"]
     checks.append(_check("events: 92 on panel days, 1 outside, 87 independent slides, by source",
                          events == {"events": expect["events"], "outside_panel_days": expect["events_outside_panel_days"],
                                     "distinct_slides": expect["distinct_slides"], "by_source": dict(expect["events_by_source"])}, events))
+    return checks
+
+
+def check_straddle(study: dict, info: dict) -> list[dict]:
+    """Per season: the cell-days tied on both calibrated risk and raw score that straddle the Warning+ or Emergency cut (the
+    ones the seeded key leaves out of a tie it splits) must be at most `straddle_tolerance` of that level's alert cell-days,
+    for v4-int and for v3_ranked. The numbers are reported."""
+    limit = float(study["preflight"]["straddle_tolerance"])
+    checks = []
+    for year, season in info["seasons"].items():
+        detail, ok = {}, True
+        for name in ("v4_int", "v3_ranked"):
+            for level, label in DECIDING_LEVELS.items():
+                cut = season[name]["cuts"][level]
+                share = cut["straddle"] / cut["cell_days_taken"] if cut["cell_days_taken"] else 0.0
+                detail[f"{name} {label}"] = {"straddle": cut["straddle"], "tied_cell_days": cut["tied_cell_days"],
+                                             "tied_taken": cut["tied_taken"], "alert_cell_days": cut["cell_days_taken"],
+                                             "share": share}
+                ok = ok and share <= limit
+        checks.append(_check(f"season {year} full ties straddling a cut within {limit:.0%} of the alert cell-days", ok, detail))
     return checks
 
 
@@ -748,8 +807,9 @@ def run_preflight(study: dict, features_dir: Path | None = None, say=print, load
     started = time.perf_counter()
     out = output_dir(study)
     features_dir = Path(features_dir or hd.features_dir())
-    if (out / HELDOUT).exists():
-        raise FileExistsError(f"{out / HELDOUT} exists: the look has been taken; a preflight no longer means anything")
+    if (out / HELDOUT).exists() or (out / STARTED).exists():
+        raise FileExistsError(f"{out / HELDOUT} or {out / STARTED} exists: the look has been taken (or started); a preflight no "
+                              "longer means anything")
     dev = load_dev_results(study)
     lag = declared_lag()
     checks = check_guard(study, dev, lag)
@@ -813,19 +873,32 @@ def evaluate_once(path: Path, committed: Path, build: Callable[[], tuple[dict[st
     maps keys of the recorded information to the values the preflight froze; a difference raises before anything is scored.
 
     Raises FileExistsError, before `build` loads anything, when `path` (the result in data/) or `committed` (the committed
-    report, which guards a fresh clone without data/) exists. A failure before the result is stored (a pool that does not
-    reproduce v3's published numbers) leaves nothing behind and may be rerun; the file is created exclusively, so two runs
-    cannot both store a result.
+    report, which guards a fresh clone without data/) exists, and LookStartedError when the marker `<path>.started` exists
+    without a result. The marker is created exclusively, with the time and `context`, once v3 has reproduced the published
+    numbers and before any outcome of the candidate is computed. A failure before the marker (a pool that does not reproduce
+    v3's published numbers) leaves nothing behind and may be rerun; after it only a human decides. The result file is created
+    exclusively, so two runs cannot both store a result.
     """
     path = Path(path)
     refuse_second_look(path, committed)
+    marker = path.with_suffix(".started")
+    if marker.exists():
+        raise LookStartedError(f"{marker.name} exists without {path.name}: a look was started and not completed; "
+                               "this needs a human decision, it is not rerun")
     pools, info = build()
     for key, value in (expect or {}).items():
         if info.get(key) != value:
             raise ValueError(f"{key} differs from the value frozen by the preflight; the look is not taken")
-    beside = op.score_heldout(pools["rules"], boot, published)
-    deciding = op.score_heldout(pools["ranked"], boot, None)
     context = context or {}
+
+    def mark_started() -> None:
+        record = {"started_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                  "events_sha256": info.get("events_sha256"), **context}
+        with open(marker, "x", encoding="utf-8") as handle:
+            handle.write(json.dumps(jsonable(record), indent=2, allow_nan=False) + "\n")
+
+    beside = op.score_heldout(pools["rules"], boot, published, before_candidate=mark_started)
+    deciding = op.score_heldout(pools["ranked"], boot, None)
     result = {**context, **info, "scores": deciding, "scores_v3_rules": beside,
               "labels": {"scores": "v3 = v3_ranked (calibrated risk ranked, burden-matched like v4-int); decides",
                          "scores_v3_rules": "v3 = v3 with the section 11 rules and the hysteresis; reported, does not decide"},
@@ -841,6 +914,9 @@ def run_heldout(study: dict, say=print, build: Callable = build_heldout, feature
     otherwise the one look."""
     out = output_dir(study)
     refuse_second_look(out / HELDOUT, report_path(study))
+    if (out / STARTED).exists():
+        raise LookStartedError(f"{STARTED} exists without {HELDOUT}: a look was started and not completed; "
+                               "this needs a human decision, it is not rerun")
     dev = load_dev_results(study)
     if not dev["stage_one"]["passed"]:
         raise StageOneError("stage 1 has not passed: v4-int is not evaluated on the held-out set (spec section 3)")
@@ -866,6 +942,10 @@ def _fa(entry: dict) -> str:
 
 def _pct(values) -> str:
     return " / ".join("n/a" if v is None else f"{100 * v:.2f}%" for v in values)
+
+
+def _ties(info: dict) -> str:
+    return " ; ".join(f"{c['tied_cell_days']:,} ({c['straddle']:,})" for _, c in sorted(info["cuts"].items()))
 
 
 def _slide_rows(scores: dict, labels: tuple[str, str]) -> list[str]:
@@ -923,17 +1003,20 @@ def markdown(result: dict) -> str:
         "All levels, independent slides detected (v3_ranked against v4-int):", "", *_slide_rows(scores, ("v3_ranked", "v4-int")), "",
         "Beside it, not deciding: v3 with the section 11 rules and the hysteresis (its own, rule-based levels at the same "
         "burden) against v4-int:", "", *_slide_rows(beside, ("v3 with rules", "v4-int")), "",
-        "Alert cell-days at the matched burden, pooled (Watch+ / Warning+ / Emergency):", "",
+        "Alert cell-days at the matched burden, pooled, all three on the same scored cell-days (Watch+ / Warning+ / Emergency):", "",
         "| levels | alert cell-days |", "|---|---|",
-        *[f"| {name} | " + " / ".join(f"{n:,}" for n in counts) + " |" for name, counts in heldout["pooled"]["alert_cell_days"].items()], "",
+        *[f"| {name} | " + " / ".join(f"{n:,}" for n in counts) + " |"
+          for name, counts in heldout["pooled"]["alert_cell_days_scored"].items()],
+        "| v3_rules, counted as the W1 report counts them (held levels included) | "
+        + " / ".join(f"{n:,}" for n in heldout["pooled"]["alert_cell_days"]["v3_rules"]) + " |", "",
         "Burden matching per season: target (v3 with rules realised) and the realised shares of v3_ranked and v4-int, "
-        "Watch+ / Warning+ / Emergency, and the tie mass at each cut (cell-days sharing the cut cell-day's risk and raw "
-        "score, and how many of the ones sharing its risk alone were separated by the raw score):", "",
-        "| season | target | v3_ranked realised | v4-int realised | ties at the cuts (v4-int: same risk and raw / same risk) |",
-        "|---|---|---|---|---|",
+        "Watch+ / Warning+ / Emergency. Cell-days tied on both calibrated risk and raw score are ordered by a seeded key of "
+        "(cell, day); the last two columns give, at each cut, the cell-days tied with the last one taken, and in brackets "
+        "how many of them the cut leaves out (a straddled tie):", "",
+        "| season | target | v3_ranked realised | v4-int realised | v3_ranked ties at the cuts | v4-int ties at the cuts |",
+        "|---|---|---|---|---|---|",
         *[f"| {year} | {_pct(s['v3_realised_shares'])} | {_pct(s['v3_ranked']['realised'])} | {_pct(s['v4_int']['realised'])} | "
-          + " ; ".join(f"{c['tied_cell_days']:,} / {c['risk_tied_cell_days']:,}" for _, c in sorted(s['v4_int']['cuts'].items())) + " |"
-          for year, s in seasons.items()], "",
+          f"{_ties(s['v3_ranked'])} | {_ties(s['v4_int'])} |" for year, s in seasons.items()], "",
         "Share of scored held-out cell-days with a NaN intensity input, per season (a NaN is learned as missing, never zero):", "",
         "| season | " + " | ".join(dev["added_inputs"]) + " |", "|---" * (len(dev["added_inputs"]) + 1) + "|",
         *[f"| {year} | " + " | ".join(f"{100 * s['iint_nan_share'][c]:.2f}%" for c in dev["added_inputs"]) + " |" for year, s in seasons.items()], "",

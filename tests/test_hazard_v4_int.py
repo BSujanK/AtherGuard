@@ -113,7 +113,7 @@ def test_v4_int_is_the_v3_inputs_plus_the_six_non_decreasing_intensity_features_
 
 def test_the_study_overrides_nothing_of_the_frozen_v3_configuration(study):
     assert set(study) == {"base_config", "output_dir", "seasons_dir", "report_stem", "reference", "challenger", "extra_groups",
-                          "candidates", "reproduction_tolerance", "preflight", "base"}
+                          "candidates", "reproduction_tolerance", "tie_seed", "preflight", "base"}
     assert set(study["candidates"]["v4_int"]) == {"description", "add_groups", "add_increasing"}
     assert study["base_config"] == "configs/hazard_v3.yaml"
     assert v4.extra_groups(study).keys() == {*study["base"]["extra_groups"], ii.GROUP}
@@ -121,6 +121,7 @@ def test_the_study_overrides_nothing_of_the_frozen_v3_configuration(study):
     assert study["base"]["model_dir"] == "model_v3_live" and v4.output_dir(study).name == "v4_int"
     assert v4.output_dir(study) != hm.configured_model_dir(study["base"])
     assert study["reproduction_tolerance"] <= 1e-12
+    assert study["tie_seed"] == v4.TIE_SEED == 20261106 and study["preflight"]["straddle_tolerance"] == 0.01
 
 
 def test_candidate_definitions_are_checked(study):
@@ -244,6 +245,11 @@ def test_a_failed_stage_one_is_final_and_needs_no_held_out_scores():
 
 # --------------------------------------------------------------------------------------- burden matching
 
+def ids(shape):
+    """(cell ids, days) for an array of `shape`."""
+    return np.arange(shape[0]) + 100, [date(2019, 6, 1) + timedelta(k) for k in range(shape[1])]
+
+
 def test_burden_matching_gives_the_ranked_levels_the_realised_shares_of_v3_in_the_season():
     scored = np.ones((4, 5), dtype=bool)
     scored[3, :] = False
@@ -251,7 +257,7 @@ def test_burden_matching_gives_the_ranked_levels_the_realised_shares_of_v3_in_th
     v3[0, 0], v3[0, 1], v3[1, 2] = 3, 2, 1                 # 15 scored cell-days: 3/15 Watch+, 2/15 Warning+, 1/15 Emergency
     risk = np.linspace(0.0, 1.0, 20).reshape(4, 5)
     risk[3, :] = 0.99                                       # unscored cells never alert, however high their risk
-    levels, info = v4.match_burden(risk, risk * 2, scored, v3)
+    levels, info = v4.match_burden(risk, risk * 2, scored, v3, *ids(scored.shape))
     assert info["target"] == pytest.approx([3 / 15, 2 / 15, 1 / 15])
     assert info["realised"] == pytest.approx(info["target"]) and levels.dtype == np.int8
     assert (levels[3] == 0).all()
@@ -267,7 +273,7 @@ def test_ties_in_the_calibrated_risk_are_broken_by_the_raw_score_and_the_tie_mas
     risk = np.full((2, 5), 0.5)
     risk[1, 1:] = 0.1                                                   # the isotonic step: 6 cell-days tie at 0.5
     raw = np.arange(10, dtype=float).reshape(2, 5)
-    levels, info = v4.match_burden(risk, raw, scored, v3)
+    levels, info = v4.match_burden(risk, raw, scored, v3, *ids(scored.shape))
     # the six cell-days at risk 0.5 are ordered by raw, highest first: (1, 0), (0, 4), (0, 3), (0, 2), (0, 1), (0, 0)
     assert levels[1, 0] == 3 and levels[0, 4] == 2 and levels[0, 3] == 1 and levels[0, 2] == 1 and levels[0, 1] == 1
     assert levels[0, 0] == 0 and (levels[1, 1:] == 0).all()
@@ -279,19 +285,61 @@ def test_ties_in_the_calibrated_risk_are_broken_by_the_raw_score_and_the_tie_mas
 def test_cell_days_tied_in_both_risk_and_raw_are_reported_as_one_tie_mass():
     scored = np.ones((1, 6), dtype=bool)
     v3 = np.array([[3, 2, 1, 0, 0, 0]], dtype=np.int8)
-    levels, info = v4.match_burden(np.full((1, 6), 0.3), np.full((1, 6), 7.0), scored, v3)
+    levels, info = v4.match_burden(np.full((1, 6), 0.3), np.full((1, 6), 7.0), scored, v3, *ids((1, 6)))
     assert (levels > 0).sum() == 3 and info["cuts"][1]["tied_cell_days"] == 6 and info["cuts"][1]["tied_taken"] == 3
+    assert info["cuts"][1]["straddle"] == 3 and info["cuts"][2]["straddle"] == 4 and info["cuts"][3]["straddle"] == 5
     assert info["realised"] == info["target"]
+
+
+def test_the_tie_key_depends_on_the_cell_and_the_day_only_and_is_pinned():
+    a = v4.tie_keys([1, 2, 3], [10, 10, 10])
+    assert a.dtype == np.uint64 and len(set(a.tolist())) == 3
+    assert (v4.tie_keys([3, 1, 2], [10, 10, 10]) == a[[2, 0, 1]]).all()               # not the position in the array
+    assert v4.tie_keys([1], [11])[0] != a[0] and v4.tie_keys([1], [10], seed=1)[0] != a[0]
+    assert (v4.tie_keys([1, 2, 3], [10, 10, 10]) == a).all()                           # a second run is the same
+    assert int(v4.tie_keys([1], [1])[0]) == 11860267419498390199                       # pinned: the same on every platform
+    assert int(v4.tie_keys([123456789], [739000])[0]) == 3510536484798804842
+
+
+def test_cell_days_tied_on_risk_and_raw_are_ordered_by_the_seeded_key_not_by_array_position():
+    rng = np.random.default_rng(3)
+    scored = np.ones((8, 6), dtype=bool)
+    risk, raw = np.full((8, 6), 0.4), np.full((8, 6), 2.0)
+    risk[:2] = 0.9                                                        # a clear top, everything else tied on both
+    v3 = np.zeros((8, 6), dtype=np.int8)
+    v3.ravel()[:20], v3.ravel()[:8], v3.ravel()[:3] = 1, 2, 3
+    cells, days = ids(scored.shape)
+    base, info = v4.match_burden(risk, raw, scored, v3, cells, days)
+    assert (base[:2] == 3).sum() + (base[:2] == 2).sum() + (base[:2] == 1).sum() == 12      # the top rows come first
+    assert 0 < (base[2:] > 0).sum() < base[2:].size
+    again, _ = v4.match_burden(risk, raw, scored, v3, cells, days)
+    assert np.array_equal(again, base)                                                       # two runs, identical levels
+    perm = rng.permutation(8)
+    shuffled, _ = v4.match_burden(risk[perm], raw[perm], scored[perm], v3[perm], cells[perm], days)
+    assert np.array_equal(shuffled, base[perm])                                              # the same cell-days are taken
+    columns = rng.permutation(6)
+    moved, _ = v4.match_burden(risk[:, columns], raw[:, columns], scored[:, columns], v3[:, columns], cells,
+                               [days[c] for c in columns])
+    assert np.array_equal(moved, base[:, columns])
+    other, _ = v4.match_burden(risk, raw, scored, v3, cells, days, seed=1)
+    assert not np.array_equal(other, base) and (other > 0).sum() == (base > 0).sum()        # the seed decides, the burden is kept
+    assert info["cuts"][1]["tied_cell_days"] == 36 and info["cuts"][1]["straddle"] > 0
 
 
 def test_a_realised_share_off_its_target_is_an_error_before_any_outcome():
     scored = np.ones((1, 4), dtype=bool)
     with pytest.raises(v4.BurdenMatchError, match="differ from the target"):
-        v4.match_burden(np.arange(4.0).reshape(1, 4), np.zeros((1, 4)), scored, np.array([[1, 0, 0, 0]], dtype=np.int8), tolerance=-1.0)
+        v4.match_burden(np.arange(4.0).reshape(1, 4), np.zeros((1, 4)), scored, np.array([[1, 0, 0, 0]], dtype=np.int8),
+                        *ids((1, 4)), tolerance=-1.0)
     with pytest.raises(ValueError, match="finite"):
-        v4.match_burden(np.array([[np.nan, 1.0]]), np.zeros((1, 2)), np.ones((1, 2), dtype=bool), np.zeros((1, 2), dtype=np.int8))
+        v4.match_burden(np.array([[np.nan, 1.0]]), np.zeros((1, 2)), np.ones((1, 2), dtype=bool), np.zeros((1, 2), dtype=np.int8),
+                        *ids((1, 2)))
     with pytest.raises(ValueError, match="share one shape"):
-        v4.match_burden(np.zeros((1, 2)), np.zeros((1, 3)), np.ones((1, 2), dtype=bool), np.zeros((1, 2), dtype=np.int8))
+        v4.match_burden(np.zeros((1, 2)), np.zeros((1, 3)), np.ones((1, 2), dtype=bool), np.zeros((1, 2), dtype=np.int8),
+                        *ids((1, 2)))
+    with pytest.raises(ValueError, match="do not match"):
+        v4.match_burden(np.zeros((2, 2)), np.zeros((2, 2)), np.ones((2, 2), dtype=bool), np.zeros((2, 2), dtype=np.int8),
+                        np.arange(3), ids((2, 2))[1])
 
 
 # -------------------------------------------------------------------------------------------- the assembly
@@ -311,7 +359,7 @@ def levels_from(order_score: np.ndarray, scored: np.ndarray, counts) -> np.ndarr
     return flat.reshape(scored.shape)
 
 
-def make_input(year=2019, seed=0, constant_v4_risk=False, drop=None) -> v4.SeasonInput:
+def make_input(year=2019, seed=0, constant_v4_risk=False, drop=None, tied=False) -> v4.SeasonInput:
     rng = np.random.default_rng(seed + year)
     n, total = len(REF), WARM + DAYS
     days = [date(year, 5, 30) + timedelta(k) for k in range(total)]
@@ -323,6 +371,9 @@ def make_input(year=2019, seed=0, constant_v4_risk=False, drop=None) -> v4.Seaso
     if constant_v4_risk:
         v4_risk = np.full((n, total), 0.5)
         v4_raw = np.arange(n * total, dtype=float).reshape(n, total)
+    if tied:                                                             # one score for every cell-day, of v3 and v4-int alike
+        v3_risk, v4_risk = np.full((n, total), 0.5), np.full((n, total), 0.5)
+        v3_raw, v4_raw = np.full((n, total), 1.0), np.full((n, total), 1.0)
     rules_levels = levels_from(rng.random((n, DAYS)), scored[:, WARM:], (14, 5, 2))
     nan = np.where(scored, 1.0, np.nan)
     panel = H.new_panel(pd.DataFrame({"cell_id": REF, "region": "himalaya", "in_universe": True}), days, 3)
@@ -373,6 +424,38 @@ def test_the_assembly_ranks_by_risk_then_raw_for_both_v4_int_and_v3_ranked():
     top = np.unravel_index(np.nanargmax(risk), risk.shape)
     assert ranked_v3[top] == 3                                                             # v3_ranked follows v3's own risk
     assert assembly.info["seasons"]["2019"]["v4_int"]["cuts"][1]["risk_tied_cell_days"] == int(inp.part.scored.sum())
+
+
+def test_the_pooled_alert_comparison_counts_all_three_on_the_same_scored_cell_days():
+    def hold(inp):
+        inp.part.v3[0, 0] = 1                                            # a held level on the unscored cell-day (0, first day)
+
+    assembly = v4.assemble([make_input(2019, drop=hold), make_input(2020)], REF, EVENTS)
+    pooled = assembly.info["pooled"]
+    assert pooled["alert_cell_days"]["v3_rules"][0] == 29 and pooled["alert_cell_days"]["v3_ranked"][0] == 28     # as W1 counts
+    assert pooled["alert_cell_days_scored"] == {"v3_rules": [28, 10, 4], "v3_ranked": [28, 10, 4], "v4_int": [28, 10, 4]}
+    study = {"preflight": expectations(assembly.info)}
+    checks = v4.check_assembly(study, assembly.info, w1_of(assembly.info))
+    assert all(c["passed"] for c in checks), [c for c in checks if not c["passed"]]
+
+
+def test_full_ties_straddling_a_cut_are_checked_against_one_percent_of_the_alert_cell_days():
+    study = {"preflight": {"straddle_tolerance": 0.01}}
+    clean = v4.check_straddle(study, assembled().info)
+    assert [c["passed"] for c in clean] == [True, True] and all(v["straddle"] == 0 for v in clean[0]["detail"].values())
+    tied = v4.check_straddle(study, v4.assemble([make_input(2019, tied=True)], REF, EVENTS).info)
+    assert tied[0]["passed"] is False and tied[0]["name"].startswith("season 2019 full ties straddling")
+    numbers = tied[0]["detail"]["v4_int Warning+"]
+    assert numbers["alert_cell_days"] == 5 and numbers["tied_cell_days"] == 35 and numbers["straddle"] == 30 and numbers["share"] == 6.0
+    assert set(tied[0]["detail"]) == {f"{m} {lv}" for m in ("v4_int", "v3_ranked") for lv in ("Warning+", "Emergency")}
+
+    def info_with(taken, straddle):
+        cut = {"cell_days_taken": taken, "straddle": straddle, "tied_cell_days": straddle + 1, "tied_taken": 1}
+        return {"seasons": {"2019": {name: {"cuts": {2: cut, 3: cut}} for name in ("v4_int", "v3_ranked")}}}
+
+    assert v4.check_straddle(study, info_with(100, 1))[0]["passed"] is True            # exactly 1%
+    assert v4.check_straddle(study, info_with(100, 2))[0]["passed"] is False
+    assert v4.check_straddle(study, info_with(0, 0))[0]["passed"] is True
 
 
 def test_the_assembly_checks_the_cells_days_scored_cell_days_and_finite_scores():
@@ -481,6 +564,53 @@ def test_the_second_look_is_refused_before_anything_is_loaded(tmp_path):
     with pytest.raises(FileExistsError, match="heldout.json"):
         v4.evaluate_once(path, report, build, BOOT, None, {"stage_one": PASSED})
     assert built == [1] and path.read_text(encoding="utf-8") == stored
+
+
+def test_the_started_marker_is_written_after_v3_reproduced_and_before_any_candidate_outcome(tmp_path, monkeypatch):
+    path, marker = tmp_path / "heldout.json", tmp_path / "heldout.started"
+    built = pools({"events_sha256": "e"})
+    seen = []
+    real = op.match
+
+    def spy(levels, *args, **kwargs):
+        seen.append(("candidate" if levels is built[0]["rules"].candidate else "v3" if levels is built[0]["rules"].v3 else "ranked",
+                     marker.exists()))
+        return real(levels, *args, **kwargs)
+
+    monkeypatch.setattr(op, "match", spy)
+    v4.evaluate_once(path, tmp_path / "report.json", lambda: built, BOOT, None, {"stage_one": PASSED, "lag_days": 1})
+    assert seen[0] == ("v3", False) and ("candidate", True) in seen and all(flag for kind, flag in seen if kind == "candidate")
+    record = json.loads(marker.read_text(encoding="utf-8"))
+    assert record["events_sha256"] == "e" and record["lag_days"] == 1 and record["stage_one"] == PASSED
+    assert record["started_utc"].endswith("Z")
+
+
+def test_a_look_that_died_after_the_marker_is_not_rerun_and_needs_a_human(tmp_path, monkeypatch):
+    path, marker, report = tmp_path / "heldout.json", tmp_path / "heldout.started", tmp_path / "report.json"
+    built = pools()
+    real = op.match
+
+    def dies(levels, *args, **kwargs):
+        if levels is built[0]["rules"].candidate:
+            raise RuntimeError("out of memory")
+        return real(levels, *args, **kwargs)
+
+    monkeypatch.setattr(op, "match", dies)
+    with pytest.raises(RuntimeError, match="out of memory"):
+        v4.evaluate_once(path, report, lambda: built, BOOT, None, {"stage_one": PASSED})
+    assert marker.is_file() and not path.exists()
+    monkeypatch.setattr(op, "match", real)
+    loaded = []
+    with pytest.raises(v4.LookStartedError, match="started and not completed.*human decision"):
+        v4.evaluate_once(path, report, lambda: loaded.append(1) or built, BOOT, None, {"stage_one": PASSED})
+    assert loaded == [] and not path.exists()
+
+
+def test_no_marker_is_left_by_a_look_that_failed_the_published_check(tmp_path):
+    wrong = {"tolerant": {2: {"hits": 9, "alert_cell_days": 3, "group_hits": 2, "groups": 2}}}
+    with pytest.raises(ValueError, match="published"):
+        v4.evaluate_once(tmp_path / "heldout.json", tmp_path / "report.json", pools, BOOT, wrong, {"stage_one": PASSED})
+    assert not (tmp_path / "heldout.started").exists()
 
 
 def test_a_committed_report_alone_also_blocks_the_look(tmp_path):
@@ -748,6 +878,10 @@ def test_dev_does_not_overwrite_earlier_results_unless_forced_and_never_after_th
     (out / v4.HELDOUT).write_text("{}", encoding="utf-8")
     with pytest.raises(FileExistsError, match="look has been taken"):
         v4.run_dev(stage_env, store, say=lambda m: None, force=True)
+    (out / v4.HELDOUT).unlink()
+    (out / v4.STARTED).write_text("{}", encoding="utf-8")
+    with pytest.raises(FileExistsError, match="heldout.started"):
+        v4.run_dev(stage_env, store, say=lambda m: None, force=True)
 
 
 def test_a_failed_stage_one_writes_no_model_and_no_held_out_look_happens(stage_env, store, monkeypatch):
@@ -774,7 +908,7 @@ def test_heldout_needs_the_development_results(stage_env):
 def expectations(info: dict) -> dict:
     """The study's `preflight` section as the W1 facts of the synthetic assembly."""
     pooled, events = info["pooled"], info["events"]
-    return {"burden_tolerance": 1e-4, "pooled_alert_tolerance": 5e-4, "cells": pooled["cells"], "days": pooled["days"],
+    return {"burden_tolerance": 1e-4, "pooled_alert_tolerance": 5e-4, "straddle_tolerance": 0.01, "cells": pooled["cells"], "days": pooled["days"],
             "v3_alert_cell_days": pooled["alert_cell_days"]["v3_rules"], "events": events["events"],
             "events_outside_panel_days": events["outside_panel_days"], "distinct_slides": events["distinct_slides"],
             "events_by_source": events["by_source"]}
@@ -803,8 +937,9 @@ def test_the_guard_checks_name_the_state_of_the_look(stage_env, tmp_path):
     out.mkdir(parents=True)
     dev = {"stage_one": {"passed": True, "verdict": "includes zero"}, "lag_days": 1}
     checks = {c["name"]: c["passed"] for c in v4.check_guard(stage_env, dev, 1)}
-    assert all(checks.values()) and len(checks) == 4
+    assert all(checks.values()) and len(checks) == 5 and "no look-started marker" in checks
     (out / v4.HELDOUT).write_text("{}", encoding="utf-8")
+    (out / v4.STARTED).write_text("{}", encoding="utf-8")
     (tmp_path / "reports").mkdir()
     (tmp_path / "reports" / "phase7_rain_intensity.json").write_text("{}", encoding="utf-8")
     checks = {c["name"]: c["passed"] for c in v4.check_guard(stage_env, {**dev, "stage_one": {"passed": False, "verdict": "x"}}, 0)}
@@ -934,6 +1069,10 @@ def test_a_preflight_after_the_look_or_on_a_failed_stage_one_does_not_pass(stage
     (v4.output_dir(stage_env) / v4.HELDOUT).write_text("{}", encoding="utf-8")
     with pytest.raises(FileExistsError, match="look has been taken"):
         v4.run_preflight(stage_env, store, say=lambda m: None)
+    (v4.output_dir(stage_env) / v4.HELDOUT).unlink()
+    (v4.output_dir(stage_env) / v4.STARTED).write_text("{}", encoding="utf-8")
+    with pytest.raises(FileExistsError, match="heldout.started"):
+        v4.run_preflight(stage_env, store, say=lambda m: None)
 
 
 def test_the_provenance_hashes_the_card_the_panels_the_lag_and_the_iint_manifest(stage_env, isolated_data_root, tmp_path):
@@ -1016,6 +1155,16 @@ def test_the_heldout_stage_stores_one_result_with_the_lag_and_provenance_and_ref
     assert len(built) == 1
 
 
+def test_the_heldout_stage_refuses_a_started_look_and_names_the_human_decision(stage_env, store, monkeypatch):
+    look_env(stage_env, store, monkeypatch)
+    write_preflight(stage_env)
+    (v4.output_dir(stage_env) / v4.STARTED).write_text("{}", encoding="utf-8")
+    built = []
+    with pytest.raises(v4.LookStartedError, match="human decision"):
+        v4.run_heldout(stage_env, say=lambda m: None, build=lambda *a: built.append(1), features_dir=store)
+    assert built == [] and not (v4.output_dir(stage_env) / v4.HELDOUT).exists()
+
+
 def test_the_look_is_refused_when_the_events_changed_after_the_preflight(stage_env, store, monkeypatch):
     look_env(stage_env, store, monkeypatch)
     write_preflight(stage_env, sha="frozen")
@@ -1063,7 +1212,7 @@ def test_the_report_of_a_look_lists_the_comparisons_the_ties_and_the_lag(stage_e
     result = v4.write_report(stage_env, tmp_path / "reports", say=lambda m: None)
     text = (tmp_path / "reports" / "phase7_rain_intensity.md").read_text(encoding="utf-8")
     for needle in ("Warning+", "Emergency", "cell_exact", "tolerant", "independent slides", "burden", "2019", "2020", "C0", "v4_int",
-                   "v3_ranked", "with rules", "ties at the cuts", "NaN intensity", "lag the target day by 0", "iint_max6h_max3d"):
+                   "v3_ranked", "with rules", "v3_ranked ties at the cuts", "v4-int ties at the cuts", "straddled tie", "NaN intensity", "lag the target day by 0", "iint_max6h_max3d"):
         assert needle in text, needle
     assert result["heldout"]["decision"]["stage"] == 2 and result["decision"] == result["heldout"]["decision"]
     assert result["preflight"]["passed"] is True and result["heldout"]["lag_days"] == 0

@@ -422,13 +422,15 @@ def _scores(levels: np.ndarray, pool: HeldOut, m, labels: np.ndarray, boot: dict
     return {k: bootstrap_scores(levels, pool.scored, m, k, boot) | grouped_pod(m.event_level, labels, k, boot) for k in LEVELS}
 
 
-def score_heldout(pool: HeldOut, boot: dict = BOOTSTRAP, published: dict | None = None) -> dict:
+def score_heldout(pool: HeldOut, boot: dict = BOOTSTRAP, published: dict | None = None,
+                  before_candidate: Callable[[], None] | None = None) -> dict:
     """v3 against the candidate on `pool`, tolerant and cell-exact, per level.
 
     Per tolerance: `v3` and `candidate` hold the `scores.bootstrap_scores` of each level plus the detection of independent
     slides (`grouped_pod` over `heldout.event_clusters`), and `change` the `scores.paired_change` (candidate minus v3, days
     resampled together). v3 is scored first and compared with `published` ({tolerance: {level: {field: value}}}, the numbers
-    the W1 report gives); a difference raises before the candidate is scored.
+    the W1 report gives); a difference raises before the candidate is scored. `before_candidate`, when given, is called
+    once between the two, after that check and before any outcome of the candidate is computed.
     """
     scores: dict = {}
     matched: dict = {}
@@ -438,6 +440,8 @@ def score_heldout(pool: HeldOut, boot: dict = BOOTSTRAP, published: dict | None 
         matched[name] = (m, labels)
         scores[name] = {"v3": _scores(pool.v3, pool, m, labels, boot)}
     _check_published(scores, published)
+    if before_candidate is not None:
+        before_candidate()
     for name, tolerance in TOLERANCES.items():
         m_v3, labels = matched[name]
         m = match(pool.candidate, pool.cell_ids, pool.days, pool.events, tolerance)
