@@ -578,6 +578,49 @@ def test_repair_leaves_days_without_a_file_alone_and_honours_months(nasa, store)
 
 # ------------------------------------------------------------------------------------------ CLI
 
+def test_live_window_build_reduces_only_the_first_44_half_hours_into_its_own_directory(nasa, store):
+    day = date(2024, 8, 1)
+    nasa.field_for = staticmethod(lambda start: np.full((ROWS, COLS), 2.0 if start < utc(2024, 8, 1, 1) else 40.0,
+                                                        dtype=np.float32))
+    run_build(store, "early", day, day, live_window=True)
+    assert not day_file(store, "early", day).exists()
+    path = store["root"] / "early_live" / "2024" / "20240801.npz"
+    with np.load(path) as data:
+        assert imerg_hh.LIVE_HALF_HOURS == 44 and (data["n_halfhours"] == 44).all()
+        assert data["max3h"][0, 0] == pytest.approx(6.0)             # the 40 mm/h tail is never fetched
+        assert data["wet_hours"][0, 0] == pytest.approx(22.0)
+        assert data["versions"].tolist() == ["V07B"]
+    assert len(nasa.data_hits) == 44 and max(nasa.data_hits) == utc(2024, 8, 1, 0, 30)
+    assert nasa.cmr_params[0]["collection_concept_id"] == CONCEPTS["early"]
+
+
+def test_live_window_day_equals_reduce_day_of_the_prefix_of_the_full_day(nasa, store):
+    day = date(2024, 8, 1)
+    rng = np.random.default_rng(11)
+    starts = [imd_start(day) + k * HALF for k in range(48)]
+    series = {s: rng.gamma(0.4, 4.0, size=(ROWS, COLS)).astype(np.float32) for s in starts}
+    nasa.field_for = staticmethod(lambda start: series[start])
+    run_build(store, "early", day, day, live_window=True)
+    expected = imerg_hh.reduce_day(np.stack([series[s] for s in starts[:44]]), n_expected=44)
+    with np.load(store["root"] / "early_live" / "2024" / "20240801.npz") as data:
+        for name, values in expected.items():
+            np.testing.assert_array_equal(data[name], values)
+
+
+def test_live_window_does_not_warn_about_the_unfetched_tail(nasa, store, caplog):
+    nasa.absent = {utc(2024, 8, 1, 2)}                              # a tail half-hour CMR lacks: irrelevant to the window
+    with caplog.at_level("WARNING"):
+        run_build(store, "early", date(2024, 8, 1), date(2024, 8, 1), live_window=True)
+    assert not [r for r in caplog.records if "not listed" in r.getMessage()]
+
+
+def test_live_window_and_complete_day_files_do_not_collide(nasa, store):
+    day = date(2024, 8, 1)
+    run_build(store, "early", day, day, live_window=True)
+    run_build(store, "early", day, day)
+    assert day_file(store, "early", day).exists() and (store["root"] / "early_live" / "2024" / "20240801.npz").exists()
+
+
 def test_parse_months():
     assert imerg_hh.parse_months("6-9") == {6, 7, 8, 9}
     assert imerg_hh.parse_months("6-12") == set(range(6, 13))
@@ -595,7 +638,18 @@ def test_cli_passes_its_arguments_to_build(tmp_path, monkeypatch):
     assert code == 0
     (args, kwargs), = calls
     assert args == ("late", date(2007, 1, 1), date(2017, 12, 31), tmp_path / "out")
-    assert kwargs == {"workers": 2, "months": {6, 7, 8, 9}}
+    assert kwargs == {"workers": 2, "months": {6, 7, 8, 9}, "live_window": False}
+
+
+def test_cli_live_window_flag_reaches_build_and_excludes_repair(tmp_path, monkeypatch):
+    calls = []
+    monkeypatch.setattr(imerg_hh, "build", lambda *a, **k: calls.append((a, k)))
+    assert imerg_hh.main(["--run", "early", "--start", "2024-06-01", "--end", "2024-12-31", "--live-window",
+                          "--root", str(tmp_path)]) == 0
+    (args, kwargs), = calls
+    assert args[0] == "early" and kwargs["live_window"] is True
+    with pytest.raises(SystemExit):
+        imerg_hh.main(["--run", "early", "--start", "2024-06-01", "--end", "2024-06-02", "--live-window", "--repair"])
 
 
 def test_cli_repair_runs_repair_not_build(tmp_path, monkeypatch):

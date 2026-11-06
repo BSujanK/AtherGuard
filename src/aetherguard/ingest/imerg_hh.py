@@ -25,8 +25,13 @@ re-running the same command resumes where it stopped. `--repair` revisits existi
 48 half-hours is refetched once CMR lists all 48, and a day written before `versions` was recorded gets the versions
 CMR lists now.
 
+`--live-window` reduces only what a live run has at 11:00 IST: the first 44 half-hours of the IMD day (03:00 UTC on D-1
+through 00:30 UTC on D; the newest Early half-hour at that time is about 00:30-01:00 UTC), with the same `reduce_day`
+and `n_expected=44`. Those truncated days go to `<root>/<run>_live/` so they never mix with the complete days; the W3
+train-serve gap compares them with the Late days of the same IMD day.
+
 CLI: python -m aetherguard.ingest.imerg_hh --run late|early --start YYYY-MM-DD --end YYYY-MM-DD [--months 6-9]
-[--workers 4] [--root DIR] [--repair]
+[--workers 4] [--root DIR] [--repair | --live-window]
 """
 from __future__ import annotations
 
@@ -57,6 +62,7 @@ CONCEPT_IDS = {"late": "C2723754845-GES_DISC", "early": "C2723758340-GES_DISC"}
 SHORT_NAMES = {"late": "GPM_3IMERGHHL", "early": "GPM_3IMERGHHE"}
 
 HALF_HOURS = 48                       # per IMD day
+LIVE_HALF_HOURS = 44                  # at 11:00 IST the last 4 half-hours (01:00-03:00 UTC on D) are not published yet
 SLOT = timedelta(minutes=30)
 DAY_START_HOUR_UTC = 3                # an IMD day starts at 03:00 UTC on the previous calendar day
 HOURS_PER_SLOT = 0.5
@@ -229,6 +235,11 @@ def _fetch_half_hour(link: str, session: requests.Session) -> np.ndarray:
 
 # ------------------------------------------------------------------------------------------ the build
 
+def store_name(run: str, live_window: bool = False) -> str:
+    """Directory under the root holding the day files of `run`: truncated live-window days live apart from complete ones."""
+    return f"{_check_run(run)}_live" if live_window else _check_run(run)
+
+
 def _day_path(root: Path, run: str, day: date) -> Path:
     return root / run / f"{day.year}" / f"{day:%Y%m%d}.npz"
 
@@ -241,24 +252,28 @@ def _write_day(path: Path, maps: dict[str, np.ndarray]) -> None:
     os.replace(part, path)
 
 
-def _record(manifest: Manifest, path: Path, run: str) -> None:
-    source = f"NASA GPM IMERG V07 half-hourly {run} run ({SHORT_NAMES[run]}), reduced to IMD-day intensity maxima"
+def _record(manifest: Manifest, path: Path, run: str, live_window: bool = False) -> None:
+    window = f", first {LIVE_HALF_HOURS} half-hours only (live window)" if live_window else ""
+    source = (f"NASA GPM IMERG V07 half-hourly {run} run ({SHORT_NAMES[run]}), reduced to IMD-day intensity maxima"
+              f"{window}")
     manifest.add(path, source, f"{imerg.CMR_URL}?collection_concept_id={CONCEPT_IDS[run]}", imerg.LICENCE)
 
 
 def _reduce_from_archive(run: str, day: date, listing: dict[int, _Listing], pool: ThreadPoolExecutor,
-                         sessions: imerg._Sessions) -> dict[str, np.ndarray]:
+                         sessions: imerg._Sessions, n_slots: int = HALF_HOURS) -> dict[str, np.ndarray]:
     """Fetch the listed half-hours of the IMD day, in parallel, and reduce them (plus `versions`).
 
-    A half-hour CMR does not list stays NaN and is logged. Raises DownloadError when a listed half-hour cannot be
-    fetched (the failure is transient, so the day must not be written) or when CMR lists none.
+    Only the first `n_slots` half-hours are used (all 48 unless a live window is built). A half-hour CMR does not
+    list stays NaN and is logged. Raises DownloadError when a listed half-hour cannot be fetched (the failure is
+    transient, so the day must not be written) or when CMR lists none of them.
     """
     first, _ = day_window(day)
-    fields = np.full((HALF_HOURS, imerg.ROWS, imerg.COLS), np.nan, dtype=np.float32)
+    listing = {slot: listed for slot, listed in listing.items() if slot < n_slots}
+    fields = np.full((n_slots, imerg.ROWS, imerg.COLS), np.nan, dtype=np.float32)
     futures = {slot: pool.submit(lambda link=listed.link: _fetch_half_hour(link, sessions.get()))
                for slot, listed in listing.items()}
     unfetched = 0
-    for slot in range(HALF_HOURS):
+    for slot in range(n_slots):
         stamp = f"{first + slot * SLOT:%Y-%m-%d %H:%M} UTC"
         if slot not in futures:
             log.warning("%s %s: half-hour %s is not listed by CMR; its windows are NaN", run, day, stamp)
@@ -272,7 +287,7 @@ def _reduce_from_archive(run: str, day: date, listing: dict[int, _Listing], pool
         raise DownloadError("CMR lists no half-hour of the day", retriable=True)
     if unfetched:
         raise DownloadError(f"{unfetched} listed half-hour(s) not fetched; the day is not written", retriable=True)
-    maps = reduce_day(fields)
+    maps = reduce_day(fields, n_slots)
     maps["versions"] = _versions(listing)
     return maps
 
@@ -296,9 +311,10 @@ def _prepare(run: str, start: date, end: date, workers: int, months, manifest: M
 
 
 def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *, months=None,
-          manifest: Manifest | None = None) -> None:
+          manifest: Manifest | None = None, live_window: bool = False) -> None:
     """Reduce every IMD day in [start, end] (restricted to `months`, a set of month numbers, when given) of the
-    half-hourly `run` archive into `<root>/<run>/<yyyy>/<yyyymmdd>.npz`; resumable.
+    half-hourly `run` archive into `<root>/<run>/<yyyy>/<yyyymmdd>.npz`; resumable. With `live_window` only the first
+    `LIVE_HALF_HOURS` half-hours of each day are fetched and reduced (n_halfhours is then 44), into `<root>/<run>_live/`.
 
     Days with a day file are skipped (and recorded in the manifest if they are not yet). A day on which a half-hour
     CMR lists cannot be fetched (or on which CMR lists none) is not written, is logged and counts as failed; the next
@@ -307,43 +323,46 @@ def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *,
     """
     manifest, days = _prepare(run, start, end, workers, months, manifest)
     root = Path(root)
-    log.info("%s: %d IMD days %s..%s, %d workers, root %s", run, len(days), start, end, workers, root)
+    n_slots = LIVE_HALF_HOURS if live_window else HALF_HOURS
+    store = store_name(run, live_window)
+    log.info("%s: %d IMD days %s..%s, %d half-hours each, %d workers, root %s", store, len(days), start, end, n_slots,
+             workers, root)
     sessions = imerg._Sessions()
     consecutive = skipped = written = failed = 0
     began = time.monotonic()
     try:
         with ThreadPoolExecutor(max_workers=workers) as pool:
             for number, day in enumerate(days, start=1):
-                path = _day_path(root, run, day)
+                path = _day_path(root, store, day)
                 if path.exists():
                     if not manifest.is_current(path):     # a crash between the write and the record
-                        _record(manifest, path, run)
+                        _record(manifest, path, run, live_window)
                     skipped += 1
                     continue
                 started = time.monotonic()
                 try:
-                    maps = _reduce_from_archive(run, day, _half_hour_listing(run, day), pool, sessions)
+                    maps = _reduce_from_archive(run, day, _half_hour_listing(run, day), pool, sessions, n_slots)
                 except DownloadError as exc:
                     failed += 1
                     consecutive += 1
-                    log.error("%s %s: day failed (%s); %d consecutive", run, day, exc, consecutive)
+                    log.error("%s %s: day failed (%s); %d consecutive", store, day, exc, consecutive)
                     if consecutive >= ABORT_AFTER:
                         raise BuildAborted(f"{consecutive} consecutive failed days, last {day}: {exc}") from exc
                     continue
                 consecutive = 0
                 _write_day(path, maps)
                 try:
-                    _record(manifest, path, run)
+                    _record(manifest, path, run, live_window)
                 except Exception:
                     path.unlink(missing_ok=True)      # never leave a data file without a manifest entry
                     raise
                 written += 1
                 log.info("%s %s: written, %d/%d half-hours, %.0f s (day %d/%d, skipped %d, failed %d, %.1f h elapsed)",
-                         run, day, int(maps["n_halfhours"].max()), HALF_HOURS, time.monotonic() - started,
+                         store, day, int(maps["n_halfhours"].max()), n_slots, time.monotonic() - started,
                          number, len(days), skipped, failed, (time.monotonic() - began) / 3600)
     finally:
         sessions.close()
-    log.info("%s: done, %d written, %d already present, %d failed", run, written, skipped, failed)
+    log.info("%s: done, %d written, %d already present, %d failed", store, written, skipped, failed)
 
 
 def repair(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *, months=None,
@@ -424,9 +443,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--end", type=date.fromisoformat, required=True, help="last IMD day, YYYY-MM-DD")
     parser.add_argument("--months", type=parse_months, help="only these months of the year, e.g. 6-9")
     parser.add_argument("--workers", type=int, default=MAX_WORKERS, help=f"parallel requests, 1..{MAX_WORKERS}")
-    parser.add_argument("--repair", action="store_true",
-                        help="instead of building, revisit existing day files: refetch days with missing half-hours "
-                             "once CMR lists all 48, and add the granule versions to older files")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--repair", action="store_true",
+                      help="instead of building, revisit existing day files: refetch days with missing half-hours "
+                           "once CMR lists all 48, and add the granule versions to older files")
+    mode.add_argument("--live-window", action="store_true",
+                      help=f"reduce only the first {LIVE_HALF_HOURS} half-hours of each day (what a live run has at "
+                           "11:00 IST) into <root>/<run>_live/")
     parser.add_argument("--root", type=Path, default=None,
                         help="output directory (default: <data root>/processed/imerg_intensity)")
     args = parser.parse_args(argv)
@@ -437,8 +460,11 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     root = args.root if args.root is not None else data_root() / "processed" / "imerg_intensity"
     try:
-        (repair if args.repair else build)(args.run, args.start, args.end, root, workers=args.workers,
-                                           months=args.months)
+        if args.repair:
+            repair(args.run, args.start, args.end, root, workers=args.workers, months=args.months)
+        else:
+            build(args.run, args.start, args.end, root, workers=args.workers, months=args.months,
+                  live_window=args.live_window)
     except BuildAborted as exc:
         print(f"aborted: {exc}; re-run the same command to resume", file=sys.stderr)
         return 2
