@@ -1,10 +1,17 @@
 import itertools
+from datetime import date, timedelta
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from aetherguard.verify.operating_point import Allocation, allocate, monotone, stratum_curves
+from aetherguard.alerts import levels as lv
+from aetherguard.live import hardening as H
+from aetherguard.live import hardening_dev as D
+from aetherguard.live import postrules as pr
+from aetherguard.verify.operating_point import Allocation, allocate, candidate_levels, monotone, stratum_curves
+
+from alerts_helpers import CONFIG
 
 H6, H7, W6, W7 = ("himalaya", 6), ("himalaya", 7), ("western_ghats", 6), ("western_ghats", 7)
 NAN = np.nan
@@ -202,3 +209,118 @@ def test_monotone_rejects_missing_levels_or_mismatched_strata():
         monotone({1: {H6: 0.1}, 2: {H6: 0.2}})
     with pytest.raises(ValueError):
         monotone({1: {H6: 0.1}, 2: {H6: 0.2}, 3: {W6: 0.3}})
+
+
+# ---------------------------------------------------------------------------------------- candidate levels
+
+HIM = lv.Thresholds(watch=1e-5, warning=4e-5, emergency=1e-4, source="test")
+GHATS = lv.Thresholds(watch=4e-5, warning=8e-5, emergency=2e-4, source="test")
+V3 = {"himalaya": HIM, "western_ghats": GHATS}
+RULES = pr.PostRules(None, pr.RainRule({7: 10.0}), (1, 2, 3), hold_window_days=2, blind_hold_days=1)
+
+
+def _season(risk, regions, start, new_hi=None, acc7=None):
+    risk = np.asarray(risk, dtype=np.float64)
+    days = [start + timedelta(days=k) for k in range(risk.shape[1])]
+    cells = pd.DataFrame({"cell_id": np.arange(len(risk)) + 1, "region": regions, "in_universe": True})
+    panel = H.new_panel(cells, days, 4)
+    panel.values["risk"][:] = risk
+    panel.values["new_hi"][:] = risk if new_hi is None else new_hi
+    panel.values["acc_7"][:] = 50.0 if acc7 is None else acc7
+    events = pd.DataFrame({"cell_id": pd.Series(dtype="int64"), "date": pd.Series(dtype="datetime64[ns]")})
+    return D.Season(2010, panel, 0, events, {region: V3[region] for region in set(regions)})
+
+
+def _random_season(start, n_days=18, seed=7):
+    rng = np.random.default_rng(seed)
+    shape = (8, n_days)
+    risk = np.exp(rng.uniform(np.log(3e-6), np.log(4e-4), shape))
+    risk[rng.random(shape) < 0.05] = np.nan
+    regions = ["himalaya"] * 4 + ["western_ghats"] * 4
+    return _season(risk, regions, start, new_hi=risk * rng.uniform(1.0, 3.0, shape),
+                   acc7=rng.choice([0.0, 50.0], shape))
+
+
+def _v3_thresholds(changes=()):
+    """Every stratum at v3's thresholds, with the values of `changes` ({(level, region, month): threshold}) put in."""
+    out = {level: {(region, month): float(v3.as_array()[level - 1]) for region, v3 in V3.items()
+                   for month in (6, 7, 8, 9)} for level in (1, 2, 3)}
+    for (level, region, month), value in dict(changes).items():
+        out[level][(region, month)] = value
+    return out
+
+
+@pytest.mark.parametrize("rules", [None, RULES])
+def test_v3_thresholds_everywhere_without_confirmation_give_the_section_11_levels(rules):
+    season = _random_season(date(2010, 6, 24))
+    expected = D.season_levels(season, "new_hi", CONFIG, rules)
+    assert expected.max() == 3 and expected.min() == 0
+    got = candidate_levels(season, _v3_thresholds(), CONFIG, rules, False)
+    assert got.dtype == expected.dtype and got.tolist() == expected.tolist()
+
+
+def test_lowering_one_strata_threshold_changes_only_that_region_and_month():
+    season = _random_season(date(2010, 6, 24))
+    month = np.array([d.month for d in season.panel.days])
+    western_ghats = season.region == "western_ghats"
+    base = candidate_levels(season, _v3_thresholds(), CONFIG, RULES, False)
+    lowered = candidate_levels(season, _v3_thresholds({(2, "western_ghats", 7): 5e-5}), CONFIG, RULES, False)
+    changed = lowered != base
+    assert changed.any() and (lowered >= base).all()
+    assert not changed[~western_ghats].any()
+    assert not changed[:, month == 6].any()
+
+
+def test_october_to_december_and_unlisted_strata_keep_the_v3_thresholds():
+    season = _random_season(date(2010, 9, 28), n_days=8, seed=3)
+    base = D.season_levels(season, "new_hi", CONFIG, RULES)
+    thresholds = _v3_thresholds()
+    for level in (1, 2, 3):
+        thresholds[level].update({("himalaya", 10): 1e-9, ("western_ghats", 10): 1e-9, ("himalaya", 11): 1e-9,
+                                  ("terai", 7): 1e-9, ("western_ghats", 9): None})
+    assert candidate_levels(season, thresholds, CONFIG, RULES, False).tolist() == base.tolist()
+    assert candidate_levels(season, {1: {}, 2: {}, 3: {}}, CONFIG, RULES, False).tolist() == base.tolist()
+
+
+def test_a_threshold_below_the_lower_levels_is_raised_to_them_on_each_cell_day():
+    july = date(2010, 7, 1)
+    emergency_below_warning = _season([[3e-5, 3e-5]], ["himalaya"], july)
+    got = candidate_levels(emergency_below_warning, _v3_thresholds({(3, "himalaya", 7): 2e-5}), CONFIG, None, False)
+    assert got.tolist() == [[1, 1]]              # Emergency (2e-5) is raised to Warning (4e-5), which 3e-5 does not reach
+    watch_above_v3_warning = _season([[4.5e-5, 4.5e-5]], ["himalaya"], july)
+    thresholds = _v3_thresholds({(1, "himalaya", 7): 5e-5})
+    thresholds[2][("himalaya", 7)] = None        # resolves to v3's Warning (4e-5), which is raised to Watch (5e-5)
+    assert candidate_levels(watch_above_v3_warning, thresholds, CONFIG, None, False).tolist() == [[0, 0]]
+
+
+def test_the_thresholds_of_the_month_apply_to_each_day_of_a_hysteresis_run():
+    # Watch is 1e-5 in June and 3e-5 in July for the Himalaya; the risk of 2e-5 is Watch in June, Normal in July
+    season = _season([[2e-5] * 4], ["himalaya"], date(2010, 6, 29))
+    thresholds = _v3_thresholds({(1, "himalaya", 7): 3e-5, (2, "himalaya", 7): 4e-5})
+    got = candidate_levels(season, thresholds, CONFIG, None, False)
+    assert got.tolist() == [[1, 1, 1, 0]]        # July 1 holds Watch (one day below), July 2 steps down
+
+
+def test_the_confirmation_publishes_warning_for_an_emergency_not_preceded_by_warning():
+    quiet, loud, warn = 1e-6, 2e-4, 5e-5
+    season = _season([[quiet, loud, quiet, quiet, quiet, quiet],     # a lone Emergency
+                      [loud, loud, quiet, quiet, quiet, quiet],      # Emergency on the first day, then a second one
+                      [warn, loud, quiet, quiet, quiet, quiet]],     # Emergency after a Warning
+                     ["himalaya"] * 3, date(2010, 7, 1))
+    plain = candidate_levels(season, _v3_thresholds(), CONFIG, None, False)
+    confirmed = candidate_levels(season, _v3_thresholds(), CONFIG, None, True)
+    assert plain.tolist() == [[0, 3, 3, 2, 2, 1], [3, 3, 3, 2, 2, 1], [2, 3, 3, 2, 2, 1]]
+    assert confirmed.tolist() == [[0, 2, 2, 1, 1, 0], [2, 3, 3, 2, 2, 1], [2, 3, 3, 2, 2, 1]]
+
+
+def test_the_confirmation_looks_at_the_raw_level_before_the_rain_cap():
+    # day 1 is capped to Watch by the rain rule, yet day 2's Emergency is confirmed by day 1's raw Warning
+    season = _season([[5e-5, 5e-5, 2e-4]], ["himalaya"], date(2010, 7, 1), acc7=[[50.0, 0.0, 50.0]])
+    rules = pr.PostRules(None, pr.RainRule({7: 10.0}), (1, 2, 3), hold_window_days=3)
+    assert candidate_levels(season, _v3_thresholds(), CONFIG, rules, True)[0, 2] == 3
+
+
+def test_candidate_levels_need_the_three_levels():
+    season = _season([[2e-5]], ["himalaya"], date(2010, 7, 1))
+    with pytest.raises(ValueError, match="levels 1, 2 and 3"):
+        candidate_levels(season, {1: {}, 2: {}}, CONFIG, None, False)

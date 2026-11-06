@@ -122,6 +122,16 @@ def season_levels(season: Season, upper: str, config, rules: pr.PostRules | None
     for name, thr in season.thresholds.items():
         rows = region == name
         raw[rows] = lv.raw_level(risk[rows], bound[rows], thr)[0]
+    return levels_from_raw(season, raw, config, rules, release, ok)
+
+
+def levels_from_raw(season: Season, raw: np.ndarray, config, rules: pr.PostRules | None = None, release: bool = True,
+                    ok: np.ndarray | None = None, row_thresholds: np.ndarray | None = None) -> np.ndarray:
+    """The part of `season_levels` after the raw level (cells, days): the rain cap of `rules` on the raw level, then the
+    hysteresis with the hold release of `rules`. The hysteresis steps down against the thresholds of the cell's region,
+    or against `row_thresholds` (cells, days, 3) when the thresholds change from day to day."""
+    panel = season.panel
+    risk, region = panel["risk"], season.region
     gates = rules is not None and rules.gates
     if gates:
         ok = rain_ok(panel, rules.rain) if ok is None else ok
@@ -140,7 +150,8 @@ def season_levels(season: Season, upper: str, config, rules: pr.PostRules | None
         dates = np.tile(stamps, len(rows))
         extra = (released[rows].reshape(-1, 4), cap) if gates and release else (None, None)
         blind_hold = None if rules is None else rules.blind_hold_days
-        out[rows] = lv.apply_hysteresis(ids, dates, raw[rows].ravel(), risk[rows].ravel(), thr, config.exit_factor,
+        step_down = thr if row_thresholds is None else row_thresholds[rows].reshape(-1, 3)
+        out[rows] = lv.apply_hysteresis(ids, dates, raw[rows].ravel(), risk[rows].ravel(), step_down, config.exit_factor,
                                         config.exit_days, None, *extra, blind_hold).reshape(len(rows), -1)
     return out
 

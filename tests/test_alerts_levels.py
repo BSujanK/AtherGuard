@@ -288,3 +288,60 @@ def test_the_blind_limit_never_goes_below_a_blind_escalated_raw_level_and_restar
     assert _blind([3, 0, 3, 0, 0], [2e-4, nan, 2e-4, nan, nan], 1) == [3, 3, 3, 3, 2]
     with pytest.raises(ValueError, match="blind_hold_days"):
         _blind([1], [2e-5], -1)
+
+
+# ------------------------------------------------------------------------------------ thresholds per row
+
+def _per_row(n, thresholds=T):
+    return np.tile(thresholds.as_array(), (n, 1))
+
+
+def test_levels_with_per_row_thresholds_equal_to_the_uniform_ones_match_the_plain_ones():
+    risk = np.array([5e-7, 1e-5, 2e-5, 4e-5, 9e-5, 1e-4, np.nan, 3e-4])
+    bound = np.array([2e-5, 1e-5, 2e-5, 4e-5, 9e-5, 1e-4, 5e-5, 3e-4])
+    rows = _per_row(len(risk))
+    assert lv.level_from_risk(risk, rows).tolist() == lv.level_from_risk(risk, T).tolist()
+    assert lv.uncertain_high_mask(risk, bound, rows).tolist() == lv.uncertain_high_mask(risk, bound, T).tolist()
+    for per_row, plain in zip(lv.raw_level(risk, bound, rows), lv.raw_level(risk, bound, T)):
+        assert per_row.tolist() == plain.tolist()
+    grid = np.tile(T.as_array(), (2, 4, 1))                    # a cells x days panel takes thresholds per cell-day
+    assert lv.level_from_risk(risk.reshape(2, 4), grid).tolist() == lv.level_from_risk(risk.reshape(2, 4), T).tolist()
+
+
+def test_hysteresis_with_per_row_thresholds_equal_to_the_uniform_ones_matches_the_plain_run():
+    cases = [([2, 1, 1, 1, 1], [5e-5, 2e-5, 2e-5, 2e-5, 2e-5]), ([2, 1, 1, 1, 1], [5e-5, 3e-5, 3.5e-5, 3e-5, 3e-5]),
+             ([3, 0, 0, 0, 0, 0], [2e-4, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]), ([2, 1, 2, 1, 1], [5e-5, 2e-5, 5e-5, 2e-5, 2e-5])]
+    for raw, risk in cases:
+        n = len(raw)
+        cells, days = np.zeros(n, dtype=int), pd.date_range("2024-07-01", periods=n)
+        plain = lv.apply_hysteresis(cells, days, raw, risk, T, 0.8, 2)
+        assert lv.apply_hysteresis(cells, days, raw, risk, _per_row(n), 0.8, 2).tolist() == plain.tolist()
+        release, cap = [False, False, True, True, True, True][:n], CAP
+        held = lv.apply_hysteresis(cells, days, raw, risk, T, 0.8, 2, None, release, cap, 1)
+        assert lv.apply_hysteresis(cells, days, raw, risk, _per_row(n), 0.8, 2, None, release, cap, 1).tolist() \
+            == held.tolist()
+    two = np.repeat([1, 2], 5)                                  # several cells, rows in any order
+    days = pd.DatetimeIndex(list(pd.date_range("2024-07-01", periods=5)) * 2)
+    raw, risk = np.array([2, 1, 1, 1, 1] * 2), np.array([1e-4, 5e-5, 5e-5, 5e-5, 5e-5] * 2)
+    perm = np.array([7, 2, 9, 0, 4, 1, 8, 3, 6, 5])
+    plain = lv.apply_hysteresis(two[perm], days[perm], raw[perm], risk[perm], T, 0.8, 2)
+    assert lv.apply_hysteresis(two[perm], days[perm], raw[perm], risk[perm], _per_row(10), 0.8, 2).tolist() \
+        == plain.tolist()
+
+
+def test_hysteresis_steps_down_against_the_thresholds_of_the_row_it_decides_on():
+    raw, risk = [2, 1, 1, 1, 1], [1e-4, 5e-5, 5e-5, 5e-5, 5e-5]
+    cells, days = np.zeros(5, dtype=int), pd.date_range("2024-07-01", periods=5)
+    low, high = T.as_array(), GHATS.as_array()               # exit thresholds for Warning: 3.2e-5 and 6.4e-5
+    rows = np.vstack([low, low, high, high, high])            # the step-down days (2-4) sit under the higher thresholds
+    assert lv.apply_hysteresis(cells, days, raw, risk, rows, 0.8, 2).tolist() == [2, 2, 2, 1, 1]
+    assert lv.apply_hysteresis(cells, days, raw, risk, np.vstack([high] * 5), 0.8, 2).tolist() == [2, 2, 1, 1, 1]
+    assert lv.apply_hysteresis(cells, days, raw, risk, np.vstack([low] * 5), 0.8, 2).tolist() == [2, 2, 2, 2, 2]
+
+
+def test_per_row_thresholds_need_one_row_of_three_per_score():
+    with pytest.raises(ValueError, match="per row"):
+        lv.level_from_risk([1e-5, 2e-5], _per_row(3))
+    with pytest.raises(ValueError, match="per row"):
+        lv.apply_hysteresis(np.zeros(2, dtype=int), pd.date_range("2024-07-01", periods=2), [1, 1], [2e-5, 2e-5],
+                            _per_row(3), 0.8, 2)

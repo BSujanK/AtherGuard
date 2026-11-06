@@ -15,6 +15,10 @@ Thresholds by region: a card calibrated per region (v3) gives each region its ow
 `raw_level` and `apply_hysteresis` take either kind plus the region of every row (a cell has one region). Plain
 `Thresholds` ignore the region.
 
+Thresholds per row: where the thresholds also change with the day (region x month operating points), the thresholds
+argument may instead be an array of the three thresholds (watch, warning, emergency) of every score, shape
+`risk.shape + (3,)`. The region is then ignored. Hysteresis steps down against the thresholds of the row it decides on.
+
 Hysteresis is a per-cell state machine over consecutive calendar days: the level steps UP to the raw level at once; it
 steps DOWN one level only after `exit_days` consecutive days on which the raw level is below the current level AND the
 risk is below `exit_factor` x the current level's threshold (the counter restarts after each step and whenever a day
@@ -110,8 +114,14 @@ class RegionThresholds:
         return {name: thresholds.to_dict() for name, thresholds in sorted(self.by_region.items())}
 
 
-def _threshold_rows(thresholds: "Thresholds | RegionThresholds", region, shape) -> np.ndarray:
-    """(3,) for plain thresholds; (n, 3) for thresholds by region, which need one region per row (1-D rows)."""
+def _threshold_rows(thresholds: "Thresholds | RegionThresholds | np.ndarray", region, shape) -> np.ndarray:
+    """(3,) for plain thresholds; (n, 3) for thresholds by region, which need one region per row (1-D rows); the array
+    itself for thresholds given per row, which must hold three per score."""
+    if isinstance(thresholds, np.ndarray):
+        if thresholds.shape != (*shape, 3):
+            raise ValueError(f"thresholds per row need three thresholds per score, shape {(*shape, 3)}, "
+                             f"got {thresholds.shape}")
+        return thresholds
     if not isinstance(thresholds, RegionThresholds):
         return thresholds.as_array()
     if region is None or len(shape) != 1 or np.shape(region) != tuple(shape):
@@ -183,31 +193,33 @@ def card_region_thresholds(card: dict, regions) -> dict[str, Thresholds]:
     return out
 
 
-def level_from_risk(risk, thresholds: "Thresholds | RegionThresholds", region=None) -> np.ndarray:
+def level_from_risk(risk, thresholds: "Thresholds | RegionThresholds | np.ndarray", region=None) -> np.ndarray:
     """0-3: the number of thresholds the risk has reached (a NaN risk reaches none)."""
     risk = np.asarray(risk, dtype=np.float64)
     return (risk[..., None] >= _threshold_rows(thresholds, region, risk.shape)).sum(axis=-1).astype(np.int8)
 
 
-def uncertain_high_mask(risk, risk_hi, thresholds: "Thresholds | RegionThresholds", region=None) -> np.ndarray:
+def uncertain_high_mask(risk, risk_hi, thresholds: "Thresholds | RegionThresholds | np.ndarray", region=None
+                        ) -> np.ndarray:
     """Point risk below Watch while the upper interval bound has reached it."""
     risk, risk_hi = np.asarray(risk, dtype=np.float64), np.asarray(risk_hi, dtype=np.float64)
     watch = _threshold_rows(thresholds, region, risk.shape)[..., 0]
     return (risk < watch) & (risk_hi >= watch)
 
 
-def raw_level(risk, risk_hi, thresholds: "Thresholds | RegionThresholds", region=None
+def raw_level(risk, risk_hi, thresholds: "Thresholds | RegionThresholds | np.ndarray", region=None
               ) -> tuple[np.ndarray, np.ndarray]:
     """(level, uncertain_high mask): the level from the point risk, raised to Watch where `uncertain_high` holds."""
     uncertain = uncertain_high_mask(risk, risk_hi, thresholds, region)
     return np.where(uncertain, WATCH, level_from_risk(risk, thresholds, region)).astype(np.int8), uncertain
 
 
-def apply_hysteresis(cell_id, date, raw, risk, thresholds: "Thresholds | RegionThresholds", exit_factor: float,
-                     exit_days: int, region=None, release=None, cap=None, blind_hold_days: int | None = None
-                     ) -> np.ndarray:
+def apply_hysteresis(cell_id, date, raw, risk, thresholds: "Thresholds | RegionThresholds | np.ndarray",
+                     exit_factor: float, exit_days: int, region=None, release=None, cap=None,
+                     blind_hold_days: int | None = None) -> np.ndarray:
     """Level per row after hysteresis (see the module doc); output is aligned with the input rows. With thresholds by
-    region the cell's step-down thresholds are those of its region (`region` per row, constant within a cell).
+    region the cell's step-down thresholds are those of its region (`region` per row, constant within a cell); with
+    thresholds per row (an (n, 3) array) the step-down thresholds are those of the row being decided.
     `release` (bool per row, or per row and held level 0-3) and `cap` (the level each level 0-3 is capped at) give the
     hold release; both or neither.
     `blind_hold_days` limits a hold over rows without a score (None: no limit)."""
@@ -246,6 +258,8 @@ def apply_hysteresis(cell_id, date, raw, risk, thresholds: "Thresholds | RegionT
     rows = _threshold_rows(thresholds, region, (n,))
     cell_thresholds = rows[order[starts]] if rows.ndim == 2 else np.broadcast_to(rows, (len(starts), 3))
     exit_threshold = np.column_stack([np.full(len(starts), np.inf), cell_thresholds * exit_factor])   # (run, level)
+    per_row = isinstance(thresholds, np.ndarray)
+    exit_row = np.column_stack([np.full(n, np.inf), rows[order] * exit_factor]) if per_row else None   # (row, level)
     state = raw_s[starts].astype(np.int8)
     streak = np.zeros(len(starts), dtype=np.int32)
     out_s = np.empty(n, dtype=np.int8)
@@ -257,7 +271,8 @@ def apply_hysteresis(cell_id, date, raw, risk, thresholds: "Thresholds | RegionT
         idx = starts[active] + k
         r, x, s = raw_s[idx], risk_s[idx], state[active]
         up = r >= s
-        qualifies = ~up & (x < exit_threshold[active, s])
+        limit = exit_row[idx, s] if per_row else exit_threshold[active, s]
+        qualifies = ~up & (x < limit)
         streak_a = np.where(qualifies, streak[active] + 1, 0)
         down = streak_a >= exit_days
         new = np.where(up, r, np.where(down, s - 1, s)).astype(np.int8)

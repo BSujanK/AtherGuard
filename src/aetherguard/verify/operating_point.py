@@ -5,8 +5,11 @@ counts the hits (events whose own-cell risk on the event day reaches t) and the 
 t). `allocate` chooses one threshold per stratum so that the total hits reach a target with the fewest total alerts,
 exactly (a dynamic programme over the strata), which spends the alerts where they buy the most events.
 `monotone` then keeps the thresholds of one stratum from decreasing from Watch to Warning to Emergency.
+`candidate_levels` turns such thresholds into the alert levels of a season panel: the section 11 chain of
+`hardening_dev.season_levels` (rain cap, hold release, hysteresis) on raw levels from the stratum thresholds, with the
+optional Emergency confirmation of candidate C2.
 
-Everything here is a function of arrays; the panels and events are assembled elsewhere.
+Everything here is a function of arrays and panels; they are assembled elsewhere.
 """
 from __future__ import annotations
 
@@ -15,7 +18,13 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+from ..alerts import levels as lv
+from ..live import hardening_dev as D
+from ..live import postrules as pr
+
 Stratum = tuple[str, int]
+LEVELS = (lv.WATCH, lv.WARNING, lv.EMERGENCY)
+STRATUM_MONTHS = (6, 7, 8, 9)      # the months with thresholds of their own; October-December keep v3's
 
 
 def stratum_curves(
@@ -192,4 +201,58 @@ def monotone(by_level: dict[int, dict[Stratum, float | None]]) -> dict[int, dict
                 t = max(t, floor)
                 floor = t
             out[level][s] = t
+    return out
+
+
+def candidate_levels(
+    season: D.Season,
+    thresholds: dict[int, dict[Stratum, float | None]],
+    config,
+    base_rules: pr.PostRules | None,
+    confirm_emergency: bool,
+    upper: str = "new_hi",
+) -> np.ndarray:
+    """Alert levels (cells x days) of a season under region x month thresholds, the rest of section 11 unchanged.
+
+    `thresholds` maps the levels 1-3 to their threshold per (region, month) stratum, as `allocate` returns them. A cell-day
+    whose stratum has no threshold (None, absent, or a month outside June-September) uses the v3 threshold of its region
+    (`season.thresholds`); Watch <= Warning <= Emergency is then enforced on every cell-day (`monotone`), against the v3
+    values where they were used. The raw level is the one of `season_levels`: the point level, raised to Watch where
+    `uncertain_high` holds against the panel field `upper`.
+
+    With `confirm_emergency` (candidate C2) a raw Emergency is published as Warning unless the raw level of the same cell
+    the day before was at least Warning; the first day of the panel has no day before. The rain cap, hold release and
+    hysteresis of `base_rules` follow as in `season_levels`, the hysteresis stepping down against the thresholds of the
+    stratum of each day.
+    """
+    if set(thresholds) != set(LEVELS):
+        raise ValueError(f"thresholds needs the levels 1, 2 and 3, got {sorted(thresholds)}")
+    panel = season.panel
+    row_thresholds = _cell_day_thresholds(season, thresholds)
+    raw = lv.raw_level(panel["risk"], panel[upper], row_thresholds)[0]
+    if confirm_emergency:
+        warned_before = np.zeros(raw.shape, dtype=bool)
+        warned_before[:, 1:] = raw[:, :-1] >= lv.WARNING
+        raw = np.where((raw == lv.EMERGENCY) & ~warned_before, lv.WARNING, raw).astype(np.int8)
+    return D.levels_from_raw(season, raw, config, base_rules, row_thresholds=row_thresholds)
+
+
+def _cell_day_thresholds(season: D.Season, thresholds: dict[int, dict[Stratum, float | None]]) -> np.ndarray:
+    """(cells, days, 3) watch / warning / emergency thresholds of every cell-day: its stratum's where it has one, else its
+    region's v3 thresholds, non-decreasing across the levels. NaN for a cell whose region has no v3 thresholds (it never
+    alerts, as in `season_levels`)."""
+    panel = season.panel
+    month = np.array([day.month for day in panel.days])
+    resolved: dict[int, dict[Stratum, float | None]] = {level: {} for level in LEVELS}
+    for region, v3 in season.thresholds.items():
+        for m in np.unique(month):
+            stratum = (region, int(m))
+            for level in LEVELS:
+                value = thresholds[level].get(stratum) if stratum[1] in STRATUM_MONTHS else None
+                resolved[level][stratum] = float(v3.as_array()[level - 1]) if value is None else value
+    resolved = monotone(resolved)
+    out = np.full((*panel["risk"].shape, len(LEVELS)), np.nan)
+    for region in season.thresholds:
+        for m in np.unique(month):
+            out[np.ix_(season.region == region, month == m)] = [resolved[level][(region, int(m))] for level in LEVELS]
     return out
