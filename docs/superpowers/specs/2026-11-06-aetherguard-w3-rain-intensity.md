@@ -30,7 +30,13 @@ held-out set.
 
 Held-out (once, POOLED 2018-2025, 87 independent slides, the W1 assembly), with v4-int's levels burden-matched to v3's
 realised shares per season (the W1 rule): v4-int is adopted only if its independent-slide detection at Warning+ and at
-Emergency is higher than or equal to v3's, both tolerant and cell-exact, and higher in at least one of the four. Adoption
+Emergency is higher than or equal to v3's, both tolerant and cell-exact, and higher in at least one of the four. *Amendment 2026-11-06 (before any development or held-out result):* the held-out comparison is v4-int against
+`v3_ranked` = v3's calibrated risk ranked and burden-matched the same way (same per-season realised v3 shares, same
+tie-break by (risk, raw score), realised shares asserted within 1e-4 of the target), so the comparison isolates the six
+features; v3 with the section 11 rules is reported beside it but does not decide. The decision rule (>= in all four,
+> in at least one) is unchanged. If the train-serve gap study declares lag 1, both development and held-out use
+intensity features lagged by one IMD day, exactly as the live run would. A preflight that computes no outcome must pass
+before the look. Adoption
 replaces v3-live in the live run in a separate, reviewed step (new thresholds from v4-int's card; the train-serve rule of
 §1 applied).
 
