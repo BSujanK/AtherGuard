@@ -183,5 +183,8 @@ n/a, alert cell-days still counted. `--today YYYY-MM-DD` overrides the IST date.
 | Copernicus DEM GLO-90 | free to use with attribution (ESA / Copernicus); verify terms before redistribution |
 | Open-Meteo archive, ERA5 / ERA5-Land | Open-Meteo CC BY 4.0; ERA5 Copernicus Climate Change Service (CC BY 4.0) |
 | NASA Global Landslide Catalog, COOLR, High Mountain Asia catalog | NASA / NSIDC terms (Earthdata login for some) |
+| GeoNames (event locations) | CC BY 4.0; credit GeoNames |
+| OpenStreetMap via Nominatim (event locations) | ODbL; credit "© OpenStreetMap contributors" |
+| LHASA v2 landslide nowcast | NASA open data (GES DISC); cite Stanley et al. 2021 |
 
 Every downloaded file is recorded with its source, URL and licence in `manifests/data_manifest.jsonl`.
