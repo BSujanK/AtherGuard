@@ -622,3 +622,13 @@ def test_development_v3_must_reproduce_the_baseline_report(tmp_path):
     table["v3"][2]["alerts"] = 51
     with pytest.raises(ValueError, match="differ from the published"):
         op._check_development_v3(table, path)
+
+
+def test_run_refuses_when_the_committed_report_exists(tmp_path, monkeypatch):
+    """A fresh clone has no data/ result file, but the committed report still blocks a second look."""
+    from aetherguard.verify import operating_point as op
+    monkeypatch.setattr(op, "heldout_result_path", lambda: tmp_path / "absent.json")
+    monkeypatch.setattr(op.live_run, "load_run_config", lambda: {})
+    (tmp_path / f"{op.REPORT_STEM}.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(FileExistsError):
+        op.run(tmp_path, say=lambda *_: None)

@@ -16,8 +16,8 @@ The rest turns this into the pre-declared study (`python -m aetherguard.verify o
    C2 adds the Emergency confirmation.
 2. `development_table` runs v3, C1 and C2 through the whole chain, and `select` picks C1 or C2 on those numbers alone.
 3. `evaluate_once` is the single look at the 2018-2025 held-out set: `score_heldout` measures v3 against the selected
-   candidate, `decide` applies the adoption criterion of spec section 3 literally, and the result file it writes makes a
-   second look impossible.
+   candidate, `decide` applies the adoption criterion of spec section 3 literally, and the result file it writes (and the
+   committed report, `run` refuses when either exists) keep a second look from happening.
 """
 from __future__ import annotations
 
@@ -780,6 +780,7 @@ def run(out: Path, say=print) -> dict:
     cfg = live_run.load_run_config()
     result_path = heldout_result_path()
     refuse_second_look(result_path)
+    refuse_second_look(Path(out) / f"{REPORT_STEM}.json")      # committed: guards a fresh clone without data/
     model, config, base_rules = ps.load_inputs(cfg)
     fitted, table, selected = development_fit(model, config, base_rules, say)
     v3 = lv.card_region_thresholds(model.card, sorted({region for region, _ in fitted.thresholds[1]}))

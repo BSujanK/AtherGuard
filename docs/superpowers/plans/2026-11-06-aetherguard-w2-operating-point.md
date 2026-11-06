@@ -10,6 +10,8 @@
 
 **Spec:** `docs/superpowers/specs/2026-11-06-aetherguard-w2-operating-point.md`
 
+> Note (2026-11-06): the Lagrangian allocation below was replaced, before any result, by an exact multiple-choice knapsack solver of the same objective (spec section 2 amendment).
+
 ## Global Constraints
 
 - Strata: region (himalaya, western_ghats) x month (6, 7, 8, 9); months 10-12 keep the v3 region thresholds.
