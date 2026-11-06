@@ -36,7 +36,10 @@ tie-break by (risk, raw score), realised shares asserted within 1e-4 of the targ
 features; v3 with the section 11 rules is reported beside it but does not decide. The decision rule (>= in all four,
 > in at least one) is unchanged. If the train-serve gap study declares lag 1, both development and held-out use
 intensity features lagged by one IMD day, exactly as the live run would. A preflight that computes no outcome must pass
-before the look. Adoption
+before the look. *Amendment 2 (2026-11-06, before any result):* cell-days still tied on both (risk, raw score) are
+ordered by a seeded pseudo-random key of (cell_id, date) (seed 20261106), not by array position, and the preflight fails
+if such full ties straddle a Warning+ or Emergency cut by more than 1% of that level's alert cell-days; a look-started
+marker is written before any candidate outcome is computed, and a marker without a result blocks a silent rerun. Adoption
 replaces v3-live in the live run in a separate, reviewed step (new thresholds from v4-int's card; the train-serve rule of
 §1 applied).
 
