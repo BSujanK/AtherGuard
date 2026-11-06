@@ -21,6 +21,9 @@ for the other); the gain must come from *where and when* alerts are spent.
   maximise sum_s [hits_s(t_s) - lambda * alerts_s(t_s)], with lambda set by bisection so that total hits equal v3's
   total hits at L (no fewer). This equalises the marginal events-per-alert across strata: the optimal allocation.
   Thresholds are then made non-decreasing across levels within each stratum.
+  *Amendment 2026-11-06 (before any development or held-out result):* the Lagrangian solver can overshoot and is not
+  alert-minimal on step-like curves, so the same objective (fewest alerts with total hits >= v3's) is solved exactly by a
+  multiple-choice knapsack dynamic programme over the strata's candidate thresholds.
 - **Candidates (two, no more):** C1 = region x month thresholds; C2 = C1 plus an Emergency confirmation rule
   (Emergency is published only if the raw point level was at least Warning on the previous day as well, else it
   publishes Warning). The section 11 post-model rules and hysteresis apply unchanged on top of both.
