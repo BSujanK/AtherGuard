@@ -1,0 +1,34 @@
+# W3 rain-intensity challenger (docs/superpowers/specs/2026-11-06-aetherguard-w3-rain-intensity.md sections 2-3, written
+# before any result of the study):
+#   python -m aetherguard.hazard.v4_int dev        # year-blocked CV of v3 (reference) and v4-int, pooled OOF FA@90, stage 1
+#   python -m aetherguard.hazard.v4_int seasons    # v4-int scored on the 2018-2025 season panels (no outcome is read)
+#   python -m aetherguard.hazard.v4_int heldout    # stage 2: the single held-out look (refuses to run a second time)
+#   python -m aetherguard.hazard.v4_int report     # reports/phase7_rain_intensity.{md,json}
+# v4-int is the frozen v3-live configuration named by `base_config` (folds, seeds, hyper-parameters, tree-count rule,
+# 20-member ensemble, per-region isotonic calibration, monotone constraints, bootstrap) plus the six intensity inputs of
+# `add_increasing`, each constrained non-decreasing. Nothing else differs: that file is never edited here.
+base_config: configs/hazard_v3.yaml
+output_dir: v4_int                      # under data/processed/hazard: OOF scores, dev_results.json, heldout.json, models/<candidate>
+seasons_dir: v4_int_seasons             # under data/processed/alerts: v4-int's season panels (never heldout_seasons, which holds v3's)
+report_stem: phase7_rain_intensity      # reports/<stem>.{md,json}
+reference: C0                           # the v3-live refit that must reproduce the frozen pooled OOF FA@90
+challenger: v4_int
+extra_groups:                           # the feature group the base configuration does not know (features.imerg_intensity)
+  iint:
+    subdir: imerg
+    suffix: iint
+    columns_file: iint_columns.json
+    manifest_file: iint_manifest.json
+candidates:
+  C0:
+    description: "v3-live refit (reference): the frozen inputs with the v3 monotone constraints"
+  v4_int:
+    description: "C0 plus the six rain-intensity inputs of the iint group, each constrained non-decreasing"
+    add_groups: [iint]
+    add_increasing:
+      - iint_max1h_1
+      - iint_max3h_1
+      - iint_max6h_1
+      - iint_max3h_max3d
+      - iint_max6h_max3d
+      - iint_wet_hours_1
