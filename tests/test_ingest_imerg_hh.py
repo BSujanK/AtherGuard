@@ -343,7 +343,8 @@ def test_build_writes_the_reduced_day_and_keeps_nothing_raw(nasa, store):
     nasa.field_for = staticmethod(lambda start: np.full((ROWS, COLS), 2.0, dtype=np.float32))
     run_build(store, "late", day, day)
     with np.load(day_file(store, "late", day)) as data:
-        assert set(data.files) == {"max1h", "max3h", "max6h", "wet_hours", "n_halfhours"}
+        assert set(data.files) == {"max1h", "max3h", "max6h", "wet_hours", "n_halfhours", "versions"}
+        assert data["versions"].tolist() == ["V07B"]
         assert data["max1h"].dtype == np.float32 and data["max1h"].shape == (ROWS, COLS)
         assert data["max1h"][0, 0] == pytest.approx(2.0)            # 2 half-hours x 2 mm/h x 0.5 h
         assert data["max3h"][5, 5] == pytest.approx(6.0)
@@ -401,18 +402,30 @@ def test_a_finished_day_missing_from_the_manifest_is_recorded_on_rerun(nasa, sto
     assert len(store["manifest"].entries()) == 1
 
 
-def test_a_failed_half_hour_is_nan_logged_and_the_day_is_still_written(nasa, store, caplog):
+def test_a_listed_half_hour_that_fails_leaves_the_day_unwritten_and_counts_as_failed(nasa, store, caplog):
     day = date(2018, 8, 15)
     nasa.field_for = staticmethod(lambda start: np.full((ROWS, COLS), 1.0, dtype=np.float32))
     nasa.failing = {utc(2018, 8, 14, 20, 30): 500}
     with caplog.at_level("WARNING", logger="aetherguard.ingest.imerg_hh"):
         run_build(store, "late", day, day)
-    with np.load(day_file(store, "late", day)) as data:
-        assert np.isnan(data["max1h"]).all() and np.isnan(data["max6h"]).all() and np.isnan(data["wet_hours"]).all()
-        assert (data["n_halfhours"] == 47).all()
-    assert "2018-08-14" in caplog.text and "20:30" in caplog.text and "HTTP 500" in caplog.text
+    assert not day_file(store, "late", day).exists() and not list(store["root"].rglob("*.part"))
+    assert store["manifest"].entries() == {}
+    assert "2018-08-14 20:30" in caplog.text and "HTTP 500" in caplog.text and "day failed" in caplog.text
+    assert "1 consecutive" in caplog.text
     assert "dap4" not in caplog.text and "http://" not in caplog.text
-    assert nasa.data_hits.count(utc(2018, 8, 14, 20, 30)) == imerg.RETRIES        # retried, then given up
+    assert nasa.data_hits.count(utc(2018, 8, 14, 20, 30)) == imerg_hh.ATTEMPTS == 5      # retried, then given up
+    nasa.failing = {}                                               # the next run retries the day and completes it
+    run_build(store, "late", day, day)
+    with np.load(day_file(store, "late", day)) as data:
+        assert (data["n_halfhours"] == 48).all() and np.isfinite(data["max1h"]).all()
+
+
+def test_consecutive_days_with_a_failed_listed_half_hour_abort_the_build(nasa, store, monkeypatch):
+    monkeypatch.setattr(imerg_hh, "ABORT_AFTER", 2)
+    nasa.failing = {imd_start(d) + HALF * 7: 500 for d in (date(2018, 8, 1), date(2018, 8, 2), date(2018, 8, 3))}
+    with pytest.raises(imerg_hh.BuildAborted, match="2 consecutive"):
+        run_build(store, "late", date(2018, 8, 1), date(2018, 8, 5))
+    assert not list(store["root"].rglob("*.npz"))
 
 
 def test_a_half_hour_cmr_does_not_list_is_nan_and_logged(nasa, store, caplog):
@@ -422,8 +435,9 @@ def test_a_half_hour_cmr_does_not_list_is_nan_and_logged(nasa, store, caplog):
     with caplog.at_level("WARNING", logger="aetherguard.ingest.imerg_hh"):
         run_build(store, "late", day, day)
     with np.load(day_file(store, "late", day)) as data:
-        assert np.isnan(data["max3h"]).all() and (data["n_halfhours"] == 47).all()
-    assert "01:00" in caplog.text and len(nasa.data_hits) == 47
+        assert np.isnan(data["max3h"]).all() and np.isnan(data["wet_hours"]).all()
+        assert (data["n_halfhours"] == 47).all() and data["versions"].tolist() == ["V07B"]
+    assert "01:00" in caplog.text and "not listed" in caplog.text and len(nasa.data_hits) == 47
 
 
 def test_a_client_error_is_not_retried(nasa, store):
@@ -431,9 +445,10 @@ def test_a_client_error_is_not_retried(nasa, store):
     nasa.failing = {utc(2018, 8, 14, 3): 404}
     run_build(store, "late", day, day)
     assert nasa.data_hits.count(utc(2018, 8, 14, 3)) == 1
+    assert not day_file(store, "late", day).exists()
 
 
-def test_a_login_page_instead_of_data_counts_as_a_failed_half_hour(nasa, store, monkeypatch):
+def test_a_login_page_instead_of_data_is_retried_and_fails_the_day(nasa, store, monkeypatch):
     day = date(2018, 8, 15)
     original = FakeNasa._send
 
@@ -443,8 +458,7 @@ def test_a_login_page_instead_of_data_counts_as_a_failed_half_hour(nasa, store, 
         original(self, status, body, content_type)
     monkeypatch.setattr(FakeNasa, "_send", send)
     run_build(store, "late", day, day)
-    with np.load(day_file(store, "late", day)) as data:
-        assert (data["n_halfhours"] == 47).all() and np.isnan(data["max1h"]).all()
+    assert not day_file(store, "late", day).exists()
 
 
 def test_build_aborts_after_consecutive_failed_days_and_writes_nothing(nasa, store, monkeypatch):
@@ -493,6 +507,75 @@ def test_build_rejects_an_unknown_run_and_an_empty_range(nasa, store):
         run_build(store, "late", date(2018, 8, 16), date(2018, 8, 15))
 
 
+# ------------------------------------------------------------------------------------------ repair
+
+def run_repair(store, run, start, end, **kwargs):
+    return imerg_hh.repair(run, start, end, store["root"], manifest=store["manifest"], **kwargs)
+
+
+def test_repair_rewrites_a_day_once_cmr_lists_all_48(nasa, store):
+    day = date(2018, 8, 15)
+    nasa.field_for = staticmethod(lambda start: np.full((ROWS, COLS), 1.0, dtype=np.float32))
+    nasa.absent = {utc(2018, 8, 15, 1)}
+    run_build(store, "late", day, day)
+    path = day_file(store, "late", day)
+    with np.load(path) as data:
+        assert np.isnan(data["max1h"]).all() and (data["n_halfhours"] == 47).all()
+    hits = len(nasa.data_hits)
+
+    assert run_repair(store, "late", day, day)["rewritten"] == 0     # CMR still lists 47: left as it is
+    assert len(nasa.data_hits) == hits and np.load(path)["n_halfhours"].max() == 47
+
+    nasa.absent = set()                                             # the archive caught up
+    counts = run_repair(store, "late", day, day)
+    assert counts == {"scanned": 1, "incomplete": 1, "rewritten": 1, "versions_added": 0}
+    with np.load(path) as data:
+        assert (data["n_halfhours"] == 48).all() and data["max1h"][0, 0] == pytest.approx(1.0)
+        assert data["versions"].tolist() == ["V07B"]
+    assert len(nasa.data_hits) == hits + 48
+    assert not list(store["root"].rglob("*.part"))
+    assert store["manifest"].is_current(path)
+
+    hits = len(nasa.data_hits)                                      # a complete day is not touched again
+    assert run_repair(store, "late", day, day)["incomplete"] == 0
+    assert len(nasa.data_hits) == hits
+
+
+def test_repair_keeps_the_old_file_when_the_refetch_fails(nasa, store):
+    day = date(2018, 8, 15)
+    nasa.absent = {utc(2018, 8, 15, 1)}
+    run_build(store, "late", day, day)
+    path = day_file(store, "late", day)
+    before = path.read_bytes()
+    nasa.absent = set()
+    nasa.failing = {utc(2018, 8, 14, 9): 500}
+    assert run_repair(store, "late", day, day)["rewritten"] == 0
+    assert path.read_bytes() == before
+
+
+def test_repair_adds_versions_to_a_complete_day_written_without_them(nasa, store):
+    day = date(2018, 8, 15)
+    nasa.field_for = staticmethod(lambda start: np.full((ROWS, COLS), 3.0, dtype=np.float32))
+    run_build(store, "late", day, day)
+    path = day_file(store, "late", day)
+    with np.load(path) as data:
+        old = {name: data[name] for name in data.files if name != "versions"}
+    np.savez_compressed(path, **old)                                # the file as the first build wrote it
+    hits = len(nasa.data_hits)
+    counts = run_repair(store, "late", day, day)
+    assert counts["versions_added"] == 1 and len(nasa.data_hits) == hits       # nothing refetched
+    with np.load(path) as data:
+        assert data["versions"].tolist() == ["V07B"]
+        assert all(np.array_equal(data[name], old[name], equal_nan=True) for name in old)
+
+
+def test_repair_leaves_days_without_a_file_alone_and_honours_months(nasa, store):
+    run_build(store, "late", date(2018, 6, 1), date(2018, 6, 1))
+    nasa.cmr_hits = 0
+    counts = run_repair(store, "late", date(2018, 5, 31), date(2018, 6, 3), months={6})
+    assert counts["scanned"] == 1 and nasa.cmr_hits == 0           # complete, with versions: no request at all
+
+
 # ------------------------------------------------------------------------------------------ CLI
 
 def test_parse_months():
@@ -513,6 +596,17 @@ def test_cli_passes_its_arguments_to_build(tmp_path, monkeypatch):
     (args, kwargs), = calls
     assert args == ("late", date(2007, 1, 1), date(2017, 12, 31), tmp_path / "out")
     assert kwargs == {"workers": 2, "months": {6, 7, 8, 9}}
+
+
+def test_cli_repair_runs_repair_not_build(tmp_path, monkeypatch):
+    built, repaired = [], []
+    monkeypatch.setattr(imerg_hh, "build", lambda *a, **k: built.append(a))
+    monkeypatch.setattr(imerg_hh, "repair", lambda *a, **k: repaired.append((a, k)))
+    code = imerg_hh.main(["--run", "late", "--start", "2007-06-01", "--end", "2007-09-30", "--repair",
+                          "--root", str(tmp_path)])
+    assert code == 0 and not built
+    (args, kwargs), = repaired
+    assert args == ("late", date(2007, 6, 1), date(2007, 9, 30), tmp_path) and kwargs == {"workers": 4, "months": None}
 
 
 def test_cli_default_root_is_the_processed_intensity_store(monkeypatch):
