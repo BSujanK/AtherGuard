@@ -2,22 +2,20 @@
 
 A stratum is the region of a cell and the month of a day. For every stratum and candidate threshold t, `stratum_curves`
 counts the hits (events whose own-cell risk on the event day reaches t) and the alerts (alert-universe cell-days at or above
-t). `allocate` chooses one threshold per stratum to maximise the total of hits - lambda * alerts, with lambda the largest
-for which the total hits still reach a target: the optimal allocation equalises the marginal hits per alert across strata.
+t). `allocate` chooses one threshold per stratum so that the total hits reach a target with the fewest total alerts,
+exactly (a dynamic programme over the strata), which spends the alerts where they buy the most events.
 `monotone` then keeps the thresholds of one stratum from decreasing from Watch to Warning to Emergency.
 
 Everything here is a function of arrays; the panels and events are assembled elsewhere.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 import numpy as np
 import pandas as pd
 
 Stratum = tuple[str, int]
-
-_LAMBDA_FLOOR = 1e-12     # below this lambda no realistic alert count outweighs one hit
-_LAMBDA_RELATIVE_TOL = 1e-12
-_MAX_BISECTIONS = 100
 
 
 def stratum_curves(
@@ -35,8 +33,8 @@ def stratum_curves(
     `risk`; repeated rows are one event. Events count in every cell, whether or not it is in the universe. A NaN risk
     never hits and never alerts.
 
-    Each stratum maps to `thresholds` (the `candidates`, as given), `hits` and `alerts`, one entry per candidate. Both
-    counts are non-increasing when the candidates ascend.
+    Each stratum maps to `thresholds` (a copy of the `candidates`, which must ascend), `hits` and `alerts`, one entry per
+    candidate. Both counts are non-increasing.
     """
     risk = np.asarray(risk, dtype=np.float64)
     region, month = np.asarray(region), np.asarray(month)
@@ -49,8 +47,8 @@ def stratum_curves(
         raise ValueError(f"region {region.shape} and universe {universe.shape} must have one entry per cell ({n_cells})")
     if month.shape != (n_days,):
         raise ValueError(f"month {month.shape} must have one entry per day ({n_days})")
-    if candidates.ndim != 1:
-        raise ValueError(f"candidates must be one-dimensional, got shape {candidates.shape}")
+    if candidates.ndim != 1 or not np.isfinite(candidates).all() or not (np.diff(candidates) >= 0).all():
+        raise ValueError("candidates must be a one-dimensional, ascending array of finite thresholds")
     rows, cols = _event_positions(events, n_cells, n_days)
 
     event_risk, event_region, event_month = risk[rows, cols], region[rows], month[cols]
@@ -61,7 +59,7 @@ def stratum_curves(
             in_stratum &= event_month == m
             alert_risk = risk[np.ix_((region == r) & universe, month == m)]
             curves[(str(r), int(m))] = {
-                "thresholds": candidates,
+                "thresholds": candidates.copy(),
                 "hits": _count_at_or_above(event_risk[in_stratum], candidates),
                 "alerts": _count_at_or_above(alert_risk.ravel(), candidates),
             }
@@ -85,59 +83,90 @@ def _count_at_or_above(values: np.ndarray, candidates: np.ndarray) -> np.ndarray
     return len(finite) - np.searchsorted(finite, candidates, side="left")
 
 
-def allocate(curves: dict[Stratum, dict], target_hits: int) -> dict[Stratum, float | None]:
-    """One threshold per stratum maximising the total of hits - lambda * alerts, with lambda the largest keeping hits up.
+@dataclass(frozen=True)
+class Allocation:
+    """The chosen thresholds and what they achieve over the strata that got one.
 
-    Each stratum picks its own best candidate for a given lambda (the highest threshold among equally good ones, which
-    alerts least). The total hits of these picks never rise with lambda, so lambda is bisected, on a log scale, to the
-    largest value for which the total hits are still at least `target_hits`, and the picks at that lambda are returned.
+    `thresholds` maps every stratum to its threshold, or None where no event can be hit; `hits` and `alerts` are the totals
+    of the strata that got a threshold.
+    """
 
-    A stratum in which no event can be hit (no events, or none with a finite risk) maps to None: it keeps v3's threshold and
-    adds nothing to the hits. `target_hits` is therefore a total over the strata that do get a threshold. A target that even
-    lambda = 0, the lowest candidates, cannot reach raises ValueError.
+    thresholds: dict[Stratum, float | None]
+    hits: int
+    alerts: int
+
+
+def allocate(curves: dict[Stratum, dict], target_hits: int) -> Allocation:
+    """One candidate threshold per stratum, with the fewest total alerts among the choices whose total hits reach `target_hits`.
+
+    Exact: a multiple-choice knapsack dynamic programme over the strata and the hit totals reachable (capped at the
+    target), so neither the overshoot of the hits nor non-concave curves can cost alerts. Among the choices with the fewest
+    alerts, the one with the higher thresholds (higher candidate index, summed over the strata) wins.
+
+    A stratum in which no event can be hit (no events, none with a finite risk, or all below the lowest candidate) maps to
+    None: it keeps v3's threshold and adds nothing to the hits. `target_hits` is therefore a total over the strata that do
+    get a threshold. A target that even the lowest thresholds cannot reach raises ValueError.
     """
     if target_hits < 0:
         raise ValueError(f"target_hits must not be negative, got {target_hits}")
-    active = {s: c for s, c in curves.items() if np.max(c["hits"], initial=0) > 0}
-    result: dict[Stratum, float | None] = {s: None for s in curves}
+    target = int(target_hits)
+    active = {}
+    for stratum, curve in curves.items():
+        hits = np.asarray(curve["hits"], dtype=np.int64)
+        alerts = np.asarray(curve["alerts"], dtype=np.int64)
+        thresholds = np.asarray(curve["thresholds"], dtype=np.float64)
+        if not hits.shape == alerts.shape == thresholds.shape or hits.ndim != 1:
+            raise ValueError(f"the thresholds, hits and alerts of {stratum} must be one-dimensional and of one length")
+        if hits.max(initial=0) > 0:
+            active[stratum] = (thresholds, hits, alerts)
+    reachable = sum(int(h.max()) for _, h, _ in active.values())
+    if reachable < target:
+        raise ValueError(f"target of {target} hits is out of reach: the lowest thresholds give {reachable}")
+    thresholds_out: dict[Stratum, float | None] = {s: None for s in curves}
     if not active:
-        if target_hits > 0:
-            raise ValueError(f"no stratum has an event to hit, so {target_hits} hits cannot be reached")
-        return result
+        return Allocation(thresholds_out, 0, 0)
 
-    def pick(lam: float) -> dict[Stratum, int]:
-        picks = {}
-        for s, c in active.items():
-            objective = np.asarray(c["hits"], dtype=np.float64) - lam * np.asarray(c["alerts"], dtype=np.float64)
-            picks[s] = len(objective) - 1 - int(np.argmax(objective[::-1]))
-        return picks
+    # The cost of a choice is alerts * scale + (candidate steps below the top), so the cheapest total has the fewest
+    # alerts and then the highest candidates; scale exceeds the summed penalties of any choice.
+    scale = sum(len(t) for t, _, _ in active.values()) + 1
+    unreachable = np.iinfo(np.int64).max // 4
+    if sum(int(a.max()) for _, _, a in active.values()) * scale >= unreachable:
+        raise ValueError("alert counts are too large for the allocation")
 
-    def total_hits(picks: dict[Stratum, int]) -> int:
-        return int(sum(active[s]["hits"][i] for s, i in picks.items()))
-
-    best = total_hits(pick(0.0))
-    if best < target_hits:
-        raise ValueError(f"target of {target_hits} hits is out of reach: the lowest thresholds give {best}")
-    # Above this lambda one alert costs more than every hit, so each stratum alerts as little as it can.
-    high = float(sum(np.max(c["hits"]) for c in active.values())) + 1.0
-    low = _LAMBDA_FLOOR
-    if total_hits(pick(high)) >= target_hits:
-        chosen = pick(high)
-    elif total_hits(pick(low)) < target_hits:
-        chosen = pick(0.0)
-    else:
-        for _ in range(_MAX_BISECTIONS):
-            if high / low - 1.0 < _LAMBDA_RELATIVE_TOL:
-                break
-            mid = float(np.sqrt(low * high))
-            if total_hits(pick(mid)) >= target_hits:
-                low = mid
+    cost = np.full(target + 1, unreachable, dtype=np.int64)
+    cost[0] = 0
+    steps = []  # per stratum: for every capped hit total, the candidate chosen and the total before it
+    for thresholds, hits, alerts in active.values():
+        best = np.full(target + 1, unreachable, dtype=np.int64)
+        chosen = np.full(target + 1, -1, dtype=np.int64)
+        before = np.full(target + 1, -1, dtype=np.int64)
+        for i in range(len(thresholds)):
+            step = int(alerts[i]) * scale + (len(thresholds) - 1 - i)
+            reach = np.full(target + 1, unreachable, dtype=np.int64)
+            came = np.full(target + 1, -1, dtype=np.int64)
+            gain = int(hits[i])
+            if gain < target:
+                reach[gain:target] = cost[: target - gain] + step
+                came[gain:target] = np.arange(target - gain)
+                top = target - gain + int(np.argmin(cost[target - gain :]))
             else:
-                high = mid
-        chosen = pick(low)
-    for s, i in chosen.items():
-        result[s] = float(active[s]["thresholds"][i])
-    return result
+                top = int(np.argmin(cost))
+            reach[target], came[target] = cost[top] + step, top
+            reach = np.minimum(reach, unreachable)
+            better = reach < best
+            best[better], chosen[better], before[better] = reach[better], i, came[better]
+        steps.append((chosen, before))
+        cost = best
+
+    if cost[target] >= unreachable:
+        raise ValueError(f"target of {target} hits is out of reach")
+    total, hits_done, alerts_done = target, 0, 0
+    for (stratum, (thresholds, hits, alerts)), (chosen, before) in zip(reversed(list(active.items())), reversed(steps)):
+        i = int(chosen[total])
+        thresholds_out[stratum] = float(thresholds[i])
+        hits_done, alerts_done = hits_done + int(hits[i]), alerts_done + int(alerts[i])
+        total = int(before[total])
+    return Allocation(thresholds_out, hits_done, alerts_done)
 
 
 def monotone(by_level: dict[int, dict[Stratum, float | None]]) -> dict[int, dict[Stratum, float | None]]:
@@ -152,6 +181,8 @@ def monotone(by_level: dict[int, dict[Stratum, float | None]]) -> dict[int, dict
     strata = set(by_level[1])
     if any(set(by_level[level]) != strata for level in (2, 3)):
         raise ValueError("every level must hold thresholds for the same strata")
+    if any(t is not None and np.isnan(t) for level in by_level.values() for t in level.values()):
+        raise ValueError("thresholds must not be NaN")
     out: dict[int, dict[Stratum, float | None]] = {level: {} for level in (1, 2, 3)}
     for s in by_level[1]:
         floor = -np.inf
