@@ -706,50 +706,233 @@ def test_cli_rejects_more_than_four_workers_and_reports_an_abort(monkeypatch, ca
     assert "30 consecutive failed days" in capsys.readouterr().err
 
 
-def test_a_network_outage_waits_and_retries_the_same_day_instead_of_failing(monkeypatch):
-    """A DNS/connection failure makes the build wait for the network and try the day again (no failed day)."""
-    from aetherguard.ingest import imerg_hh as hh
+class StubFetchers:
+    """Stands in for imerg_hh._Fetchers where the archive is monkeypatched out; counts the renewals."""
+
+    def __init__(self):
+        self.pool = self.sessions = None
+        self.renewed = 0
+        self.resets = 0
+
+    def renew_sessions(self):
+        self.renewed += 1
+
+    def reset(self):
+        self.resets += 1
+
+
+class FakeClock:
+    """A monotonic clock that only moves when `sleep` is called (or `now` is set), plus the sleeps it was asked for."""
+
+    def __init__(self):
+        self.now = 1000.0
+        self.slept = []
+
+    def __call__(self):
+        return self.now
+
+    def sleep(self, seconds):
+        self.slept.append(seconds)
+        self.now += seconds
+
+
+def outage_then_ok(monkeypatch, outages=1):
+    """Patch the archive so that its first `outages` calls fail as a network outage and the next one succeeds."""
     from aetherguard.http import DownloadError
     calls = {"n": 0}
 
     def flaky(*args, **kwargs):
         calls["n"] += 1
-        if calls["n"] == 1:
+        if calls["n"] <= outages:
             raise DownloadError("ConnectionError: Failed to resolve 'cmr.earthdata.nasa.gov'")
         return {"ok": True}
 
-    monkeypatch.setattr(hh, "_half_hour_listing", lambda run, day: {})
-    monkeypatch.setattr(hh, "_reduce_from_archive", flaky)
+    monkeypatch.setattr(imerg_hh, "_half_hour_listing", lambda run, day: {})
+    monkeypatch.setattr(imerg_hh, "_reduce_from_archive", flaky)
+    return calls
+
+
+def test_a_network_outage_waits_and_retries_the_same_day_instead_of_failing(monkeypatch):
+    """A DNS/connection failure makes the build wait for the network and try the day again (no failed day)."""
+    calls = outage_then_ok(monkeypatch)
     probes = iter([False, False, True])
-    slept = []
-    out = hh._fetch_day_waiting_out_outages("late", None, None, None, 48, reachable=lambda: next(probes),
-                                            sleep=slept.append, wait_s=3600)
-    assert out == {"ok": True} and calls["n"] == 2 and len(slept) == 2
+    clock = FakeClock()
+    out = imerg_hh._fetch_day_waiting_out_outages("late", None, StubFetchers(), 48, reachable=lambda: next(probes),
+                                                  sleep=clock.sleep, wait_s=3600, clock=clock)
+    assert out == {"ok": True} and calls["n"] == 2 and clock.slept == [60, 60]
+
+
+def test_the_sessions_are_renewed_once_the_network_is_back(monkeypatch):
+    calls = outage_then_ok(monkeypatch)
+    clock, fetchers = FakeClock(), StubFetchers()
+    probes = iter([False, True])
+
+    def reachable():
+        assert fetchers.renewed == 0      # not before the network answers
+        return next(probes)
+
+    imerg_hh._fetch_day_waiting_out_outages("late", None, fetchers, 48, reachable=reachable, sleep=clock.sleep,
+                                            wait_s=3600, clock=clock)
+    assert fetchers.renewed == 1 and calls["n"] == 2
 
 
 def test_a_data_error_is_not_mistaken_for_an_outage(monkeypatch):
-    from aetherguard.ingest import imerg_hh as hh
-    from aetherguard.http import DownloadError
-    monkeypatch.setattr(hh, "_half_hour_listing", lambda run, day: {})
+    monkeypatch.setattr(imerg_hh, "_half_hour_listing", lambda run, day: {})
 
     def bad(*args, **kwargs):
-        raise DownloadError("3 listed half-hour(s) not fetched; the day is not written")
+        raise imerg_hh.DownloadError("3 listed half-hour(s) not fetched; the day is not written")
 
-    monkeypatch.setattr(hh, "_reduce_from_archive", bad)
-    with pytest.raises(DownloadError):
-        hh._fetch_day_waiting_out_outages("late", None, None, None, 48, reachable=lambda: True,
-                                          sleep=lambda s: None, wait_s=3600)
+    monkeypatch.setattr(imerg_hh, "_reduce_from_archive", bad)
+    fetchers = StubFetchers()
+    with pytest.raises(imerg_hh.DownloadError):
+        imerg_hh._fetch_day_waiting_out_outages("late", None, fetchers, 48, reachable=lambda: True,
+                                                sleep=lambda s: None, wait_s=3600)
+    assert fetchers.renewed == 0
+
+
+def always_down(monkeypatch):
+    monkeypatch.setattr(imerg_hh, "_half_hour_listing", lambda run, day: {})
+
+    def down(*args, **kwargs):
+        raise imerg_hh.DownloadError("ConnectionError: Max retries exceeded")
+
+    monkeypatch.setattr(imerg_hh, "_reduce_from_archive", down)
 
 
 def test_an_outage_longer_than_the_budget_still_fails_the_day(monkeypatch):
-    from aetherguard.ingest import imerg_hh as hh
-    from aetherguard.http import DownloadError
-    monkeypatch.setattr(hh, "_half_hour_listing", lambda run, day: {})
+    always_down(monkeypatch)
+    clock, fetchers = FakeClock(), StubFetchers()
+    with pytest.raises(imerg_hh.DownloadError):
+        imerg_hh._fetch_day_waiting_out_outages("late", None, fetchers, 48, reachable=lambda: False,
+                                                sleep=clock.sleep, wait_s=120, clock=clock)
+    assert clock.slept == [60, 60] and fetchers.renewed == 0
 
-    def down(*args, **kwargs):
-        raise DownloadError("ConnectionError: Max retries exceeded")
 
-    monkeypatch.setattr(hh, "_reduce_from_archive", down)
-    with pytest.raises(DownloadError):
-        hh._fetch_day_waiting_out_outages("late", None, None, None, 48, reachable=lambda: False,
-                                          sleep=lambda s: None, wait_s=120)
+def test_the_outage_budget_is_wall_clock_not_a_count_of_polls(monkeypatch):
+    """Each probe takes 45 s of wall time on top of the 60 s sleep: a 600 s budget is spent after 7 probes (the last
+    sleep is cut to the 30 s left), where counting only the sleeps would have allowed 10."""
+    always_down(monkeypatch)
+    clock = FakeClock()
+    probes = []
+
+    def slow_probe():
+        probes.append(clock.now)
+        clock.now += 45
+        return False
+
+    with pytest.raises(imerg_hh.DownloadError):
+        imerg_hh._fetch_day_waiting_out_outages("late", None, StubFetchers(), 48, reachable=slow_probe,
+                                                sleep=clock.sleep, wait_s=600, clock=clock)
+    assert len(probes) == 7 and clock.slept[-1] == 30 and clock.now == pytest.approx(1000 + 645)
+
+
+def test_a_wait_that_overslept_the_budget_probes_once_more_then_gives_up(monkeypatch):
+    """After a laptop sleep the clock is far past the deadline: one last probe, then the day fails."""
+    always_down(monkeypatch)
+    clock = FakeClock()
+    probes = []
+
+    def probe():
+        probes.append(clock.now)
+        return False
+
+    def sleep_through_the_night(seconds):
+        clock.now += 11 * 3600
+
+    with pytest.raises(imerg_hh.DownloadError):
+        imerg_hh._fetch_day_waiting_out_outages("late", None, StubFetchers(), 48, reachable=probe,
+                                                sleep=sleep_through_the_night, wait_s=6 * 3600, clock=clock)
+    assert len(probes) == 2
+
+
+def test_a_heartbeat_is_logged_at_least_every_ten_minutes_while_waiting(monkeypatch, caplog):
+    outage_then_ok(monkeypatch)
+    clock = FakeClock()
+
+    def reachable():                 # down for the first 35 minutes of 60 s polls, then back
+        return clock.now - 1000.0 >= 35 * 60
+
+    with caplog.at_level("INFO", logger=imerg_hh.log.name):
+        imerg_hh._fetch_day_waiting_out_outages("late", None, StubFetchers(), 48, reachable=reachable,
+                                                sleep=clock.sleep, wait_s=6 * 3600, clock=clock)
+    beats = [r.getMessage() for r in caplog.records if "still waiting for the network" in r.getMessage()]
+    assert len(beats) == 3 and "30 min so far" in beats[-1]          # at 10, 20 and 30 minutes
+    assert any(r.levelname == "WARNING" and "network down" in r.getMessage() for r in caplog.records)
+
+
+# ------------------------------------------------------------------------------------------ per-day watchdog
+
+@pytest.fixture
+def hung_fetch(monkeypatch):
+    """`_fetch_half_hour` that blocks until the test ends for its first `hangs` calls and returns a dry field after
+    that; the session each call was handed is recorded."""
+    release = threading.Event()
+    state = {"hangs": 1, "calls": 0, "sessions": []}
+    lock = threading.Lock()
+
+    def fetch(link, session):
+        with lock:
+            state["calls"] += 1
+            hang = state["calls"] <= state["hangs"]
+            state["sessions"].append(session)
+        if hang:
+            release.wait(30)
+        return np.zeros((ROWS, COLS), dtype=np.float32)
+
+    monkeypatch.setattr(imerg_hh, "_fetch_half_hour", fetch)
+    monkeypatch.setattr(imerg_hh, "DAY_TIMEOUT_S", 0.3)
+    yield state
+    release.set()
+
+
+def one_slot_listing():
+    return {0: imerg_hh._Listing("http://x/granule", "V07B", "")}
+
+
+def test_the_day_timeout_defaults_to_fifteen_minutes():
+    assert imerg_hh.DAY_TIMEOUT_S == 15 * 60
+
+
+def test_a_fetch_that_never_returns_times_out_the_day_and_the_retry_uses_a_fresh_pool_and_sessions(hung_fetch, caplog):
+    fetchers = imerg_hh._Fetchers(2)
+    old_pool, old_sessions = fetchers.pool, fetchers.sessions
+    try:
+        with caplog.at_level("WARNING", logger=imerg_hh.log.name):
+            maps = imerg_hh._reduce_within_deadline("late", date(2018, 8, 15), one_slot_listing(), fetchers, n_slots=1)
+        assert float(maps["n_halfhours"].max()) == 1
+        assert fetchers.pool is not old_pool and fetchers.sessions is not old_sessions
+        first, second = hung_fetch["sessions"]
+        assert hung_fetch["calls"] == 2 and first is not second and second is fetchers.sessions._all[0]
+        warnings = [r.getMessage() for r in caplog.records if r.levelname == "WARNING"]
+        assert len(warnings) == 1 and "retrying the day once" in warnings[0]
+        with pytest.raises(RuntimeError):         # the abandoned pool accepts no more work
+            old_pool.submit(int)
+    finally:
+        fetchers.close()
+
+
+def test_two_day_timeouts_fail_the_day(hung_fetch, caplog):
+    hung_fetch["hangs"] = 2
+    fetchers = imerg_hh._Fetchers(2)
+    try:
+        with caplog.at_level("WARNING", logger=imerg_hh.log.name):
+            with pytest.raises(imerg_hh.DownloadError, match="timed out twice"):
+                imerg_hh._reduce_within_deadline("late", date(2018, 8, 15), one_slot_listing(), fetchers, n_slots=1)
+        assert hung_fetch["calls"] == 2
+        assert sum("day fetch exceeded" in r.getMessage() for r in caplog.records) == 2
+    finally:
+        fetchers.close()
+
+
+def test_a_timed_out_day_is_not_written_and_counts_as_failed_in_a_build(nasa, store, hung_fetch, caplog):
+    hung_fetch["hangs"] = 10 ** 6
+    with caplog.at_level("ERROR", logger=imerg_hh.log.name):
+        run_build(store, "late", date(2018, 8, 15), date(2018, 8, 15), workers=2)
+    assert not day_file(store, "late", date(2018, 8, 15)).exists()
+    assert any("day failed" in r.getMessage() and "timed out twice" in r.getMessage() for r in caplog.records)
+
+
+def test_a_timeout_then_a_good_retry_writes_the_day_in_a_build(nasa, store, hung_fetch):
+    run_build(store, "late", date(2018, 8, 15), date(2018, 8, 15), workers=2)
+    assert day_file(store, "late", date(2018, 8, 15)).exists()
+    assert hung_fetch["calls"] == 2 * 48          # the whole day is fetched again after the hung attempt

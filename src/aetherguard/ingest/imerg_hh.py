@@ -42,7 +42,7 @@ import os
 import re
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import NamedTuple
@@ -72,6 +72,7 @@ WET_MM_PER_H = np.float32(0.1)
 MAX_WORKERS = 4                       # politeness limit; the daily live run downloads from the same server
 ABORT_AFTER = imerg.ABORT_AFTER       # consecutive failed days before a build stops asking (credentials, outage)
 TIMEOUT_S = 120
+DAY_TIMEOUT_S = 15 * 60               # all half-hours of one day; a hung worker (stale connection after a sleep) is abandoned
 ATTEMPTS = 5                          # per half-hour request
 MAX_BACKOFF_S = 30.0                  # longest single wait between attempts (2, 4, 8, 16 s with the configured base)
 CMR_PAGE_SIZE = 200                   # 48 half-hours per day, at most a few versions each
@@ -85,6 +86,10 @@ CONSTRAINT = (f"dap4.ce={VARIABLE_PATH}[0]{_BOX_LON}{_BOX_LAT};/Grid/time;/Grid/
 
 class BuildAborted(RuntimeError):
     """A build stopped after too many consecutive failed days (rejected credentials or an outage)."""
+
+
+class _DayTimeout(Exception):
+    """The half-hours of one day did not all finish within DAY_TIMEOUT_S."""
 
 
 class SubsetFormatError(ValueError):
@@ -260,18 +265,23 @@ def _record(manifest: Manifest, path: Path, run: str, live_window: bool = False)
 
 
 def _reduce_from_archive(run: str, day: date, listing: dict[int, _Listing], pool: ThreadPoolExecutor,
-                         sessions: imerg._Sessions, n_slots: int = HALF_HOURS) -> dict[str, np.ndarray]:
+                         sessions: imerg._Sessions, n_slots: int = HALF_HOURS,
+                         deadline: float | None = None) -> dict[str, np.ndarray]:
     """Fetch the listed half-hours of the IMD day, in parallel, and reduce them (plus `versions`).
 
     Only the first `n_slots` half-hours are used (all 48 unless a live window is built). A half-hour CMR does not
     list stays NaN and is logged. Raises DownloadError when a listed half-hour cannot be fetched (the failure is
-    transient, so the day must not be written) or when CMR lists none of them.
+    transient, so the day must not be written) or when CMR lists none of them. Raises _DayTimeout when the fetches
+    are not all done by `deadline` (a time.monotonic() value; none by default).
     """
     first, _ = day_window(day)
     listing = {slot: listed for slot, listed in listing.items() if slot < n_slots}
     fields = np.full((n_slots, imerg.ROWS, imerg.COLS), np.nan, dtype=np.float32)
     futures = {slot: pool.submit(lambda link=listed.link: _fetch_half_hour(link, sessions.get()))
                for slot, listed in listing.items()}
+    _, pending = wait(futures.values(), timeout=None if deadline is None else max(0.0, deadline - time.monotonic()))
+    if pending:
+        raise _DayTimeout(f"{len(pending)} of {len(futures)} half-hour fetches still running")
     unfetched = 0
     for slot in range(n_slots):
         stamp = f"{first + slot * SLOT:%Y-%m-%d %H:%M} UTC"
@@ -290,6 +300,46 @@ def _reduce_from_archive(run: str, day: date, listing: dict[int, _Listing], pool
     maps = reduce_day(fields, n_slots)
     maps["versions"] = _versions(listing)
     return maps
+
+
+class _Fetchers:
+    """The worker pool and per-thread sessions of a build or repair; replaceable when a fetch hangs."""
+
+    def __init__(self, workers: int) -> None:
+        self.workers = workers
+        self.pool = ThreadPoolExecutor(max_workers=workers)
+        self.sessions = imerg._Sessions()
+
+    def renew_sessions(self) -> None:
+        """New sessions for every worker thread (a sleep or an outage can leave pooled connections dead)."""
+        old, self.sessions = self.sessions, imerg._Sessions()
+        old.close()
+
+    def reset(self) -> None:
+        """Abandon the pool (its stuck threads are left to finish on their own) and start with a fresh one."""
+        self.pool.shutdown(wait=False, cancel_futures=True)
+        self.pool = ThreadPoolExecutor(max_workers=self.workers)
+        self.renew_sessions()
+
+    def close(self) -> None:
+        self.pool.shutdown(wait=True)
+        self.sessions.close()
+
+
+def _reduce_within_deadline(run: str, day: date, listing: dict[int, _Listing], fetchers: _Fetchers,
+                            n_slots: int = HALF_HOURS) -> dict[str, np.ndarray]:
+    """`_reduce_from_archive` with a per-day watchdog: when the half-hours do not all finish within DAY_TIMEOUT_S the
+    pool and sessions are replaced and the same day is tried once more; a second timeout is a failed day."""
+    for attempt in (1, 2):
+        try:
+            return _reduce_from_archive(run, day, listing, fetchers.pool, fetchers.sessions, n_slots,
+                                        deadline=time.monotonic() + DAY_TIMEOUT_S)
+        except _DayTimeout as exc:
+            fetchers.reset()
+            log.warning("%s %s: day fetch exceeded %.0f s (%s); pool and sessions recreated%s", run, day,
+                        DAY_TIMEOUT_S, exc, "; retrying the day once" if attempt == 1 else "")
+    raise DownloadError(f"day fetch timed out twice (limit {DAY_TIMEOUT_S:.0f} s); the day is not written",
+                        retriable=True)
 
 
 def _versions(listing: dict[int, _Listing]) -> np.ndarray:
@@ -316,6 +366,7 @@ def _prepare(run: str, start: date, end: date, workers: int, months, manifest: M
 
 OUTAGE_WAIT_S = 6 * 3600          # how long a build waits for the network to come back before it counts a failed day
 OUTAGE_POLL_S = 60
+OUTAGE_HEARTBEAT_S = 10 * 60      # longest silence in the log while waiting, so a waiting build is told from a stalled one
 _OUTAGE_MARKERS = ("NameResolutionError", "getaddrinfo", "Failed to resolve", "ConnectionError", "Max retries exceeded")
 
 
@@ -333,26 +384,42 @@ def network_reachable(timeout: float = 10.0) -> bool:
         return False
 
 
-def _fetch_day_waiting_out_outages(run, day, pool, sessions, n_slots, *, reachable=None, sleep=None,
-                                   wait_s: float | None = None):
-    """`_reduce_from_archive` for one day; when it fails because the network is down, wait (polling every
-    `OUTAGE_POLL_S`, at most `OUTAGE_WAIT_S`) for the network to return and try the day again instead of counting a
-    failed day, so a short laptop-side outage does not burn the consecutive-failure budget."""
+def _fetch_day_waiting_out_outages(run, day, fetchers, n_slots, *, reachable=None, sleep=None,
+                                   wait_s: float | None = None, clock=None):
+    """`_reduce_within_deadline` for one day; when it fails because the network is down, wait (polling every
+    `OUTAGE_POLL_S`) for the network to return, renew the sessions and try the day again instead of counting a failed
+    day, so a short laptop-side outage does not burn the consecutive-failure budget. The wait ends `wait_s`
+    (`OUTAGE_WAIT_S` by default) of wall-clock time after the first outage of the day, however long each poll took.
+    While waiting, an INFO line is logged at least every `OUTAGE_HEARTBEAT_S`. `clock` is time.monotonic unless given."""
     reachable = reachable or network_reachable
     sleep = sleep or time.sleep
+    clock = clock or time.monotonic
     budget = OUTAGE_WAIT_S if wait_s is None else wait_s
+    deadline = None
     while True:
         try:
-            return _reduce_from_archive(run, day, _half_hour_listing(run, day), pool, sessions, n_slots)
+            return _reduce_within_deadline(run, day, _half_hour_listing(run, day), fetchers, n_slots)
         except DownloadError as exc:
-            if not network_outage(exc) or budget <= 0:
+            if not network_outage(exc):
+                raise
+            now = clock()
+            if deadline is None:
+                deadline = now + budget
+            if now >= deadline:
                 raise
             log.warning("%s %s: network down (%s); waiting for it to return", run, day, type(exc).__name__)
-            while budget > 0 and not reachable():
-                sleep(OUTAGE_POLL_S)
-                budget -= OUTAGE_POLL_S
-            if budget <= 0:
-                raise
+            began = last_beat = now
+            while not reachable():
+                now = clock()
+                if now >= deadline:
+                    raise
+                if now - last_beat >= OUTAGE_HEARTBEAT_S:
+                    last_beat = now
+                    log.info("%s %s: still waiting for the network (%.0f min so far, giving up after %.0f min)", run,
+                             day, (now - began) / 60, budget / 60)
+                sleep(min(OUTAGE_POLL_S, deadline - now))
+            fetchers.renew_sessions()
+            log.info("%s %s: network is back after %.0f s; sessions renewed", run, day, clock() - began)
 
 
 def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *, months=None,
@@ -363,7 +430,8 @@ def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *,
 
     Days with a day file are skipped (and recorded in the manifest if they are not yet). A day on which a half-hour
     CMR lists cannot be fetched (or on which CMR lists none) is not written, is logged and counts as failed; the next
-    run retries it, and `ABORT_AFTER` consecutive failed days raise BuildAborted. Half-hours CMR does not list are
+    run retries it, and `ABORT_AFTER` consecutive failed days raise BuildAborted. A day whose
+    fetches do not all finish within `DAY_TIMEOUT_S` is retried once with a fresh pool and sessions, then fails. Half-hours CMR does not list are
     NaN (logged), never dry.
     """
     manifest, days = _prepare(run, start, end, workers, months, manifest, year_window)
@@ -372,41 +440,40 @@ def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *,
     store = store_name(run, live_window)
     log.info("%s: %d IMD days %s..%s, %d half-hours each, %d workers, root %s", store, len(days), start, end, n_slots,
              workers, root)
-    sessions = imerg._Sessions()
+    fetchers = _Fetchers(workers)
     consecutive = skipped = written = failed = 0
     began = time.monotonic()
     try:
-        with ThreadPoolExecutor(max_workers=workers) as pool:
-            for number, day in enumerate(days, start=1):
-                path = _day_path(root, store, day)
-                if path.exists():
-                    if not manifest.is_current(path):     # a crash between the write and the record
-                        _record(manifest, path, run, live_window)
-                    skipped += 1
-                    continue
-                started = time.monotonic()
-                try:
-                    maps = _fetch_day_waiting_out_outages(run, day, pool, sessions, n_slots)
-                except DownloadError as exc:
-                    failed += 1
-                    consecutive += 1
-                    log.error("%s %s: day failed (%s); %d consecutive", store, day, exc, consecutive)
-                    if consecutive >= ABORT_AFTER:
-                        raise BuildAborted(f"{consecutive} consecutive failed days, last {day}: {exc}") from exc
-                    continue
-                consecutive = 0
-                _write_day(path, maps)
-                try:
+        for number, day in enumerate(days, start=1):
+            path = _day_path(root, store, day)
+            if path.exists():
+                if not manifest.is_current(path):     # a crash between the write and the record
                     _record(manifest, path, run, live_window)
-                except Exception:
-                    path.unlink(missing_ok=True)      # never leave a data file without a manifest entry
-                    raise
-                written += 1
-                log.info("%s %s: written, %d/%d half-hours, %.0f s (day %d/%d, skipped %d, failed %d, %.1f h elapsed)",
-                         store, day, int(maps["n_halfhours"].max()), n_slots, time.monotonic() - started,
-                         number, len(days), skipped, failed, (time.monotonic() - began) / 3600)
+                skipped += 1
+                continue
+            started = time.monotonic()
+            try:
+                maps = _fetch_day_waiting_out_outages(run, day, fetchers, n_slots)
+            except DownloadError as exc:
+                failed += 1
+                consecutive += 1
+                log.error("%s %s: day failed (%s); %d consecutive", store, day, exc, consecutive)
+                if consecutive >= ABORT_AFTER:
+                    raise BuildAborted(f"{consecutive} consecutive failed days, last {day}: {exc}") from exc
+                continue
+            consecutive = 0
+            _write_day(path, maps)
+            try:
+                _record(manifest, path, run, live_window)
+            except Exception:
+                path.unlink(missing_ok=True)      # never leave a data file without a manifest entry
+                raise
+            written += 1
+            log.info("%s %s: written, %d/%d half-hours, %.0f s (day %d/%d, skipped %d, failed %d, %.1f h elapsed)",
+                     store, day, int(maps["n_halfhours"].max()), n_slots, time.monotonic() - started,
+                     number, len(days), skipped, failed, (time.monotonic() - began) / 3600)
     finally:
-        sessions.close()
+        fetchers.close()
     log.info("%s: done, %d written, %d already present, %d failed", store, written, skipped, failed)
 
 
@@ -423,49 +490,48 @@ def repair(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *
     manifest, days = _prepare(run, start, end, workers, months, manifest)
     root = Path(root)
     log.info("%s: repair of the existing day files among %d IMD days %s..%s", run, len(days), start, end)
-    sessions = imerg._Sessions()
+    fetchers = _Fetchers(workers)
     counts = {"scanned": 0, "incomplete": 0, "rewritten": 0, "versions_added": 0}
     consecutive = 0
     try:
-        with ThreadPoolExecutor(max_workers=workers) as pool:
-            for day in days:
-                path = _day_path(root, run, day)
-                if not path.exists():
-                    continue
-                counts["scanned"] += 1
-                with np.load(path) as data:
-                    arrays = {name: data[name] for name in data.files}
-                complete = float(arrays["n_halfhours"].max()) >= HALF_HOURS
-                if complete and "versions" in arrays:
-                    continue
-                counts["incomplete"] += not complete
-                try:
-                    listing = _half_hour_listing(run, day)
-                    if complete:
-                        maps = {**arrays, "versions": _versions(listing)}
-                    elif len(listing) < HALF_HOURS:
-                        log.info("%s %s: CMR lists %d of %d half-hours; left as it is", run, day, len(listing),
-                                 HALF_HOURS)
-                        continue
-                    else:
-                        maps = _reduce_from_archive(run, day, listing, pool, sessions)
-                except DownloadError as exc:
-                    consecutive += 1
-                    log.error("%s %s: repair failed (%s); %d consecutive", run, day, exc, consecutive)
-                    if consecutive >= ABORT_AFTER:
-                        raise BuildAborted(f"{consecutive} consecutive failures, last {day}: {exc}") from exc
-                    continue
-                consecutive = 0
-                _write_day(path, maps)
-                _record(manifest, path, run)
+        for day in days:
+            path = _day_path(root, run, day)
+            if not path.exists():
+                continue
+            counts["scanned"] += 1
+            with np.load(path) as data:
+                arrays = {name: data[name] for name in data.files}
+            complete = float(arrays["n_halfhours"].max()) >= HALF_HOURS
+            if complete and "versions" in arrays:
+                continue
+            counts["incomplete"] += not complete
+            try:
+                listing = _half_hour_listing(run, day)
                 if complete:
-                    counts["versions_added"] += 1
-                    log.info("%s %s: versions recorded %s", run, day, maps["versions"].tolist())
+                    maps = {**arrays, "versions": _versions(listing)}
+                elif len(listing) < HALF_HOURS:
+                    log.info("%s %s: CMR lists %d of %d half-hours; left as it is", run, day, len(listing),
+                             HALF_HOURS)
+                    continue
                 else:
-                    counts["rewritten"] += 1
-                    log.info("%s %s: refetched, now 48/48 half-hours", run, day)
+                    maps = _reduce_within_deadline(run, day, listing, fetchers)
+            except DownloadError as exc:
+                consecutive += 1
+                log.error("%s %s: repair failed (%s); %d consecutive", run, day, exc, consecutive)
+                if consecutive >= ABORT_AFTER:
+                    raise BuildAborted(f"{consecutive} consecutive failures, last {day}: {exc}") from exc
+                continue
+            consecutive = 0
+            _write_day(path, maps)
+            _record(manifest, path, run)
+            if complete:
+                counts["versions_added"] += 1
+                log.info("%s %s: versions recorded %s", run, day, maps["versions"].tolist())
+            else:
+                counts["rewritten"] += 1
+                log.info("%s %s: refetched, now 48/48 half-hours", run, day)
     finally:
-        sessions.close()
+        fetchers.close()
     log.info("%s: repair done, %s", run, counts)
     return counts
 
