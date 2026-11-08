@@ -282,7 +282,7 @@ def _reduce_from_archive(run: str, day: date, listing: dict[int, _Listing], pool
     _, pending = wait(futures.values(), timeout=None if deadline is None else max(0.0, deadline - time.monotonic()))
     if pending:
         raise _DayTimeout(f"{len(pending)} of {len(futures)} half-hour fetches still running")
-    unfetched = 0
+    unfetched = refused = 0
     for slot in range(n_slots):
         stamp = f"{first + slot * SLOT:%Y-%m-%d %H:%M} UTC"
         if slot not in futures:
@@ -292,9 +292,13 @@ def _reduce_from_archive(run: str, day: date, listing: dict[int, _Listing], pool
             fields[slot] = futures[slot].result()
         except DownloadError as exc:
             unfetched += 1
+            refused += exc.status == 401
             log.warning("%s %s: listed half-hour %s not fetched (%s)", run, day, stamp, exc)
     if not futures:
         raise DownloadError("CMR lists no half-hour of the day", retriable=True)
+    if refused:
+        raise DownloadError(f"{unfetched} listed half-hour(s) not fetched ({refused} refused by the login, HTTP 401); "
+                            "the day is not written", retriable=True, status=401)
     if unfetched:
         raise DownloadError(f"{unfetched} listed half-hour(s) not fetched; the day is not written", retriable=True)
     maps = reduce_day(fields, n_slots)
@@ -367,6 +371,8 @@ def _prepare(run: str, start: date, end: date, workers: int, months, manifest: M
 OUTAGE_WAIT_S = 6 * 3600          # how long a build waits for the network to come back before it counts a failed day
 OUTAGE_POLL_S = 60
 OUTAGE_HEARTBEAT_S = 10 * 60      # longest silence in the log while waiting, so a waiting build is told from a stalled one
+AUTH_WAIT_S = 3600                # how long login refusals (HTTP 401) are waited out per streak of failed days
+AUTH_POLL_S = 5 * 60              # pause before retrying a refused day with fresh sessions (a fresh login)
 _OUTAGE_MARKERS = ("NameResolutionError", "getaddrinfo", "Failed to resolve", "ConnectionError", "Max retries exceeded")
 
 
@@ -385,21 +391,40 @@ def network_reachable(timeout: float = 10.0) -> bool:
 
 
 def _fetch_day_waiting_out_outages(run, day, fetchers, n_slots, *, reachable=None, sleep=None,
-                                   wait_s: float | None = None, clock=None):
+                                   wait_s: float | None = None, clock=None, auth_state: dict | None = None):
     """`_reduce_within_deadline` for one day; when it fails because the network is down, wait (polling every
     `OUTAGE_POLL_S`) for the network to return, renew the sessions and try the day again instead of counting a failed
     day, so a short laptop-side outage does not burn the consecutive-failure budget. The wait ends `wait_s`
     (`OUTAGE_WAIT_S` by default) of wall-clock time after the first outage of the day, however long each poll took.
-    While waiting, an INFO line is logged at least every `OUTAGE_HEARTBEAT_S`. `clock` is time.monotonic unless given."""
+    While waiting, an INFO line is logged at least every `OUTAGE_HEARTBEAT_S`. `clock` is time.monotonic unless given.
+
+    A day refused by Earthdata Login (HTTP 401; the login service has refused valid credentials for 20+ minutes at a
+    time) is retried every `AUTH_POLL_S` with renewed sessions until `AUTH_WAIT_S` after the first refusal; then it
+    fails. That deadline lives in `auth_state`, shared by the days of a build and cleared by the build when a day is
+    written, so rejected credentials cost one wait and then fail fast towards the abort."""
     reachable = reachable or network_reachable
     sleep = sleep or time.sleep
     clock = clock or time.monotonic
     budget = OUTAGE_WAIT_S if wait_s is None else wait_s
+    auth_state = {} if auth_state is None else auth_state
     deadline = None
     while True:
         try:
             return _reduce_within_deadline(run, day, _half_hour_listing(run, day), fetchers, n_slots)
         except DownloadError as exc:
+            if exc.status == 401:
+                now = clock()
+                if auth_state.get("deadline") is None:
+                    auth_state["deadline"] = now + AUTH_WAIT_S
+                left = auth_state["deadline"] - now
+                if left <= 0:
+                    raise
+                log.warning("%s %s: refused by the Earthdata login (HTTP 401); retrying with fresh sessions in %.0f s "
+                            "(%.0f min left before refused days count as failed)", run, day, min(AUTH_POLL_S, left),
+                            left / 60)
+                sleep(min(AUTH_POLL_S, left))
+                fetchers.renew_sessions()
+                continue
             if not network_outage(exc):
                 raise
             now = clock()
@@ -441,6 +466,7 @@ def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *,
     log.info("%s: %d IMD days %s..%s, %d half-hours each, %d workers, root %s", store, len(days), start, end, n_slots,
              workers, root)
     fetchers = _Fetchers(workers)
+    auth_state: dict = {}
     consecutive = skipped = written = failed = 0
     began = time.monotonic()
     try:
@@ -453,7 +479,7 @@ def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *,
                 continue
             started = time.monotonic()
             try:
-                maps = _fetch_day_waiting_out_outages(run, day, fetchers, n_slots)
+                maps = _fetch_day_waiting_out_outages(run, day, fetchers, n_slots, auth_state=auth_state)
             except DownloadError as exc:
                 failed += 1
                 consecutive += 1
@@ -462,6 +488,7 @@ def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *,
                     raise BuildAborted(f"{consecutive} consecutive failed days, last {day}: {exc}") from exc
                 continue
             consecutive = 0
+            auth_state["deadline"] = None
             _write_day(path, maps)
             try:
                 _record(manifest, path, run, live_window)

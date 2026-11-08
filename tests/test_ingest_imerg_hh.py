@@ -463,6 +463,7 @@ def test_a_login_page_instead_of_data_is_retried_and_fails_the_day(nasa, store, 
 
 def test_build_aborts_after_consecutive_failed_days_and_writes_nothing(nasa, store, monkeypatch):
     monkeypatch.setattr(imerg_hh, "ABORT_AFTER", 3)
+    monkeypatch.setattr(imerg_hh, "AUTH_WAIT_S", 0)
     nasa.all_status = 401                                           # credentials rejected
     with pytest.raises(imerg_hh.BuildAborted, match="3 consecutive"):
         run_build(store, "late", date(2018, 8, 1), date(2018, 8, 20))
@@ -476,6 +477,7 @@ def test_the_abort_limit_is_the_configured_thirty(nasa):
 
 def test_a_good_day_resets_the_consecutive_failure_count(nasa, store, monkeypatch):
     monkeypatch.setattr(imerg_hh, "ABORT_AFTER", 2)
+    monkeypatch.setattr(imerg_hh, "AUTH_WAIT_S", 0)
     bad = {d for d in (date(2018, 8, 1), date(2018, 8, 3), date(2018, 8, 5))}
     nasa.failing = {start: 401 for start in [imd_start(d) + k * HALF for d in bad for k in range(48)]}
     run_build(store, "late", date(2018, 8, 1), date(2018, 8, 6))
@@ -936,3 +938,85 @@ def test_a_timeout_then_a_good_retry_writes_the_day_in_a_build(nasa, store, hung
     run_build(store, "late", date(2018, 8, 15), date(2018, 8, 15), workers=2)
     assert day_file(store, "late", date(2018, 8, 15)).exists()
     assert hung_fetch["calls"] == 2 * 48          # the whole day is fetched again after the hung attempt
+
+
+# ------------------------------------------------------------------------------------------ login refusals (HTTP 401)
+
+def refused_then_ok(monkeypatch, refusals=1):
+    """Patch the archive so that its first `refusals` calls fail as a login refusal and the next one succeeds."""
+    calls = {"n": 0}
+
+    def flaky(*args, **kwargs):
+        calls["n"] += 1
+        if calls["n"] <= refusals:
+            raise imerg_hh.DownloadError("5 listed half-hour(s) not fetched (5 refused by the login, HTTP 401)",
+                                         retriable=True, status=401)
+        return {"ok": True}
+
+    monkeypatch.setattr(imerg_hh, "_half_hour_listing", lambda run, day: {})
+    monkeypatch.setattr(imerg_hh, "_reduce_from_archive", flaky)
+    return calls
+
+
+def test_a_login_refusal_waits_renews_the_sessions_and_retries_the_same_day(monkeypatch):
+    """Earthdata Login refusing for a while (seen 2026-11-08: 401s for 20+ min, then fine) is waited out with fresh
+    sessions (a fresh login), not counted as failed days."""
+    calls = refused_then_ok(monkeypatch, refusals=2)
+    clock, fetchers = FakeClock(), StubFetchers()
+    out = imerg_hh._fetch_day_waiting_out_outages("late", None, fetchers, 48, reachable=lambda: True,
+                                                  sleep=clock.sleep, clock=clock, auth_state={})
+    assert out == {"ok": True} and calls["n"] == 3
+    assert clock.slept == [imerg_hh.AUTH_POLL_S] * 2 and fetchers.renewed == 2
+
+
+def test_a_login_refusal_longer_than_the_auth_budget_fails_the_day(monkeypatch):
+    refused_then_ok(monkeypatch, refusals=10 ** 6)
+    clock, state = FakeClock(), {}
+    with pytest.raises(imerg_hh.DownloadError) as caught:
+        imerg_hh._fetch_day_waiting_out_outages("late", None, StubFetchers(), 48, reachable=lambda: True,
+                                                sleep=clock.sleep, clock=clock, auth_state=state)
+    assert caught.value.status == 401
+    assert sum(clock.slept) >= imerg_hh.AUTH_WAIT_S - imerg_hh.AUTH_POLL_S and sum(clock.slept) <= imerg_hh.AUTH_WAIT_S
+
+
+def test_the_auth_budget_is_shared_by_the_days_of_a_streak_so_bad_credentials_abort_fast(monkeypatch):
+    """Once the budget is spent, later refused days fail at once (rejected credentials reach the abort in minutes,
+    not 30 hours)."""
+    refused_then_ok(monkeypatch, refusals=10 ** 6)
+    clock, state = FakeClock(), {}
+    with pytest.raises(imerg_hh.DownloadError):
+        imerg_hh._fetch_day_waiting_out_outages("late", None, StubFetchers(), 48, reachable=lambda: True,
+                                                sleep=clock.sleep, clock=clock, auth_state=state)
+    spent = len(clock.slept)
+    with pytest.raises(imerg_hh.DownloadError):
+        imerg_hh._fetch_day_waiting_out_outages("late", None, StubFetchers(), 48, reachable=lambda: True,
+                                                sleep=clock.sleep, clock=clock, auth_state=state)
+    assert len(clock.slept) == spent
+
+
+def test_the_auth_budget_defaults_to_one_hour_polled_every_five_minutes():
+    assert imerg_hh.AUTH_WAIT_S == 3600 and imerg_hh.AUTH_POLL_S == 300
+
+
+def test_a_day_with_refused_half_hours_fails_with_status_401(nasa, store, monkeypatch, caplog):
+    monkeypatch.setattr(imerg_hh, "AUTH_WAIT_S", 0)
+    day = date(2018, 8, 15)
+    nasa.failing = {imd_start(day) + k * HALF: 401 for k in (3, 7)}
+    with caplog.at_level("ERROR", logger=imerg_hh.log.name):
+        run_build(store, "late", day, day)
+    assert not day_file(store, "late", day).exists()
+    assert any("day failed" in r.getMessage() and "2 refused by the login, HTTP 401" in r.getMessage()
+               for r in caplog.records)
+
+
+def test_a_written_day_resets_the_auth_budget_in_a_build(nasa, store, monkeypatch):
+    seen = []
+
+    def fetch(run, day, fetchers, n_slots, *, auth_state, **kwargs):
+        seen.append(dict(auth_state))
+        auth_state["deadline"] = 123.0            # as if a refusal had started the clock on this day
+        return imerg_hh.reduce_day(np.zeros((48, ROWS, COLS), dtype=np.float32))
+
+    monkeypatch.setattr(imerg_hh, "_fetch_day_waiting_out_outages", fetch)
+    run_build(store, "late", date(2018, 8, 15), date(2018, 8, 16))
+    assert seen == [{}, {"deadline": None}]
