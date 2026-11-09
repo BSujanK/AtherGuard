@@ -632,7 +632,9 @@ def test_install_script_dry_run_prints_the_task_definition():
     out = subprocess.run([shell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script), "-DryRun"],
                          capture_output=True, text=True, timeout=60, check=True).stdout
     for needle in ("AetherGuard daily", "11:00", "-m aetherguard.live run --date today", "StartWhenAvailable", "-WindowStyle Hidden",
-                   "RestartCount", "RestartInterval", "logs"):
+                   "RestartCount", "RestartInterval", "logs",
+                   # a start on wake or logon waits for the network (Wi-Fi reconnects after the trigger fires)
+                   "Network wait:", "cmr.earthdata.nasa.gov", "20 minutes"):
         assert needle in out, needle
 
 

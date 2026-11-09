@@ -30,11 +30,29 @@ $Python = Join-Path $Project '.venv\Scripts\python.exe'
 $LogDir = Join-Path $Project 'data\live\logs'
 $Self = $MyInvocation.MyCommand.Path
 $RunArguments = '-m aetherguard.live run --date today'
+# A start on wake or logon fires before Wi-Fi reconnects; a run then finds every source unresolvable and publishes an
+# unscored day (2026-11-08, 2026-11-09). So the task first waits for the name of the NASA archive to resolve.
+$NetworkHost = 'cmr.earthdata.nasa.gov'
+$NetworkWaitMinutes = 20
 
 if ($Execute) {
     Set-Location $Project
     New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
     $log = Join-Path $LogDir ((Get-Date -Format 'yyyy-MM-dd') + '.log')
+    $began = Get-Date
+    $deadline = $began.AddMinutes($NetworkWaitMinutes)
+    while ($true) {
+        try { [System.Net.Dns]::GetHostAddresses($NetworkHost) | Out-Null; break } catch { }
+        if ((Get-Date) -ge $deadline) {
+            Add-Content -Path $log -Value "$(Get-Date -Format s) network wait: $NetworkHost did not resolve within $NetworkWaitMinutes minutes; running anyway"
+            break
+        }
+        Start-Sleep -Seconds 30
+    }
+    $waited = [int]((Get-Date) - $began).TotalSeconds
+    if ($waited -ge 30) {
+        Add-Content -Path $log -Value "$(Get-Date -Format s) network wait: started the run after $waited s"
+    }
     cmd.exe /c "`"$Python`" $RunArguments >> `"$log`" 2>&1"
     exit $LASTEXITCODE
 }
@@ -48,6 +66,7 @@ if ($DryRun) {
     Write-Output "Trigger:          daily at $Time local time, again 30, 60 and 90 minutes later (idempotent retries); catch-up at 18:00 and 10 minutes after logon"
     Write-Output "Action:           powershell.exe $ActionArguments"
     Write-Output "Runs:             `"$Python`" $RunArguments"
+    Write-Output "Network wait:     up to $NetworkWaitMinutes minutes for $NetworkHost to resolve before the run"
     Write-Output "Working dir:      $Project"
     Write-Output "Log file:         $LogDir\<yyyy-MM-dd>.log"
     Write-Output "Settings:         StartWhenAvailable, RestartCount $RestartCount, RestartInterval $RestartMinutes minutes, ExecutionTimeLimit 2 hours"
