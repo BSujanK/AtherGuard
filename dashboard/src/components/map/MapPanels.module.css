@@ -13,15 +13,16 @@
   font-size: var(--fs-sm);
 }
 
-/* Compact and quiet: capped so it never reaches the map's centre. */
-/* The notes scroll inside their panel; the last line fades so a cut line reads as "more below", not as a clip. */
+/* What is left of the legend: a small credit strip, growing only when the map has something to admit. */
 .notes {
-  max-height: 38vh;
-  overflow: auto;
-  padding-bottom: var(--sp-5);
-  mask-image: linear-gradient(to bottom, var(--ink-black) calc(100% - 2.25rem), transparent);
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+
+.fine:empty {
+  display: none;
 }
 
 .swatch {

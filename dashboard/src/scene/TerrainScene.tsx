@@ -129,8 +129,8 @@ function OrbitStart() {
   return null
 }
 
-/** Width in px of the navigation rail, which covers the left of the full-bleed canvas once shown. */
-function railWidth(): number {
+/** Width in px the map is nudged right by (twice the shift), so it sits clear of the controls dock on the left. */
+function dockAllowance(): number {
   if (window.innerWidth <= 900) return 0
   return parseFloat(getComputedStyle(document.documentElement).fontSize) * 13.5
 }
@@ -143,7 +143,7 @@ const NARROW_SHIFT_PX = 95
 
 /**
  * Drives the camera along the landing dive and hands over to the map pose once the sequence ends.
- * The projection is shifted right by half the rail so the map is centred in the visible area.
+ * The projection is shifted right so the map is centred in the area the controls dock leaves free.
  */
 function CameraDirector() {
   const camera = useThree((s) => s.camera) as PerspectiveCamera
@@ -155,7 +155,7 @@ function CameraDirector() {
     (dive: number) => {
       const narrow = window.innerWidth <= NARROW_PX
       camera.zoom = narrow ? NARROW_ZOOM : 1
-      camera.setViewOffset(size.width, size.height, (-railWidth() / 2) * dive, narrow ? -NARROW_SHIFT_PX * dive : 0, size.width, size.height)
+      camera.setViewOffset(size.width, size.height, (-dockAllowance() / 2) * dive, narrow ? -NARROW_SHIFT_PX * dive : 0, size.width, size.height)
     },
     [camera, size],
   )

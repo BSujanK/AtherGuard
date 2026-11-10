@@ -7,10 +7,8 @@ import {
   formatCount,
   formatDate,
   MODEL_ESTIMATE,
-  NEUTRAL_RAIN,
   oddsOptions,
   oddsWhen,
-  rainSourceName,
   spokenRisk,
 } from '../../data/summary'
 import { watchForCell } from '../../data/thresholds'
@@ -24,41 +22,19 @@ import styles from './MapPanels.module.css'
 
 const LIST_LENGTH = 12
 
-/** Which leads can be shown and why not, what a column's height means, and the state of the rain layer. */
+/** The few things the map cannot say by itself: why a lead is unavailable, a missing rain layer, and the credits. */
 export function MapLegend({ model, degraded }: { model: MapModel; degraded: boolean }) {
   const { grid, rain, rainMissing } = model
   const notes = unavailableNotes(model)
   const places = usePlaces().data
-  const forecastReady = [1, 2, 3].some((l) => model.leadStatus[l as 1 | 2 | 3].state === 'ready')
   return (
     <section className={`${styles.panel} ${styles.notes}`} aria-label="Legend">
       <div id="map-lead-note" className={styles.fine}>
-        {forecastReady && (
-          <p>
-            D+1 to D+3 are forecasts. <b>Firm</b>: the level would be the same with no more rain, with the forecast rain and
-            with a lot more, because rain already fallen sets it. <b>Depends on rain forecast</b>: the level changes with the
-            rain still to come; the range of levels is shown.
-          </p>
-        )}
         {notes.map((n) => (
           <p key={n}>{n}</p>
         ))}
       </div>
-      <p className={styles.fine}>
-        Columns mark Warning and Emergency; their height is risk relative to the highest in view. Watch is the lime
-        tint on the terrain; switch on Watch columns to stand those up too.
-      </p>
-      <p className={styles.fine}>
-        Not modelled: risk is computed for the Himalaya and Western Ghats hill cells
-        {grid ? ` (${formatCount(grid.n)})` : ''}; the rest of India is shown for context.
-      </p>
-      <p className={styles.fine}>
-        {rain
-          ? `Rain streaks follow the day's ${rainSourceName(rain) ? `1-day rain (${rain.unit}) from ${rainSourceName(rain)}` : NEUTRAL_RAIN}; none where it did not rain.`
-          : rainMissing
-            ? 'Rain layer: the API has no rain field for this date.'
-            : 'Rain layer: loading.'}
-      </p>
+      {!rain && rainMissing && <p className={styles.fine}>Rain layer: the API has no rain field for this date.</p>}
       {grid && grid.lead > 0 && (
         <p className={styles.fine}>
           Showing the D+{grid.lead} forecast

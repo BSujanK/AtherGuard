@@ -37,8 +37,10 @@ const sparkVertex = /* glsl */ `
   void main() {
     float life = fract(aSeed.w + uTime * (0.035 + aSeed.z * 0.05));
     vec3 p;
-    p.x = (aSeed.x - 0.5) * 38.0 + sin(life * 12.0 + aSeed.y * 40.0) * 0.55;
-    p.z = (aSeed.y - 0.5) * 40.0 + cos(life * 9.0 + aSeed.x * 30.0) * 0.4;
+    // Spawned over a box wider than the camera sees at any window shape, so the sparks reach every corner of the
+    // screen instead of hovering over the middle of the map.
+    p.x = (aSeed.x - 0.5) * 110.0 + sin(life * 12.0 + aSeed.y * 40.0) * 0.55;
+    p.z = (aSeed.y - 0.5) * 84.0 - 8.0 + cos(life * 9.0 + aSeed.x * 30.0) * 0.4;
     p.y = -0.4 + life * 11.0;
     vAlpha = smoothstep(0.0, 0.08, life) * (1.0 - smoothstep(0.55, 1.0, life)) * uIntensity;
     vHeat = aSeed.z * aSeed.z;
@@ -68,7 +70,7 @@ const sparkFragment = /* glsl */ `
   }
 `
 
-export function Sparks({ count = 650 }: { count?: number }) {
+export function Sparks({ count = 1700 }: { count?: number }) {
   const ref = useRef<Points>(null)
   const { geometry, material } = useMemo(() => {
     const rand = seeded(7)

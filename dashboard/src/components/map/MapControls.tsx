@@ -31,12 +31,11 @@ export function unavailableNotes(model: Pick<MapModel, 'leadStatus'>): string[] 
 
 /** Date scrubber, lead switch, level filter, region toggle and reset, all native inputs so the keyboard just works. */
 export default function MapControls({ model }: { model: MapModel }) {
-  const { date, lead, levels, region, watchColumns } = useMapState()
+  const { date, lead, levels, region } = useMapState()
   const setDate = useMapState((s) => s.setDate)
   const setLead = useMapState((s) => s.setLead)
   const toggleLevel = useMapState((s) => s.toggleLevel)
   const setRegion = useMapState((s) => s.setRegion)
-  const setWatchColumns = useMapState((s) => s.setWatchColumns)
   const resetView = useMapState((s) => s.resetView)
 
   const { dates } = model
@@ -110,16 +109,6 @@ export default function MapControls({ model }: { model: MapModel }) {
               </span>
             </label>
           ))}
-        </div>
-      </fieldset>
-
-      <fieldset className={styles.group}>
-        <legend className={styles.label}>Columns</legend>
-        <div className={styles.chips}>
-          <label className={styles.chip} title="Warning and Emergency always stand as columns; Watch is a lime tint on the terrain unless this is on">
-            <input type="checkbox" checked={watchColumns} onChange={(e) => setWatchColumns(e.target.checked)} />
-            <span>Watch columns</span>
-          </label>
         </div>
       </fieldset>
 

@@ -10,7 +10,7 @@ import { decodeGrid } from '../data/api'
 import { GRID_FLAG } from '../data/types'
 import { resetMapState, useMapState } from '../state/map'
 import { apiHandlers, bytesToBase64, f32ToBase64, gridPayload, noDataMode, placesPayload, replayMode } from '../test/fixtures'
-import { mapHandlers, rainPayload } from '../test/mapFixtures'
+import { mapHandlers } from '../test/mapFixtures'
 import LiveMap from './LiveMap'
 
 const env = vi.hoisted(() => ({ webgl: false, reduced: false }))
@@ -114,7 +114,6 @@ describe('lead switch', () => {
     expect(await screen.findByText(/D\+1, D\+3: the 2024-08-05 run has no forecast for this lead/)).toBeInTheDocument()
     expect(asked).not.toContain(1)
     expect(asked).not.toContain(3)
-    expect(screen.getByText(/D\+1 to D\+3 are forecasts/)).toBeInTheDocument()
     await userEvent.click(within(panel).getByRole('radio', { name: 'D+2' }))
     expect(useMapState.getState().lead).toBe(2)
   })
@@ -150,29 +149,13 @@ describe('controls', () => {
   })
 })
 
-describe('watch columns and the legend', () => {
-  it('keeps Watch columns off until asked, and turns them on and off with a labelled toggle', async () => {
+describe('a map without explanatory chrome', () => {
+  it('has no Watch columns toggle and no legend prose: Watch stays a tint on the terrain', async () => {
     renderMap()
     const panel = await controls()
-    const toggle = within(panel).getByRole('checkbox', { name: 'Watch columns' })
-    expect(toggle).not.toBeChecked()
+    expect(within(panel).queryByRole('checkbox', { name: 'Watch columns' })).not.toBeInTheDocument()
     expect(useMapState.getState().watchColumns).toBe(false)
-    await userEvent.click(toggle)
-    expect(useMapState.getState().watchColumns).toBe(true)
-    expect(toggle).toBeChecked()
-    await userEvent.click(toggle)
-    expect(useMapState.getState().watchColumns).toBe(false)
-  })
-
-  it('says where risk is and is not modelled, with the count of scored cells', async () => {
-    renderMap()
-    const note = await screen.findByText(/^Not modelled:/)
-    await waitFor(() =>
-      expect(note).toHaveTextContent(
-        'Not modelled: risk is computed for the Himalaya and Western Ghats hill cells (10); the rest of India is shown for context.',
-      ),
-    )
-    expect(screen.getByText(/Columns mark Warning and Emergency/)).toHaveTextContent('Watch is the lime tint on the terrain')
+    expect(screen.queryByText(/Not modelled|Columns mark|Rain streaks|are forecasts/)).not.toBeInTheDocument()
   })
 })
 
@@ -204,30 +187,6 @@ describe('states without data', () => {
     server.use(http.get('*/api/rain', () => HttpResponse.json({ detail: 'no feature table' }, { status: 404 })))
     renderMap()
     expect(await screen.findByText(/the API has no rain field for this date/)).toBeInTheDocument()
-  })
-})
-
-describe('legend rain sentence', () => {
-  const withRain = (over: Record<string, unknown>) =>
-    server.use(http.get('*/api/rain', () => HttpResponse.json({ ...rainPayload, ...over })))
-
-  it('names the source the replay set says it used', async () => {
-    withRain({ rain_sources: ['imd', 'chirps_aligned'] })
-    renderMap()
-    expect(await screen.findByText(/from IMD gauge-based grid and CHIRPS satellite estimate/)).toBeInTheDocument()
-  })
-
-  it('names IMERG for a live set', async () => {
-    withRain({ set: 'live', column: 'irain_acc_1', rain_sources: ['imerg'] })
-    renderMap()
-    expect(await screen.findByText(/from NASA IMERG \(satellite\)/)).toBeInTheDocument()
-  })
-
-  it('stays neutral when the API names no source', async () => {
-    renderMap()
-    const note = await screen.findByText(/Rain streaks follow/)
-    expect(note).toHaveTextContent("Rain streaks follow the day's 1-day rain (mm/day); none where it did not rain.")
-    expect(note.textContent).not.toMatch(/blended|IMERG|IMD/)
   })
 })
 
