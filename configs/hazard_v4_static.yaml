@@ -1,0 +1,16 @@
+# W5 static-susceptibility challenger (docs/superpowers/specs/2026-11-10-aetherguard-w5-static-susceptibility.md, written
+# before any result):
+#   python -m aetherguard.hazard.v4_static dev     # year-blocked CV of v3 (reference) and v4-static, pooled OOF FA@90, stage 1
+# v4-static is the frozen v3-live configuration named by `base_config` plus the eleven columns of the W5 static table,
+# unconstrained (no monotone direction is assumed for ground properties). It takes no held-out look of its own (spec
+# section 4): a group that passes stage 1 goes into the combined v4 of W6.
+base_config: configs/hazard_v3.yaml
+output_dir: v4_static                   # under data/processed/hazard: OOF scores, dev_results.json, models/<candidate>
+reference: C0                           # the v3-live refit that must reproduce the frozen pooled OOF FA@90
+challenger: v4_static
+candidates:
+  C0:
+    description: "v3-live refit (reference): the frozen inputs with the v3 monotone constraints"
+  v4_static:
+    description: "C0 plus the eleven W5 static inputs (land cover, road density, soil, steep share), unconstrained"
+reproduction_tolerance: 1.0e-12         # C0 must reproduce the frozen pooled OOF FA@90 this closely and its tree count exactly
