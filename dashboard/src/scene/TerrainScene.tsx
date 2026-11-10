@@ -10,7 +10,7 @@ import { usePrefersReducedMotion } from '../lib/motion'
 import { useIntro } from '../state/intro'
 import { useMapState } from '../state/map'
 import AlertColumns from './AlertColumns'
-import { Rain, Sparks } from './Atmosphere'
+import { Graticule, Rain } from './Atmosphere'
 import CameraRig from './CameraRig'
 import { buildColumns, columnMinLevel } from './columns'
 import { createClassTexture } from './classMap'
@@ -248,7 +248,7 @@ export default function TerrainScene() {
           <CameraDirector />
           {terrain && <MapWorld terrain={terrain} model={model} onMap={onMap} reducedMotion={reducedMotion} />}
           {terrain && <OrbitStart />}
-          {!reducedMotion && quality < 2 && <Sparks />}
+          {terrain && <Graticule window={terrain} />}
           {!reducedMotion && introPlaying && <Rain />}
           <Effects />
         </Canvas>
