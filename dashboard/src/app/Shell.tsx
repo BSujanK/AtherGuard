@@ -4,7 +4,7 @@ import { NavLink, Outlet, useMatch } from 'react-router-dom'
 import { webglAvailable } from '../lib/motion'
 import Landing from '../scene/Landing'
 import { useIntro } from '../state/intro'
-import { AlertIcon, MapIcon, SensorIcon } from './icons'
+import { AlertIcon, MapIcon, PeakIcon, SensorIcon } from './icons'
 import styles from './Shell.module.css'
 import StatusStrip from './StatusStrip'
 
@@ -32,33 +32,40 @@ export default function Shell() {
         )}
         <div className={styles.scrim} data-dim={!onMap} aria-hidden="true" />
 
-        <motion.nav
-          className={styles.rail}
-          aria-label="Views"
-          initial={false}
-          animate={{ x: chrome ? 0 : '-100%', opacity: chrome ? 1 : 0 }}
-          inert={!chrome}
-        >
-          <div className={styles.brand}>AetherGuard</div>
-          <ul className={styles.nav}>
-            {NAV_ITEMS.map(({ to, label, Icon }) => (
-              <li key={to}>
-                <NavLink to={to} className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}>
-                  <Icon />
-                  <span>{label}</span>
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </motion.nav>
-
         <div className={styles.column}>
           <motion.div
+            className={styles.top}
             initial={false}
             animate={{ y: chrome ? 0 : '-100%', opacity: chrome ? 1 : 0 }}
             inert={!chrome}
           >
-            <StatusStrip />
+            <StatusStrip>
+              <div className={styles.brand}>
+                <PeakIcon size={20} />
+                AetherGuard
+              </div>
+              <nav className={styles.nav} aria-label="Views">
+                {NAV_ITEMS.map(({ to, label, Icon }) => (
+                  <NavLink key={to} to={to} viewTransition className={styles.link}>
+                    {({ isActive }) => (
+                      <>
+                        {/* One pill shared by the three links: it slides to the view that is open. */}
+                        {isActive && (
+                          <motion.span
+                            layoutId="nav-pill"
+                            className={styles.pill}
+                            transition={{ duration: 0.42, ease: EASE_OUT }}
+                            aria-hidden="true"
+                          />
+                        )}
+                        <Icon size={18} />
+                        <span>{label}</span>
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+              </nav>
+            </StatusStrip>
           </motion.div>
           <motion.main
             className={styles.main}

@@ -31,10 +31,11 @@
   position: relative;
   display: flex;
   font-family: var(--font-display);
-  font-weight: 700;
+  font-stretch: 125%;
+  font-weight: 800;
   font-size: var(--fs-wordmark);
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   white-space: nowrap;
 }
 
@@ -80,7 +81,7 @@
   color: var(--text);
   background: color-mix(in srgb, var(--ink-black) 70%, transparent);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  border-radius: 999px;
   transition:
     background var(--dur-quick) var(--ease-out),
     border-color var(--dur-quick) var(--ease-out);

@@ -18,9 +18,11 @@
   gap: var(--sp-3);
   width: min(28rem, 100%);
   padding: var(--sp-5);
-  background: color-mix(in srgb, var(--surface) 94%, transparent);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
 }
 
 .panel p {
@@ -32,7 +34,8 @@
   gap: var(--sp-2);
   margin: var(--sp-2) 0 0;
   padding-top: var(--sp-3);
-  border-top: 1px solid var(--border-strong);
+  border-top: 1px solid var(--hairline);
+  font-size: var(--fs-sm);
 }
 
 .facts div {

@@ -37,17 +37,21 @@
   --level-warning: var(--flame-orange);
   --level-emergency: var(--fire-red);
 
-  /* Type */
-  --font-display: 'Clash Display', 'Satoshi', system-ui, sans-serif;
-  --font-ui: 'Satoshi', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --fs-sm: 0.875rem;
-  --fs-base: 1rem;
-  --fs-md: 1.125rem;
-  --fs-lg: 1.375rem;
-  --fs-xl: 1.75rem;
-  --fs-2xl: 2.5rem;
-  --fs-wordmark: clamp(3.5rem, 9vw, 8.25rem);
-  --lh-tight: 1.1;
+  /* Type: one family. Archivo at its wide end is the display voice, at normal width the text; Geist Mono carries
+     measurements (ids, coordinates, probabilities, dates) so numbers never blur into words. */
+  --font-ui: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-data: 'Geist Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --display-stretch: 122%;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-base: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.625rem;
+  --fs-2xl: 2.25rem;
+  --fs-wordmark: clamp(2.75rem, 8vw, 6rem);
+  --lh-tight: 1.12;
   --lh-body: 1.5;
 
   /* Space (4px base) */
@@ -59,14 +63,30 @@
   --sp-6: 2rem;
   --sp-7: 3rem;
 
-  --radius: 6px;
-  --rail-w: 13.5rem;
+  --gutter: clamp(1rem, 2.4vw, 2rem);
 
-  /* Motion */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --content-w: 96rem;
+
+  /* Depth: offset and soft, ink only. Panels over the live terrain are glass so the map reads through them. */
+  --shadow-1:
+    0 1px 2px color-mix(in srgb, var(--ink-black) 50%, transparent),
+    0 10px 24px -14px color-mix(in srgb, var(--ink-black) 80%, transparent);
+  --shadow-2:
+    0 2px 6px color-mix(in srgb, var(--ink-black) 55%, transparent),
+    0 28px 56px -20px color-mix(in srgb, var(--ink-black) 90%, transparent);
+  --glass: color-mix(in srgb, var(--surface) 76%, transparent);
+  --glass-blur: blur(18px) saturate(1.4);
+  --hairline: color-mix(in srgb, var(--royal-blue) 22%, transparent);
+
+  /* Motion: quick for hover and press, base for panels and state changes, slow for the scene behind. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --dur-quick: 280ms;
-  --dur-base: 420ms;
-  --dur-slow: 600ms;
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --dur-quick: 160ms;
+  --dur-base: 260ms;
+  --dur-slow: 520ms;
   --pulse-emergency: 2.4s;
 }
 

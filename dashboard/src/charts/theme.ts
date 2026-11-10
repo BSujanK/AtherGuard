@@ -15,8 +15,8 @@ export const PALETTE = {
 } as const
 
 export const THEME_NAME = 'aetherguard'
-export const FONT_UI = "Satoshi, system-ui, -apple-system, 'Segoe UI', sans-serif"
-export const FONT_DISPLAY = "'Clash Display', Satoshi, system-ui, sans-serif"
+export const FONT_UI = "Archivo, system-ui, -apple-system, 'Segoe UI', sans-serif"
+export const FONT_DISPLAY = "Archivo, system-ui, -apple-system, 'Segoe UI', sans-serif"
 
 export type Rgb = readonly [number, number, number]
 

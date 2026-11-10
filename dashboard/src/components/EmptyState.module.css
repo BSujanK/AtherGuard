@@ -4,9 +4,11 @@
   gap: var(--sp-3);
   max-width: 34rem;
   padding: var(--sp-6);
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
 }
 
 .icon {
@@ -26,5 +28,16 @@
   color: var(--text-on-accent);
   background: var(--neon-cyan);
   border: 0;
-  border-radius: var(--radius);
+  border-radius: 999px;
+  transition:
+    filter var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
+}
+
+.empty button:hover {
+  filter: brightness(1.12);
+}
+
+.empty button:active {
+  transform: scale(0.97);
 }
