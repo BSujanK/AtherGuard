@@ -41,9 +41,10 @@ for (const width of [1440, 390]) {
   if (width > 600) {
     // The drawer of the first alert in the list.
     await page.goto(`${base}/alerts-why`, { waitUntil: 'commit' })
-    const row = page.getByRole('button', { name: /Cell \d+/ }).first()
+    const row = page.locator('[data-feed] button[data-index]').first()
     await row.click({ timeout: 30_000 }).catch(() => console.log('no alert row to open'))
-    await page.waitForTimeout(3000)
+    await page.getByTestId('alert-drawer').getByRole('heading', { name: 'Level' }).waitFor({ timeout: 30_000 }).catch(() => console.log('drawer did not finish loading'))
+    await page.waitForTimeout(2500)
     await page.screenshot({ path: file(`${prefix}-drawer-${width}.png`) })
     console.log(`drawer ${width}`)
   }

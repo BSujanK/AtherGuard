@@ -1,10 +1,11 @@
 .switch {
   display: inline-flex;
-  gap: var(--sp-1);
   min-width: 0;
   margin: 0;
-  padding: 0;
-  border: 0;
+  padding: 2px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 999px;
 }
 
 .legend {
@@ -34,29 +35,30 @@
 .option span {
   display: inline-flex;
   align-items: center;
-  min-height: 2.25rem;
-  padding: var(--sp-1) var(--sp-3);
+  min-height: 2.125rem;
+  padding: 0 var(--sp-3);
   color: var(--text-2);
   font-size: var(--fs-sm);
   font-weight: 500;
-  background: var(--surface-sunken);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  border-radius: 999px;
   transition:
     background var(--dur-quick) var(--ease-out),
-    color var(--dur-quick) var(--ease-out);
+    color var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
 }
 
-.option:hover span {
+.option:hover input:not(:disabled) + span {
   color: var(--text);
-  background: var(--surface);
+}
+
+.option input:not(:disabled):active + span {
+  transform: scale(0.97);
 }
 
 .option input:checked + span {
   color: var(--text-on-accent);
-  font-weight: 700;
+  font-weight: 650;
   background: var(--neon-cyan);
-  border-color: var(--neon-cyan);
 }
 
 .option input:focus-visible + span {
@@ -69,6 +71,5 @@
 }
 
 .option input:disabled + span {
-  opacity: 0.4;
-  text-decoration: line-through;
+  opacity: 0.45;
 }

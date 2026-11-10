@@ -18,9 +18,11 @@ const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/
 
 function Card({ title, area, children }: { title: string; area: string; children: ReactNode }) {
   return (
-    <section className={styles.card} style={{ gridArea: area }} aria-labelledby={`card-${area}`}>
-      <h2 id={`card-${area}`}>{title}</h2>
-      {children}
+    <section className={styles.card} aria-labelledby={`card-${area}`}>
+      <div className={styles.cardHead}>
+        <h2 id={`card-${area}`}>{title}</h2>
+      </div>
+      <div className={styles.content}>{children}</div>
     </section>
   )
 }
@@ -36,7 +38,7 @@ function LatencyCard() {
       <Suspense fallback={<p className={styles.hint}>Loading chart</p>}>
         <LatencyHistory runs={runs} />
       </Suspense>
-      <p className={styles.hint}>
+      <p className={styles.fine}>
         Hours from the end of the data period to its publication, on a log scale. The tick marks each source&apos;s
         expected latency. History appears as daily runs accumulate.
       </p>
@@ -128,21 +130,23 @@ function Gauges({ date }: { date: string | null }) {
   return (
     <>
       <Card title="Rain gauges" area="map">
-        <ul className={styles.counts} aria-label="Gauges by state">
-          {Object.entries(stateCounts).map(([state, n]) => (
-            <li key={state}>
-              <b className="num">{n}</b> {state}
+        <div className={styles.summary}>
+          <ul className={styles.counts} aria-label="Gauges by state">
+            {Object.entries(stateCounts).map(([state, n]) => (
+              <li key={state}>
+                <b className="num">{n}</b> {state}
+              </li>
+            ))}
+            <li>
+              <b className="num">{faults}</b> with a fault
             </li>
-          ))}
-          <li>
-            <b className="num">{faults}</b> with a fault
-          </li>
-        </ul>
-        {isMostlyMissing(stations) && (
-          <p className={styles.hint}>
-            Gauge reports reach GHCN 3–13 days late; the map shows each gauge&apos;s latest state.
-          </p>
-        )}
+          </ul>
+          {isMostlyMissing(stations) && (
+            <p className={styles.fine}>
+              Gauge reports reach GHCN 3–13 days late; the map shows each gauge&apos;s latest state.
+            </p>
+          )}
+        </div>
         <GaugeMap stations={stations} terrain={basemap.data} highlight={highlight} />
       </Card>
       <Card title="Gauge faults" area="faults">
@@ -171,6 +175,11 @@ export default function Sensors() {
         <div>
           <h1>Sensors &amp; sources</h1>
           <p>Rain gauge trust and the health of each upstream data source.</p>
+          {mode.data && hasData && (
+            <p className={styles.fine}>
+              Gauges: {modeLabel(mode.data.mode)}, {mode.data.set}
+            </p>
+          )}
         </div>
         {options.length > 0 && (
           <label className={styles.date}>
@@ -188,26 +197,25 @@ export default function Sensors() {
           </label>
         )}
       </header>
-      {mode.data && hasData && (
-        <p className={styles.provenance}>
-          Gauges: {modeLabel(mode.data.mode)}, {mode.data.set}
-        </p>
-      )}
 
       <div className={styles.layout}>
-        <Card title="Data sources" area="health">
-          <SourceHealth />
-        </Card>
-        <LatencyCard />
-        {mode.isPending ? (
-          <Card title="Rain gauges" area="map">
-            <p className={styles.hint} role="status">
-              Checking for data
-            </p>
+        <div className={`${styles.column} ${styles.sources}`}>
+          <Card title="Data sources" area="health">
+            <SourceHealth />
           </Card>
-        ) : (
-          <Gauges date={mode.isError ? null : date} />
-        )}
+          <LatencyCard />
+        </div>
+        <div className={`${styles.column} ${styles.gauges}`}>
+          {mode.isPending ? (
+            <Card title="Rain gauges" area="map">
+              <p className={styles.hint} role="status">
+                Checking for data
+              </p>
+            </Card>
+          ) : (
+            <Gauges date={mode.isError ? null : date} />
+          )}
+        </div>
       </div>
     </div>
   )

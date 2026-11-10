@@ -1,7 +1,7 @@
 import { featureLabel, featureValueText } from '../data/reasons'
 import type { ShapFactor } from '../data/types'
 import type { ChartOption } from './EChart'
-import { PALETTE, TEXT_2 } from './theme'
+import { PALETTE, TEXT_2, TEXT_3 } from './theme'
 
 /** Inputs shown: the five that moved the risk most. */
 export const SHAP_TOP = 5
@@ -17,9 +17,9 @@ export const topFactors = (shap: readonly ShapFactor[]): ShapFactor[] =>
 export function buildShapOption(shap: readonly ShapFactor[]): ChartOption {
   const factors = topFactors(shap)
   return {
-    grid: { left: 150, right: 56, top: 8, bottom: 30 },
-    xAxis: { type: 'value', name: 'log-odds', nameLocation: 'end', scale: false },
-    yAxis: { type: 'category', inverse: true, data: factors.map((f) => featureLabel(f.feature)), axisTick: { show: false } },
+    grid: { left: 150, right: 56, top: 12, bottom: 34 },
+    xAxis: { type: 'value', name: 'log-odds', nameLocation: 'end', scale: false, axisLabel: { color: TEXT_3, fontSize: 11 }, nameTextStyle: { color: TEXT_3, fontSize: 11 } },
+    yAxis: { type: 'category', inverse: true, data: factors.map((f) => featureLabel(f.feature)), axisTick: { show: false }, axisLabel: { color: TEXT_2, fontSize: 12 } },
     tooltip: {
       trigger: 'item',
       formatter: (p: { dataIndex: number }) => {
@@ -32,7 +32,7 @@ export function buildShapOption(shap: readonly ShapFactor[]): ChartOption {
         name: 'Contribution',
         type: 'bar',
         barWidth: 14,
-        label: { show: true, position: 'right', color: TEXT_2, textBorderWidth: 0, formatter: (p: { value: number }) => signed(p.value) },
+        label: { show: true, position: 'right', color: TEXT_2, fontSize: 11, textBorderWidth: 0, formatter: (p: { value: number }) => signed(p.value) },
         data: factors.map((f) => ({
           value: Number(f.contribution.toFixed(4)),
           itemStyle: { color: f.contribution >= 0 ? PALETTE.flame : PALETTE.cyan },

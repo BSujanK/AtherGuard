@@ -1,5 +1,5 @@
 import type { ChartOption } from './EChart'
-import { mixHex, PALETTE, TEXT_2 } from './theme'
+import { mixHex, PALETTE, TEXT_2, TEXT_3 } from './theme'
 
 export type RainSourceKey = 'satellite' | 'imd' | 'gauges' | 'gfs'
 
@@ -25,13 +25,13 @@ export const mm = (v: number): string => `${v.toLocaleString('en-US', { maximumF
 /** Bars of the day's rain by source, side by side; a source without a value has no bar and says so on its label. */
 export function buildSourcesOption(bars: readonly RainBar[]): ChartOption {
   return {
-    grid: { left: 52, right: 16, top: 24, bottom: 52 },
+    grid: { left: 56, right: 16, top: 28, bottom: 56 },
     xAxis: {
       type: 'category',
       data: bars.map((b) => (b.value === null ? `${b.label}\nnot available` : b.label)),
-      axisLabel: { interval: 0, lineHeight: 15 },
+      axisLabel: { interval: 0, lineHeight: 15, color: TEXT_3, fontSize: 11 },
     },
-    yAxis: { type: 'value', name: 'mm', min: 0 },
+    yAxis: { type: 'value', name: 'mm', min: 0, axisLabel: { color: TEXT_3, fontSize: 11 }, nameTextStyle: { color: TEXT_3, fontSize: 11 } },
     tooltip: {
       trigger: 'item',
       formatter: (p: { dataIndex: number }) => {
@@ -48,6 +48,7 @@ export function buildSourcesOption(bars: readonly RainBar[]): ChartOption {
           show: true,
           position: 'top',
           color: TEXT_2,
+          fontSize: 11,
           textBorderWidth: 0,
           formatter: (p: { value: number | string }) => (typeof p.value === 'number' ? mm(p.value) : ''),
         },

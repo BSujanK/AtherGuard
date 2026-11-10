@@ -63,9 +63,9 @@ export default function MapControls({ model }: { model: MapModel }) {
             onChange={(e) => setDate(dates[Number(e.target.value)] ?? null)}
           />
           <div className={styles.range} id="map-date-range">
-            <span className="num">{formatDayMonth(dates[0] ?? null)}</span>
-            <strong className="num">{formatDate(dates[index] ?? null)}</strong>
-            <span className="num">{formatDayMonth(dates.at(-1) ?? null)}</span>
+            <span className={`num ${styles.first}`}>{formatDayMonth(dates[0] ?? null)}</span>
+            <strong className={`num ${styles.current}`}>{formatDate(dates[index] ?? null)}</strong>
+            <span className={`num ${styles.last}`}>{formatDayMonth(dates.at(-1) ?? null)}</span>
           </div>
         </div>
         {dates.length < 2 && <p className={styles.note}>Only one date is available.</p>}
@@ -73,7 +73,7 @@ export default function MapControls({ model }: { model: MapModel }) {
 
       <fieldset className={styles.group}>
         <legend className={styles.label}>Lead</legend>
-        <div className={styles.chips}>
+        <div className={styles.segment}>
           {LEADS.map((l: Lead) => {
             const status = l === 0 ? null : model.leadStatus[l as 1 | 2 | 3]
             const disabled = status?.state === 'unavailable'
@@ -98,9 +98,9 @@ export default function MapControls({ model }: { model: MapModel }) {
         </div>
       </fieldset>
 
-      <fieldset className={`${styles.group} ${styles.filters} ${styles.levels}`}>
+      <fieldset className={`${styles.group} ${styles.levels}`}>
         <legend className={styles.label}>Show levels</legend>
-        <div className={styles.chips}>
+        <div className={styles.toggles}>
           {LEVELS.map((name, i) => (
             <label key={name} className={styles.chip}>
               <input type="checkbox" checked={levels[i]} onChange={() => toggleLevel(i)} />
@@ -113,7 +113,7 @@ export default function MapControls({ model }: { model: MapModel }) {
         </div>
       </fieldset>
 
-      <fieldset className={`${styles.group} ${styles.filters}`}>
+      <fieldset className={styles.group}>
         <legend className={styles.label}>Columns</legend>
         <div className={styles.chips}>
           <label className={styles.chip} title="Warning and Emergency always stand as columns; Watch is a lime tint on the terrain unless this is on">
@@ -123,9 +123,9 @@ export default function MapControls({ model }: { model: MapModel }) {
         </div>
       </fieldset>
 
-      <fieldset className={`${styles.group} ${styles.filters}`}>
+      <fieldset className={styles.group}>
         <legend className={styles.label}>Region</legend>
-        <div className={styles.chips}>
+        <div className={styles.segment}>
           {REGIONS.map((r) => (
             <label key={r} className={styles.chip}>
               <input type="radio" name="map-region" checked={region === r} onChange={() => setRegion(r)} />
@@ -135,9 +135,11 @@ export default function MapControls({ model }: { model: MapModel }) {
         </div>
       </fieldset>
 
-      <button type="button" className={styles.reset} onClick={resetView}>
-        Reset view
-      </button>
+      <div className={styles.resetRow}>
+        <button type="button" className={styles.reset} onClick={resetView}>
+          Reset view
+        </button>
+      </div>
     </section>
   )
 }

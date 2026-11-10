@@ -215,111 +215,118 @@ export default function AlertFeed({ source, mode, fresh, today = false, announce
         </p>
       </div>
 
-      <div className={styles.head}>
-        <div role="group" aria-label="Sort" className={styles.sorts}>
-          {SORTS.map(({ key, label }) => {
-            const on = sort.key === key
-            return (
-              <Fragment key={key}>
-                {key === 'region' && <span className={styles.cellCol} aria-hidden="true" />}
-                <button
-                  type="button"
-                  className={styles.sort}
-                  data-key={key}
-                  aria-pressed={on}
-                  aria-label={`Sort by ${label.toLowerCase()}${on ? `, now ${DIRECTION_WORDS[key][sort.dir]}; activate to reverse` : ''}`}
-                  onClick={() => chooseSort(key)}
-                >
-                  {label}
-                  <span aria-hidden="true" className={styles.arrow}>
-                    {on ? (sort.dir === 'asc' ? '↑' : '↓') : ''}
-                  </span>
-                </button>
-              </Fragment>
-            )
-          })}
+      <div className={styles.panel}>
+        <div className={styles.head}>
+          <div role="group" aria-label="Sort" className={styles.sorts}>
+            {SORTS.map(({ key, label }) => {
+              const on = sort.key === key
+              return (
+                <Fragment key={key}>
+                  {key === 'region' && <span className={styles.cellCol} aria-hidden="true" />}
+                  <button
+                    type="button"
+                    className={styles.sort}
+                    data-key={key}
+                    aria-pressed={on}
+                    aria-label={`Sort by ${label.toLowerCase()}${on ? `, now ${DIRECTION_WORDS[key][sort.dir]}; activate to reverse` : ''}`}
+                    onClick={() => chooseSort(key)}
+                  >
+                    {label}
+                    <span aria-hidden="true" className={styles.arrow} data-dir={on ? sort.dir : undefined}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 4.5v15M6 13.5l6 6 6-6" />
+                      </svg>
+                    </span>
+                  </button>
+                </Fragment>
+              )
+            })}
+          </div>
         </div>
-      </div>
 
-      <div
-        ref={scroller}
-        className={styles.scroller}
-        onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-        data-testid="feed-scroller"
-      >
-        {count === 0 ? (
-          <p className={styles.none} role="status">
-            {noAlerts && levels.every((on, i) => on === DEFAULT_LEVELS[i])
-              ? 'No cell is at Watch or above on this date.'
-              : 'No cell matches these filters.'}
-          </p>
-        ) : (
-          <div className={styles.spacer} style={{ height: count * ROW_HEIGHT }}>
-            <ul className={styles.list} role="list" style={{ top: start * ROW_HEIGHT }} onKeyDown={onKeyDown}>
-              {Array.from({ length: end - start }, (_, k) => {
-                const i = start + k
-                const row = rowAt(source, order[i]!)
-                const risk = describeRisk(row.risk, watchAt(mode, row.lat, row.lon))
-                const oddsFor = oddsOptions(row.flags)
-                const odds = describeOdds(row.risk, oddsWhen(grid.date, grid.lead, today), oddsFor)
-                const level = LEVELS[row.level as 0 | 1 | 2 | 3]
-                const isFresh = fresh.has(row.cell)
-                const where = describePlace(row.cell, places?.lookup(row.cell), places?.farKm)
-                return (
-                  <li key={row.cell} role="listitem" aria-setsize={count} aria-posinset={i + 1} style={{ height: ROW_HEIGHT }}>
-                    <button
-                      type="button"
-                      className={styles.row}
-                      data-index={i}
-                      data-level={row.level}
-                      data-fresh={isFresh || undefined}
-                      tabIndex={i === current ? 0 : -1}
-                      aria-label={`${level}, cell ${row.cell}, ${where.primary}, ${row.region}, ${odds ? `${odds.sentence}, ` : ''}risk ${spokenRisk(risk)}, ${row.confidenceName} confidence${row.certainty ? `, ${row.certainty.headline}` : ''}${isFresh ? ', new' : ''}. Open details`}
-                      onFocus={() => setActive(i)}
-                      onClick={() => onOpen(row.cell)}
-                    >
-                      <span className={styles.level}>
-                        <i style={{ background: LEVEL_HEX[row.level] }} aria-hidden="true" />
-                        <strong>{level}</strong>
-                        {isFresh && <em className={styles.newBadge}>New</em>}
-                      </span>
-                      {where.secondary ? (
-                        <span className={styles.where} title={`${where.primary}. ${where.secondary}`}>
-                          <strong className={styles.placeName}>{where.primary}</strong>
-                          <span className="num">
-                            Cell {row.cell} &middot; {where.secondary}
-                            <span className={styles.regionInline}> &middot; {row.region}</span>
-                          </span>
+        <div
+          ref={scroller}
+          className={styles.scroller}
+          onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
+          data-testid="feed-scroller"
+        >
+          {count === 0 ? (
+            <p className={styles.none} role="status">
+              {noAlerts && levels.every((on, i) => on === DEFAULT_LEVELS[i])
+                ? 'No cell is at Watch or above on this date.'
+                : 'No cell matches these filters.'}
+            </p>
+          ) : (
+            <div className={styles.spacer} style={{ height: count * ROW_HEIGHT }}>
+              <ul className={styles.list} role="list" style={{ top: start * ROW_HEIGHT }} onKeyDown={onKeyDown}>
+                {Array.from({ length: end - start }, (_, k) => {
+                  const i = start + k
+                  const row = rowAt(source, order[i]!)
+                  const risk = describeRisk(row.risk, watchAt(mode, row.lat, row.lon))
+                  const oddsFor = oddsOptions(row.flags)
+                  const odds = describeOdds(row.risk, oddsWhen(grid.date, grid.lead, today), oddsFor)
+                  const level = LEVELS[row.level as 0 | 1 | 2 | 3]
+                  const isFresh = fresh.has(row.cell)
+                  const where = describePlace(row.cell, places?.lookup(row.cell), places?.farKm)
+                  return (
+                    <li key={row.cell} role="listitem" aria-setsize={count} aria-posinset={i + 1} style={{ height: ROW_HEIGHT }}>
+                      <button
+                        type="button"
+                        className={styles.row}
+                        data-index={i}
+                        data-level={row.level}
+                        data-fresh={isFresh || undefined}
+                        tabIndex={i === current ? 0 : -1}
+                        aria-label={`${level}, cell ${row.cell}, ${where.primary}, ${row.region}, ${odds ? `${odds.sentence}, ` : ''}risk ${spokenRisk(risk)}, ${row.confidenceName} confidence${row.certainty ? `, ${row.certainty.headline}` : ''}${isFresh ? ', new' : ''}. Open details`}
+                        onFocus={() => setActive(i)}
+                        onClick={() => onOpen(row.cell)}
+                      >
+                        <span className={styles.level}>
+                          <i style={{ background: LEVEL_HEX[row.level] }} aria-hidden="true" />
+                          <strong>{level}</strong>
+                          {isFresh && <em className={styles.newBadge}>New</em>}
                         </span>
-                      ) : (
-                        <span className={styles.where}>
-                          <span className="num">Cell {row.cell}</span>
-                          <span className="num">
-                            {where.primary}
-                            <span className={styles.regionInline}> &middot; {row.region}</span>
+                        {where.secondary ? (
+                          <span className={styles.where} title={`${where.primary}. ${where.secondary}`}>
+                            <strong className={styles.placeName}>{where.primary}</strong>
+                            <span className={styles.meta}>
+                              <span className="num">Cell {row.cell}</span> &middot; {where.secondary}
+                              <span className={styles.regionInline}> &middot; {row.region}</span>
+                            </span>
                           </span>
-                        </span>
-                      )}
-                      <span className={styles.regionName}>{row.region}</span>
-                      <span className={styles.risk} title={odds ? `${odds.sentence}. ${oddsFor.capped ? `${MODEL_ESTIMATE}: ` : ''}${risk.raw}` : risk.raw}>
-                        <span className="num">{odds ? odds.short : risk.primary}</span>
-                        <span className="num">{odds ? risk.primary : risk.secondary}</span>
-                      </span>
-                      <span className={styles.conf} data-confidence={row.confidence}>
-                        {row.confidenceName}
-                        {row.certaintyShort && (
-                          <span className={styles.certaintyTag} data-certainty={row.certainty!.kind} title={row.certainty!.headline}>
-                            {row.certaintyShort}
+                        ) : (
+                          <span className={styles.where}>
+                            <span className={`num ${styles.placeName}`}>Cell {row.cell}</span>
+                            <span className={styles.meta}>
+                              {where.primary}
+                              <span className={styles.regionInline}> &middot; {row.region}</span>
+                            </span>
                           </span>
                         )}
-                      </span>
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        )}
+                        <span className={styles.regionName}>{row.region}</span>
+                        <span className={styles.risk} title={odds ? `${odds.sentence}. ${oddsFor.capped ? `${MODEL_ESTIMATE}: ` : ''}${risk.raw}` : risk.raw}>
+                          <span className={`num ${styles.riskMain}`}>{odds ? odds.short : risk.primary}</span>
+                          <span className={styles.riskSub}>{odds ? risk.primary : risk.secondary}</span>
+                        </span>
+                        <span className={styles.conf} data-confidence={row.confidence}>
+                          {row.confidenceName}
+                          {row.certaintyShort && (
+                            <span className={styles.certaintyTag} data-certainty={row.certainty!.kind} title={row.certainty!.headline}>
+                              {row.certaintyShort}
+                            </span>
+                          )}
+                        </span>
+                        <svg className={styles.chevron} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+                          <path d="m9 5.5 6.5 6.5L9 18.5" />
+                        </svg>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )

@@ -1,6 +1,7 @@
 .panel {
   display: grid;
-  gap: var(--sp-3);
+  gap: var(--sp-5);
+  min-width: 0;
 }
 
 .note {
@@ -17,25 +18,32 @@
 }
 
 .meta b {
-  color: var(--text);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .tag {
   padding: 0 var(--sp-2);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  color: var(--text);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 500;
 }
 
+/* Set against the panel's top right, level with its title (Sensors.module.css gives the panel its padding). */
 .updated {
+  position: absolute;
+  top: calc(var(--panel-pad, var(--sp-5)) + 0.875rem);
+  right: var(--panel-pad, var(--sp-5));
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  margin-left: auto;
   padding: 2px var(--sp-2);
   border-radius: 999px;
   color: var(--text-2);
+  font-size: var(--fs-sm);
+  transform: translateY(-50%);
   transition:
     background var(--dur-slow) var(--ease-out),
     color var(--dur-slow) var(--ease-out);
@@ -43,67 +51,85 @@
 
 .updated[data-flash='true'] {
   color: var(--text);
-  background: color-mix(in srgb, var(--neon-cyan) 22%, transparent);
+  background: color-mix(in srgb, var(--neon-cyan) 14%, transparent);
 }
 
 .pulse {
+  position: relative;
+  flex: none;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--neon-cyan);
 }
 
-.updated[data-flash='true'] .pulse {
-  background: var(--neon-cyan);
-  animation: ping 1.2s var(--ease-out) 2;
+/* A slow ring leaves the dot: the one ambient motion on the page. */
+.pulse::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--neon-cyan);
+  border-radius: 50%;
+  opacity: 0;
+  animation: live-ring 2.4s var(--ease-out) infinite;
 }
 
-@keyframes ping {
+@keyframes live-ring {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--neon-cyan) 70%, transparent);
+    transform: scale(1);
+    opacity: 0.55;
   }
   100% {
-    box-shadow: 0 0 0 10px transparent;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .updated[data-flash='true'] .pulse {
-    animation: none;
+    transform: scale(2.8);
+    opacity: 0;
   }
 }
 
 .warn {
   padding: var(--sp-2) var(--sp-3);
-  border-left: 3px solid var(--flame-orange);
   background: var(--surface-sunken);
+  border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+  border-radius: var(--radius);
   color: var(--text);
   font-size: var(--fs-sm);
 }
 
+.scroll {
+  min-width: 0;
+  overflow-x: auto;
+}
+
 .table {
   width: 100%;
+  min-width: 36rem;
   border-collapse: collapse;
   font-size: var(--fs-sm);
 }
 
 .table th,
 .table td {
-  padding: var(--sp-2) var(--sp-1);
+  padding: var(--sp-3) var(--sp-3);
   text-align: left;
   vertical-align: top;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--hairline);
 }
 
 .table thead th {
-  color: var(--text-2);
+  padding-top: 0;
+  padding-bottom: var(--sp-2);
+  color: var(--text-3);
+  font-size: var(--fs-xs);
   font-weight: 500;
-  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
-.table tbody th {
-  font-weight: 500;
+.table tbody tr {
+  transition: background var(--dur-quick) var(--ease-out);
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
 }
 
 .table tbody tr:last-child th,
@@ -111,9 +137,32 @@
   border-bottom: 0;
 }
 
+/* New values: the row blooms from a cyan tint and settles back. */
+.table tbody tr[data-flash='true'] {
+  animation: row-bloom var(--dur-slow) var(--ease-out);
+}
+
+@keyframes row-bloom {
+  from {
+    background: color-mix(in srgb, var(--neon-cyan) 14%, transparent);
+  }
+  to {
+    background: transparent;
+  }
+}
+
+.table tbody th {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.table th:last-child,
+.table td:last-child {
+  text-align: right;
+}
+
 .name {
   display: block;
-  color: var(--text);
 }
 
 .error {
@@ -123,45 +172,43 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-2);
-  font-size: 0.8125rem;
+  font-size: var(--fs-xs);
   font-weight: 400;
 }
 
-.latency,
 .table td.num {
   white-space: nowrap;
 }
 
 .expected {
   display: block;
+  white-space: nowrap;
   color: var(--text-3);
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
+  color: var(--text);
   white-space: nowrap;
 }
 
 .mark {
   flex: none;
-  width: 10px;
-  height: 10px;
+  width: 0.5rem;
+  height: 0.5rem;
   background: var(--neon-cyan);
   border-radius: 50%;
 }
 
 .badge[data-status='late'] .mark {
-  background: var(--flame-orange);
-  border-radius: 0;
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  background: var(--warn);
 }
 
 .badge[data-status='failed'] .mark {
-  background: var(--fire-red);
-  border-radius: 2px;
+  background: var(--danger);
 }
 
 .badge[data-status='unknown'] .mark {
@@ -180,7 +227,40 @@
   margin-top: var(--sp-2);
 }
 
+.notes {
+  display: grid;
+  gap: var(--sp-2);
+}
+
 .foot {
+  max-width: 70ch;
   color: var(--text-3);
-  font-size: 0.8125rem;
+  font-size: var(--fs-xs);
+}
+
+/* Phone width: the least important column (valid through) drops out and dates and headings wrap, so latency stays in view. */
+@media (max-width: 640px) {
+  .table {
+    min-width: 0;
+  }
+
+  .table th,
+  .table td {
+    padding-inline: var(--sp-2);
+  }
+
+  .table td.num,
+  .table thead th {
+    white-space: normal;
+  }
+
+  .table th:nth-child(4),
+  .table td:nth-child(4) {
+    display: none;
+  }
+
+  .error {
+    max-width: none;
+    white-space: normal;
+  }
 }

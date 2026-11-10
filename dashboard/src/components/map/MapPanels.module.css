@@ -2,64 +2,125 @@
   position: relative;
   z-index: 1;
   display: grid;
-  gap: var(--sp-2);
-  width: min(22rem, 100%);
+  gap: var(--sp-3);
   padding: var(--sp-3) var(--sp-4);
-  background: color-mix(in srgb, var(--ink-black) 88%, transparent);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
   pointer-events: auto;
   font-size: var(--fs-sm);
+}
+
+/* Compact and quiet: capped so it never reaches the map's centre. */
+/* The notes scroll inside their panel; the last line fades so a cut line reads as "more below", not as a clip. */
+.notes {
+  max-height: 38vh;
+  overflow: auto;
+  padding-bottom: var(--sp-5);
+  mask-image: linear-gradient(to bottom, var(--ink-black) calc(100% - 2.25rem), transparent);
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 
 .swatch {
   display: inline-block;
   flex: none;
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 2px;
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-}
-
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-1) var(--sp-4);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.legend li {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
 }
 
 .fine {
   color: var(--text-2);
+  line-height: 1.5;
+}
+
+.fine b {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.attribution {
+  color: var(--text-3);
+  font-size: var(--fs-xs);
   line-height: 1.4;
 }
 
+/* The top alerts: a disclosure whose panel eases open on its own height where the browser can animate it. */
+.disclosure {
+  display: block;
+  padding: 0;
+  interpolate-size: allow-keywords;
+}
+
+.disclosure::details-content {
+  block-size: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    block-size var(--dur-base) var(--ease-out),
+    opacity var(--dur-base) var(--ease-out),
+    content-visibility var(--dur-base) allow-discrete;
+}
+
+.disclosure[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
 .summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+  list-style: none;
   cursor: pointer;
-  font-weight: 700;
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
+  transition: background var(--dur-quick) var(--ease-out);
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary:hover {
+  background: color-mix(in srgb, var(--royal-blue) 12%, transparent);
 }
 
 .summary:focus-visible {
   outline: var(--focus-ring);
-  outline-offset: 4px;
+  outline-offset: -2px;
+}
+
+.chevron {
+  flex: none;
+  color: var(--text-3);
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+
+.disclosure[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.disclosure > .fine {
+  padding: var(--sp-2) var(--sp-4) var(--sp-3);
 }
 
 .alerts {
   display: grid;
-  gap: var(--sp-1);
-  margin: var(--sp-2) 0 0;
-  padding: 0;
+  gap: 2px;
+  margin: 0;
+  padding: var(--sp-2);
   list-style: none;
   max-height: 14rem;
   overflow: auto;
+  border-top: 1px solid var(--hairline);
 }
 
 .alerts button {
@@ -67,17 +128,20 @@
   width: 100%;
   align-items: center;
   gap: var(--sp-3);
-  padding: var(--sp-2) var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
   text-align: left;
   background: transparent;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: var(--radius);
-  cursor: pointer;
+  transition: background var(--dur-quick) var(--ease-out);
 }
 
 .alerts button:hover {
-  background: var(--surface);
-  border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--royal-blue) 16%, transparent);
+}
+
+.alerts button:active {
+  background: color-mix(in srgb, var(--royal-blue) 24%, transparent);
 }
 
 .alertMain {
@@ -86,19 +150,64 @@
   min-width: 0;
 }
 
-.alertMain span {
+/* Place names and the distance line are prose: only the figures stay mono. */
+.alertMain .num {
+  font-family: var(--font-ui);
+  font-size: inherit;
+  letter-spacing: normal;
+}
+
+.alertMain strong {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-3);
+  letter-spacing: 0.02em;
+}
+
+.alertMain strong + span {
+  overflow: hidden;
+  font-weight: 600;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alertMain .alertSub {
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  font-weight: 400;
   color: var(--text-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alertRisk {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.alertRisk span,
+.hoverSub {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  color: var(--text-3);
 }
 
 .hover {
   position: fixed;
   z-index: 5;
   min-width: 14rem;
-  max-width: min(26rem, calc(100vw - 2rem));
+  max-width: min(20rem, calc(100vw - 2rem));
   padding: var(--sp-3) var(--sp-4);
-  background: color-mix(in srgb, var(--ink-black) 94%, transparent);
-  border: 1px solid var(--neon-cyan);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
   font-size: var(--fs-sm);
   pointer-events: none;
 }
@@ -111,18 +220,20 @@
 }
 
 .hoverTitle strong {
-  font-family: var(--font-display);
   font-size: var(--fs-md);
+  font-weight: 650;
+  color: var(--text);
 }
 
 .hoverTitle span {
   margin-left: auto;
-  color: var(--text-2);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
 }
 
 .hoverFacts {
   display: grid;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   margin: 0;
 }
 
@@ -133,33 +244,38 @@
 }
 
 .hoverFacts dt {
-  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-3);
 }
 
 .hoverFacts dd {
+  min-width: 0;
   margin: 0;
-  font-weight: 500;
+  color: var(--text-2);
   text-align: right;
+}
+
+.hoverRisk {
+  display: grid;
+  justify-items: end;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* The risk cell is mono for its figures; the sentences inside it are prose. */
+.hoverRisk .hoverOdds,
+.hoverRisk .hoverProse {
+  font-family: var(--font-ui);
+  letter-spacing: normal;
 }
 
 .hoverReason {
   margin: var(--sp-2) 0 0;
   padding-top: var(--sp-2);
-  border-top: 1px solid var(--border);
-  color: var(--text);
-}
-
-.alertRisk {
-  display: grid;
-  justify-items: end;
-  text-align: right;
-}
-
-.alertRisk span,
-.hoverSub {
-  display: block;
+  border-top: 1px solid var(--hairline);
   color: var(--text-2);
-  font-weight: 400;
 }
 
 .hoverWhere {
@@ -170,32 +286,21 @@
 
 .hoverWhere strong {
   font-weight: 600;
-}
-
-.alertMain strong + span {
-  overflow: hidden;
   color: var(--text);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.alertMain .alertSub {
-  overflow: hidden;
-  color: var(--text-2);
-  font-size: var(--fs-sm);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.attribution {
-  color: var(--text-3);
-  font-size: var(--fs-sm);
+/* The distance line under a place is prose with figures in it. */
+.hoverWhere .hoverSub {
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  letter-spacing: normal;
 }
 
 .hoverOdds {
   display: block;
   margin-bottom: var(--sp-1);
   font-weight: 600;
+  color: var(--text);
   text-align: right;
 }
 

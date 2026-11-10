@@ -31,7 +31,7 @@ export function MapLegend({ model, degraded }: { model: MapModel; degraded: bool
   const places = usePlaces().data
   const forecastReady = [1, 2, 3].some((l) => model.leadStatus[l as 1 | 2 | 3].state === 'ready')
   return (
-    <section className={styles.panel} aria-label="Legend">
+    <section className={`${styles.panel} ${styles.notes}`} aria-label="Legend">
       <div id="map-lead-note" className={styles.fine}>
         {forecastReady && (
           <p>
@@ -87,9 +87,14 @@ export function AlertList({ model }: { model: MapModel }) {
   const total = alertCount(grid, visible)
   const top = topAlerts(grid, visible, LIST_LENGTH)
   return (
-    <details className={styles.panel}>
+    <details className={`${styles.panel} ${styles.disclosure}`}>
       <summary className={styles.summary}>
-        Top alerts on the map <span className="num">({formatCount(total)})</span>
+        <span>
+          Top alerts on the map <span className="num">({formatCount(total)})</span>
+        </span>
+        <svg className={styles.chevron} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
       </summary>
       <p className="sr-only" role="status">
         {formatCount(total)} cells at Watch or above on {formatDate(grid.date)}, lead D{grid.lead === 0 ? '0' : `+${grid.lead}`}.
