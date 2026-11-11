@@ -846,7 +846,8 @@ def test_dev_with_a_declared_lag_of_one_reads_the_lag_one_tables_and_records_the
 
 
 def test_dev_refuses_without_the_gap_report_and_a_lag_zero_store_is_not_read_at_lag_one(stage_env, store, monkeypatch, tmp_path):
-    monkeypatch.undo()
+    monkeypatch.undo()  # this also drops the isolated data root, so the output directory is pinned to tmp again
+    monkeypatch.setattr(v4, "output_dir", lambda s: tmp_path / "out")
     monkeypatch.setattr(v4, "gap_report_path", lambda: tmp_path / "missing_gap.json")
     with pytest.raises(FileNotFoundError, match="gap"):
         v4.declared_lag()
