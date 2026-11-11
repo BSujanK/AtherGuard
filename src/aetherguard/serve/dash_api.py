@@ -814,10 +814,16 @@ def _stamp(path: Path | None) -> tuple[str, int, int] | None:
     return None if info is None else (str(path), info.st_mtime_ns, info.st_size)
 
 
+WATCHED_RUN_DAYS = 7     # every open tab polls once a second: watch the newest days, not every day ever run
+
+
 def _snapshot(store: ReplayStore, live_dir: Path) -> tuple[tuple, tuple, tuple | None]:
-    """(run files, store manifest, freshness file) identities; any change between two snapshots is an event."""
+    """(run files, store manifest, freshness file) identities; any change between two snapshots is an event. The run
+    files are the number of run days and the alert tables of the newest `WATCHED_RUN_DAYS`: a new day and a rerun of a
+    recent one are events, a rerun of an older day shows after a reload."""
     store.refresh()
-    runs = tuple(_stamp(live_dir / d / "alerts.parquet") for d in _run_dates(live_dir))
+    days = _run_dates(live_dir)
+    runs = (len(days), *(_stamp(live_dir / d / "alerts.parquet") for d in days[-WATCHED_RUN_DAYS:]))
     return runs, _stamp(store.root / "store_manifest.json"), _stamp(_newest_freshness(live_dir))
 
 

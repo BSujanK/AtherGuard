@@ -39,7 +39,8 @@ def _resolved(path) -> Path:
 def _process_lock(manifest_path: Path, timeout_s: float = 120.0, stale_s: float = 300.0):
     """Cross-process lock for appends: an exclusively created `<manifest>.lock` file. Two builders appending at
     once (different processes) would otherwise interleave lines. A lock older than `stale_s` is treated as left
-    behind by a crashed process and removed."""
+    behind by a crashed process and removed. On Windows, creating (or reading) a lock file that another process is
+    deleting is refused with PermissionError, not FileExistsError: that is the lock being busy too, so it waits."""
     lock = manifest_path.with_name(manifest_path.name + ".lock")
     lock.parent.mkdir(parents=True, exist_ok=True)
     deadline = time.monotonic() + timeout_s
@@ -47,15 +48,15 @@ def _process_lock(manifest_path: Path, timeout_s: float = 120.0, stale_s: float 
         try:
             fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
             break
-        except FileExistsError:
+        except (FileExistsError, PermissionError) as busy:
             try:
                 if time.time() - lock.stat().st_mtime > stale_s:
                     lock.unlink(missing_ok=True)
-                    continue
-            except FileNotFoundError:
-                continue
+            except OSError:
+                pass                                   # gone or being deleted: try to take it again
             if time.monotonic() > deadline:
-                raise TimeoutError(f"manifest lock {lock} held for more than {timeout_s:.0f} s")
+                raise TimeoutError(f"manifest lock {lock} not obtained within {timeout_s:.0f} s "
+                                   f"({type(busy).__name__})") from busy
             time.sleep(0.05)
     try:
         os.write(fd, str(os.getpid()).encode())

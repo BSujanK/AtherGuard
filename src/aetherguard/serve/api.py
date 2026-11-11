@@ -180,7 +180,7 @@ def create_app(store_dir: Path | None = None, *, live_dir: Path | None = None, d
                          live_model_card_sha256=live,
                          model_card_matches_store=None if card_hash is None or live is None else card_hash == live,
                          model_freeze_status=freeze, model_frozen_utc=frozen_utc, model_freeze_detail=freeze_detail,
-                         data_manifest_status=status, replay_store=str(store.root),
+                         data_manifest_status=status, replay_store=dash_api.display_path(store.root),
                          provisional=manifest.get("provisional"), thresholds=_thresholds(manifest), sets=sets)
 
     @app.get("/risk", response_model=sc.RiskResponse)

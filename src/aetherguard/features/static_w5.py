@@ -17,6 +17,7 @@ Sources
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import math
 import sys
@@ -26,8 +27,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from ..config import data_dir, data_root
+from ..config import PROJECT_ROOT, data_dir, data_root
 from ..grid import ID_STRIDE, _axis_index, cell_center
+from ..http import download
+from ..manifest import Manifest
 
 LC_CLASSES: dict[str, tuple[int, ...]] = {
     "lc_tree": (10,), "lc_shrub_grass": (20, 30), "lc_crop": (40,), "lc_built": (50,), "lc_bare": (60, 70),
@@ -45,6 +48,7 @@ SOILGRIDS_URL = "https://files.isric.org/soilgrids/latest/data_aggregated/1000m/
 SOIL_GRID_DEG = 0.01
 LICENCES = {"landcover": "ESA WorldCover 2021 v200, CC BY 4.0", "roads": "GRIP4 (Meijer et al. 2018), CC0",
             "soil": "ISRIC SoilGrids 2.0, CC BY 4.0", "steep": "Copernicus DEM GLO-90, free and open (ESA/Airbus)"}
+MANIFEST_PATH = PROJECT_ROOT / "manifests" / "data_manifest.jsonl"
 
 
 # ------------------------------------------------------------------------------------- raster to cells
@@ -144,9 +148,10 @@ def _remote_env():
                         GDAL_HTTP_MAX_RETRY="5", GDAL_HTTP_RETRY_DELAY="3", VSI_CACHE="TRUE")
 
 
-def read_worldcover(tile: str, cache: Path, say=print):
+def read_worldcover(tile: str, cache: Path, say=print, manifest: Manifest | None = None):
     """The tile at one pixel in eight as (values uint8, transform), or None where WorldCover has no tile (open sea).
-    Cached as an .npz next to an `.absent` marker for missing tiles."""
+    Cached as an .npz (recorded in `manifest`) next to an `.absent` marker for missing tiles. Only HTTP 404 means
+    there is no tile: any other refusal (403 from a proxy or a Wi-Fi login page) is an error, never a silent gap."""
     import rasterio
     import requests
     from affine import Affine
@@ -157,7 +162,7 @@ def read_worldcover(tile: str, cache: Path, say=print):
     if not cached.exists():
         url = WORLDCOVER_URL.format(tile=tile)
         status = requests.head(url, timeout=60).status_code
-        if status in (403, 404):
+        if status == 404:
             absent.touch()
             return None
         if status != 200:
@@ -165,24 +170,26 @@ def read_worldcover(tile: str, cache: Path, say=print):
         with _remote_env(), rasterio.open(url) as ds:
             shape = (ds.height // WORLDCOVER_DECIMATION, ds.width // WORLDCOVER_DECIMATION)
             values = ds.read(1, out_shape=shape, resampling=Resampling.nearest)
-            transform = ds.transform * Affine.scale(ds.width / shape[1], ds.height / shape[0])
+            transform = ds.transform @ Affine.scale(ds.width / shape[1], ds.height / shape[0])
         part = cached.with_name(cached.name + ".part")
         with part.open("wb") as handle:
             np.savez_compressed(handle, values=values, transform=np.array(transform[:6]))
         part.replace(cached)
         say(f"worldcover {tile}: {values.shape[0]}x{values.shape[1]} pixels cached")
-    from affine import Affine
+    if manifest is not None and not manifest.is_current(cached):
+        manifest.add(cached, f"ESA WorldCover 2021 v200 tile {tile}, one pixel in {WORLDCOVER_DECIMATION}",
+                     WORLDCOVER_URL.format(tile=tile), LICENCES["landcover"])
     with np.load(cached) as data:
         return data["values"], Affine(*data["transform"])
 
 
-def landcover(cells: pd.DataFrame, say=print) -> dict[str, np.ndarray]:
+def landcover(cells: pd.DataFrame, say=print, manifest: Manifest | None = None) -> dict[str, np.ndarray]:
     cache = data_dir("raw", "static_w5", "worldcover")
     ids = cells["cell_id"].to_numpy()
     counts, denom = new_class_counts(len(ids))
     tiles = worldcover_tiles(cells["lat"].to_numpy(), cells["lon"].to_numpy())
     for number, tile in enumerate(tiles, start=1):
-        loaded = read_worldcover(tile, cache, say)
+        loaded = read_worldcover(tile, cache, say, manifest)
         if loaded is None:
             continue
         values, transform = loaded
@@ -191,27 +198,29 @@ def landcover(cells: pd.DataFrame, say=print) -> dict[str, np.ndarray]:
     return class_shares(counts, denom)
 
 
-def roads(cells: pd.DataFrame, say=print) -> dict[str, np.ndarray]:
+def grip4_member(names: list[str]) -> str:
+    """The road-density grid of the GRIP4 zip. The zip also holds a land-area grid (`grip4_area_land_km2.asc`, which
+    is 85.7 km2 times the cosine of the latitude): taking that one would feed the model latitude under the name of roads."""
+    found = [name for name in names if name.lower().endswith(".asc") and "dens" in name.lower()]
+    if len(found) != 1:
+        raise ValueError(f"expected exactly one density grid in the GRIP4 zip, found {found} among {names}")
+    return found[0]
+
+
+def roads(cells: pd.DataFrame, say=print, manifest: Manifest | None = None) -> dict[str, np.ndarray]:
     import rasterio
-    import requests
-    path = data_dir("raw", "static_w5") / "GRIP4_density_total.zip"
-    if not path.exists():
-        part = path.with_name(path.name + ".part")
-        with requests.get(GRIP4_URL, timeout=300, stream=True) as response:
-            response.raise_for_status()
-            with part.open("wb") as handle:
-                for chunk in response.iter_content(1 << 20):
-                    handle.write(chunk)
-        part.replace(path)
+    manifest = manifest if manifest is not None else Manifest(MANIFEST_PATH, data_root())
+    path = download(GRIP4_URL, data_dir("raw", "static_w5") / "GRIP4_density_total.zip", manifest,
+                    "GRIP4 total road density, 5 arcmin", LICENCES["roads"])
     with zipfile.ZipFile(path) as archive:
-        member = next(name for name in archive.namelist() if name.lower().endswith(".asc"))
+        member = grip4_member(archive.namelist())
     with rasterio.open(f"zip://{path.as_posix()}!{member}") as ds:
         values, transform, nodata = ds.read(1), ds.transform, ds.nodata
     say(f"roads: {member} {values.shape[0]}x{values.shape[1]}")
     return {"road_density": sample_at_centres(values, transform, cells["lat"].to_numpy(), cells["lon"].to_numpy(), nodata)}
 
 
-def soil(cells: pd.DataFrame, say=print) -> dict[str, np.ndarray]:
+def soil(cells: pd.DataFrame, say=print, manifest: Manifest | None = None) -> dict[str, np.ndarray]:
     import rasterio
     from affine import Affine
     from rasterio.enums import Resampling
@@ -235,7 +244,7 @@ def soil(cells: pd.DataFrame, say=print) -> dict[str, np.ndarray]:
     return out
 
 
-def steep(cells: pd.DataFrame, say=print) -> dict[str, np.ndarray]:
+def steep(cells: pd.DataFrame, say=print, manifest: Manifest | None = None) -> dict[str, np.ndarray]:
     from ..ingest import terrain as tr
     raw_dir = data_root() / "raw" / "terrain" / "glo90"
     absent = tr.read_absent(raw_dir)
@@ -245,16 +254,11 @@ def steep(cells: pd.DataFrame, say=print) -> dict[str, np.ndarray]:
     out = {name: np.full(len(frame), np.nan) for name in STEEP_DEGREES}
     blocks = list(frame.groupby("block", sort=True))
     for number, (_, block) in enumerate(blocks, start=1):
-        # The same pixels, void rules and slope as the terrain table (ingest/terrain.py `_block_cells`).
+        # The same pixels, void rules and slope as the terrain table: one function serves both.
         lat_lo, lat_hi = int(block["lat_idx"].min()), int(block["lat_idx"].max())
         lon_lo, lon_hi = int(block["lon_idx"].min()), int(block["lon_idx"].max())
         n_lat, n_lon = lat_hi - lat_lo + 1, lon_hi - lon_lo + 1
-        row0, col0 = tr.CELL_PIXELS * lat_lo - 1, tr.CELL_PIXELS * lon_lo - 1
-        raw, covered = tr._read_window(raw_dir, absent, row0, tr.CELL_PIXELS * (lat_hi + 1), col0, tr.CELL_PIXELS * (lon_hi + 1))
-        z = np.where(covered & (raw != 0.0) & np.isfinite(raw) & (raw > tr.VOID_BELOW_M), raw, np.nan)
-        latitudes = -90.0 + (row0 + np.arange(z.shape[0])) / tr.TILE_PIXELS
-        slope = tr.terrain_surface(z, tr.M_PER_DEG * np.cos(np.radians(latitudes)) / tr.TILE_PIXELS,
-                                   tr.M_PER_DEG / tr.TILE_PIXELS)["slope_deg"]
+        slope = tr.block_surface(raw_dir, absent, lat_lo, lat_hi, lon_lo, lon_hi)["surface"]["slope_deg"]
         pick = ((block["lat_idx"] - lat_lo) * n_lon + (block["lon_idx"] - lon_lo)).to_numpy()
         shares = steep_shares(tr._per_cell(slope[1:-1, 1:-1], n_lat, n_lon)[pick])
         for name in STEEP_DEGREES:
@@ -269,14 +273,22 @@ REDUCERS = {"landcover": landcover, "roads": roads, "soil": soil, "steep": steep
 
 # ----------------------------------------------------------------------------------------------- build
 
+def write_part(path: Path, frame: pd.DataFrame) -> None:
+    """Whole or not at all: a shutdown mid-write must not leave a broken file that counts as built."""
+    part = path.with_name(path.name + ".part")
+    frame.to_parquet(part, index=False)
+    part.replace(path)
+
+
 def build(sources: list[str] | None = None, say=print) -> Path:
     out_dir = data_dir("processed", "features", "static_w5")
     cells = pd.read_parquet(data_root() / "processed" / "terrain" / "cell_terrain.parquet",
                             columns=["cell_id", "region_box"]).sort_values("cell_id").reset_index(drop=True)
     cells["lat"], cells["lon"] = cell_center(cells["cell_id"].to_numpy())
+    manifest = Manifest(MANIFEST_PATH, data_root())
     for source in sources or [name for name in SOURCES if not (out_dir / f"part_{name}.parquet").exists()]:
-        columns = REDUCERS[source](cells, say)
-        pd.DataFrame({"cell_id": cells["cell_id"], **columns}).to_parquet(out_dir / f"part_{source}.parquet", index=False)
+        columns = REDUCERS[source](cells, say, manifest)
+        write_part(out_dir / f"part_{source}.parquet", pd.DataFrame({"cell_id": cells["cell_id"], **columns}))
         say(f"{source}: part written")
     parts = {}
     for source in SOURCES:
@@ -288,7 +300,9 @@ def build(sources: list[str] | None = None, say=print) -> Path:
             parts[source] = {name: part[name].to_numpy() for name in SOURCES[source]}
     table = assemble(cells, parts)
     table.to_parquet(out_dir / "cell_static.parquet", index=False)
+    absent = sorted(p.stem for p in (data_root() / "raw" / "static_w5" / "worldcover").glob("*.absent"))
     report = {"cells": int(len(table)), "sources_present": sorted(parts), "licences": LICENCES,
+              "worldcover_tiles_absent": absent,
               "columns": {name: {"nan": int(table[name].isna().sum()), "min": float(table[name].min()),
                                  "median": float(table[name].median()), "max": float(table[name].max())}
                           for name in STATIC_COLUMNS if table[name].notna().any()}}
@@ -305,7 +319,7 @@ def main(argv: list[str] | None = None) -> int:
     unknown = [s for s in sources or [] if s not in SOURCES]
     if unknown:
         parser.error(f"unknown source(s): {', '.join(unknown)}; choose from {', '.join(SOURCES)}")
-    build(sources)
+    build(sources, say=functools.partial(print, flush=True))     # a log file must show progress while it runs
     return 0
 
 

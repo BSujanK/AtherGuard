@@ -9,6 +9,12 @@ sometimes silently faulty. AetherGuard first judges whether each sensor reading 
 calibrated landslide risk per 0.05 degree cell and day from trusted multi-source rain, soil wetness and terrain (stage 2),
 and turns that into alerts that escalate rather than stay silent when the data are blind.
 
+**What runs today.** The daily live run (`python -m aetherguard.live run`, scheduled for 11:00 IST) scores the v3-live
+model on NASA IMERG satellite rain (Late and Early runs), with GFS and ECMWF forecast rain for the D+1 to D+3 leads and
+the IMD real-time grid and GHCN gauges as cross-checks. The diagram below is the offline pipeline that built and
+evaluated the earlier models from IMD, CHIRPS and NASA POWER; the sensor-integrity stage, the alert engine, the API and
+the dashboard are shared with the live run.
+
 Design: `docs/superpowers/specs/2026-09-30-aetherguard-design.md`; per-phase addenda and controller rulings:
 `docs/phase1-design.md` ... `docs/phase4-design.md`. Results: `reports/FINAL_REPORT.md`.
 
@@ -49,8 +55,8 @@ py -3.13 -m venv .venv
 
 The `serve` extra (fastapi, uvicorn, httpx2 for the API tests) is declared in `pyproject.toml`. The dashboard needs Node.js 24 and npm
 to build (`cd dashboard && npm ci`). A NASA Earthdata login in `~/_netrc` (Windows) or `~/.netrc`
-(entry for `urs.earthdata.nasa.gov`) is only needed to re-download the High Mountain Asia / NASA label catalogs; everything
-else is open. Data lives in `data/` (set `AETHERGUARD_DATA_DIR` to relocate it).
+(entry for `urs.earthdata.nasa.gov`) is needed for the IMERG downloads of the live run and to re-download the High
+Mountain Asia / NASA label catalogs; everything else is open. Data lives in `data/` (set `AETHERGUARD_DATA_DIR` to relocate it).
 
 ## Running the pipeline
 

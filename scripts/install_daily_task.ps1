@@ -63,13 +63,13 @@ $RestartMinutes = 30
 
 if ($DryRun) {
     Write-Output "Task name:        $TaskName"
-    Write-Output "Trigger:          daily at $Time local time, again 30, 60 and 90 minutes later (idempotent retries); catch-up at 18:00 and 10 minutes after logon"
+    Write-Output "Trigger:          daily at $Time local time, again 30, 60 and 90 minutes later (idempotent retries); again every hour from 13:00 to 23:00 (a finished day is skipped at once) and 10 minutes after logon"
     Write-Output "Action:           powershell.exe $ActionArguments"
     Write-Output "Runs:             `"$Python`" $RunArguments"
     Write-Output "Network wait:     up to $NetworkWaitMinutes minutes for $NetworkHost to resolve before the run"
     Write-Output "Working dir:      $Project"
     Write-Output "Log file:         $LogDir\<yyyy-MM-dd>.log"
-    Write-Output "Settings:         StartWhenAvailable, RestartCount $RestartCount, RestartInterval $RestartMinutes minutes, ExecutionTimeLimit 2 hours"
+    Write-Output "Settings:         StartWhenAvailable, WakeToRun, RestartCount $RestartCount, RestartInterval $RestartMinutes minutes, ExecutionTimeLimit 2 hours"
     Write-Output "Remove with:      $Self -Remove"
     exit 0
 }
@@ -94,15 +94,19 @@ $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $ActionArg
 # Two catch-up starts cover what those retries cannot: an 18:00 run recomputes a day whose inputs were missing all
 # morning (a source outage), and a run 10 minutes after logon finishes a day whose run was killed by a shutdown or
 # restart (Task Scheduler does not count a killed run as missed, so StartWhenAvailable does not repeat it).
+# A laptop asleep through every one of those starts ran nothing that day (2026-11-11: up since 03:20, no run by 18:00,
+# StartWhenAvailable did not catch up). So the task may wake the laptop (WakeToRun; Windows honours it when wake timers
+# are allowed in the power plan) and it starts every hour from 13:00 to 23:00 as well: whenever the laptop is next
+# awake the day is run, and a day already complete returns at once.
 $start = [datetime]::ParseExact($Time, 'HH:mm', $null)
 $trigger = @(0..$RestartCount | ForEach-Object { New-ScheduledTaskTrigger -Daily -At $start.AddMinutes($_ * $RestartMinutes) })
-$trigger += New-ScheduledTaskTrigger -Daily -At ([datetime]::ParseExact('18:00', 'HH:mm', $null))
+$trigger += 13..23 | ForEach-Object { New-ScheduledTaskTrigger -Daily -At ([datetime]::ParseExact(('{0:00}:00' -f $_), 'HH:mm', $null)) }
 $logon = New-ScheduledTaskTrigger -AtLogOn -User "$env:USERDOMAIN\$env:USERNAME"
 $logon.Delay = 'PT10M'
 $trigger += $logon
-$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -RestartCount $RestartCount `
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -WakeToRun -RestartCount $RestartCount `
     -RestartInterval (New-TimeSpan -Minutes $RestartMinutes) -ExecutionTimeLimit (New-TimeSpan -Hours 2) `
     -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Force `
     -Description 'AetherGuard live run: python -m aetherguard.live run --date today' | Out-Null
-Write-Output "Registered '$TaskName': daily at $Time plus $RestartCount retry starts every $RestartMinutes minutes, catch-up at 18:00 and after logon, log in $LogDir."
+Write-Output "Registered '$TaskName': daily at $Time plus $RestartCount retry starts every $RestartMinutes minutes, hourly catch-up 13:00-23:00 and after logon, wakes the laptop, log in $LogDir."

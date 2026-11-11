@@ -376,11 +376,10 @@ def _per_cell(array: np.ndarray, n_lat: int, n_lon: int) -> np.ndarray:
             .reshape(n_lat * n_lon, CELL_PIXEL_COUNT))
 
 
-def _block_cells(raw_dir: Path, absent: set[str], cells: pd.DataFrame, min_valid: float):
-    """Statistics of the given cells (all in one 1-degree block): (kept table, dropped cells, pixel counts)."""
-    lat_lo, lat_hi = int(cells["lat_idx"].min()), int(cells["lat_idx"].max())
-    lon_lo, lon_hi = int(cells["lon_idx"].min()), int(cells["lon_idx"].max())
-    n_lat, n_lon = lat_hi - lat_lo + 1, lon_hi - lon_lo + 1
+def block_surface(raw_dir: Path, absent: set[str], lat_lo: int, lat_hi: int, lon_lo: int, lon_hi: int) -> dict:
+    """The pixels of the cell rows lat_lo..lat_hi and columns lon_lo..lon_hi with a one-pixel halo: valid elevation
+    `z` (NaN for sea-level zeros, voids and absent tiles), the masks `covered`, `zero`, `void`, and the `surface` of
+    `terrain_surface`. Everything that needs per-pixel slope reads it here, so the void rules exist once."""
     row0, col0 = CELL_PIXELS * lat_lo - 1, CELL_PIXELS * lon_lo - 1
     raw, covered = _read_window(raw_dir, absent, row0, CELL_PIXELS * (lat_hi + 1), col0, CELL_PIXELS * (lon_hi + 1))
     zero = covered & (raw == 0.0)
@@ -388,6 +387,16 @@ def _block_cells(raw_dir: Path, absent: set[str], cells: pd.DataFrame, min_valid
     z = np.where(covered & ~zero & ~void, raw, np.nan)
     latitudes = -90.0 + (row0 + np.arange(z.shape[0])) / TILE_PIXELS
     surface = terrain_surface(z, M_PER_DEG * np.cos(np.radians(latitudes)) / TILE_PIXELS, M_PER_DEG / TILE_PIXELS)
+    return {"z": z, "covered": covered, "zero": zero, "void": void, "surface": surface}
+
+
+def _block_cells(raw_dir: Path, absent: set[str], cells: pd.DataFrame, min_valid: float):
+    """Statistics of the given cells (all in one 1-degree block): (kept table, dropped cells, pixel counts)."""
+    lat_lo, lat_hi = int(cells["lat_idx"].min()), int(cells["lat_idx"].max())
+    lon_lo, lon_hi = int(cells["lon_idx"].min()), int(cells["lon_idx"].max())
+    n_lat, n_lon = lat_hi - lat_lo + 1, lon_hi - lon_lo + 1
+    block = block_surface(raw_dir, absent, lat_lo, lat_hi, lon_lo, lon_hi)
+    z, covered, zero, void, surface = (block[k] for k in ("z", "covered", "zero", "void", "surface"))
 
     pick = ((cells["lat_idx"] - lat_lo) * n_lon + (cells["lon_idx"] - lon_lo)).to_numpy()
 
