@@ -21,19 +21,23 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow: hidden;
-  scrollbar-color: var(--border-strong) var(--bg);
+  scrollbar-color: var(--border-strong) transparent;
   scrollbar-width: thin;
+  caret-color: var(--neon-cyan);
+  accent-color: var(--neon-cyan);
 }
 
+/* The display voice: the same family at its wide end, heavier, a touch tighter. */
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-stretch: var(--display-stretch);
+  font-weight: 650;
   line-height: var(--lh-tight);
+  letter-spacing: -0.012em;
   margin: 0;
-  letter-spacing: -0.01em;
-  word-spacing: 0.12em;
+  text-wrap: balance;
 }
 
 h1 {
@@ -44,17 +48,69 @@ h2 {
   font-size: var(--fs-lg);
 }
 
+h3 {
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
 p {
   margin: 0;
+  text-wrap: pretty;
 }
 
 a {
   color: inherit;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
 }
 
 button {
-  font: inherit;
-  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* One vocabulary for text fields and selects everywhere; modules only place and size them. */
+select,
+input[type='search'],
+input[type='text'],
+input[type='number'] {
+  min-height: 2.5rem;
+  padding: 0 var(--sp-3);
+  color: var(--text);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--dur-quick) var(--ease-out),
+    background var(--dur-quick) var(--ease-out);
+}
+
+select:hover,
+input[type='search']:hover,
+input[type='text']:hover,
+input[type='number']:hover {
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+select {
+  cursor: pointer;
+}
+
+::placeholder {
+  color: var(--text-3);
+  opacity: 1;
 }
 
 :focus {
@@ -77,21 +133,27 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
   border-radius: 999px;
-  border: 2px solid var(--bg);
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--surface-high);
+  background: var(--royal-blue);
+  background-clip: content-box;
 }
 
+/* Measurements: ids, coordinates, probabilities, counts, dates. A second face so a number never reads as a word. */
 .num {
+  font-family: var(--font-data);
+  font-size: 0.94em;
   font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.01em;
 }
 
 .sr-only {
@@ -106,6 +168,43 @@ button {
   border: 0;
 }
 
+/*
+ * Moving between views: the frame (bar, terrain) holds still and only the view changes hands. The old view lifts
+ * away fast, the new one settles in behind it. Browsers without view transitions swap at once.
+ */
+#view {
+  view-transition-name: view;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-old(view) {
+  animation: view-out 140ms var(--ease-in) both;
+}
+
+::view-transition-new(view) {
+  animation: view-in 420ms var(--ease-out) 60ms both;
+}
+
+@keyframes view-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+    filter: blur(3px);
+  }
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(6px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -114,5 +213,11 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

@@ -1,20 +1,25 @@
 .controls {
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--sp-2) var(--sp-4);
-  padding: var(--sp-2) var(--sp-3);
-  background: color-mix(in srgb, var(--ink-black) 88%, transparent);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  display: grid;
+  align-content: start;
+  align-self: flex-start;
+  gap: var(--sp-4);
+  width: 19rem;
+  max-height: 100%;
+  padding: var(--sp-4);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
   pointer-events: auto;
 }
 
 .group {
-  display: grid;
-  gap: var(--sp-1);
   margin: 0;
   padding: 0;
   border: 0;
@@ -22,29 +27,112 @@
 }
 
 .label {
+  display: block;
+  margin-bottom: var(--sp-2);
   padding: 0;
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-3);
   letter-spacing: 0.02em;
 }
 
+/* The date is the dock's loudest element: grid areas lift it above the track although the DOM reads first, current, last. */
 .slider {
   display: grid;
-  gap: 0;
-  width: 11rem;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'current current'
+    'track track'
+    'first last';
+  row-gap: var(--sp-2);
+}
+
+.range {
+  display: contents;
+}
+
+.slider .current {
+  grid-area: current;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.slider .first,
+.slider .last {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.slider .first {
+  grid-area: first;
+}
+
+.slider .last {
+  grid-area: last;
+  text-align: right;
 }
 
 .slider input[type='range'] {
+  grid-area: track;
   width: 100%;
+  height: 1rem;
   margin: 0;
-  accent-color: var(--neon-cyan);
+  background: transparent;
+  appearance: none;
   cursor: pointer;
+}
+
+.slider input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--surface-high);
+  border-radius: 999px;
+}
+
+.slider input[type='range']::-moz-range-track {
+  height: 4px;
+  background: var(--surface-high);
+  border-radius: 999px;
+}
+
+.slider input[type='range']::-webkit-slider-thumb {
+  width: 1rem;
+  height: 1rem;
+  margin-top: calc((4px - 1rem) / 2);
+  background: var(--neon-cyan);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: var(--shadow-1);
+  appearance: none;
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+
+.slider input[type='range']::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  background: var(--neon-cyan);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: var(--shadow-1);
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+
+.slider input[type='range']:not(:disabled)::-webkit-slider-thumb:hover,
+.slider input[type='range']:not(:disabled):active::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+.slider input[type='range']:not(:disabled)::-moz-range-thumb:hover,
+.slider input[type='range']:not(:disabled):active::-moz-range-thumb {
+  transform: scale(1.15);
 }
 
 .slider input[type='range']:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 .slider input[type='range']:focus-visible {
@@ -52,29 +140,32 @@
   outline-offset: 4px;
 }
 
-.range {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--sp-2);
-  font-size: var(--fs-sm);
-  color: var(--text-3);
-  white-space: nowrap;
-}
-
-.range strong {
-  color: var(--text);
-  font-weight: 700;
-}
-
-.chips {
+.chips,
+.toggles,
+.segment {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
+}
+
+.toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* One-of-many: a single pill track, the checked option filled. */
+.segment {
+  gap: 0;
+  padding: 2px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 999px;
 }
 
 .chip {
   position: relative;
   display: inline-flex;
+  min-width: 0;
 }
 
 .chip input {
@@ -91,42 +182,69 @@
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  padding: var(--sp-1) var(--sp-2);
-  min-height: 1.875rem;
+  width: 100%;
+  height: 2rem;
+  padding: 0 var(--sp-3);
   font-size: var(--fs-sm);
   font-weight: 500;
+  white-space: nowrap;
   color: var(--text-2);
   background: var(--surface-sunken);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-radius: 999px;
   transition:
     background var(--dur-quick) var(--ease-out),
-    color var(--dur-quick) var(--ease-out);
+    border-color var(--dur-quick) var(--ease-out),
+    color var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
 }
 
 .chip:hover span {
   color: var(--text);
-  background: var(--surface);
+  border-color: var(--border-strong);
 }
 
-.chip input:checked + span {
-  color: var(--text-on-accent);
-  font-weight: 700;
-  background: var(--neon-cyan);
-  border-color: var(--neon-cyan);
+.chip:active span {
+  transform: scale(0.97);
 }
 
-/* Level chips are filters, not a one-of-many choice: a checked level keeps its own colour swatch. */
+/* Many-of-many: checked reads raised; unchecked recedes together with its swatch. */
 .chip input[type='checkbox']:checked + span {
   color: var(--text);
-  font-weight: 500;
   background: var(--surface-raised);
-  border-color: var(--neon-cyan);
+  border-color: var(--border-strong);
 }
 
-/* An unchecked level is hidden on the map, so it reads dimmed. */
-.levels .chip input[type='checkbox']:not(:checked) + span {
-  opacity: 0.55;
+.chip input[type='checkbox']:not(:checked) + span {
+  color: var(--text-3);
+}
+
+.chip input[type='checkbox']:not(:checked) + span .swatch {
+  opacity: 0.35;
+}
+
+/* Options share the track by their own length, so a long name (Western Ghats) is never squeezed. */
+.segment .chip {
+  flex: 1 1 auto;
+}
+
+.segment .chip span {
+  justify-content: center;
+  white-space: nowrap;
+  height: 1.75rem;
+  padding: 0 var(--sp-2);
+  background: transparent;
+  border-color: transparent;
+}
+
+.segment .chip:hover span {
+  border-color: transparent;
+}
+
+.segment .chip input:checked + span {
+  color: var(--text-on-accent);
+  font-weight: 650;
+  background: var(--neon-cyan);
 }
 
 .chip input:focus-visible + span {
@@ -139,52 +257,104 @@
 }
 
 .chip input:disabled + span {
-  opacity: 0.4;
-  text-decoration: line-through;
+  opacity: 0.45;
+}
+
+.chip:has(input:disabled):hover span {
+  color: var(--text-2);
+  border-color: var(--border);
+}
+
+.chip:has(input:disabled):active span {
+  transform: none;
 }
 
 .swatch {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 2px;
-  box-shadow: inset 0 0 0 1px var(--border-strong);
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  transition: opacity var(--dur-quick) var(--ease-out);
 }
 
 .note {
-  max-width: 17rem;
-  font-size: var(--fs-sm);
-  line-height: 1.35;
+  margin-top: var(--sp-2);
+  font-size: var(--fs-xs);
+  line-height: 1.4;
   color: var(--text-3);
 }
 
-.note p + p {
-  margin-top: var(--sp-1);
+.resetRow {
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--hairline);
 }
 
 .reset {
-  margin-left: auto;
-  padding: var(--sp-1) var(--sp-3);
-  min-height: 1.875rem;
-  font-weight: 700;
+  display: block;
+  width: 100%;
+  height: 2rem;
+  padding: 0 var(--sp-3);
+  font-size: var(--fs-sm);
+  font-weight: 500;
   color: var(--text);
   background: transparent;
-  border: 1px solid var(--neon-cyan);
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background var(--dur-quick) var(--ease-out);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  transition:
+    background var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
 }
 
 .reset:hover {
   background: var(--surface);
 }
 
-/* Narrow: date, lead and reset share the first row and the two filters the second, keeping the panel short. */
-@media (max-width: 1100px) {
-  .filters {
-    order: 1;
+.reset:active {
+  transform: scale(0.97);
+}
+
+/* Narrow: the dock lies down as a strip across the top; groups keep their label above the control. */
+@media (max-width: 1099px) {
+  .controls {
+    flex: none;
+    display: flex;
+    align-items: flex-start;
+    align-self: stretch;
+    gap: var(--sp-5);
+    width: 100%;
+    max-height: none;
+    padding: var(--sp-3) var(--sp-4);
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .group,
+  .resetRow {
+    flex: none;
+  }
+
+  .group:first-child {
+    min-width: 14rem;
+  }
+
+  .segment {
+    width: max-content;
+  }
+
+  .toggles {
+    grid-template-columns: repeat(2, max-content);
+  }
+
+  .resetRow {
+    align-self: stretch;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 0 0 var(--sp-5);
+    border-top: 0;
+    border-left: 1px solid var(--hairline);
   }
 
   .reset {
-    margin-left: 0;
+    width: auto;
   }
 }

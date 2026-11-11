@@ -109,8 +109,12 @@ const fragmentShader = /* glsl */ `
     vec4 risk = texture2D(uRiskMap, vUv);
     col = mix(col, risk.rgb, risk.a * uRisk * revealed);
 
-    // Feather the window border into the background instead of ending in a hard cut.
-    col = uInk + (col - uInk) * vEdge;
+    // Feather the window border into the background instead of ending in a hard cut. Neighbouring countries are
+    // only context, so they melt away well inside the border (no straight-edged slab north of the Himalaya);
+    // India, Nepal and Bhutan, where the risk is, keep the narrow feather and stay crisp to the border.
+    float inset = min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y));
+    float fade = vEdge * mix(1.0, smoothstep(0.03, 0.3, inset), other);
+    col = uInk + (col - uInk) * fade;
 
     gl_FragColor = vec4(col, 1.0);
     #include <colorspace_fragment>

@@ -18,7 +18,7 @@ export default function LatencyHistory({ runs }: LatencyHistoryProps) {
   return (
     <EChart
       option={buildLatencyOption(runs)}
-      height={runs.length > 1 ? 240 : 200}
+      height={256}
       label={`Source latency in hours for the run of ${newest.date}: ${summary}`}
     />
   )

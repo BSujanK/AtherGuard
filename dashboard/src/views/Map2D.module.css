@@ -1,8 +1,9 @@
 .map {
   position: absolute;
-  /* Fill the whole map area, including the padding the shell leaves around views. */
-  inset: calc(var(--sp-5) * -1);
+  inset: 0;
   overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
   background: var(--bg);
   pointer-events: auto;
   touch-action: none;

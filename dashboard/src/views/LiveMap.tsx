@@ -54,7 +54,7 @@ export default function LiveMap() {
         const q = new URLSearchParams({ cell: String(opened.cell) })
         if (target.current.date) q.set('date', target.current.date)
         if (target.current.lead > 0) q.set('lead', String(target.current.lead))
-        void navigate(`/alerts-why?${q}`)
+        void navigate(`/alerts-why?${q}`, { viewTransition: true })
       },
       prefersReducedMotion() ? 0 : FLY_MS,
     )

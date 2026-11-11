@@ -7,11 +7,9 @@
 .frame {
   position: relative;
   width: 100%;
-  max-width: calc(54vh * 30 / 31.5);
-  margin-inline: auto;
   overflow: hidden;
   background: var(--ink-black);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
 }
 
@@ -62,38 +60,14 @@
   transition: r var(--dur-quick) var(--ease-out);
 }
 
-.gauge[data-missing='true'] .countries path {
-  fill: none;
-  stroke: color-mix(in srgb, var(--neon-cyan) 55%, transparent);
-  stroke-width: 0.9;
-  stroke-linejoin: round;
-}
-
-.countries path[data-country='India'] {
-  stroke: color-mix(in srgb, var(--neon-cyan) 80%, transparent);
-  stroke-width: 1.2;
-}
-
-.dot {
+.gauge[data-missing='true'] .dot {
   fill: none;
   stroke: var(--text-3);
   stroke-width: 1.4;
   stroke-dasharray: 2 2;
 }
 
-.gauge[data-active='true'] .countries path {
-  fill: none;
-  stroke: color-mix(in srgb, var(--neon-cyan) 55%, transparent);
-  stroke-width: 0.9;
-  stroke-linejoin: round;
-}
-
-.countries path[data-country='India'] {
-  stroke: color-mix(in srgb, var(--neon-cyan) 80%, transparent);
-  stroke-width: 1.2;
-}
-
-.dot {
+.gauge[data-active='true'] .dot {
   r: 7;
   stroke: var(--text);
   stroke-width: 1.6;
@@ -139,6 +113,11 @@
   stroke-width: 2;
 }
 
+.tip strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .tip {
   position: absolute;
   z-index: 2;
@@ -147,10 +126,11 @@
   width: max-content;
   max-width: 16rem;
   padding: var(--sp-3);
-  background: var(--surface-raised);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  box-shadow: 0 6px 24px color-mix(in srgb, var(--ink-black) 70%, transparent);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
   font-size: var(--fs-sm);
   pointer-events: none;
   transform: translate(14px, -50%);
@@ -161,8 +141,8 @@
 }
 
 .id {
-  color: var(--text-2);
-  font-size: 0.8125rem;
+  color: var(--text-3);
+  font-size: var(--fs-xs);
 }
 
 .tip dl {
@@ -178,11 +158,12 @@
 }
 
 .tip dt {
-  color: var(--text-2);
+  color: var(--text-3);
 }
 
 .tip dd {
   margin: 0;
+  color: var(--text);
   text-align: right;
 }
 
@@ -191,8 +172,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--sp-2) var(--sp-5);
-  color: var(--text-2);
-  font-size: var(--fs-sm);
+  color: var(--text-3);
+  font-size: var(--fs-xs);
 }
 
 .scale {
@@ -202,8 +183,8 @@
 }
 
 .ramp {
-  width: 7rem;
-  height: 8px;
+  width: 6rem;
+  height: 6px;
   border-radius: 999px;
   background: linear-gradient(to right, var(--neon-cyan), var(--neon-lime), var(--flame-orange), var(--fire-red));
 }
@@ -216,8 +197,8 @@
 
 .keyMissing,
 .keyFlag {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 }
 
@@ -227,8 +208,4 @@
 
 .keyFlag {
   border: 2px solid var(--fire-red);
-}
-
-.outside {
-  color: var(--text-3);
 }

@@ -1,7 +1,9 @@
 .view {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--sp-4);
-  max-width: 90rem;
+  max-width: var(--content-w);
+  margin-inline: auto;
 }
 
 .head {
@@ -9,7 +11,7 @@
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--sp-4);
+  gap: var(--sp-4) var(--sp-5);
 }
 
 .head p {
@@ -21,29 +23,28 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--sp-3) var(--sp-5);
+  gap: var(--sp-3) var(--sp-4);
 }
 
 .attribution {
   color: var(--text-3);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
 }
 
 .date {
   display: grid;
   gap: var(--sp-1);
-  color: var(--text-2);
-  font-size: var(--fs-sm);
+}
+
+.date span {
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .date select {
   min-width: 11rem;
-  padding: var(--sp-2) var(--sp-3);
-  font: inherit;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
 }
 
 .provenance {
@@ -54,4 +55,16 @@
 
 .hint {
   color: var(--text-2);
+}
+
+@media (max-width: 700px) {
+  .head,
+  .controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .date select {
+    width: 100%;
+  }
 }

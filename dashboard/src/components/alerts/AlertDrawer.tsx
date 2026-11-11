@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { lazy, type ReactNode, Suspense, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { ApiError } from '../../data/api'
 import { queryKeys, useCell, useCellHistory, useGrid, useMode, usePlaces } from '../../data/hooks'
 import { describeCertainty, forecastShortName, sourceName } from '../../data/certainty'
@@ -104,7 +105,7 @@ function LevelSection({
         {isCapped && <span className={styles.muted}>{MODEL_ESTIMATE}</span>}
         <span className={`num ${styles.riskBig}`}>{risk.primary}</span>
         {risk.secondary && (
-          <span className={`num ${styles.muted}`}>
+          <span className={styles.muted}>
             {risk.secondary}
             {isCapped && `, ${MODEL_ESTIMATE}`}
           </span>
@@ -210,14 +211,14 @@ function SourcesSection({ detail }: { detail: CellDetail }) {
         {rows.map((row) => (
           <div key={row.key}>
             <dt>{row.label}</dt>
-            <dd className="num">
+            <dd>
               {row.value === null ? (
                 <>
                   <span>not available</span> <span className={styles.muted}>{row.missing}.</span>
                 </>
               ) : (
                 <>
-                  {row.value.toLocaleString('en-US', { maximumFractionDigits: 1 })} mm{' '}
+                  <span className="num">{row.value.toLocaleString('en-US', { maximumFractionDigits: 1 })} mm</span>{' '}
                   <span className={styles.muted}>{row.detail}.</span>
                 </>
               )}
@@ -238,8 +239,8 @@ function SourcesSection({ detail }: { detail: CellDetail }) {
           detail.forecastRain?.days.map((day) => (
             <div key={day.date}>
               <dt>{forecastShortName(detail.forecastSource)} {formatWeekday(day.date)}</dt>
-              <dd className="num">
-                {day.mm === null ? 'not available' : `${day.mm.toLocaleString('en-US', { maximumFractionDigits: 1 })} mm`}{' '}
+              <dd>
+                {day.mm === null ? 'not available' : <span className="num">{day.mm.toLocaleString('en-US', { maximumFractionDigits: 1 })} mm</span>}{' '}
                 <span className={styles.muted}>forecast D+{day.lead}.</span>
               </dd>
             </div>
@@ -247,14 +248,18 @@ function SourcesSection({ detail }: { detail: CellDetail }) {
         {spread1day !== null && (
           <div>
             <dt>Spread</dt>
-            <dd className="num">{spread1day.toLocaleString('en-US', { maximumFractionDigits: 1 })} mm between the highest and lowest source</dd>
+            <dd>
+              <span className="num">{spread1day.toLocaleString('en-US', { maximumFractionDigits: 1 })} mm</span>{' '}
+              <span className={styles.muted}>between the highest and lowest source</span>
+            </dd>
           </div>
         )}
         {disagreement3 !== null && (
           <div>
             <dt>3-day ratio</dt>
-            <dd className="num">
-              {disagreement3.toLocaleString('en-US', { maximumFractionDigits: 2 })} <span className={styles.muted}>IMD over satellite</span>
+            <dd>
+              <span className="num">{disagreement3.toLocaleString('en-US', { maximumFractionDigits: 2 })}</span>{' '}
+              <span className={styles.muted}>IMD over satellite</span>
             </dd>
           </div>
         )}
@@ -426,7 +431,8 @@ export default function AlertDrawer({
     )
   }
 
-  return (
+  // Portalled to the body: inside the view the top bar (a sibling with a higher layer) would cover the sheet's header.
+  return createPortal(
     <div className={styles.layer}>
       <div className={styles.scrim} onClick={onClose} aria-hidden="true" />
       <aside ref={panel} className={styles.panel} role="dialog" aria-modal="true" aria-labelledby="drawer-title" data-testid="alert-drawer">
@@ -437,7 +443,7 @@ export default function AlertDrawer({
               {lead > 0 && <CertaintyBadge detail={detail.data} />}
             </p>
             <h2 id="drawer-title">{cell === null ? 'Unknown cell' : label ? where!.primary : `Cell ${cell}`}</h2>
-            <p className={`num ${styles.muted}`}>
+            <p className={styles.muted}>
               {[
                 label && cell !== null ? `Cell ${cell}` : null,
                 label ? where!.secondary : where?.primary,
@@ -446,7 +452,7 @@ export default function AlertDrawer({
                 .filter(Boolean)
                 .join(' · ')}
             </p>
-            <p className={`num ${styles.when}`}>
+            <p className={styles.when}>
               {lead > 0 && target && date
                 ? `Forecast for ${formatWeekday(target)} (D+${lead}), issued ${formatDayMonth(date)}`
                 : date
@@ -455,8 +461,8 @@ export default function AlertDrawer({
             </p>
           </div>
           <button type="button" className={styles.close} onClick={onClose} aria-label="Close alert details">
-            <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-              <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6 6 18" />
             </svg>
           </button>
         </header>
@@ -468,6 +474,7 @@ export default function AlertDrawer({
         )}
         <div className={styles.body}>{body}</div>
       </aside>
-    </div>
+    </div>,
+    document.body,
   )
 }

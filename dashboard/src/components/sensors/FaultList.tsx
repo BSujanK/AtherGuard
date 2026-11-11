@@ -76,9 +76,20 @@ export default function FaultList({ stations, date, onActive }: FaultListProps) 
           >
             <button type="button" className={styles.sort} onClick={() => toggle(key)}>
               {label}
-              <span className={styles.arrow} aria-hidden="true">
-                {sort.key === key ? (sort.dir === 'asc' ? '▲' : '▼') : ''}
-              </span>
+              <svg
+                className={styles.arrow}
+                data-dir={sort.key === key ? sort.dir : undefined}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.75}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="m6 15 6-6 6 6" />
+              </svg>
             </button>
           </div>
         ))}
@@ -113,7 +124,7 @@ export default function FaultList({ stations, date, onActive }: FaultListProps) 
                 <span className={styles.id}>{s.station}</span>
               </div>
               <div role="cell">
-                {faultName(s)}
+                <span className={styles.tag}>{faultName(s)}</span>
                 {s.genuineExtreme && <span className={styles.id}>Genuine extreme rain</span>}
               </div>
               <div role="cell" className="num">

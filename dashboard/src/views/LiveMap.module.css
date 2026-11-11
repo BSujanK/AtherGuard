@@ -5,7 +5,6 @@
 .root {
   position: relative;
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
   gap: var(--sp-4);
   height: 100%;
@@ -14,12 +13,13 @@
 
 .bottom {
   display: grid;
-  justify-items: end;
-  gap: var(--sp-2);
+  align-content: start;
+  gap: var(--sp-3);
   align-self: flex-end;
-  width: min(22rem, 100%);
+  width: 22rem;
   max-height: 100%;
   overflow: auto;
+  scrollbar-width: none;
   pointer-events: none;
 }
 
@@ -28,23 +28,51 @@
   z-index: 1;
   display: grid;
   gap: var(--sp-2);
-  width: min(22rem, 100%);
   padding: var(--sp-3) var(--sp-4);
-  background: color-mix(in srgb, var(--surface) 94%, transparent);
-  border: 1px solid var(--neon-cyan);
-  border-radius: var(--radius);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid color-mix(in srgb, var(--neon-cyan) 45%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
   font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--text-2);
   pointer-events: auto;
 }
 
 .notices button {
   display: block;
   margin-top: var(--sp-2);
-  padding: var(--sp-1) var(--sp-3);
-  font-weight: 700;
+  padding: 0 var(--sp-3);
+  min-height: 1.75rem;
+  font-size: var(--fs-sm);
+  font-weight: 650;
   color: var(--text-on-accent);
   background: var(--neon-cyan);
   border: 0;
-  border-radius: var(--radius);
-  cursor: pointer;
+  border-radius: 999px;
+  transition:
+    filter var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
+}
+
+.notices button:hover {
+  filter: brightness(1.12);
+}
+
+.notices button:active {
+  transform: scale(0.97);
+}
+
+/* Narrow: the controls become a strip across the top and the stack a bottom sheet, so the map keeps the middle. */
+@media (max-width: 1099px) {
+  .root {
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .bottom {
+    width: 100%;
+    max-height: 46%;
+  }
 }

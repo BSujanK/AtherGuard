@@ -15,8 +15,9 @@ export const PALETTE = {
 } as const
 
 export const THEME_NAME = 'aetherguard'
-export const FONT_UI = "Satoshi, system-ui, -apple-system, 'Segoe UI', sans-serif"
-export const FONT_DISPLAY = "'Clash Display', Satoshi, system-ui, sans-serif"
+export const FONT_UI = "Archivo, system-ui, -apple-system, 'Segoe UI', sans-serif"
+export const FONT_DATA = "'Geist Mono', ui-monospace, Consolas, monospace"
+export const FONT_DISPLAY = "Archivo, system-ui, -apple-system, 'Segoe UI', sans-serif"
 
 export type Rgb = readonly [number, number, number]
 
@@ -44,7 +45,7 @@ export const tint = (color: string, alpha: number): string => mixHex(PALETTE.ink
 export const TEXT = PALETTE.cloud
 export const TEXT_2 = tint(PALETTE.cloud, 0.78)
 export const TEXT_3 = tint(PALETTE.cloud, 0.62)
-export const GRID_LINE = mixHex(PALETTE.ink, PALETTE.blue, 0.3)
+export const GRID_LINE = mixHex(PALETTE.ink, PALETTE.blue, 0.2)
 export const AXIS_LINE = mixHex(PALETTE.ink, PALETTE.blue, 0.6)
 export const SURFACE = mixHex(PALETTE.ink, PALETTE.blue, 0.1)
 export const SURFACE_RAISED = mixHex(PALETTE.ink, PALETTE.blue, 0.16)
@@ -69,6 +70,9 @@ const axisCommon = {
   splitLine: { lineStyle: { color: GRID_LINE } },
 }
 
+/** Value, log and time axes carry numbers, so their labels are set in the data face. */
+const numericAxis = { ...axisCommon, axisLabel: { ...axisCommon.axisLabel, fontFamily: FONT_DATA, fontSize: 11 } }
+
 export const aetherguardTheme = {
   color: [...SERIES_COLORS],
   backgroundColor: 'transparent',
@@ -76,16 +80,17 @@ export const aetherguardTheme = {
   title: { textStyle: { color: TEXT, fontFamily: FONT_DISPLAY } },
   legend: { textStyle: { color: TEXT_2, fontFamily: FONT_UI, fontSize: 12 } },
   categoryAxis: { ...axisCommon, splitLine: { show: false } },
-  valueAxis: axisCommon,
-  logAxis: axisCommon,
-  timeAxis: axisCommon,
+  valueAxis: numericAxis,
+  logAxis: numericAxis,
+  timeAxis: numericAxis,
   line: { lineStyle: { width: 2 }, symbolSize: 7 },
   bar: { barMaxWidth: 18 },
   tooltip: {
     backgroundColor: SURFACE_RAISED,
     borderColor: AXIS_LINE,
     borderWidth: 1,
-    padding: [8, 10],
+    padding: [8, 12],
+    extraCssText: 'border-radius: 10px;',
     textStyle: { color: TEXT, fontFamily: FONT_UI, fontSize: 13 },
     axisPointer: { lineStyle: { color: AXIS_LINE }, crossStyle: { color: AXIS_LINE } },
   },

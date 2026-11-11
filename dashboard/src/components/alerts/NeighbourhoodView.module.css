@@ -1,7 +1,7 @@
 .view {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-4);
+  gap: var(--sp-5);
   align-items: flex-start;
 }
 
@@ -10,7 +10,7 @@
   width: 260px;
   height: 260px;
   max-width: 100%;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
 }
@@ -42,19 +42,21 @@
 .legend i,
 .nearby i {
   flex: none;
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 2px;
-  box-shadow: inset 0 0 0 1px var(--border-strong);
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
 }
 
 .unscored {
-  background: var(--ink-black);
+  box-sizing: border-box;
+  border: 1.5px solid var(--text-3);
 }
 
 .note {
-  color: var(--text-2);
-  font-size: var(--fs-sm);
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .nearby button {
@@ -63,14 +65,22 @@
   gap: var(--sp-2);
   width: 100%;
   padding: var(--sp-1) var(--sp-2);
+  color: var(--text-2);
   text-align: left;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--radius);
-  cursor: pointer;
+  border: 0;
+  border-radius: var(--radius-sm);
+  transition:
+    background var(--dur-quick) var(--ease-out),
+    color var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
 }
 
 .nearby button:hover {
+  color: var(--text);
   background: var(--surface-raised);
-  border-color: var(--border-strong);
+}
+
+.nearby button:active {
+  transform: scale(0.98);
 }

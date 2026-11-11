@@ -210,7 +210,7 @@ export default function GaugeMap({ stations, terrain, highlight = null }: GaugeM
           Flagged
         </span>
         {outside > 0 && (
-          <span className={styles.outside}>
+          <span>
             {outside} {outside === 1 ? 'gauge' : 'gauges'} outside the mapped area not drawn
           </span>
         )}

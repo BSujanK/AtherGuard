@@ -16,6 +16,9 @@ import EmptyState from '../EmptyState'
 import styles from './SourceHealth.module.css'
 import { useUpdateFlash } from './useUpdateFlash'
 
+/** Outlasts the row's bloom animation, so the next update can bloom again. */
+const ROW_FLASH_MS = 800
+
 const STATUS_LABEL: Record<Health, string> = { ok: 'OK', late: 'Late', failed: 'Failed', unknown: 'Unknown' }
 
 function StatusBadge({ status }: { status: Health }) {
@@ -29,8 +32,9 @@ function StatusBadge({ status }: { status: Health }) {
 
 function Row({ row }: { row: SourceRow }) {
   const { record, status } = row
+  const flashing = useUpdateFlash(JSON.stringify([status, record]), ROW_FLASH_MS)
   return (
-    <tr data-source={row.key} data-status={status}>
+    <tr data-source={row.key} data-status={status} data-flash={flashing}>
       <th scope="row">
         <span className={styles.name}>{row.label}</span>
         {record?.error && (
@@ -121,33 +125,37 @@ export default function SourceHealth() {
           Live updates are paused while the connection is restored. These figures may be out of date.
         </p>
       )}
-      <table className={styles.table}>
-        <caption className="sr-only">Freshness of each data source in the newest run. Times are in IST.</caption>
-        <thead>
-          <tr>
-            <th scope="col">Source</th>
-            <th scope="col">Status</th>
-            <th scope="col">Last success</th>
-            <th scope="col">Valid through</th>
-            <th scope="col">Latency (h)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <Row key={row.key} row={row} />
-          ))}
-        </tbody>
-      </table>
-      {status.run.rainProvenance.length > 0 && (
-        <p className={styles.foot} data-testid="rain-provenance">
-          Rain provenance:{' '}
-          {status.run.rainProvenance.map((p) => `${p.day} from ${p.product.split('+').join(' + ')}`).join('; ')}.
+      <div className={styles.scroll}>
+        <table className={styles.table}>
+          <caption className="sr-only">Freshness of each data source in the newest run. Times are in IST.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Source</th>
+              <th scope="col">Status</th>
+              <th scope="col">Last success</th>
+              <th scope="col">Valid through</th>
+              <th scope="col">Latency (h)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <Row key={row.key} row={row} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className={styles.notes}>
+        {status.run.rainProvenance.length > 0 && (
+          <p className={styles.foot} data-testid="rain-provenance">
+            Rain provenance:{' '}
+            {status.run.rainProvenance.map((p) => `${p.day} from ${p.product.split('+').join(' + ')}`).join('; ')}.
+          </p>
+        )}
+        <p className={styles.foot}>
+          Times in IST. Status is the verdict the daily run recorded; without one, late means slower than the measured
+          median plus one hour.
         </p>
-      )}
-      <p className={styles.foot}>
-        Times in IST. Status is the verdict the daily run recorded; without one, late means slower than the measured
-        median plus one hour.
-      </p>
+      </div>
     </div>
   )
 }

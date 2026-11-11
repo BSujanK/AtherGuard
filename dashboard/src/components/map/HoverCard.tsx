@@ -83,9 +83,9 @@ export default function HoverCard({ grid }: { grid: Grid | undefined }) {
         </div>
         <div>
           <dt>Risk</dt>
-          <dd className="num" title={info.risk.raw}>
+          <dd className={`num ${styles.hoverRisk}`} title={info.risk.raw}>
             {info.odds && <strong className={styles.hoverOdds}>{info.odds.sentence}</strong>}
-            {info.capped && <span className={styles.hoverSub}>{MODEL_ESTIMATE}</span>}
+            {info.capped && <span className={`${styles.hoverSub} ${styles.hoverProse}`}>{MODEL_ESTIMATE}</span>}
             {info.risk.primary}
             {info.risk.secondary && <span className={styles.hoverSub}>{info.risk.secondary}</span>}
           </dd>

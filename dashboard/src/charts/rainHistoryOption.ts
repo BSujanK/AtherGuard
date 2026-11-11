@@ -2,7 +2,7 @@ import { formatDayMonth } from '../data/summary'
 import type { CellHistory } from '../data/types'
 import type { ChartOption } from './EChart'
 import { SOURCE_COLORS } from './sourcesOption'
-import { TEXT_2 } from './theme'
+import { TEXT_2, TEXT_3 } from './theme'
 
 /** The satellite slot of the alert table is IMERG in live runs and CHIRPS in the replay sets. */
 export const satelliteName = (set: string): string => (set === 'live' ? 'IMERG' : 'CHIRPS')
@@ -21,8 +21,8 @@ export function buildRainHistoryOption(history: CellHistory): ChartOption {
     data: values.map((v) => (v === null ? '-' : Number(v.toFixed(1)))),
   })
   return {
-    grid: { left: 52, right: 16, top: 40, bottom: 28 },
-    legend: { top: 0, icon: 'roundRect', itemWidth: 14, itemHeight: 4, textStyle: { color: TEXT_2 } },
+    grid: { left: 56, right: 16, top: 44, bottom: 32 },
+    legend: { top: 0, icon: 'roundRect', itemWidth: 14, itemHeight: 4, textStyle: { color: TEXT_2, fontSize: 12 } },
     tooltip: {
       trigger: 'axis',
       formatter: (items: { axisValue: string; marker: string; seriesName: string; value: number | string }[]) =>
@@ -31,8 +31,8 @@ export function buildRainHistoryOption(history: CellHistory): ChartOption {
           .map((i) => `${i.marker} ${esc(i.seriesName)}: ${typeof i.value === 'number' ? `${i.value} mm` : 'not available'}`)
           .join('<br/>'),
     },
-    xAxis: { type: 'category', data: history.dates.map(formatDayMonth), boundaryGap: false },
-    yAxis: { type: 'value', name: 'mm/day', min: 0 },
+    xAxis: { type: 'category', data: history.dates.map(formatDayMonth), boundaryGap: false, axisLabel: { color: TEXT_3, fontSize: 11 } },
+    yAxis: { type: 'value', name: 'mm/day', min: 0, axisLabel: { color: TEXT_3, fontSize: 11 }, nameTextStyle: { color: TEXT_3, fontSize: 11 } },
     series: [
       line('IMD', SOURCE_COLORS.imd, 'circle', history.rain.imd),
       line(satelliteName(history.set), SOURCE_COLORS.satellite, 'rect', history.rain.satellite),

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { type ReactNode, useMemo } from 'react'
 import { countCodes } from '../data/api'
 import { useGrid, useMode } from '../data/hooks'
 import { formatCount, formatDate, formatNextRun, modeLabel } from '../data/summary'
@@ -11,7 +11,8 @@ const NO_SCORES_BELOW = 0.5
 
 const LEVEL_CLASS = ['normal', 'watch', 'warning', 'emergency'] as const
 
-export default function StatusStrip() {
+/** The top bar: brand and navigation (passed in), the data status, and under it the day's cell counts. */
+export default function StatusStrip({ children }: { children?: ReactNode }) {
   const mode = useMode()
   const latest = mode.data?.latest_date
   const grid = useGrid(mode.data?.mode === 'none' ? null : latest, 0)
@@ -29,7 +30,9 @@ export default function StatusStrip() {
 
   return (
     <header className={styles.strip} aria-label="Data status">
-      <div className={styles.group}>
+      <div className={styles.bar}>
+        {children}
+        <div className={styles.status}>
         <span className={styles.mode} data-mode={badge}>
           <span className={styles.dot} aria-hidden="true" />
           <strong>{mode.isError ? 'API unreachable' : data ? modeLabel(data.mode) : 'Loading'}</strong>
@@ -50,6 +53,7 @@ export default function StatusStrip() {
             Reconnecting to live updates
           </span>
         )}
+        </div>
       </div>
 
       {unscored && (
@@ -60,7 +64,10 @@ export default function StatusStrip() {
       )}
 
       {levels && confidences && (
-        <div className={styles.group}>
+        <div className={styles.ledger}>
+          <span className={styles.ledgerLabel} aria-hidden="true">
+            Cells
+          </span>
           <ul className={styles.counts} aria-label="Cells by risk level">
             {LEVELS.map((name, i) => (
               <li key={name} className={styles.count}>
@@ -69,6 +76,9 @@ export default function StatusStrip() {
               </li>
             ))}
           </ul>
+          <span className={`${styles.ledgerLabel} ${styles.split}`} aria-hidden="true">
+            Confidence
+          </span>
           <ul className={styles.counts} aria-label="Cells by confidence">
             {CONFIDENCES.map((name, i) => (
               <li key={name} className={styles.count}>

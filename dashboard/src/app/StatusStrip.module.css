@@ -1,39 +1,48 @@
 .strip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-2) var(--sp-6);
-  min-height: 3.75rem;
-  padding: var(--sp-3) var(--sp-5);
-  background: color-mix(in srgb, var(--ink-black) 92%, transparent);
-  border-bottom: 1px solid var(--border);
-  font-size: var(--fs-sm);
+  background: color-mix(in srgb, var(--ink-black) 80%, transparent);
+  backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--hairline);
 }
 
-.group {
+/* Row one: brand, the three views, and on the right what the data is and how fresh. */
+.bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--sp-2) var(--sp-5);
+  gap: var(--sp-2) var(--sp-6);
+  min-height: 3.5rem;
+  padding: var(--sp-2) var(--gutter);
+}
+
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-5);
+  margin-left: auto;
+  font-size: var(--fs-sm);
 }
 
 .mode {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  font-size: var(--fs-base);
+  height: 1.75rem;
+  padding: 0 var(--sp-3) 0 var(--sp-2);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border);
 }
 
 .mode strong {
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .dot {
-  width: 0.625rem;
-  height: 0.625rem;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 50%;
-  border: 2px solid var(--text-2);
+  border: 1.5px solid var(--text-2);
   background: transparent;
 }
 
@@ -59,32 +68,61 @@
 }
 
 .fact {
-  color: var(--text-2);
+  color: var(--text-3);
+  white-space: nowrap;
 }
 
 .fact b {
+  margin-left: var(--sp-1);
   color: var(--text);
   font-weight: 500;
 }
 
 .reconnecting {
   color: var(--warn);
+  font-weight: 600;
+}
+
+/* A day without scores is the one thing the bar raises its voice for: a full-width band in the warning hue. */
+.notice {
+  margin: 0;
+  padding: var(--sp-2) var(--gutter);
+  background: color-mix(in srgb, var(--flame-orange) 16%, var(--ink-black));
+  border-top: 1px solid color-mix(in srgb, var(--flame-orange) 55%, transparent);
+  color: var(--text);
+  font-size: var(--fs-sm);
   font-weight: 500;
 }
 
-.notice {
-  flex-basis: 100%;
-  margin: 0;
-  padding: var(--sp-2) var(--sp-3);
-  border-left: 3px solid var(--warn);
-  color: var(--text);
+/* Row two: the day in seven numbers. Quiet labels, loud figures. */
+.ledger {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+  min-height: 2.25rem;
+  padding: var(--sp-1) var(--gutter);
+  border-top: 1px solid var(--hairline);
+  font-size: var(--fs-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.ledgerLabel {
+  color: var(--text-3);
+  font-size: var(--fs-xs);
   font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.split {
+  margin-left: auto;
+  padding-left: var(--sp-5);
 }
 
 .counts {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-1) var(--sp-4);
+  gap: var(--sp-5);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -92,21 +130,22 @@
 
 .count {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--sp-2);
   color: var(--text-2);
 }
 
-.count .num {
+.count :global(.num) {
   color: var(--text);
-  font-weight: 700;
+  font-weight: 600;
   margin-right: calc(var(--sp-1) * -1);
 }
 
 .swatch {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 2px;
+  align-self: center;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
 }
 
 .swatch[data-level='normal'] {
@@ -133,5 +172,15 @@
   }
   60% {
     box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+@media (max-width: 900px) {
+  .status {
+    margin-left: 0;
+  }
+
+  .split {
+    margin-left: 0;
   }
 }

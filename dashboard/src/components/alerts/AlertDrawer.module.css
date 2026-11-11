@@ -9,19 +9,21 @@
 .scrim {
   position: absolute;
   inset: 0;
-  background: color-mix(in srgb, var(--ink-black) 62%, transparent);
+  background: color-mix(in srgb, var(--ink-black) 55%, transparent);
   animation: fade var(--dur-base) var(--ease-out);
 }
 
+/* The sheet: glass over the feed. The header and the lead bar stay put; only the body scrolls. */
 .panel {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(42rem, 100%);
+  width: min(36rem, 100%);
   height: 100%;
-  background: var(--surface-sunken);
-  border-left: 1px solid var(--border-strong);
-  box-shadow: -1.5rem 0 3rem color-mix(in srgb, var(--ink-black) 70%, transparent);
+  background: color-mix(in srgb, var(--ink-black) 90%, transparent);
+  backdrop-filter: var(--glass-blur);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-2);
   animation: slide var(--dur-base) var(--ease-out);
 }
 
@@ -31,16 +33,8 @@
   justify-content: space-between;
   gap: var(--sp-4);
   padding: var(--sp-5) var(--sp-5) var(--sp-4);
-  border-bottom: 1px solid var(--border-strong);
-}
-
-.leadBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2) var(--sp-4);
-  padding: var(--sp-3) var(--sp-5);
-  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--hairline);
 }
 
 .headText {
@@ -49,109 +43,168 @@
   min-width: 0;
 }
 
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
 .badge {
-  margin-left: var(--sp-3);
   padding: 0 var(--sp-2);
   color: var(--text-on-accent);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
+  font-weight: 600;
   letter-spacing: 0;
-  text-transform: none;
   background: var(--neon-lime);
   border-radius: 999px;
 }
 
-.when {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.notice {
-  padding: var(--sp-3) var(--sp-4);
-  color: var(--text);
-  font-size: var(--fs-sm);
-  background: var(--surface);
-  border: 1px solid var(--warn);
-  border-radius: var(--radius);
-}
-
-.kicker {
-  color: var(--neon-cyan);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.badge[data-certainty='depends'] {
+  background: var(--warn);
 }
 
 .head h2 {
-  margin: var(--sp-1) 0;
+  margin: 0;
+}
+
+.when {
+  color: var(--text-2);
+  font-size: var(--fs-sm);
 }
 
 .close {
   display: grid;
   flex: none;
   place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  cursor: pointer;
-  color: var(--text);
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--text-2);
   background: transparent;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  transition:
+    background var(--dur-quick) var(--ease-out),
+    color var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
 }
 
 .close:hover {
+  color: var(--text);
   background: var(--surface-raised);
 }
 
-.body {
-  display: grid;
-  flex: 1;
-  gap: var(--sp-5);
-  align-content: start;
-  min-height: 0;
-  padding: var(--sp-5);
-  overflow-y: auto;
+.close:active {
+  transform: scale(0.94);
 }
 
+.leadBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+  padding: var(--sp-3) var(--sp-5);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.leadBar .muted {
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--sp-5) var(--sp-5) var(--sp-7);
+  overflow-y: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sections are separated by space and a hairline, never boxed. */
 .section {
   display: grid;
   gap: var(--sp-3);
   min-width: 0;
-  padding-bottom: var(--sp-5);
-  border-bottom: 1px solid var(--border);
+  padding-block: var(--sp-5);
+  border-top: 1px solid var(--hairline);
+}
+
+.section:first-child {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .section:last-child {
-  border-bottom: 0;
+  padding-bottom: 0;
 }
 
 .section h3 {
-  font-size: var(--fs-md);
+  margin-bottom: var(--sp-1);
 }
 
 .muted,
 .hint {
+  max-width: 62ch;
   color: var(--text-2);
   font-size: var(--fs-sm);
 }
 
+.notice {
+  margin-bottom: var(--sp-5);
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border-radius: var(--radius);
+}
+
+/* The loud facts: level, certainty, the odds line and the probability. */
 .levelLine {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--sp-2) var(--sp-3);
+  gap: var(--sp-1) var(--sp-3);
 }
 
 .levelLine i {
-  width: 0.9rem;
-  height: 0.9rem;
-  border-radius: 2px;
-  box-shadow: inset 0 0 0 1px var(--border-strong);
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
 }
 
 .levelLine strong {
   font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
   font-size: var(--fs-lg);
+  font-weight: 650;
+  line-height: var(--lh-tight);
+}
+
+.certainty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+  margin: 0;
+}
+
+.certainty strong {
+  font-weight: 600;
+}
+
+.certainty[data-certainty='firm'] strong {
+  color: var(--neon-lime);
+}
+
+.oddsLine {
+  margin: 0;
+  font-size: var(--fs-md);
   font-weight: 600;
 }
 
@@ -162,15 +215,23 @@
   gap: var(--sp-1) var(--sp-3);
 }
 
-.riskBig {
-  font-family: var(--font-display);
-  font-size: var(--fs-lg);
+.riskLine .riskBig {
+  font-family: var(--font-ui);
+  font-size: var(--fs-md);
   font-weight: 600;
 }
 
+.capped {
+  margin: 0;
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border-radius: var(--radius);
+}
+
+/* Reason codes: a row each, a label over its explanation. */
 .codes {
   display: grid;
-  gap: var(--sp-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -179,13 +240,19 @@
 .codes li {
   display: grid;
   gap: 2px;
-  padding: var(--sp-2) var(--sp-3);
-  background: var(--surface);
-  border-left: 3px solid var(--neon-cyan);
-  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: var(--sp-3) 0;
+}
+
+.codes li + li {
+  border-top: 1px solid var(--hairline);
+}
+
+.codes strong {
+  font-weight: 600;
 }
 
 .codes span {
+  max-width: 62ch;
   color: var(--text-2);
   font-size: var(--fs-sm);
 }
@@ -194,11 +261,12 @@
   display: grid;
   gap: var(--sp-2);
   margin: 0;
+  font-size: var(--fs-sm);
 }
 
 .facts div {
   display: grid;
-  grid-template-columns: 6rem minmax(0, 1fr);
+  grid-template-columns: 7rem minmax(0, 1fr);
   gap: var(--sp-3);
 }
 
@@ -210,9 +278,29 @@
   margin: 0;
 }
 
+.facts dd .num {
+  font-weight: 600;
+}
+
+/* The charts get air above and below, so their axes do not crowd the prose. */
+.section > div[role='img'] {
+  margin-block: var(--sp-2);
+}
+
+@media (max-width: 700px) {
+  .head,
+  .leadBar {
+    padding-inline: var(--sp-4);
+  }
+
+  .body {
+    padding-inline: var(--sp-4);
+  }
+}
+
 @keyframes slide {
   from {
-    transform: translateX(2.5rem);
+    transform: translateX(24px);
     opacity: 0;
   }
 
@@ -230,34 +318,4 @@
   to {
     opacity: 1;
   }
-}
-
-.badge[data-certainty='depends'] {
-  background: var(--warn);
-}
-
-.capped {
-  margin: 0;
-  padding: var(--sp-2) var(--sp-3);
-  border-left: 3px solid var(--warn);
-  background: color-mix(in srgb, var(--ink-black) 60%, transparent);
-  font-size: var(--fs-sm);
-}
-
-.certainty {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--sp-1) var(--sp-3);
-  margin: 0;
-}
-
-.certainty[data-certainty='firm'] strong {
-  color: var(--neon-lime);
-}
-
-.oddsLine {
-  margin: 0;
-  font-size: var(--fs-md);
-  font-weight: 600;
 }

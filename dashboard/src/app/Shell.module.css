@@ -1,16 +1,15 @@
 .app {
   position: relative;
   height: 100%;
-  display: grid;
-  grid-template-columns: var(--rail-w) minmax(0, 1fr);
   overflow: hidden;
 }
 
+/* Away from the map the terrain steps back so text sits on near-ink. */
 .scrim {
   position: fixed;
   inset: 0;
   z-index: 1;
-  background: color-mix(in srgb, var(--ink-black) 84%, transparent);
+  background: color-mix(in srgb, var(--ink-black) 86%, transparent);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--dur-slow) var(--ease-out);
@@ -20,96 +19,119 @@
   opacity: 1;
 }
 
-.rail {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-6);
-  padding: var(--sp-5) var(--sp-3);
-  background: color-mix(in srgb, var(--ink-black) 94%, transparent);
-  border-right: 1px solid var(--border);
-}
-
-.brand {
-  padding: 0 var(--sp-3);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--fs-lg);
-  letter-spacing: -0.01em;
-  word-spacing: 0.12em;
-  color: var(--text);
-}
-
-.nav {
-  display: grid;
-  gap: var(--sp-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.link {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  padding: var(--sp-3);
-  border-radius: var(--radius);
-  color: var(--text-2);
-  text-decoration: none;
-  font-weight: 500;
-  transition:
-    background var(--dur-quick) var(--ease-out),
-    color var(--dur-quick) var(--ease-out);
-}
-
-.link:hover {
-  background: var(--surface-sunken);
-  color: var(--text);
-}
-
-.link svg {
-  flex: none;
-}
-
-.active {
-  background: var(--surface);
-  color: var(--text);
-}
-
-.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 22%;
-  bottom: 22%;
-  width: 3px;
-  border-radius: 0 2px 2px 0;
-  background: var(--neon-cyan);
-}
-
-.active svg {
-  color: var(--neon-cyan);
-}
-
 .column {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
+  height: 100%;
   min-width: 0;
-  min-height: 0;
+}
+
+.top {
+  position: relative;
+  z-index: 3;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 750;
+  font-size: var(--fs-md);
+  letter-spacing: -0.01em;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.brand svg {
+  flex: none;
+  color: var(--neon-cyan);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 2.25rem;
+  padding: 0 var(--sp-3);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--dur-quick) var(--ease-out);
+}
+
+/* Hover is a faint wash under the label; the solid pill belongs to the open view alone. */
+.link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--surface);
+  opacity: 0;
+  transition: opacity var(--dur-quick) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--text);
+}
+
+.link:hover::before {
+  opacity: 1;
+}
+
+.link:active svg,
+.link:active span:last-child {
+  transform: translateY(1px);
+}
+
+.link svg,
+.link span:last-child {
+  position: relative;
+  flex: none;
+  transition:
+    color var(--dur-quick) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
+}
+
+.link[aria-current='page'] {
+  color: var(--text);
+}
+
+.link[aria-current='page'] svg {
+  color: var(--neon-cyan);
+}
+
+.pill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  box-shadow:
+    inset 0 0 0 1px var(--border),
+    var(--shadow-1);
 }
 
 .main {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: var(--sp-5);
+  padding: var(--sp-5) var(--gutter) var(--sp-6);
+  scrollbar-gutter: stable;
 }
 
-/* On the map the canvas behind is interactive: the column lets the pointer through to it, and only the status strip takes it back. */
+/* On the map the canvas behind is interactive: the column lets the pointer through to it, and only the bar takes it back. */
 .column:has(> .main[data-map='true']) {
   pointer-events: none;
 }
@@ -119,35 +141,26 @@
 }
 
 /* Views opt their panels back in. */
-.main[data-map="true"] {
+.main[data-map='true'] {
   pointer-events: none;
+  overflow: hidden;
+  padding: var(--sp-4) var(--gutter);
+  scrollbar-gutter: auto;
 }
 
-.main[data-map="true"] > * {
+.main[data-map='true'] > * {
   pointer-events: auto;
 }
 
 @media (max-width: 900px) {
-  .app {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr);
-  }
-
-  .rail {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--sp-4);
-    padding: var(--sp-2) var(--sp-3);
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-  }
-
   .nav {
-    grid-auto-flow: column;
+    order: 3;
+    flex-basis: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
-  .link span {
-    white-space: nowrap;
+  .main {
+    padding: var(--sp-4);
   }
 }

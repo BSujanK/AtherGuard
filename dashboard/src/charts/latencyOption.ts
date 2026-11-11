@@ -1,6 +1,6 @@
 import type { SourceRow } from '../data/sources'
 import type { ChartOption } from './EChart'
-import { mixHex, PALETTE, SERIES_COLORS, TEXT_2 } from './theme'
+import { FONT_DATA, mixHex, PALETTE, SERIES_COLORS, TEXT_2 } from './theme'
 
 /** One daily run: its date and how each source did. */
 export interface LatencyRun {
@@ -28,7 +28,7 @@ function barOption(run: LatencyRun): ChartOption {
       trigger: 'item',
       formatter: (p: { seriesName: string; name: string; value: number | string | [number, string] }) => {
         const [hours, label] = Array.isArray(p.value) ? p.value : [p.value, p.name]
-        return `${esc(label)}<br/>${esc(p.seriesName)}: ${hours} h`
+        return `${esc(label)}<br/>${esc(p.seriesName)}: <span style="font-family:${FONT_DATA}">${hours} h</span>`
       },
     },
     series: [
@@ -36,6 +36,7 @@ function barOption(run: LatencyRun): ChartOption {
         name: 'Latency',
         type: 'bar',
         barWidth: 12,
+        itemStyle: { borderRadius: [0, 3, 3, 0] },
         data: rows.map((r) => {
           const h = latencyOf(r)
           return h === null

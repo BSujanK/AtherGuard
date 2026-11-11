@@ -67,7 +67,7 @@ export function buildRiskTrendOption(history: CellHistory, thresholds: Threshold
     : []
   const hasForecast = points.some((p) => p.lead > 0)
   return {
-    grid: { left: 56, right: 76, top: 16, bottom: 28 },
+    grid: { left: 60, right: 76, top: 20, bottom: 32 },
     tooltip: {
       trigger: 'axis',
       formatter: (items: { dataIndex: number }[]) => {
@@ -78,10 +78,10 @@ export function buildRiskTrendOption(history: CellHistory, thresholds: Threshold
         return `${esc(p.date)}${kind}<br/>${level}<br/>${esc(describeRisk(p.risk, thresholds?.watch).primary)}`
       },
     },
-    xAxis: { type: 'category', data: points.map((p) => formatDayMonth(p.date)), boundaryGap: false },
+    xAxis: { type: 'category', data: points.map((p) => formatDayMonth(p.date)), boundaryGap: false, axisLabel: { color: TEXT_3, fontSize: 11 } },
     yAxis: bounds
-      ? { type: 'log', logBase: 10, name: 'per 100k', min: bounds.min, max: bounds.max }
-      : { type: 'value', name: 'per 100k', min: 0 },
+      ? { type: 'log', logBase: 10, name: 'per 100k', min: bounds.min, max: bounds.max, axisLabel: { color: TEXT_3, fontSize: 11 }, nameTextStyle: { color: TEXT_3, fontSize: 11 } }
+      : { type: 'value', name: 'per 100k', min: 0, axisLabel: { color: TEXT_3, fontSize: 11 }, nameTextStyle: { color: TEXT_3, fontSize: 11 } },
     series: [
       {
         name: 'Risk',
@@ -95,12 +95,12 @@ export function buildRiskTrendOption(history: CellHistory, thresholds: Threshold
           silent: true,
           symbol: 'none',
           lineStyle: { type: 'dashed', width: 1 },
-          label: { position: 'end', formatter: '{b}' },
+          label: { position: 'end', formatter: '{b}', fontSize: 11 },
           data: lines.map((l) => ({
             name: l.name,
             yAxis: l.value * RISK_SCALE,
             lineStyle: { color: l.color },
-            label: { color: l.color },
+            label: { color: l.color, fontSize: 11 },
           })),
         },
       },
