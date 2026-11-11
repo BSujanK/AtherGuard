@@ -31,14 +31,15 @@ def test_joining_twice_is_refused():
         vs.join_static(once, STATIC)
 
 
-def test_v4_static_is_v3_plus_the_eleven_unconstrained_inputs_and_nothing_else():
+def test_v4_static_is_v3_plus_the_nine_physical_unconstrained_inputs_and_nothing_else():
     study = vs.load_study()
     base = ["stat_slope_mean", "irain_acc_3", "irain_acc_7"]
     candidates = vs.make_candidates(study, base)
     c0, challenger = candidates["C0"], candidates["v4_static"]
     assert c0.columns == base
-    assert challenger.columns == [*base, *STATIC_COLUMNS]
-    assert challenger.constraints[:3] == c0.constraints and challenger.constraints[3:] == [0] * 11
+    assert challenger.columns == [*base, *vs.HAZARD_COLUMNS] and len(vs.HAZARD_COLUMNS) == 9
+    assert not {"road_density", "lc_built"} & set(challenger.columns)
+    assert challenger.constraints[:3] == c0.constraints and challenger.constraints[3:] == [0] * 9
     assert not c0.drop_implausible and not challenger.drop_implausible
 
 

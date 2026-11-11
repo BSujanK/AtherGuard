@@ -53,3 +53,36 @@ Nothing is tuned after a look. Adoption into the live run is a separate, reviewe
 
 `data/processed/features/static_w5/cell_static.parquet` and its report; `data/processed/hazard/v4_static/`,
 `data/processed/hazard/v4/`; `reports/phase7_static_susceptibility.{md,json}`.
+
+## 6. Amendment 2026-11-11 (after the development result, before any held-out look)
+
+Stage 1 with the eleven columns as declared: pooled OOF FA@90 0.1062 against 0.1955 for the v3 refit, difference
+-0.0894 [-0.1233, -0.0619]. A gain that size from static columns called for a breakdown before the one held-out look
+is spent. Development-only CV (v3's folds and seeds, no held-out data read) of v3 plus each subset:
+
+| v3 plus | pooled OOF FA@90 |
+|---|---|
+| nothing (the v3 refit) | 0.1955 |
+| all eleven | 0.1062 |
+| `road_density`, `lc_built` only | 0.1138 |
+| the five land-cover shares | 0.1154 |
+| the four natural land-cover shares (no `lc_built`) | 0.1699 |
+| `road_density` only | 0.1674 |
+| the three soil columns | 0.1793 |
+| the two steep shares | 0.1890 |
+| the nine columns other than `road_density` and `lc_built` | 0.1674 |
+
+Nearly all of the gain is `lc_built`. The catalogues place a slide where it was reported, which is where people and
+roads are, so built-up share and road density predict that a slide gets *recorded* in a cell at least as much as that
+the ground fails there. The held-out events carry the same bias, so a held-out look cannot tell the two apart and
+would reward the model for moving alerts toward settlements and away from unreported slopes. A hazard probability
+must not learn that.
+
+**Change, fixed now:** `road_density` and `lc_built` are exposure columns and are left out of the hazard model. They
+stay in the static table for a separate exposure layer (who is in harm's way), never as inputs to the risk. v4-static
+is v3-live plus the remaining nine columns, unconstrained; everything else in sections 3 and 4 is unchanged, and W6's
+v4 is the incumbent's inputs plus those nine if they pass stage 1. The nine-column number above was seen before this
+amendment was written, so the stage 1 rerun confirms it rather than tests it; the decision that matters is still the
+single held-out look of section 4. Known cost: road cuts are a real cause of slope failure in the Himalaya and that
+signal is given up with the reporting bias, because this data cannot separate them. The eleven-column result is kept
+as `data/processed/hazard/v4_static/dev_results_eleven.json`.

@@ -3,8 +3,8 @@
 
     python -m aetherguard.hazard.v4_static dev [--force]
 
-Cross-validates the v3-live refit (it must reproduce the frozen number) and v4-static = v3-live plus the eleven columns
-of the W5 static table, unconstrained, on the development years with v3's folds and seeds, and applies the pre-declared
+Cross-validates the v3-live refit (it must reproduce the frozen number) and v4-static = v3-live plus the nine physical
+columns of the W5 static table (the exposure pair is left out, spec amendment 2026-11-11), unconstrained, on the development years with v3's folds and seeds, and applies the pre-declared
 rule: the paired-bootstrap interval of pooled OOF FA@90(v4-static) - FA@90(C0) must have its lower bound at or below 0.
 The held-out set is not read here, and v4-static never takes a look of its own: a passing group goes into W6's v4.
 
@@ -35,6 +35,9 @@ from .jsonio import dump_json
 
 DEFAULT_CONFIG = PROJECT_ROOT / "configs" / "hazard_v4_static.yaml"
 GROUP = "static_w5"
+# Roads and built-up land mark where a slide gets reported, not where the ground fails (spec amendment 2026-11-11).
+EXPOSURE_COLUMNS = ("road_density", "lc_built")
+HAZARD_COLUMNS = [c for c in STATIC_COLUMNS if c not in EXPOSURE_COLUMNS]
 HEADLINE = ch.HEADLINE
 
 
@@ -80,7 +83,7 @@ def load_development(study: dict, features_dir: Path | None = None, static: pd.D
 
 
 def make_candidates(study: dict, base_columns) -> dict[str, vc.Candidate]:
-    """C0 (the frozen inputs and v3 constraints) and v4_static (C0 plus the eleven static inputs, unconstrained)."""
+    """C0 (the frozen inputs and v3 constraints) and v4_static (C0 plus the nine physical static inputs, unconstrained)."""
     clash = [c for c in STATIC_COLUMNS if c in base_columns]
     if clash:
         raise ValueError(f"{clash} are already inputs of the frozen model")
@@ -89,8 +92,8 @@ def make_candidates(study: dict, base_columns) -> dict[str, vc.Candidate]:
     constraints = hm.configured_constraints(c0, study["base"])
     return {
         reference: vc.Candidate(reference, study["candidates"][reference]["description"], c0, constraints, False),
-        challenger: vc.Candidate(challenger, study["candidates"][challenger]["description"], [*c0, *STATIC_COLUMNS],
-                                 [*constraints, *[0] * len(STATIC_COLUMNS)], False),
+        challenger: vc.Candidate(challenger, study["candidates"][challenger]["description"], [*c0, *HAZARD_COLUMNS],
+                                 [*constraints, *[0] * len(HAZARD_COLUMNS)], False),
     }
 
 
@@ -102,7 +105,7 @@ def run_dev(study: dict, features_dir: Path | None = None, say=print, force: boo
     selected = vc.frozen_selection(study)
     dev = load_development(study, features_dir)
     layout = cv.make_layout(dev, base["cv"]["folds"])
-    missing = {c: float(dev.universe[c].isna().mean()) for c in STATIC_COLUMNS}
+    missing = {c: float(dev.universe[c].isna().mean()) for c in HAZARD_COLUMNS}
     say(f"development rows: {len(layout.positives)} positives, {len(layout.negatives):,} universe negatives, "
         f"{len(layout.matched)} matched negatives; static NaN share of universe rows up to {max(missing.values()):.3f}")
     candidates = make_candidates(study, selected["columns"])
@@ -129,7 +132,7 @@ def run_dev(study: dict, features_dir: Path | None = None, say=print, force: boo
         model = vc.fit_final(candidates[challenger], dev, layout, results[challenger], base, v4.NO_KEYS, model_dir)
         model.card.update(protocol="v2 (year-blocked CV over 2007-2017); W5 static-susceptibility challenger, spec 2026-11-10",
                           description=f"W5 challenger {challenger}: {candidates[challenger].description}",
-                          static={"group": GROUP, "inputs": STATIC_COLUMNS, "constraints": "none"})
+                          static={"group": GROUP, "inputs": HAZARD_COLUMNS, "excluded": list(EXPOSURE_COLUMNS), "constraints": "none"})
         model.save(model_dir)
         say(f"refitted {challenger} -> {hm.display_path(model_dir)}")
     payload = {
