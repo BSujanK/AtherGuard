@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 
 from ..config import PROJECT_ROOT, data_root, load_config_file
-from ..features.static_w5 import STATIC_COLUMNS
+from ..features.static_w5 import EXPOSURE_COLUMNS, GROUP, HAZARD_COLUMNS, STATIC_COLUMNS, join_static, static_table
 from . import challengers as ch
 from . import cv
 from . import data as hd
@@ -34,10 +34,6 @@ from . import v4_int as v4
 from .jsonio import dump_json
 
 DEFAULT_CONFIG = PROJECT_ROOT / "configs" / "hazard_v4_static.yaml"
-GROUP = "static_w5"
-# Roads and built-up land mark where a slide gets reported, not where the ground fails (spec amendment 2026-11-11).
-EXPOSURE_COLUMNS = ("road_density", "lc_built")
-HAZARD_COLUMNS = [c for c in STATIC_COLUMNS if c not in EXPOSURE_COLUMNS]
 HEADLINE = ch.HEADLINE
 
 
@@ -45,30 +41,6 @@ def load_study(path: Path | str | None = None) -> dict:
     study = load_config_file(Path(path or DEFAULT_CONFIG))
     study["base"] = hm.hazard_config(PROJECT_ROOT / study["base_config"])
     return study
-
-
-def static_table(path: Path | None = None) -> pd.DataFrame:
-    path = path or data_root() / "processed" / "features" / "static_w5" / "cell_static.parquet"
-    if not path.is_file():
-        raise FileNotFoundError(f"{path} not found; build it first (python -m aetherguard.features.static_w5)")
-    table = pd.read_parquet(path)
-    if list(table.columns) != ["cell_id", *STATIC_COLUMNS] or table["cell_id"].duplicated().any():
-        raise ValueError(f"{path.name} is not the W5 static table (one row per cell, the eleven declared columns)")
-    return table
-
-
-def join_static(frame: pd.DataFrame, static: pd.DataFrame) -> pd.DataFrame:
-    """`frame` with the static columns of each row's terrain cell (`terrain_cell_id`, else `cell_id`); a cell the table
-    does not hold gets NaN. Row order and count are unchanged."""
-    clash = sorted(set(STATIC_COLUMNS) & set(frame.columns))
-    if clash:
-        raise ValueError(f"the frame already has the static columns {clash}")
-    key = frame["cell_id"].to_numpy(dtype=np.float64)
-    if "terrain_cell_id" in frame.columns:
-        terrain = frame["terrain_cell_id"].astype("Float64").to_numpy(dtype=np.float64, na_value=np.nan)
-        key = np.where(np.isfinite(terrain), terrain, key)
-    picked = static.set_index("cell_id").reindex(key.astype(np.int64))[STATIC_COLUMNS]
-    return pd.concat([frame.reset_index(drop=True), picked.reset_index(drop=True)], axis=1)
 
 
 def load_development(study: dict, features_dir: Path | None = None, static: pd.DataFrame | None = None) -> hd.Development:

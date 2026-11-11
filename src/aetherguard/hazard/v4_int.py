@@ -54,6 +54,7 @@ import pandas as pd
 from ..config import PROJECT_ROOT, data_root, load_config_file
 from ..features import imerg_build as B
 from ..features import imerg_intensity as ii
+from ..features import static_w5 as sw
 from ..live import backtest as bt
 from ..live import hardening as H
 from ..live import precision_study as ps
@@ -177,6 +178,38 @@ def frozen_selection(study: dict) -> dict:
     return vc.frozen_selection(study)
 
 
+def pool_names(study: dict) -> tuple[str, str]:
+    """(the ranked incumbent, the candidate) as the results name them: v3_ranked and v4_int unless the study says otherwise."""
+    return tuple(study.get("pool_names", ("v3_ranked", "v4_int")))
+
+
+def static_inputs(study: dict) -> list[str]:
+    """The per-cell W5 static inputs the challenger adds, unconstrained (none for v4-int)."""
+    return list(study["candidates"][study["challenger"]].get("add_static", []))
+
+
+def season_file(study: dict, year: int) -> Path:
+    return season_path(seasons_dir(study), year, study.get("season_tag", SEASON_TAG))
+
+
+def check_requires(study: dict) -> list[dict]:
+    """What a combined study stands on (`requires`): an incumbent adopted on its own look, and groups whose own development
+    stage passed with the static inputs this study adds. Empty for a study that requires nothing."""
+    requires, root, checks = study.get("requires", {}), data_root() / "processed" / "hazard", []
+    if "adopted" in requires:
+        path = root / _plain_name(requires["adopted"], "requires.adopted") / HELDOUT
+        adopted = path.is_file() and json.loads(path.read_text(encoding="utf-8"))["decision"]["adopt"] is True
+        checks.append(_check(f"incumbent {requires['adopted']} was adopted on its own look", adopted, str(path)))
+    for name in requires.get("stage_one", []):
+        path = root / _plain_name(name, "requires.stage_one") / DEV_RESULTS
+        record = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+        passed = record is not None and record["stage_one"]["passed"] is True
+        tested = set() if record is None else {c for cand in record["candidates"].values() for c in cand["columns"]}
+        checks.append(_check(f"{name} passed its own stage 1 with the static inputs added here",
+                             passed and set(static_inputs(study)) <= tested, str(path)))
+    return checks
+
+
 def published_v3_numbers() -> dict:
     """v3's POOLED numbers of the committed W1 report, which the pool assembled here must reproduce."""
     return op.published_v3(op.REPORTS / f"{vh.REPORT_STEM}.json")
@@ -189,22 +222,25 @@ def w1_report() -> dict:
 # ------------------------------------------------------------------------------------------- candidates
 
 def make_candidates(study: dict, base_columns, column_map: dict[str, str] | None = None) -> dict[str, vc.Candidate]:
-    """C0 (the frozen inputs and v3 constraints) and v4_int (C0 plus `add_increasing`, each constrained non-decreasing).
+    """C0 (the frozen inputs and v3 constraints) and the challenger (C0 plus `add_increasing`, each constrained non-decreasing,
+    plus `add_static`, unconstrained).
     With `column_map` the added inputs must be columns of the candidate's `add_groups`."""
     out = {}
     for name, spec in study["candidates"].items():
-        added = list(spec.get("add_increasing", []))
+        added, static = list(spec.get("add_increasing", [])), list(spec.get("add_static", []))
         if len(set(added)) != len(added):
             raise ValueError(f"candidate {name}: add_increasing names an input more than once")
-        clash = [c for c in added if c in base_columns]
+        clash = [c for c in [*added, *static] if c in base_columns]
         if clash:
-            raise ValueError(f"candidate {name}: add_increasing names {clash}, already an input of the frozen model")
+            raise ValueError(f"candidate {name}: {clash} added, already an input of the frozen model")
+        if set(static) - set(sw.HAZARD_COLUMNS) or len(set(static)) != len(static):
+            raise ValueError(f"candidate {name}: add_static must name physical columns of the W5 static table, each once")
         if column_map is not None:
             groups = spec.get("add_groups", [])
             stray = [c for c in added if column_map.get(c) not in groups]
             if stray:
                 raise ValueError(f"candidate {name}: {stray} are not columns of the groups {groups}")
-        columns = [*base_columns, *added]
+        columns = [*base_columns, *added, *static]
         out[name] = vc.Candidate(name, spec["description"], columns,
                                  vc.candidate_constraints(columns, {"increasing_extra": added}, study["base"]), False)
     for key in ("reference", "challenger"):
@@ -258,8 +294,25 @@ def fit_model(study: dict, candidate: vc.Candidate, dev: hd.Development, layout:
         description=f"W3 challenger {candidate.name}: {candidate.description}",
         monotone_assumptions={"increasing": [*base["monotone"]["increasing"], *added], "decreasing": base["monotone"]["decreasing"]},
         intensity={"group": ii.GROUP, "lag_days": lag_days, "inputs": added})
+    if static_inputs(study):
+        model.card.update(protocol=study["protocol"],
+                          static={"group": sw.GROUP, "inputs": static_inputs(study), "excluded": list(sw.EXPOSURE_COLUMNS),
+                                  "constraints": "none"})
     model.save(directory)
     return model
+
+
+def load_development(study: dict, features_dir: Path | None, lag_days: int) -> hd.Development:
+    """The development rows with the iint tables of `lag_days` and, when the challenger adds static inputs, the W5 static
+    table joined at each row's terrain cell."""
+    extras, use, meta = extra_groups(study, lag_days), groups_used(study), study["base"]["meta_columns"]
+    if not static_inputs(study):
+        return hd.load_development(features_dir, extras, use, meta)
+    root, table = Path(features_dir or hd.features_dir()), sw.static_table()
+    samples = pd.concat([hd.load_table(hd.SAMPLE_NAMES[s], root, extras, use) for s in hd.DEVELOPMENT_SPLITS], ignore_index=True)
+    universe = pd.concat([hd.load_table(hd.UNIVERSE_NAMES[s], root, extras, use) for s in hd.DEVELOPMENT_SPLITS], ignore_index=True)
+    column_map = {**hd.load_column_map(root, extras, use, meta), **{c: sw.GROUP for c in sw.STATIC_COLUMNS}}
+    return hd.build_development(sw.join_static(samples, table), sw.join_static(universe, table), column_map)
 
 
 def run_dev(study: dict, features_dir: Path | None = None, say=print, force: bool = False) -> dict:
@@ -275,9 +328,12 @@ def run_dev(study: dict, features_dir: Path | None = None, say=print, force: boo
                               "of those results; `dev` will not rerun")
     if (out / DEV_RESULTS).exists() and not force:
         raise FileExistsError(f"{out / DEV_RESULTS} exists; pass --force to rerun the development stage and overwrite it")
+    unmet = [c["name"] for c in check_requires(study) if not c["passed"]]
+    if unmet:
+        raise StageOneError(f"this study's requirements are not met: {unmet}")
     lag = declared_lag()
     selected = frozen_selection(study)
-    dev = hd.load_development(features_dir, extra_groups(study, lag), groups_used(study), base["meta_columns"])
+    dev = load_development(study, features_dir, lag)
     layout = cv.make_layout(dev, base["cv"]["folds"])
     say(f"lag {lag} d ({ii.group_name(lag)}); development rows: {len(layout.positives)} positives, "
         f"{len(layout.negatives):,} universe negatives, {len(layout.matched)} matched negatives")
@@ -296,7 +352,7 @@ def run_dev(study: dict, features_dir: Path | None = None, say=print, force: boo
         vc.save_oof(out / OOF_SUBDIR, frames[name], result)
     comparison = compare(frames, study)
     stage = stage_one(comparison["difference"])
-    say(f"stage 1: v4_int - C0 FA@90 {stage['difference']:+.4f} [{stage['ci'][0]:+.4f}, {stage['ci'][1]:+.4f}] "
+    say(f"stage 1: {study['challenger']} - {reference} FA@90 {stage['difference']:+.4f} [{stage['ci'][0]:+.4f}, {stage['ci'][1]:+.4f}] "
         f"-> {'passed' if stage['passed'] else 'FAILED'} ({stage['verdict']})")
     model_dir = None
     if stage["passed"]:
@@ -339,7 +395,7 @@ def current_lag(dev: dict) -> int:
 
 # ------------------------------------------------------------------------------------------ the decision
 
-def decide(stage: dict, scores: dict | None = None) -> dict:
+def decide(stage: dict, scores: dict | None = None, incumbent: str = "v3_ranked") -> dict:
     """The pre-declared adoption criterion of spec section 3, literally.
 
     Stage 1 failed: not adopted, the held-out set is not evaluated. Otherwise `scores` (`operating_point.score_heldout` of
@@ -365,7 +421,7 @@ def decide(stage: dict, scores: dict | None = None) -> dict:
     if not any(c["higher"] for c in conditions):
         failed.append(NO_GAIN)
     return {"adopt": not failed, "stage": 2, "conditions": conditions, "failed": failed,
-            "reason": "adopted: no independent-slide detection is lower than v3_ranked's and one is higher" if not failed
+            "reason": f"adopted: no independent-slide detection is lower than {incumbent}'s and one is higher" if not failed
             else "not adopted: " + "; ".join(failed)}
 
 
@@ -400,8 +456,8 @@ def season_iint(study: dict, directory: Path, year: int, cell_ids, days: list[da
     return table[ii.feature_names()].to_numpy(dtype=np.float32).reshape(len(cell_ids), len(days), -1)
 
 
-def season_path(directory: Path, year: int) -> Path:
-    return Path(directory) / f"season_{year}_{SEASON_TAG}.npz"
+def season_path(directory: Path, year: int, tag: str = SEASON_TAG) -> Path:
+    return Path(directory) / f"season_{year}_{tag}.npz"
 
 
 def score_season(model, card_sha: str, study: dict, year: int, features_dir: Path, out_dir: Path, say=print,
@@ -409,7 +465,7 @@ def score_season(model, card_sha: str, study: dict, year: int, features_dir: Pat
     """Score June-December `year` (plus the backtest warm-up days) of the 2018 set's cells with v4-int and the training-style
     features joined to the frozen iint season table of `lag_days`, as `verify.seasons.score_season` scores v3; returns the
     panel's path. An existing panel is kept unless `force`."""
-    path = season_path(out_dir, year)
+    path = season_path(out_dir, year, study.get("season_tag", SEASON_TAG))
     if path.is_file() and not force:
         say(f"season {year}: {path} exists, skipped")
         return path
@@ -419,18 +475,22 @@ def score_season(model, card_sha: str, study: dict, year: int, features_dir: Pat
     days = bt.set_days(spec)
     intensity = season_iint(study, iint_dir(study, features_dir), year, spec.cells["cell_id"].to_numpy(), days, lag_days)
     column = {day: j for j, day in enumerate(days)}
+    static = static_inputs(study)       # per cell, the same every day: what training joined, read from the same table
+    ground = sw.join_static(spec.cells[["cell_id"]], sw.static_table())[static] if static else None
     stores = bt.build_stores(spec.cells, cfg)
     say(f"season {year}: {len(spec.cells)} cells, {spec.start} to {spec.end}")
 
     def features(day: date) -> pd.DataFrame:
         base = bt.training_style_features(day, spec.cells, stores).reset_index(drop=True)
-        return pd.concat([base, pd.DataFrame(intensity[:, column[day], :], columns=ii.feature_names())], axis=1)
+        return pd.concat([base, pd.DataFrame(intensity[:, column[day], :], columns=ii.feature_names()),
+                          *([] if ground is None else [ground])], axis=1)
 
     panel = H.score_panel(days, spec.cells.assign(in_universe=True), lambda day: model, features, say)
     seconds = time.perf_counter() - started
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     dump_json(path.with_suffix(".json"), {
-        "year": year, "features": FEATURES_TAG, "lag_days": lag_days, "n_days": len(panel.days),
+        "year": year, "features": study.get("features_tag", FEATURES_TAG), "lag_days": lag_days, "n_days": len(panel.days),
+        **({} if ground is None else {"static_nan_cells": {c: int(ground[c].isna().sum()) for c in static}}),
         "n_cells": int(len(panel.cells)), "first_day": panel.days[0].isoformat(), "last_day": panel.days[-1].isoformat(),
         "warmup_days": bt.WARMUP_DAYS, "n_members": panel.n_members, "scored_share_per_day": vs.scored_share_summary(panel),
         "model_card_sha256": card_sha, "seconds": seconds})
@@ -576,10 +636,11 @@ class Assembly:
 
 
 def assemble(inputs: Iterable[SeasonInput], reference: np.ndarray, events: pd.DataFrame, tolerance: float = 1e-4,
-             seed: int = TIE_SEED) -> Assembly:
+             seed: int = TIE_SEED, names: tuple[str, str] = ("v3_ranked", "v4_int")) -> Assembly:
     """Pool the seasons as `verify.operating_point.build_heldout` does, with v4-int's and v3_ranked's burden-matched levels
     beside v3's levels with the rules. Nothing here joins an event with a level."""
     reference = np.asarray(reference, dtype=np.int64)
+    incumbent, candidate = names
     v3, ranked, v4, scored, days, seasons = [], [], [], [], [], {}
     for inp in inputs:
         check_season(inp, reference)
@@ -592,7 +653,7 @@ def assemble(inputs: Iterable[SeasonInput], reference: np.ndarray, events: pd.Da
         seasons[str(inp.year)] = {
             "cells": int(len(reference)), "days": len(part.days), "panel_days": len(inp.days),
             "scored_cell_days": int(part.scored.sum()), "v3_realised_shares": list(realised_shares(part.v3, part.scored)),
-            "v3_ranked": ranked_info, "v4_int": v4_info, "iint_nan_share": inp.iint_nan_share}
+            incumbent: ranked_info, candidate: v4_info, "iint_nan_share": inp.iint_nan_share}
         v3.append(part.v3)
         ranked.append(ranked_levels)
         v4.append(v4_levels)
@@ -608,10 +669,10 @@ def assemble(inputs: Iterable[SeasonInput], reference: np.ndarray, events: pd.Da
         "pooled": {"cells": int(len(reference)), "days": len(days), "scored_cell_days": int(scored.sum()),
                    # counted as the W1 report counts them: every cell-day at the level, held levels on unscored rows included
                    "alert_cell_days": {name: [int((levels >= k).sum()) for k in LEVELS]
-                                       for name, levels in (("v3_rules", v3), ("v3_ranked", ranked), ("v4_int", v4))},
+                                       for name, levels in (("v3_rules", v3), (incumbent, ranked), (candidate, v4))},
                    # the three on the same scored cell-days, which the pooled burden comparison uses
                    "alert_cell_days_scored": {name: [int(((levels >= k) & scored).sum()) for k in LEVELS]
-                                              for name, levels in (("v3_rules", v3), ("v3_ranked", ranked), ("v4_int", v4))}},
+                                              for name, levels in (("v3_rules", v3), (incumbent, ranked), (candidate, v4))}},
         "events": {"events": int(len(unique)), "outside_panel_days": int(outside), "distinct_slides": vh.distinct_events(kept),
                    "by_source": {k: int(v) for k, v in unique.groupby("source").size().items()}},
         "events_sha256": events_digest(kept)}
@@ -628,26 +689,35 @@ def season_inputs(study: dict, lag_days: int, features_dir: Path, say=print) -> 
     events = vh.load_event_table(cfg)
     events = events[pd.to_datetime(events["date"]).dt.year.isin(bt.SEASON_YEARS)]
 
+    incumbent = study.get("incumbent")       # a ranked incumbent other than v3: its own season panels
+
     def seasons_():
         for year in bt.SEASON_YEARS:
-            say(f"held-out season {year}: v3 and v4-int")
-            path = season_path(seasons_dir(study), year)
+            say(f"held-out season {year}: {pool_names(study)[0]} and {study['challenger']}")
+            path = season_file(study, year)
             if not path.is_file():
                 raise FileNotFoundError(f"{path} not found; score the seasons first (python -m aetherguard.hazard.v4_int seasons)")
             season = vh.load_panel_season(year, reference, v3_model)
             panel = season.panel
             v4 = H.load_panel(path)
             values = season_iint(study, iint_dir(study, features_dir), year, v4.cells["cell_id"].to_numpy(), v4.days, lag_days)
+            ranked = panel
+            if incumbent:
+                ranked = H.load_panel(season_path(H.alerts_dir(_plain_name(incumbent["seasons_dir"], "incumbent.seasons_dir")),
+                                                  year, incumbent["season_tag"]))
+                if (list(ranked.days) != list(panel.days) or not np.array_equal(ranked.scored, panel.scored)
+                        or not np.array_equal(ranked.cells["cell_id"].to_numpy(dtype=np.int64), reference)):
+                    raise ValueError(f"season {year}: the incumbent's panel differs from v3's in cells, days or scored cell-days")
             yield SeasonInput(year, vr.extract(season, config, base_rules), season.first, list(panel.days), panel.scored.copy(),
-                              np.asarray(panel["risk"]), np.asarray(panel["raw"]), v4,
+                              np.asarray(ranked["risk"]), np.asarray(ranked["raw"]), v4,
                               iint_nan_share(values[:, season.first:], v4.scored[:, season.first:]))
-            del season, panel, v4, values
+            del season, panel, ranked, v4, values
     return reference, events, seasons_()
 
 
 def load_assembly(study: dict, lag_days: int, features_dir: Path, say=print) -> Assembly:
     reference, events, inputs = season_inputs(study, lag_days, features_dir, say)
-    return assemble(inputs, reference, events)
+    return assemble(inputs, reference, events, seed=int(study.get("tie_seed", TIE_SEED)), names=pool_names(study))
 
 
 def build_heldout(study: dict, say=print, lag_days: int = 0, features_dir: Path | None = None) -> tuple[dict[str, op.HeldOut], dict]:
@@ -698,7 +768,9 @@ def provenance(study: dict, lag_days: int, features_dir: Path) -> dict:
     """The checksums the look relies on: v4-int's card and season panels, v3's season panels and the iint manifest."""
     directory = output_dir(study) / MODEL_SUBDIR / study["challenger"]
     return {"lag_days": lag_days, "card_sha256": sha256_file(directory / hm.CARD_FILE),
-            "v4_panel_sha256": {str(y): sha256_file(season_path(seasons_dir(study), y)) for y in bt.SEASON_YEARS},
+            "v4_panel_sha256": {str(y): sha256_file(season_file(study, y)) for y in bt.SEASON_YEARS},
+            **({"files_sha256": {k: sha256_file(data_root() / v) for k, v in study["provenance_files"].items()}}
+               if study.get("provenance_files") else {}),
             "v3_panel_sha256": {str(y): sha256_file(vs.season_path(None, y)) for y in bt.SEASON_YEARS},
             "iint_manifest_sha256": sha256_file(iint_dir(study, features_dir) / iint_spec(study, lag_days)["manifest_file"])}
 
@@ -709,7 +781,8 @@ def _check(name: str, passed: bool, detail) -> dict:
 
 def check_guard(study: dict, dev: dict, lag_days: int) -> list[dict]:
     out = output_dir(study)
-    return [_check("no held-out result in data/", not (out / HELDOUT).exists(), str(out / HELDOUT)),
+    return [*check_requires(study),
+            _check("no held-out result in data/", not (out / HELDOUT).exists(), str(out / HELDOUT)),
             _check("no committed report", not report_path(study).exists(), str(report_path(study))),
             _check("no look-started marker", not (out / STARTED).exists(), str(out / STARTED)),
             _check("stage 1 passed", dev["stage_one"]["passed"], dev["stage_one"]["verdict"]),
@@ -723,8 +796,8 @@ def check_provenance(study: dict, lag_days: int, prov: dict) -> list[dict]:
     v3_members = json.loads((hm.configured_model_dir(study["base"]) / hm.CARD_FILE).read_text(encoding="utf-8"))["n_members"]
     checks = []
     for year in bt.SEASON_YEARS:
-        sidecar = json.loads(season_path(seasons_dir(study), year).with_suffix(".json").read_text(encoding="utf-8"))
-        ok = (sidecar["model_card_sha256"] == prov["card_sha256"] and sidecar["features"] == FEATURES_TAG
+        sidecar = json.loads(season_file(study, year).with_suffix(".json").read_text(encoding="utf-8"))
+        ok = (sidecar["model_card_sha256"] == prov["card_sha256"] and sidecar["features"] == study.get("features_tag", FEATURES_TAG)
               and sidecar["n_members"] == v3_members == study["base"]["ensemble"]["members"] and sidecar.get("lag_days") == lag_days)
         checks.append(_check(f"season {year} provenance", ok, {k: sidecar.get(k) for k in (
             "model_card_sha256", "features", "n_members", "lag_days")} | {"card_sha256": prov["card_sha256"], "v3_n_members": v3_members}))
@@ -760,14 +833,14 @@ def check_assembly(study: dict, info: dict, w1: dict) -> list[dict]:
                              {"shares": season["v3_realised_shares"], "w1_shares": ref["v3_realised_shares"],
                               "scored_cell_days": season["scored_cell_days"], "w1_scored_cell_days": ref["scored_cell_days"]}))
         tol = float(expect["burden_tolerance"])
-        worst = max(abs(a - b) for name in ("v3_ranked", "v4_int") for a, b in zip(season[name]["realised"], season["v3_realised_shares"]))
+        worst = max(abs(a - b) for name in pool_names(study) for a, b in zip(season[name]["realised"], season["v3_realised_shares"]))
         checks.append(_check(f"season {year} burden matched within {tol:g}", worst <= tol, worst))
     pooled = info["pooled"]
     checks.append(_check("pooled cells and days", (pooled["cells"], pooled["days"]) == (expect["cells"], expect["days"]),
                          [pooled["cells"], pooled["days"]]))
     rules = pooled["alert_cell_days"]["v3_rules"]
     checks.append(_check("pooled v3 alert cell-days equal W1", rules == list(expect["v3_alert_cell_days"]), rules))
-    for name in ("v3_ranked", "v4_int"):
+    for name in pool_names(study):
         scored_counts = pooled["alert_cell_days_scored"]
         gap = max(abs(a - b) / b for a, b in zip(scored_counts[name], scored_counts["v3_rules"]))
         checks.append(_check(f"pooled {name} alert cell-days within {expect['pooled_alert_tolerance']:.2%} of v3's",
@@ -788,7 +861,7 @@ def check_straddle(study: dict, info: dict) -> list[dict]:
     checks = []
     for year, season in info["seasons"].items():
         detail, ok = {}, True
-        for name in ("v4_int", "v3_ranked"):
+        for name in reversed(pool_names(study)):
             for level, label in DECIDING_LEVELS.items():
                 cut = season[name]["cuts"][level]
                 share = cut["straddle"] / cut["cell_days_taken"] if cut["cell_days_taken"] else 0.0
@@ -865,7 +938,7 @@ def refuse_second_look(*paths: Path) -> None:
 
 def evaluate_once(path: Path, committed: Path, build: Callable[[], tuple[dict[str, op.HeldOut], dict]],
                   boot: dict = bt.BOOTSTRAP, published: dict | None = None, context: dict | None = None,
-                  expect: dict | None = None) -> dict:
+                  expect: dict | None = None, incumbent: str = "v3_ranked") -> dict:
     """The single held-out look: score `build()` (the pools and what to record with them), decide, and store the result at `path`.
 
     The deciding scores are those of the `ranked` pool (v3_ranked against v4-int); the `rules` pool (v3 with the section 11
@@ -900,9 +973,9 @@ def evaluate_once(path: Path, committed: Path, build: Callable[[], tuple[dict[st
     beside = op.score_heldout(pools["rules"], boot, published, before_candidate=mark_started)
     deciding = op.score_heldout(pools["ranked"], boot, None)
     result = {**context, **info, "scores": deciding, "scores_v3_rules": beside,
-              "labels": {"scores": "v3 = v3_ranked (calibrated risk ranked, burden-matched like v4-int); decides",
+              "labels": {"scores": f"v3 = {incumbent} (calibrated risk ranked, burden-matched like the candidate); decides",
                          "scores_v3_rules": "v3 = v3 with the section 11 rules and the hysteresis; reported, does not decide"},
-              "decision": decide(context["stage_one"], deciding)}
+              "decision": decide(context["stage_one"], deciding, incumbent)}
     text = json.dumps(jsonable(result), indent=2, allow_nan=False)
     with open(path, "x", encoding="utf-8") as handle:
         handle.write(text + "\n")
@@ -928,7 +1001,7 @@ def run_heldout(study: dict, say=print, build: Callable = build_heldout, feature
                            published_v3_numbers(),
                            {"created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "lag_days": lag,
                             "stage_one": dev["stage_one"], "model_dir": dev["model_dir"], "provenance": preflight["provenance"]},
-                           {"events_sha256": preflight["events_sha256"]})
+                           {"events_sha256": preflight["events_sha256"]}, pool_names(study)[0])
     say(f"decision: {result['decision']['reason']}")
     say(f"wrote {hm.display_path(out / HELDOUT)}")
     return result
@@ -1025,7 +1098,7 @@ def markdown(result: dict) -> str:
     return "\n".join(lines)
 
 
-def write_report(study: dict, out_dir: Path | None = None, say=print) -> dict:
+def write_report(study: dict, out_dir: Path | None = None, say=print, render: Callable[[dict], str] | None = None) -> dict:
     """reports/phase7_rain_intensity.{md,json} from the stored stage results. Refuses while stage 1 has passed and the look has
     not been taken: a committed report blocks the look."""
     dev = load_dev_results(study)
@@ -1037,9 +1110,10 @@ def write_report(study: dict, out_dir: Path | None = None, say=print) -> dict:
     preflight_path = output_dir(study) / PREFLIGHT
     preflight = json.loads(preflight_path.read_text(encoding="utf-8")) if preflight_path.is_file() else None
     result = {"created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-              "spec": "docs/superpowers/specs/2026-11-06-aetherguard-w3-rain-intensity.md",
+              "spec": study.get("spec", "docs/superpowers/specs/2026-11-06-aetherguard-w3-rain-intensity.md"),
               "dev": {"lag_days": dev["lag_days"], "reproduction": dev["reproduction"], "candidates": dev["candidates"],
                       "added_inputs": study["candidates"][study["challenger"]]["add_increasing"],
+                      **({"static_inputs": static_inputs(study)} if static_inputs(study) else {}),
                       "development": dev["development"], "seconds": dev["seconds"]},
               "comparison": dev["comparison"], "stage_one": dev["stage_one"], "heldout": heldout, "decision": decision,
               "preflight": None if preflight is None else {"passed": preflight["passed"], "checks": len(preflight["checks"]),
@@ -1049,7 +1123,7 @@ def write_report(study: dict, out_dir: Path | None = None, say=print) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = study["report_stem"]
     dump_json(out_dir / f"{stem}.json", result)
-    (out_dir / f"{stem}.md").write_text(markdown(result), encoding="utf-8")
+    (out_dir / f"{stem}.md").write_text((render or markdown)(result), encoding="utf-8")
     say(f"wrote {hm.display_path(out_dir / stem)}.{{json,md}}")
     return result
 

@@ -1218,3 +1218,61 @@ def test_the_report_of_a_look_lists_the_comparisons_the_ties_and_the_lag(stage_e
     assert result["heldout"]["decision"]["stage"] == 2 and result["decision"] == result["heldout"]["decision"]
     assert result["preflight"]["passed"] is True and result["heldout"]["lag_days"] == 0
     json.loads((tmp_path / "reports" / "phase7_rain_intensity.json").read_text(encoding="utf-8"))
+
+
+# ------------------------------------------------------------------------------------- the combined study (W6)
+
+@pytest.fixture
+def combined():
+    return v4.load_study(PROJECT_ROOT / "configs" / "hazard_v4.yaml")
+
+
+def test_v4_is_the_v3_inputs_plus_the_intensity_and_the_nine_physical_static_inputs(combined, study):
+    static = v4.static_inputs(combined)
+    challenger = v4.make_candidates(combined, COLUMNS, {c: "iint" for c in IINT})["v4"]
+    assert static == v4.sw.HAZARD_COLUMNS and len(static) == 9 and not set(v4.sw.EXPOSURE_COLUMNS) & set(static)
+    assert challenger.columns == COLUMNS + IINT + static
+    assert challenger.constraints[len(COLUMNS):] == [1] * 6 + [0] * 9
+    assert v4.pool_names(combined) == ("v4_int_ranked", "v4") and combined["tie_seed"] == study["tie_seed"]
+    assert combined["preflight"] == study["preflight"]                    # the W1 facts and tolerances of the W3 look
+    assert v4.static_inputs(study) == [] and v4.pool_names(study) == ("v3_ranked", "v4_int") and v4.check_requires(study) == []
+    broken = copy.deepcopy(combined)
+    broken["candidates"]["v4"]["add_static"] = ["lc_built"]
+    with pytest.raises(ValueError, match="physical columns"):
+        v4.make_candidates(broken, COLUMNS)
+
+
+def test_the_assembly_and_the_decision_use_the_names_of_the_study():
+    assembly = v4.assemble([make_input(2019)], REF, EVENTS, names=("v4_int_ranked", "v4"))
+    assert set(assembly.info["pooled"]["alert_cell_days"]) == {"v3_rules", "v4_int_ranked", "v4"}
+    assert {"v4_int_ranked", "v4"} <= set(assembly.info["seasons"]["2019"])
+    assert "v4_int_ranked's" in v4.decide(PASSED, scores({**TIE, 2: (60, 61)}, TIE), "v4_int_ranked")["reason"]
+
+
+def test_a_combined_study_requires_an_adopted_incumbent_and_a_passed_static_stage(combined, isolated_data_root):
+    def passed():
+        return [c["passed"] for c in v4.check_requires(combined)]
+    assert passed() == [False, False]
+    with pytest.raises(v4.StageOneError, match="requirements"):
+        v4.run_dev(combined, say=lambda m: None)
+    root = isolated_data_root / "processed" / "hazard"
+    (root / "v4_int").mkdir(parents=True)
+    (root / "v4_static").mkdir()
+    (root / "v4_int" / v4.HELDOUT).write_text(json.dumps({"decision": {"adopt": True}}), encoding="utf-8")
+    record = {"stage_one": {"passed": True}, "candidates": {"v4_static": {"columns": v4.static_inputs(combined)[:-1]}}}
+    (root / "v4_static" / v4.DEV_RESULTS).write_text(json.dumps(record), encoding="utf-8")
+    assert passed() == [True, False]                                      # one static input was never tested in that stage
+    record["candidates"]["v4_static"]["columns"] = v4.static_inputs(combined)
+    (root / "v4_static" / v4.DEV_RESULTS).write_text(json.dumps(record), encoding="utf-8")
+    assert passed() == [True, True]
+
+
+def test_the_combined_report_renders_from_a_stored_result():
+    from aetherguard.hazard import v4_combined
+
+    result = json.loads((PROJECT_ROOT / "reports" / "phase7_rain_intensity.json").read_text(encoding="utf-8"))
+    result["dev"]["static_inputs"] = ["lc_tree"]
+    stage = {"stage_one": result["stage_one"], "candidates": result["dev"]["candidates"], "comparison": result["comparison"]}
+    text = v4_combined.markdown(result, {"nine": stage, "eleven": stage}, ("v3_ranked", "v4_int"))
+    for needle in ("v4 is adopted", "all eleven columns", "the nine physical columns", "v3_ranked slides detected", "`lc_tree`"):
+        assert needle in text

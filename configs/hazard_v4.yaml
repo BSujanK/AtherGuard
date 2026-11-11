@@ -1,0 +1,73 @@
+# W6 combined model v4 (docs/superpowers/specs/2026-11-10-aetherguard-w5-static-susceptibility.md sections 3-4 and the
+# amendment of section 6, all written before any held-out result of v4):
+#   python -m aetherguard.hazard.v4_combined dev        # CV of v3 (reference) and v4, the model refit
+#   python -m aetherguard.hazard.v4_combined seasons    # v4 scored on the 2018-2025 season panels (no outcome is read)
+#   python -m aetherguard.hazard.v4_combined preflight  # the held-out assembly and all its checks, no outcome computed
+#   python -m aetherguard.hazard.v4_combined heldout    # the single held-out look of W5 and W6 together
+#   python -m aetherguard.hazard.v4_combined report     # reports/phase7_static_susceptibility.{md,json}
+# v4 is the frozen v3-live configuration plus every group that passed its own development stage: the six rain-intensity
+# inputs of W3 (non-decreasing) and the nine physical W5 static inputs (unconstrained). The held-out look is against the
+# incumbent, v4-int, ranked by its own calibrated risk; both are cut to the shares v3 realised with the section 11 rules.
+# W3's burden matching, tie-break, preflight and one-look guards apply unchanged (hazard.v4_int runs every stage).
+base_config: configs/hazard_v3.yaml
+output_dir: v4                          # under data/processed/hazard
+seasons_dir: v4_seasons                 # under data/processed/alerts
+season_tag: v4                          # season_<year>_v4.npz
+features_tag: training_style+iint+static_w5
+report_stem: phase7_static_susceptibility
+spec: docs/superpowers/specs/2026-11-10-aetherguard-w5-static-susceptibility.md
+protocol: "v2 (year-blocked CV over 2007-2017); W6 combined model, spec 2026-11-10 with the amendment of 2026-11-11"
+reference: C0
+challenger: v4
+pool_names: [v4_int_ranked, v4]         # the ranked incumbent and the candidate, as the results name them
+requires:
+  adopted: v4_int                       # the incumbent's own look must have adopted it
+  stage_one: [v4_static]                # the static group's own development stage must have passed
+incumbent:                              # the ranked incumbent's season panels (scored for the W3 look, unchanged since)
+  seasons_dir: v4_int_seasons
+  season_tag: v4_int
+extra_groups:
+  iint:
+    subdir: imerg
+    suffix: iint
+    columns_file: iint_columns.json
+    manifest_file: iint_manifest.json
+candidates:
+  C0:
+    description: "v3-live refit (reference): the frozen inputs with the v3 monotone constraints"
+  v4:
+    description: "C0 plus the six rain-intensity inputs (non-decreasing) and the nine physical static inputs (unconstrained)"
+    add_groups: [iint]
+    add_increasing:
+      - iint_max1h_1
+      - iint_max3h_1
+      - iint_max6h_1
+      - iint_max3h_max3d
+      - iint_max6h_max3d
+      - iint_wet_hours_1
+    add_static: [lc_tree, lc_shrub_grass, lc_crop, lc_bare, soil_clay, soil_sand, soil_coarse, ter_steep25, ter_steep35]
+provenance_files:                       # under the data root; a change after the preflight blocks the look
+  static_table: processed/features/static_w5/cell_static.parquet
+  incumbent_heldout: processed/hazard/v4_int/heldout.json
+  incumbent_card: processed/hazard/v4_int/models/v4_int/card.json
+  incumbent_season_2018: processed/alerts/v4_int_seasons/season_2018_v4_int.npz
+  incumbent_season_2019: processed/alerts/v4_int_seasons/season_2019_v4_int.npz
+  incumbent_season_2020: processed/alerts/v4_int_seasons/season_2020_v4_int.npz
+  incumbent_season_2021: processed/alerts/v4_int_seasons/season_2021_v4_int.npz
+  incumbent_season_2022: processed/alerts/v4_int_seasons/season_2022_v4_int.npz
+  incumbent_season_2023: processed/alerts/v4_int_seasons/season_2023_v4_int.npz
+  incumbent_season_2024: processed/alerts/v4_int_seasons/season_2024_v4_int.npz
+  incumbent_season_2025: processed/alerts/v4_int_seasons/season_2025_v4_int.npz
+tie_seed: 20261106                      # W3's
+reproduction_tolerance: 1.0e-12
+preflight:                              # the W1 facts, as in configs/hazard_v4_int.yaml
+  burden_tolerance: 1.0e-4
+  straddle_tolerance: 0.01
+  pooled_alert_tolerance: 5.0e-4
+  cells: 36792
+  days: 1712
+  v3_alert_cell_days: [25582037, 10356868, 4275304]
+  events: 92
+  events_outside_panel_days: 1
+  distinct_slides: 87
+  events_by_source: {catalog_2018: 56, catalog_sparse: 6, reported: 30}

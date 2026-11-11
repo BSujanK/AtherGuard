@@ -49,6 +49,38 @@ SOIL_GRID_DEG = 0.01
 LICENCES = {"landcover": "ESA WorldCover 2021 v200, CC BY 4.0", "roads": "GRIP4 (Meijer et al. 2018), CC0",
             "soil": "ISRIC SoilGrids 2.0, CC BY 4.0", "steep": "Copernicus DEM GLO-90, free and open (ESA/Airbus)"}
 MANIFEST_PATH = PROJECT_ROOT / "manifests" / "data_manifest.jsonl"
+GROUP = "static_w5"               # the feature group these columns belong to in a model's column map
+# Roads and built-up land mark where a slide gets reported, not where the ground fails (W5 spec amendment 2026-11-11).
+EXPOSURE_COLUMNS = ("road_density", "lc_built")
+HAZARD_COLUMNS = [c for c in STATIC_COLUMNS if c not in EXPOSURE_COLUMNS]
+
+
+def table_path() -> Path:
+    return data_root() / "processed" / "features" / "static_w5" / "cell_static.parquet"
+
+
+def static_table(path: Path | None = None) -> pd.DataFrame:
+    path = path or table_path()
+    if not path.is_file():
+        raise FileNotFoundError(f"{path} not found; build it first (python -m aetherguard.features.static_w5)")
+    table = pd.read_parquet(path)
+    if list(table.columns) != ["cell_id", *STATIC_COLUMNS] or table["cell_id"].duplicated().any():
+        raise ValueError(f"{path.name} is not the W5 static table (one row per cell, the eleven declared columns)")
+    return table
+
+
+def join_static(frame: pd.DataFrame, static: pd.DataFrame) -> pd.DataFrame:
+    """`frame` with the static columns of each row's terrain cell (`terrain_cell_id`, else `cell_id`); a cell the table
+    does not hold gets NaN. Row order and count are unchanged."""
+    clash = sorted(set(STATIC_COLUMNS) & set(frame.columns))
+    if clash:
+        raise ValueError(f"the frame already has the static columns {clash}")
+    key = frame["cell_id"].to_numpy(dtype=np.float64)
+    if "terrain_cell_id" in frame.columns:
+        terrain = frame["terrain_cell_id"].astype("Float64").to_numpy(dtype=np.float64, na_value=np.nan)
+        key = np.where(np.isfinite(terrain), terrain, key)
+    picked = static.set_index("cell_id").reindex(key.astype(np.int64))[STATIC_COLUMNS]
+    return pd.concat([frame.reset_index(drop=True), picked.reset_index(drop=True)], axis=1)
 
 
 # ------------------------------------------------------------------------------------- raster to cells
