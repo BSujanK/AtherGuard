@@ -1,0 +1,112 @@
+{
+  "year": 2024,
+  "limit": 0.2,
+  "wet_definition": "full Late max3h >= 1.0 mm",
+  "measure": "median over wet cell-days of |max3h(truncated Early day) - max3h(complete Late day)| / max3h(complete Late day)",
+  "scope": "only the truncation error of max3h is measured; max1h and max6h are not, and wet_hours over the 22 h window cannot be compared with the 24 h day",
+  "truncated_half_hours": 44,
+  "complete_half_hours": 48,
+  "days": {
+    "first": "2024-06-01",
+    "last": "2024-12-31",
+    "requested": 214,
+    "compared": 214,
+    "missing_full": [],
+    "missing_live": []
+  },
+  "cells": {
+    "n_cells": 36792,
+    "n_cell_days": 7873488,
+    "n_wet": 3051513,
+    "n_wet_live_nan": 0,
+    "n_compared": 3051513,
+    "median_relative_error": 0.24131453397919325,
+    "mean_relative_error": 0.3952608161914206,
+    "percentiles_relative_error": {
+      "25": 0.09640190905792513,
+      "75": 0.5172159089576429,
+      "90": 0.8957345784132192,
+      "95": 1.0727761459065137
+    },
+    "median_signed_relative_error": -0.00894624291166833,
+    "share_over_limit": 0.5600090840183214,
+    "by_month": {
+      "2024-06": {
+        "n": 536226,
+        "median_relative_error": 0.27710471182111357
+      },
+      "2024-07": {
+        "n": 725848,
+        "median_relative_error": 0.2696655644471885
+      },
+      "2024-08": {
+        "n": 746618,
+        "median_relative_error": 0.25123158466026585
+      },
+      "2024-09": {
+        "n": 503285,
+        "median_relative_error": 0.2142857007699217
+      },
+      "2024-10": {
+        "n": 293069,
+        "median_relative_error": 0.2061908681819783
+      },
+      "2024-11": {
+        "n": 128123,
+        "median_relative_error": 0.14411243502569474
+      },
+      "2024-12": {
+        "n": 118344,
+        "median_relative_error": 0.19275428581831902
+      }
+    }
+  },
+  "domain": {
+    "n_cell_days": 15579200,
+    "n_wet": 5887984,
+    "n_wet_live_nan": 0,
+    "n_compared": 5887984,
+    "median_relative_error": 0.27516331549710804,
+    "mean_relative_error": 0.42337371143806496,
+    "percentiles_relative_error": {
+      "25": 0.11209863692332069,
+      "75": 0.5621469014070468,
+      "90": 0.9143646369086366,
+      "95": 1.1211700162928222
+    },
+    "median_signed_relative_error": -0.021750983441018848,
+    "share_over_limit": 0.6018766355343357,
+    "by_month": {
+      "2024-06": {
+        "n": 1062452,
+        "median_relative_error": 0.30350203504642137
+      },
+      "2024-07": {
+        "n": 1368841,
+        "median_relative_error": 0.30039981342621064
+      },
+      "2024-08": {
+        "n": 1234989,
+        "median_relative_error": 0.28310498372511883
+      },
+      "2024-09": {
+        "n": 967833,
+        "median_relative_error": 0.23711351608924033
+      },
+      "2024-10": {
+        "n": 603229,
+        "median_relative_error": 0.24704426235812388
+      },
+      "2024-11": {
+        "n": 351619,
+        "median_relative_error": 0.24481325830462353
+      },
+      "2024-12": {
+        "n": 299021,
+        "median_relative_error": 0.25939847287812234
+      }
+    }
+  },
+  "decision": "previous_complete_day",
+  "declared_lag_days": 1
+}
