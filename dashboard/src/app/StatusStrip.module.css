@@ -1,5 +1,5 @@
 .strip {
-  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  background: color-mix(in srgb, var(--ink-black) 80%, transparent);
   backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid var(--hairline);
 }
@@ -47,8 +47,8 @@
 }
 
 .mode[data-mode='live'] .dot {
-  border-color: var(--signal);
-  background: var(--signal);
+  border-color: var(--neon-cyan);
+  background: var(--neon-cyan);
   animation: pulse 2.4s var(--ease-out) infinite;
 }
 
@@ -57,8 +57,8 @@
 }
 
 .mode[data-mode='unreachable'] .dot {
-  border-color: var(--red);
-  background: var(--red);
+  border-color: var(--fire-red);
+  background: var(--fire-red);
 }
 
 .setName {
@@ -87,8 +87,8 @@
 .notice {
   margin: 0;
   padding: var(--sp-2) var(--gutter);
-  background: color-mix(in srgb, var(--orange) 16%, var(--paper));
-  border-top: 1px solid color-mix(in srgb, var(--orange) 55%, transparent);
+  background: color-mix(in srgb, var(--flame-orange) 16%, var(--ink-black));
+  border-top: 1px solid color-mix(in srgb, var(--flame-orange) 55%, transparent);
   color: var(--text);
   font-size: var(--fs-sm);
   font-weight: 500;
@@ -168,7 +168,7 @@
 @keyframes pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--signal) 55%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--neon-cyan) 55%, transparent);
   }
   60% {
     box-shadow: 0 0 0 6px transparent;

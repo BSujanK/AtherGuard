@@ -1,26 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import { hexToRgb, mixHex, PALETTE } from '../../charts/theme'
+import { mixHex, PALETTE } from '../../charts/theme'
 import { formatTrust, inDomain, trustColor } from './trust'
 
 describe('trustColor', () => {
   it('lands exactly on the palette at the four stops', () => {
-    expect(trustColor(1)).toBe(PALETTE.signal)
-    expect(trustColor(2 / 3)).toBe(PALETTE.yellow)
-    expect(trustColor(1 / 3)).toBe(PALETTE.orange)
-    expect(trustColor(0)).toBe(PALETTE.red)
+    expect(trustColor(1)).toBe(PALETTE.cyan)
+    expect(trustColor(2 / 3)).toBe(PALETTE.lime)
+    expect(trustColor(1 / 3)).toBe(PALETTE.flame)
+    expect(trustColor(0)).toBe(PALETTE.fire)
   })
 
   it('clamps out-of-range trust to the end stops', () => {
-    expect(trustColor(1.4)).toBe(PALETTE.signal)
-    expect(trustColor(-0.2)).toBe(PALETTE.red)
+    expect(trustColor(1.4)).toBe(PALETTE.cyan)
+    expect(trustColor(-0.2)).toBe(PALETTE.fire)
   })
 
   it('mixes linearly between stops', () => {
-    // Within one step per channel: a stop position like 5/6 is not exact in floating point.
-    const near = (got: string, want: string) => hexToRgb(got).forEach((c, i) => expect(Math.abs(c - hexToRgb(want)[i]!)).toBeLessThanOrEqual(1))
-    near(trustColor(5 / 6), mixHex(PALETTE.yellow, PALETTE.signal, 0.5))
-    near(trustColor(0.5), mixHex(PALETTE.orange, PALETTE.yellow, 0.5))
-    near(trustColor(1 / 6), mixHex(PALETTE.red, PALETTE.orange, 0.5))
+    expect(trustColor(5 / 6)).toBe(mixHex(PALETTE.lime, PALETTE.cyan, 0.5))
+    expect(trustColor(0.5)).toBe(mixHex(PALETTE.flame, PALETTE.lime, 0.5))
+    expect(trustColor(1 / 6)).toBe(mixHex(PALETTE.fire, PALETTE.flame, 0.5))
   })
 
   it('gives every step of the ramp its own colour, so falling trust is always visible', () => {

@@ -16,7 +16,7 @@ import { frameNow } from './frame'
 import { MapInteraction, QualityWatchdog } from './MapInteraction'
 import OutlineLayer from './OutlineLayer'
 import { QUALITY_STEPS } from './perf'
-import { SEA_HEX } from './levelColors'
+import { PALETTE } from './levelColors'
 import { MAP } from './poses'
 import RainParticles from './RainParticles'
 import { buildRainDrops } from './rainField'
@@ -223,7 +223,7 @@ export default function TerrainScene() {
           camera={{ fov: 38, near: 0.1, far: 220, position: MAP.position.toArray() }}
           onCreated={({ camera }) => camera.lookAt(MAP.target)}
         >
-          <color attach="background" args={[SEA_HEX]} />
+          <color attach="background" args={[PALETTE.ink]} />
           <CameraDirector onStory={onStory} poses={poses} reducedMotion={reducedMotion} />
           {terrain && <MapWorld terrain={terrain} model={model} onMap={onMap} onStory={onStory} reducedMotion={reducedMotion} />}
           {terrain && !onStory && <OrbitStart />}

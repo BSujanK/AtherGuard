@@ -23,8 +23,8 @@ body {
   overflow: hidden;
   scrollbar-color: var(--border-strong) transparent;
   scrollbar-width: thin;
-  caret-color: var(--signal);
-  accent-color: var(--signal);
+  caret-color: var(--neon-cyan);
+  accent-color: var(--neon-cyan);
 }
 
 /* The display voice: the same family at its wide end, heavier, a touch tighter. */
@@ -123,7 +123,7 @@ select {
 }
 
 ::selection {
-  background: var(--signal);
+  background: var(--neon-cyan);
   color: var(--text-on-accent);
 }
 
@@ -144,7 +144,7 @@ select {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--slate);
+  background: var(--royal-blue);
   background-clip: content-box;
 }
 

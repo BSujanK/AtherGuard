@@ -13,10 +13,10 @@ export interface RainBar {
 
 /** One colour per source, so the same source keeps its colour next to the history chart. */
 export const SOURCE_COLORS: Record<RainSourceKey, string> = {
-  satellite: PALETTE.yellow,
-  imd: PALETTE.signal,
-  gauges: PALETTE.slate,
-  gfs: mixHex(PALETTE.slate, PALETTE.signal, 0.5),
+  satellite: PALETTE.lime,
+  imd: PALETTE.cyan,
+  gauges: PALETTE.blue,
+  gfs: mixHex(PALETTE.blue, PALETTE.cyan, 0.5),
 }
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)

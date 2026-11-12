@@ -36,7 +36,7 @@ describe('GaugeMap', () => {
   it('colours each gauge by trust from the palette and marks missing and flagged ones', () => {
     const { container } = render(<GaugeMap stations={stations} />)
     const dot = (id: string) => container.querySelector(`[data-station="${id}"] circle:not([class*="pulse"]):not([class*="hit"])`)!
-    expect(dot('A')).toHaveAttribute('fill', PALETTE.signal)
+    expect(dot('A')).toHaveAttribute('fill', PALETTE.cyan)
     expect(dot('B')).toHaveAttribute('fill', trustColor(0.15))
     expect(dot('C')).not.toHaveAttribute('fill')
     expect(container.querySelector('[data-station="C"]')).toHaveAttribute('data-missing', 'true')

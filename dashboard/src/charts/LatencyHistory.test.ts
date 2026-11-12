@@ -42,8 +42,8 @@ describe('buildLatencyOption', () => {
     const late = run('2026-10-15', 9)
     const [bars] = seriesOf(buildLatencyOption([late])) as [Series]
     const color = (i: number) => (bars.data[i] as { itemStyle: { color: string } }).itemStyle.color
-    expect(color(2)).toBe(PALETTE.orange)
-    expect(color(0)).toBe(mixHex(PALETTE.slate, PALETTE.signal, 0.5))
+    expect(color(2)).toBe(PALETTE.flame)
+    expect(color(0)).toBe(mixHex(PALETTE.blue, PALETTE.cyan, 0.5))
   })
 
   it('becomes a line per source once there is more than one run', () => {
@@ -56,15 +56,15 @@ describe('buildLatencyOption', () => {
 
 describe('chart theme', () => {
   it('uses only palette stops and mixes for series colours', () => {
-    expect(SERIES_COLORS.slice(0, 3)).toEqual([PALETTE.signal, PALETTE.slate, PALETTE.yellow])
+    expect(SERIES_COLORS.slice(0, 3)).toEqual([PALETTE.cyan, PALETTE.blue, PALETTE.lime])
     for (const c of SERIES_COLORS) expect(c).toMatch(/^#[0-9A-F]{6}$/)
-    expect(aetherguardTheme.textStyle.color).toBe(PALETTE.ink)
+    expect(aetherguardTheme.textStyle.color).toBe(PALETTE.cloud)
   })
 
   it('mixes linearly and rejects non-hex input', () => {
-    expect(mixHex(PALETTE.paper, PALETTE.ink, 0)).toBe(PALETTE.paper)
-    expect(mixHex(PALETTE.paper, PALETTE.ink, 1)).toBe(PALETTE.ink)
-    expect(hexToRgb(mixHex(PALETTE.paper, PALETTE.ink, 0.5))).toEqual([131, 139, 149])
-    expect(() => mixHex('red', PALETTE.ink, 0.5)).toThrow(RangeError)
+    expect(mixHex(PALETTE.ink, PALETTE.cloud, 0)).toBe(PALETTE.ink)
+    expect(mixHex(PALETTE.ink, PALETTE.cloud, 1)).toBe(PALETTE.cloud)
+    expect(hexToRgb(mixHex(PALETTE.ink, PALETTE.cloud, 0.5))).toEqual([120, 131, 136])
+    expect(() => mixHex('red', PALETTE.cloud, 0.5)).toThrow(RangeError)
   })
 })

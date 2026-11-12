@@ -29,7 +29,7 @@ export function storyPoses(w: Window): Pose[] {
     { position: OVERVIEW.position.clone(), target: OVERVIEW.target.clone() },
     over(79.4, 30.4, w, 0.3, [-3.2, 3.4, 9.5]),
     over(76.2, 11.6, w, 0.2, [-8.2, 5.2, 6.4]),
-    over(88.0, 27.0, w, 0.2, [0.5, 12.5, 17]),
+    over(84.5, 27.4, w, 0.2, [1.5, 11.5, 15.5]),
     rest,
     rest,
   ]

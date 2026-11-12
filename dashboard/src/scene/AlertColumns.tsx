@@ -18,7 +18,6 @@ const vertexShader = /* glsl */ `
   attribute float aLevel;
   uniform float uTime;
   uniform float uPulse;
-  uniform float uIntensity;
   varying float vHeight;
   varying float vLevel;
   varying float vGlow;
@@ -28,8 +27,7 @@ const vertexShader = /* glsl */ `
     vLevel = aLevel;
     float beat = 0.62 + 0.38 * sin(uTime * 6.2831853 / ${PULSE_SECONDS.toFixed(1)});
     vGlow = aLevel > 2.5 ? mix(1.0, beat, uPulse) : 1.0;
-    // The columns rise out of the ground as the levels arrive, instead of fading in.
-    gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position.x, position.y * uIntensity, position.z, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);
   }
 `
 
@@ -37,15 +35,17 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uLime;
   uniform vec3 uFlame;
   uniform vec3 uFire;
+  uniform float uIntensity;
   varying float vHeight;
   varying float vLevel;
   varying float vGlow;
 
   void main() {
     vec3 base = vLevel < 1.5 ? uLime : (vLevel < 2.5 ? uFlame : uFire);
-    // Opaque and never brighter than the level colour, so a dense field stays the colour of its level. The foot is
-    // a little darker than the tip so a column reads as standing on the ground; the Emergency pulse is a shallow dip.
-    float lit = mix(0.74, 1.0, vHeight) * mix(1.0, vGlow, 0.45);
+    // Opaque and capped at the level colour itself (never brighter): dense fields neither add up to white
+    // nor leave the bloom pass anything above its threshold to smear, so red stays red. The foot is darker
+    // than the tip so a column reads as standing on the ground.
+    float lit = mix(0.5, 1.0, vHeight) * vGlow * uIntensity;
     gl_FragColor = vec4(base * min(lit, 1.0), 1.0);
     #include <colorspace_fragment>
   }
@@ -75,9 +75,9 @@ export default function AlertColumns({ columns, reducedMotion }: AlertColumnsPro
         uTime: { value: 0 },
         uPulse: { value: 1 },
         uIntensity: { value: 1 },
-        uLime: { value: new Color(PALETTE.yellow) },
-        uFlame: { value: new Color(PALETTE.orange) },
-        uFire: { value: new Color(PALETTE.red) },
+        uLime: { value: new Color(PALETTE.lime) },
+        uFlame: { value: new Color(PALETTE.flame) },
+        uFire: { value: new Color(PALETTE.fire) },
       },
       vertexShader,
       fragmentShader,

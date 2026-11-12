@@ -14,7 +14,7 @@ const axis = (o: unknown, name: 'xAxis' | 'yAxis') => (o as Record<string, { dat
 /** Every colour the builders use must be a palette stop or a mix of palette stops. */
 const ALLOWED = new Set<string>([
   ...Object.values(PALETTE),
-  mixHex(PALETTE.slate, PALETTE.signal, 0.5),
+  mixHex(PALETTE.blue, PALETTE.cyan, 0.5),
   TEXT_3,
 ])
 
@@ -41,11 +41,11 @@ describe('SHAP bars', () => {
     const data = series!.data as Item[]
     expect(data.map((d) => d.value)).toEqual([1.11, 0.74, 0.68, -0.47, 0.47])
     expect(data.map((d) => d.itemStyle!.color)).toEqual([
-      PALETTE.orange,
-      PALETTE.orange,
-      PALETTE.orange,
-      PALETTE.signal,
-      PALETTE.orange,
+      PALETTE.flame,
+      PALETTE.flame,
+      PALETTE.flame,
+      PALETTE.cyan,
+      PALETTE.flame,
     ])
     expect(axis(option, 'yAxis').data).toEqual(['Rain, today', 'Mean elevation', 'Rain, last 3 days', 'Today’s share of 3-day rain', 'Rain, last 30 days'])
   })
@@ -127,19 +127,19 @@ describe('risk trend chart', () => {
     const [series] = seriesOf(buildRiskTrendOption(history, thresholds))
     expect(series!.name).toBe('Risk')
     const data = series!.data as Item[]
-    expect(data[0]).toEqual({ value: 1, itemStyle: { color: PALETTE.yellow } })
+    expect(data[0]).toEqual({ value: 1, itemStyle: { color: PALETTE.lime } })
     expect(data[1]).toBe('-')
-    expect(data[2]).toEqual({ value: 45.2, itemStyle: { color: PALETTE.red } })
-    expect(LEVEL_POINT).toEqual([PALETTE.slate, PALETTE.yellow, PALETTE.orange, PALETTE.red])
+    expect(data[2]).toEqual({ value: 45.2, itemStyle: { color: PALETTE.fire } })
+    expect(LEVEL_POINT).toEqual([PALETTE.blue, PALETTE.lime, PALETTE.flame, PALETTE.fire])
   })
 
   it('marks the three thresholds in their level colours, in per 100k units', () => {
     const [series] = seriesOf(buildRiskTrendOption(history, thresholds))
     const lines = series!.markLine!.data
     expect(lines.map((l) => [l.name, l.lineStyle.color])).toEqual([
-      ['Watch', PALETTE.yellow],
-      ['Warning', PALETTE.orange],
-      ['Emergency', PALETTE.red],
+      ['Watch', PALETTE.lime],
+      ['Warning', PALETTE.flame],
+      ['Emergency', PALETTE.fire],
     ])
     expect(lines[0]!.yAxis).toBeCloseTo(0.413, 3)
     expect(lines[2]!.yAxis).toBeCloseTo(3.7, 6)
@@ -186,8 +186,8 @@ describe('risk trend chart with a forecast', () => {
     const data = forecast!.data as (Item | string)[]
     expect(data.slice(0, 2)).toEqual(['-', '-'])
     expect(data[2]).toMatchObject({ value: 45.2, symbolSize: 0 })
-    expect(data[3]).toEqual({ value: 2.1, itemStyle: { color: PALETTE.orange } })
-    expect(data[4]).toEqual({ value: 6.3, itemStyle: { color: PALETTE.red } })
+    expect(data[3]).toEqual({ value: 2.1, itemStyle: { color: PALETTE.flame } })
+    expect(data[4]).toEqual({ value: 6.3, itemStyle: { color: PALETTE.fire } })
   })
 
   it('keeps the observed series solid and empty on forecast days', () => {

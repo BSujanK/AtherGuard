@@ -5,19 +5,19 @@
  */
 
 export const PALETTE = {
-  paper: '#EEF2EC',
-  signal: '#1746C7',
-  slate: '#2F6F8F',
-  yellow: '#F0B400',
-  orange: '#E8700C',
-  red: '#C8201C',
-  ink: '#17233D',
+  ink: '#0A0B10',
+  cyan: '#00F0FF',
+  blue: '#4169E1',
+  lime: '#C6FF00',
+  flame: '#F4511E',
+  fire: '#D71920',
+  cloud: '#E6FBFF',
 } as const
 
 export const THEME_NAME = 'aetherguard'
-export const FONT_UI = "'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', sans-serif"
-export const FONT_DATA = "'Atkinson Hyperlegible Mono', ui-monospace, Consolas, monospace"
-export const FONT_DISPLAY = "'National Park', system-ui, -apple-system, 'Segoe UI', sans-serif"
+export const FONT_UI = "Archivo, system-ui, -apple-system, 'Segoe UI', sans-serif"
+export const FONT_DATA = "'Geist Mono', ui-monospace, Consolas, monospace"
+export const FONT_DISPLAY = "Archivo, system-ui, -apple-system, 'Segoe UI', sans-serif"
 
 export type Rgb = readonly [number, number, number]
 
@@ -40,26 +40,26 @@ export function mixHex(a: string, b: string, t: number): string {
 }
 
 /** `color` over ink at `alpha`, as an opaque hex (for places that cannot take CSS colour-mix). */
-export const tint = (color: string, alpha: number): string => mixHex(PALETTE.paper, color, alpha)
+export const tint = (color: string, alpha: number): string => mixHex(PALETTE.ink, color, alpha)
 
-export const TEXT = PALETTE.ink
-export const TEXT_2 = tint(PALETTE.ink, 0.86)
-export const TEXT_3 = tint(PALETTE.ink, 0.74)
-export const GRID_LINE = mixHex(PALETTE.paper, PALETTE.ink, 0.13)
-export const AXIS_LINE = mixHex(PALETTE.paper, PALETTE.ink, 0.44)
-export const SURFACE = PALETTE.paper
-export const SURFACE_RAISED = mixHex(PALETTE.paper, PALETTE.slate, 0.07)
+export const TEXT = PALETTE.cloud
+export const TEXT_2 = tint(PALETTE.cloud, 0.78)
+export const TEXT_3 = tint(PALETTE.cloud, 0.62)
+export const GRID_LINE = mixHex(PALETTE.ink, PALETTE.blue, 0.2)
+export const AXIS_LINE = mixHex(PALETTE.ink, PALETTE.blue, 0.6)
+export const SURFACE = mixHex(PALETTE.ink, PALETTE.blue, 0.1)
+export const SURFACE_RAISED = mixHex(PALETTE.ink, PALETTE.blue, 0.16)
 
 /**
  * Series colours when several series share a chart: cyan, royal blue and lime and their mixes, ordered so
  * neighbours differ in lightness. Pair with distinct symbols or direct labels; colour alone never carries meaning.
  */
 export const SERIES_COLORS = [
-  PALETTE.signal,
-  PALETTE.slate,
-  PALETTE.yellow,
-  mixHex(PALETTE.slate, PALETTE.signal, 0.5),
-  mixHex(PALETTE.signal, PALETTE.yellow, 0.5),
+  PALETTE.cyan,
+  PALETTE.blue,
+  PALETTE.lime,
+  mixHex(PALETTE.blue, PALETTE.cyan, 0.5),
+  mixHex(PALETTE.cyan, PALETTE.lime, 0.5),
 ] as const
 
 const axisCommon = {

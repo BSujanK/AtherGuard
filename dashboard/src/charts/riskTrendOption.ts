@@ -4,7 +4,7 @@ import type { ChartOption } from './EChart'
 import { PALETTE, TEXT_3 } from './theme'
 
 /** Point colour by level, cool to hot; Normal is the royal blue itself so it stays visible on the dark panel. */
-export const LEVEL_POINT = [PALETTE.slate, PALETTE.yellow, PALETTE.orange, PALETTE.red] as const
+export const LEVEL_POINT = [PALETTE.blue, PALETTE.lime, PALETTE.flame, PALETTE.fire] as const
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 
@@ -60,9 +60,9 @@ export function buildRiskTrendOption(history: CellHistory, thresholds: Threshold
   const lastObserved = points.findLastIndex((p) => p.lead === 0 && p.risk !== null)
   const lines = thresholds
     ? [
-        { name: 'Watch', value: thresholds.watch, color: PALETTE.yellow },
-        { name: 'Warning', value: thresholds.warning, color: PALETTE.orange },
-        { name: 'Emergency', value: thresholds.emergency, color: PALETTE.red },
+        { name: 'Watch', value: thresholds.watch, color: PALETTE.lime },
+        { name: 'Warning', value: thresholds.warning, color: PALETTE.flame },
+        { name: 'Emergency', value: thresholds.emergency, color: PALETTE.fire },
       ]
     : []
   const hasForecast = points.some((p) => p.lead > 0)
@@ -86,7 +86,7 @@ export function buildRiskTrendOption(history: CellHistory, thresholds: Threshold
       {
         name: 'Risk',
         type: 'line',
-        color: PALETTE.signal,
+        color: PALETTE.cyan,
         symbol: 'circle',
         symbolSize: 8,
         connectNulls: false,
@@ -109,7 +109,7 @@ export function buildRiskTrendOption(history: CellHistory, thresholds: Threshold
             {
               name: 'Forecast',
               type: 'line',
-              color: PALETTE.signal,
+              color: PALETTE.cyan,
               symbol: 'emptyCircle',
               symbolSize: 9,
               connectNulls: false,

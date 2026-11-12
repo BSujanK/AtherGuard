@@ -86,7 +86,7 @@ export default function Story() {
           <p className={styles.issue}>
             {mode.isError ? 'The data service is not answering.' : !data ? 'Reading the latest run.' : data.mode === 'none' ? 'No run has been published yet.' : (
               <>
-                {modeLabel(data.mode)} data through <span className="num">{formatDate(latest)}</span>.
+                {modeLabel(data.mode)} data through <span className="num">{formatDate(latest)}</span>
               </>
             )}{' '}
             Research prototype, not validated for public warnings.

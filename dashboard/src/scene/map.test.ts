@@ -97,12 +97,12 @@ describe('regions', () => {
 })
 
 describe('level colours', () => {
-  it('are exactly the palette, cool to hot, with Normal a quiet slate tint of the paper', () => {
-    expect(LEVEL_HEX[1]).toBe(PALETTE.yellow)
-    expect(LEVEL_HEX[2]).toBe(PALETTE.orange)
-    expect(LEVEL_HEX[3]).toBe(PALETTE.red)
-    expect(NORMAL_HEX).toBe(mixHex(PALETTE.paper, PALETTE.slate, 0.3))
-    expect(LEVEL_RGB[1]).toEqual(hexToRgb(PALETTE.yellow))
+  it('are exactly the palette, cool to hot, with Normal a dimmed royal blue', () => {
+    expect(LEVEL_HEX[1]).toBe(PALETTE.lime)
+    expect(LEVEL_HEX[2]).toBe(PALETTE.flame)
+    expect(LEVEL_HEX[3]).toBe(PALETTE.fire)
+    expect(NORMAL_HEX).toBe(mixHex(PALETTE.ink, PALETTE.blue, 0.55))
+    expect(LEVEL_RGB[1]).toEqual(hexToRgb(PALETTE.lime))
   })
 
   it('end up byte for byte in the texture', () => {

@@ -91,7 +91,7 @@
 }
 
 .summary:hover {
-  background: color-mix(in srgb, var(--slate) 12%, transparent);
+  background: color-mix(in srgb, var(--royal-blue) 12%, transparent);
 }
 
 .summary:focus-visible {
@@ -138,11 +138,11 @@
 }
 
 .alerts button:hover {
-  background: color-mix(in srgb, var(--slate) 16%, transparent);
+  background: color-mix(in srgb, var(--royal-blue) 16%, transparent);
 }
 
 .alerts button:active {
-  background: color-mix(in srgb, var(--slate) 24%, transparent);
+  background: color-mix(in srgb, var(--royal-blue) 24%, transparent);
 }
 
 .alertMain {
@@ -306,7 +306,7 @@
 }
 
 .hoverFacts [data-certainty='firm'] {
-  color: var(--level-watch-text);
+  color: var(--neon-lime);
 }
 
 .hoverFacts [data-certainty='depends'] {

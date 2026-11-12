@@ -30,16 +30,6 @@ for (const width of [1440, 390]) {
   const context = await browser.newContext({ viewport: { width, height: width > 600 ? 900 : 844 }, deviceScaleFactor: 1 })
   const page = await context.newPage()
   page.on('pageerror', (e) => console.log('[pageerror]', e.message))
-  // The story: one shot per chapter, each after the camera has caught up with the scroll.
-  await page.goto(`${base}/`, { waitUntil: 'commit' })
-  await page.getByRole('heading', { level: 1, name: 'AetherGuard' }).waitFor({ timeout: 90_000 })
-  await page.waitForTimeout(9000)
-  for (const chapter of ['chart', 'ground', 'rain', 'levels', 'today', 'limits']) {
-    await page.evaluate((id) => document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'instant' }), chapter)
-    await page.waitForTimeout(chapter === 'chart' ? 500 : 4500)
-    await page.screenshot({ path: file(`${prefix}-story-${chapter}-${width}.png`) })
-    console.log(`story ${chapter} ${width}`)
-  }
   for (const view of VIEWS) {
     await page.goto(`${base}${view.path}`, { waitUntil: 'commit' })
     await page.getByRole('heading', { level: 1 }).first().waitFor({ timeout: 90_000, state: 'attached' })

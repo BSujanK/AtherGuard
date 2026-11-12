@@ -51,7 +51,7 @@
 
 .updated[data-flash='true'] {
   color: var(--text);
-  background: color-mix(in srgb, var(--signal) 14%, transparent);
+  background: color-mix(in srgb, var(--neon-cyan) 14%, transparent);
 }
 
 .pulse {
@@ -60,7 +60,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--signal);
+  background: var(--neon-cyan);
 }
 
 /* A slow ring leaves the dot: the one ambient motion on the page. */
@@ -68,7 +68,7 @@
   content: '';
   position: absolute;
   inset: -1px;
-  border: 1px solid var(--signal);
+  border: 1px solid var(--neon-cyan);
   border-radius: 50%;
   opacity: 0;
   animation: live-ring 2.4s var(--ease-out) infinite;
@@ -144,7 +144,7 @@
 
 @keyframes row-bloom {
   from {
-    background: color-mix(in srgb, var(--signal) 14%, transparent);
+    background: color-mix(in srgb, var(--neon-cyan) 14%, transparent);
   }
   to {
     background: transparent;
@@ -199,7 +199,7 @@
   flex: none;
   width: 0.5rem;
   height: 0.5rem;
-  background: var(--signal);
+  background: var(--neon-cyan);
   border-radius: 50%;
 }
 

@@ -1,6 +1,6 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo } from 'react'
-import { BufferAttribute, BufferGeometry, Color, ShaderMaterial } from 'three'
+import { AdditiveBlending, BufferAttribute, BufferGeometry, Color, ShaderMaterial } from 'three'
 import { frameNow } from './frame'
 import { PALETTE } from './levelColors'
 import { QUALITY_STEPS } from './perf'
@@ -32,7 +32,7 @@ const fragmentShader = /* glsl */ `
   varying float vAlpha;
 
   void main() {
-    gl_FragColor = vec4(uCyan, vAlpha * 0.85);
+    gl_FragColor = vec4(uCyan * vAlpha * 0.7, 1.0);
     #include <colorspace_fragment>
   }
 `
@@ -69,10 +69,11 @@ export default function RainParticles({ drops, reducedMotion }: RainParticlesPro
       uniforms: {
         uTime: { value: 0 },
         uIntensity: { value: 1 },
-        uCyan: { value: new Color(PALETTE.signal) },
+        uCyan: { value: new Color(PALETTE.cyan) },
       },
       vertexShader,
       fragmentShader,
+      blending: AdditiveBlending,
       transparent: true,
       depthWrite: false,
     })

@@ -59,11 +59,11 @@ export function regionView(region: RegionFilter, window: Window): Box {
   return { xMin: a.x - half, xMax: c.x + half, zMin: c.z - half, zMax: a.z + half }
 }
 
-const INK = hexToRgb(PALETTE.paper)
-const CYAN = hexToRgb(PALETTE.signal)
-const LOW = hexToRgb(mixHex(PALETTE.paper, PALETTE.slate, 0.16))
-const MID = hexToRgb(mixHex(PALETTE.paper, PALETTE.slate, 0.55))
-const HIGH = hexToRgb(mixHex(PALETTE.slate, PALETTE.signal, 0.4))
+const INK = hexToRgb(PALETTE.ink)
+const CYAN = hexToRgb(PALETTE.cyan)
+const LOW = hexToRgb(mixHex(PALETTE.ink, PALETTE.blue, 0.16))
+const MID = hexToRgb(mixHex(PALETTE.ink, PALETTE.blue, 0.55))
+const HIGH = hexToRgb(mixHex(PALETTE.blue, PALETTE.cyan, 0.4))
 /** Neighbouring countries are drawn this far toward ink; the coastline gets this much cyan. */
 const OTHER_LAND_DIM = 0.72
 const COAST_CYAN = 0.38
