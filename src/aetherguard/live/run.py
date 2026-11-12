@@ -36,8 +36,9 @@ Rules the run follows (spec sections 5 and 10)
 * Two models (W3 live switch): lead 0 is scored by the model `lead0_model_config` names, the forecast leads by the one
   `model_config` names (both by `model_config` when the first is absent; every study reads `model_config`). A model with
   rain-intensity inputs (`iint_`) is never a forecast-lead model, since no forecast lead has an observed intensity day. Lead 0 reads them as training did: the
-  complete half-hourly Late days of the model's lag (D-3..D-1 at lag 1), fetched when missing; while one is missing,
-  lead 0 is scored by the forecast-lead model and run.json `intensity` says why.
+  complete half-hourly Late days of the model's lag (D-3..D-1 at lag 1), fetched when missing, and the per-cell W5
+  static inputs from the static table; while either is missing, lead 0 is scored by the forecast-lead model and
+  run.json `intensity` says why.
 * Post-model rules (spec section 11, `live.postrules`, the file named by `post_rules`): the rain trigger caps cell-days
   without recent rain (`no_recent_rain`) before the hysteresis, which holds a level only while it rained within the hold
   window and over at most `blind_hold_days` days without a score (`held_while_blind`); a Warning+ point the ensemble does
@@ -75,6 +76,7 @@ from ..config import PROJECT_ROOT, load_config_file
 from ..features import imerg_build
 from ..features import imerg_features as F
 from ..features import imerg_intensity as ii
+from ..features import static_w5
 from ..features.compute import MIN_SHARE_ACC3_MM, STAT_COLUMNS, ClimTable
 from ..features.sampling import candidate_cells
 from ..hazard import model as hm
@@ -141,6 +143,7 @@ class LiveDeps:
     forecast_thresholds: lv.Thresholds | lv.RegionThresholds | None = None    # None: from the forecast-lead model's card
     intensity_root: Path | None = None                       # None: imerg_intensity.default_root()
     intensity_fetch: Callable | None = None                  # None: imerg_hh.fetch_complete_days
+    static_table: pd.DataFrame | None = None                 # None: the W5 static table on disk
 
 
 # ------------------------------------------------------------------------------------------------------ inputs
@@ -189,9 +192,9 @@ def load_forecast_model(cfg: dict, deps: LiveDeps, model: hm.HazardModel) -> hm.
         forecast = load_live_model(cfg)
     else:
         forecast = model
-    if uses_intensity(forecast):
-        raise LiveRunError("the forecast-lead model reads rain-intensity inputs, which no forecast lead has observed; "
-                           "`model_config` must name a model without them")
+    if uses_intensity(forecast) or set(forecast.columns) & set(static_w5.STATIC_COLUMNS):
+        raise LiveRunError("the forecast-lead model reads rain-intensity inputs, which no forecast lead has observed, or "
+                           "static inputs, which only lead 0 joins; `model_config` must name a model without them")
     return forecast
 
 
@@ -214,6 +217,20 @@ def intensity_inputs(day: date, cells: pd.DataFrame, model: hm.HazardModel, deps
         return None, {**status, "used": False, "reason": f"half-hourly Late days missing ({why})"}
     frame = ii.cell_features(day, cells["cell_id"].to_numpy(dtype=np.int64), root, ii.RUN, lag)
     return frame, {**status, "used": True, "reason": None}
+
+
+def static_inputs(cells: pd.DataFrame, model: hm.HazardModel, deps: LiveDeps) -> tuple[pd.DataFrame | None, dict | None]:
+    """The per-cell W5 static inputs the lead-0 model reads (none: (None, None)), joined at the cell as training joined
+    them. (None, status) when the table cannot be read."""
+    names = [c for c in model.columns if c in static_w5.STATIC_COLUMNS]
+    if not names:
+        return None, None
+    try:
+        table = deps.static_table if deps.static_table is not None else static_w5.static_table()
+        frame = static_w5.join_static(cells[["cell_id"]], table)[names]
+    except (OSError, ValueError, KeyError) as exc:
+        return None, {"used": False, "inputs": names, "reason": f"static table unavailable ({type(exc).__name__}: {str(exc)[:160]})"}
+    return frame, {"used": True, "inputs": names, "reason": None, "cells_without_a_value": int(frame.isna().any(axis=1).sum())}
 
 
 def imd_lon_offset(cfg: dict) -> int:
@@ -849,15 +866,21 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
     clim = deps.clim if deps.clim is not None else load_climatology(cfg, store_for_clim, flat)
     irain = F.build_imerg_features(cells[["cell_id", "date"]], view, clim)
     intensity = {"used": False, "reason": "the lead-0 model reads no rain-intensity input"}
+    extras = []
     if uses_intensity(model):
         extra, intensity = intensity_inputs(day, cells, model, deps)
-        if extra is None:
-            log.warning("lead 0 scored with the forecast-lead model: %s", intensity["reason"])
-            model, thresholds, split = forecast_model, forecast_thresholds, False
-            lead0 = {"key": forecast_key, "handed": deps.forecast_model is not None or deps.model is not None}
-            intensity["fallback"] = "lead 0 scored with the forecast-lead model"
-        else:
-            irain = pd.concat([irain, extra], axis=1)
+        extras.append(extra)
+    ground, static = static_inputs(cells, model, deps)
+    if static is not None:
+        extras.append(ground)
+    if any(extra is None for extra in extras):       # an input lead 0's own model needs is missing: the leads' model scores it
+        why = next(s["reason"] for s in (intensity, static) if s and s.get("reason") and not s["used"])
+        log.warning("lead 0 scored with the forecast-lead model: %s", why)
+        model, thresholds, split = forecast_model, forecast_thresholds, False
+        lead0 = {"key": forecast_key, "handed": deps.forecast_model is not None or deps.model is not None}
+        intensity = {**intensity, "used": False, "fallback": "lead 0 scored with the forecast-lead model", "fallback_reason": why}
+    else:
+        irain = pd.concat([irain, *extras], axis=1)
     features = pd.concat([cells, irain], axis=1)
 
     # ---- integrity engine on the recent gauges
@@ -950,6 +973,7 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
         **({"forecast_model": model_record(cfg, deps.forecast_model is not None or deps.model is not None, forecast_key,
                                            forecast_model, forecast_thresholds)} if split else {}),
         "intensity": intensity,
+        **({"static": static} if static is not None else {}),
         "sources": {name: {**status.to_dict(), "state": states[name]} for name, status in statuses.items()},
         "failed_sources": [n for n in SOURCE_NAMES if states[n] == "failed"],
         "late_sources": [n for n in SOURCE_NAMES if states[n] == "late"],

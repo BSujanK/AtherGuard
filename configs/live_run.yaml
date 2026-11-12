@@ -7,7 +7,11 @@ live_dir: data/live                  # <live_dir>/<YYYY-MM-DD>/{raw/, freshness.
 report_dir: reports/live             # <report_dir>/<YYYY-MM-DD>.md, the bulletin
 replay_dir: data/processed/alerts/replay   # the replay store that gets the set `replay_set`
 replay_set: live
-model_config: configs/hazard_v3.yaml       # names the model directory (model_dir) the run scores with; it must be frozen
+model_config: configs/hazard_v3.yaml       # the model of the forecast leads D+1..D+3 (and of every study); it must be frozen
+lead0_model_config: configs/hazard_model_v4_live.yaml   # today's alerts (lead 0): v4, adopted on its held-out look
+                                           # (reports/phase7_static_susceptibility.md). It reads yesterday's half-hourly rain
+                                           # and the static table, which no forecast lead has; without them lead 0 falls
+                                           # back to model_config for that run. Remove this line to go back to v3 everywhere.
 alert_config: data/processed/alerts/alert_config_v3.json   # v3 development parameters (reports/phase6_alert_burden.md); the v2 config stays untouched
 post_rules: data/processed/alerts/post_rules_v3.json       # post-model rules (rain trigger, ensemble agreement, blind-hold limit; reports/phase6_accuracy_hardening.md)
 terrain_table: data/processed/terrain/cell_terrain.parquet

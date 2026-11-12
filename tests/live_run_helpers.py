@@ -216,6 +216,7 @@ def tiny_clim(cells: pd.DataFrame) -> ClimTable:
 
 def make_cfg(tmp_path, **overrides) -> dict:
     cfg = copy.deepcopy(live_run.load_run_config())
+    cfg.pop(live_run.LEAD0_KEY, None)      # which model production runs lead 0 with is not what these tests are about
     cfg.update(live_dir=str(tmp_path / "live"), report_dir=str(tmp_path / "reports"), replay_dir=str(tmp_path / "replay"),
                forecast_widening=str(tmp_path / "forecast_widening.json"), forecast_selection=str(tmp_path / "forecast_selection.json"),
                places_table=str(tmp_path / "cell_places.parquet"),

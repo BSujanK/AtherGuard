@@ -1,0 +1,5 @@
+# The live copy of v4, adopted on its held-out look (phase7_static_susceptibility.json); written by
+# python -m aetherguard.hazard.promote. The live run reads only model_dir; the freeze also covers
+# this file and the report named by cv_report_stem.
+model_dir: model_v4_live
+cv_report_stem: phase7_static_susceptibility

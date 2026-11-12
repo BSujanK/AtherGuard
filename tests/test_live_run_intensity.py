@@ -52,9 +52,9 @@ def write_late_days(root, days, value: float = 4.0) -> None:
 
 
 def split_deps(tmp_path, fetch=None, **fields) -> live_run.LiveDeps:
-    return H.make_deps(model=intensity_model(), forecast_model=H.tiny_model(), forecast_thresholds=H.THRESHOLDS,
-                       intensity_root=tmp_path / "imerg_intensity", intensity_fetch=fetch or (lambda run, days, root: {}),
-                       **fields)
+    return H.make_deps(**{"model": intensity_model(), "forecast_model": H.tiny_model(), "forecast_thresholds": H.THRESHOLDS,
+                          "intensity_root": tmp_path / "imerg_intensity",
+                          "intensity_fetch": fetch or (lambda run, days, root: {}), **fields})
 
 
 def test_lead_0_reads_the_lagged_late_days_and_the_leads_use_their_own_model(tmp_path):
@@ -206,3 +206,74 @@ def test_a_challenger_its_look_did_not_adopt_is_never_promoted(tmp_path, isolate
     from aetherguard.hazard import promote
     with pytest.raises(promote.NotAdoptedError):
         promote.promote(promotable(tmp_path, adopt=False), "model_test_live", configs_dir=tmp_path)
+
+
+# ------------------------------------------------------------------------------------------- static inputs
+
+STATIC = ["lc_tree", "soil_clay", "ter_steep25"]
+
+
+def static_model() -> HazardModel:
+    """The intensity test model plus three static inputs, as the combined v4 has them."""
+    base = intensity_model()
+    rng = np.random.default_rng(7)
+    n = 3000
+    acc3 = rng.uniform(0, 320, n)
+    columns = [*base.columns, *STATIC]
+    frame = pd.DataFrame({c: acc3 * 0.3 + rng.uniform(0, 5, n) for c in columns}).astype(np.float32)
+    y = (acc3 + rng.normal(0, 25, n) > 140).astype(int)
+    constraints = [*base.constraints, 0, 0, 0]
+    params = dict(objective="binary", num_leaves=7, min_data_in_leaf=20, learning_rate=0.2, verbosity=-1, seed=1,
+                  deterministic=True, force_row_wise=True, monotone_constraints=constraints)
+    booster = lgb.train(params, lgb.Dataset(frame, y), num_boost_round=20)
+    members = [lgb.train({**params, "seed": 10 + k}, lgb.Dataset(frame, y), num_boost_round=20) for k in range(3)]
+    return HazardModel(columns, constraints, booster, 20, members, MonotoneCalibrator([0.0, 1.0], [0.0, 0.6]), base.card)
+
+
+def static_table() -> pd.DataFrame:
+    from aetherguard.features import static_w5
+    cells = H.tiny_cells()["cell_id"].to_numpy()
+    table = pd.DataFrame({"cell_id": cells, **{c: np.linspace(0.1, 0.9, len(cells)) for c in static_w5.STATIC_COLUMNS}})
+    table.loc[0, "soil_clay"] = np.nan                     # a cell SoilGrids does not cover: scored all the same
+    return table
+
+
+def test_lead_0_joins_the_static_inputs_of_each_cell_and_scores_a_cell_without_one(tmp_path):
+    cfg = H.make_cfg(tmp_path)
+    write_late_days(tmp_path / "imerg_intensity", lead0_days())
+    table = static_table()
+    deps = split_deps(tmp_path, model=static_model(), static_table=table)
+    summary = live_run.run_day(H.DAY, cfg, deps=deps)
+    assert summary["static"] == {"used": True, "inputs": STATIC, "reason": None, "cells_without_a_value": 1}
+    assert summary["intensity"]["used"] is True and summary["model"]["n_columns"] == len(H.MODEL_COLUMNS) + 6 + 3
+    d0 = pd.read_parquet(live_run.live_root(cfg) / H.DAY.isoformat() / "features_D0.parquet")
+    joined = d0.merge(table, on="cell_id", suffixes=("", "_table"))
+    assert np.allclose(joined["lc_tree"], joined["lc_tree_table"]) and int(d0["soil_clay"].isna().sum()) == 1
+    assert summary["leads"]["0"]["n_scored"] == len(d0) and summary["audit"]["total_violations"] == 0, summary["audit"]
+
+
+def test_a_missing_static_table_scores_lead_0_with_the_forecast_model(tmp_path, isolated_data_root):
+    cfg = H.make_cfg(tmp_path)
+    write_late_days(tmp_path / "imerg_intensity", lead0_days())
+    summary = live_run.run_day(H.DAY, cfg, deps=split_deps(tmp_path, model=static_model()))
+    assert summary["static"]["used"] is False and "static table unavailable" in summary["intensity"]["fallback_reason"]
+    assert "forecast_model" not in summary and summary["model"]["n_columns"] == len(H.MODEL_COLUMNS)
+
+
+def test_a_model_with_static_inputs_is_never_the_forecast_lead_model(tmp_path):
+    with pytest.raises(live_run.LiveRunError, match="static inputs, which only lead 0 joins"):
+        live_run.run_day(H.DAY, H.make_cfg(tmp_path), deps=H.make_deps(model=H.tiny_model(), forecast_model=static_model()))
+
+
+def test_the_dashboard_reads_a_forecast_leads_thresholds_from_the_model_that_made_it(tmp_path):
+    import json
+
+    from aetherguard.serve import dash_api
+    v4 = {"watch": 1e-6, "warning": 2e-6, "emergency": 3e-6}
+    v3 = {"watch": 4e-6, "warning": 5e-6, "emergency": 6e-6}
+    (tmp_path / "2026-08-12").mkdir()
+    (tmp_path / "2026-08-12" / "run.json").write_text(json.dumps({"model": {"thresholds": v4}, "forecast_model": {"thresholds": v3}}))
+    assert dash_api.cell_thresholds(tmp_path, "2026-08-12", "himalaya")[0]["watch"] == 1e-6
+    assert dash_api.cell_thresholds(tmp_path, "2026-08-12", "himalaya", lead=2)[0]["watch"] == 4e-6
+    (tmp_path / "2026-08-12" / "run.json").write_text(json.dumps({"model": {"thresholds": v4}}))
+    assert dash_api.cell_thresholds(tmp_path, "2026-08-12", "himalaya", lead=2)[0]["watch"] == 1e-6      # one model for all leads

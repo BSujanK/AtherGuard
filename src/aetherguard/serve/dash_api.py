@@ -299,11 +299,13 @@ def served_regional_thresholds(store: ReplayStore, live_dir: Path, shown: dict) 
 POOLED_SCOPE = "pooled"
 
 
-def cell_thresholds(live_dir: Path, day: str, region: str | None) -> tuple[dict | None, str | None]:
-    """(thresholds, scope) the live run of `day` levelled a cell of `region` against: the region's own entry of its run.json
-    `model.thresholds_by_region` (scope = the region), else the run's pooled `model.thresholds` (scope "pooled"). (None, None)
+def cell_thresholds(live_dir: Path, day: str, region: str | None, lead: int = 0) -> tuple[dict | None, str | None]:
+    """(thresholds, scope) the live run of `day` levelled a cell of `region` against at `lead`: the region's own entry of
+    its run.json `model.thresholds_by_region` (scope = the region), else the run's pooled `model.thresholds` (scope
+    "pooled"). A forecast lead of a run whose leads had a model of their own reads `forecast_model` instead. (None, None)
     when the run has no usable thresholds."""
-    model = (run_summary(live_dir, day) or {}).get("model")
+    summary = run_summary(live_dir, day) or {}
+    model = summary.get("forecast_model") if lead > 0 and isinstance(summary.get("forecast_model"), dict) else summary.get("model")
     model = model if isinstance(model, dict) else {}
     own = (_valid_regional_thresholds(model.get("thresholds_by_region")) or {}).get(region) if region else None
     if own:

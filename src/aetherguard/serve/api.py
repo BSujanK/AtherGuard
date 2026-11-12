@@ -220,7 +220,7 @@ def create_app(store_dir: Path | None = None, *, live_dir: Path | None = None, d
             store.refresh()
             shown = {"mode": "live", "set": dash_api.LIVE_SET}
             body = dash_api.forecast_cell(config, cell_id, _day(date), lead)
-            thresholds, scope = dash_api.cell_thresholds(config.live_dir, _day(date), body["region"])
+            thresholds, scope = dash_api.cell_thresholds(config.live_dir, _day(date), body["region"], lead)
             if thresholds is None:
                 thresholds = dash_api.served_thresholds(store, config.live_dir, shown)
             return sc.CellExplanation(
