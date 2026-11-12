@@ -113,7 +113,7 @@ export default function AlertColumns({ columns, reducedMotion }: AlertColumnsPro
 
   useFrame((state) => {
     material.uniforms.uTime!.value = state.clock.elapsedTime
-    const f = frameNow().risk
+    const f = frameNow().fill
     material.uniforms.uIntensity!.value = f * f
   })
 

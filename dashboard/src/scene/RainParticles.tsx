@@ -96,7 +96,7 @@ export default function RainParticles({ drops, reducedMotion }: RainParticlesPro
 
   useFrame((state) => {
     material.uniforms.uTime!.value = reducedMotion ? 0 : state.clock.elapsedTime
-    const f = frameNow().rain
+    const f = frameNow().fill
     material.uniforms.uIntensity!.value = f
   })
 

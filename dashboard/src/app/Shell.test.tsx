@@ -92,18 +92,10 @@ describe('Shell with replay data', () => {
     await settled()
   })
 
-  it('opens the story of the chart on the home path', async () => {
+  it('redirects the home path to the live map', async () => {
     const router = renderApp('/')
-    expect(router.state.location.pathname).toBe('/')
-    expect(screen.getByRole('heading', { level: 1, name: 'AetherGuard' })).toBeInTheDocument()
-    const chapters = within(screen.getByRole('navigation', { name: 'Chapters' })).getAllByRole('link')
-    expect(chapters.map((l) => l.textContent)).toEqual(['The chart', 'The ground', 'The rain', 'The levels', 'Today', 'Its limits'])
-    expect(chapters[0]).toHaveAttribute('aria-current', 'step')
-    // Figures come from the API: the day's counts and the thresholds of both regions.
-    const tally = await screen.findByRole('list', { name: 'Cells by level' })
-    expect(within(tally).getAllByRole('listitem')).toHaveLength(4)
-    expect(screen.getByRole('link', { name: 'Open the live map' })).toHaveAttribute('href', '/map')
-    expect(screen.getByRole('link', { name: 'AetherGuard, the story of the chart' })).toHaveAttribute('aria-current', 'page')
+    expect(router.state.location.pathname).toBe('/map')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Live map' })).toBeInTheDocument()
     await settled()
   })
 
