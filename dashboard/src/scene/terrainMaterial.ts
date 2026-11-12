@@ -1,5 +1,5 @@
 import { Color, type Texture, ShaderMaterial, Vector3 } from 'three'
-import { PALETTE } from './levelColors'
+import { mixHex, PALETTE, SEA_HEX } from './levelColors'
 
 /** Contour spacing in metres; every `MAJOR_EVERY`th line is drawn heavier. */
 const CONTOUR_INTERVAL = 250
@@ -32,10 +32,12 @@ const fragmentShader = /* glsl */ `
   uniform float uReveal;
   uniform float uFill;
   uniform float uMaxElev;
+  uniform vec3 uPaper;
+  uniform vec3 uSea;
   uniform vec3 uInk;
-  uniform vec3 uBlue;
-  uniform vec3 uCyan;
-  uniform vec3 uCloud;
+  uniform vec3 uSlate;
+  uniform vec3 uSignal;
+  uniform vec3 uSepia;
   uniform vec3 uLight;
   uniform sampler2D uRiskMap;
   uniform sampler2D uClassMap;
@@ -84,26 +86,23 @@ const fragmentShader = /* glsl */ `
     float lines = max(minor * 0.55, major) * step(8.0, vElev) * mix(0.3, 1.0, mountain);
     lines *= mix(1.0, 0.18, other);
 
-    // Shaded terrain: hypsometric ramp lit from the north-west, all mixes of the palette.
+    // Relief as on a printed chart: paper tinted with height, shadows laid in as a wash of ink, the lit north-west
+    // slopes left as bare paper. Nothing is added to the ground colour; every layer is ink on paper.
     float lambert = clamp(dot(normalize(vNormal), uLight), 0.0, 1.0);
-    lambert = mix(0.55, lambert, mix(0.35, 1.0, mountain));
-    vec3 low = mix(uInk, uBlue, 0.16);
-    vec3 ramp = mix(low, mix(uInk, uBlue, 0.55), smoothstep(0.0, 0.45, h));
-    ramp = mix(ramp, mix(uBlue, uCyan, 0.4), smoothstep(0.55, 1.0, h) * 0.6);
-    ramp = mix(mix(uInk, ramp, 0.55), ramp, mountain);
-    vec3 shaded = ramp * (0.42 + 1.05 * lambert);
-    shaded += uCyan * pow(lambert, 6.0) * 0.06 * mountain;
-    shaded = mix(shaded, uInk, 0.72 * other);
+    lambert = mix(0.72, lambert, mix(0.3, 1.0, mountain));
+    vec3 tinted = mix(uPaper, mix(uPaper, uSlate, 0.24), smoothstep(0.18, 0.62, h));
+    tinted = mix(tinted, uPaper, smoothstep(0.62, 1.0, h) * 0.85);          // the highest ground pales toward snow
+    vec3 shaded = mix(tinted, uInk, (1.0 - lambert) * mix(0.1, 0.5, mountain));
+    shaded = mix(shaded, uSea, 0.62 * other);                              // neighbouring countries sink toward the sea tint
 
-    vec3 lineCol = mix(uCyan, uCloud, clamp(front * 0.9 + major * 0.2, 0.0, 1.0));
-    vec3 glow = lineCol * lines * revealed * (1.1 + 1.6 * front);
-    glow *= mix(1.0, 0.2, uFill);
-
-    vec3 col = uInk;
-    col += glow;
-    col += shaded * revealed * uFill;
-    col += uCyan * front * 0.04 * (1.0 - uFill);
-    col += uCyan * coast * 0.38 * revealed;
+    vec3 col = mix(uPaper, shaded, uFill);
+    col = mix(col, uSea, 0.62 * other * (1.0 - uFill));
+    // Contours in sepia, heavier before the relief arrives (the chart is only lines then) and finer over it.
+    float inked = lines * mix(0.85, 0.42, uFill);
+    col = mix(col, uSepia, clamp(inked, 0.0, 1.0));
+    col = mix(col, uSignal, clamp(front * 0.85 * (1.0 - uFill), 0.0, 1.0));  // the plotting front, in the plotting blue
+    col = mix(col, uInk, coast * 0.62);
+    col = mix(uSea, col, revealed);
 
     // Risk draped on the terrain: one texel per cell, straight alpha, opaque only where a cell was scored.
     vec4 risk = texture2D(uRiskMap, vUv);
@@ -114,7 +113,7 @@ const fragmentShader = /* glsl */ `
     // India, Nepal and Bhutan, where the risk is, keep the narrow feather and stay crisp to the border.
     float inset = min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y));
     float fade = vEdge * mix(1.0, smoothstep(0.03, 0.3, inset), other);
-    col = uInk + (col - uInk) * fade;
+    col = uSea + (col - uSea) * fade;
 
     gl_FragColor = vec4(col, 1.0);
     #include <colorspace_fragment>
@@ -138,10 +137,12 @@ export function createTerrainMaterial({ maxElevation, riskMap, classMap }: Terra
       uRiskMap: { value: riskMap },
       uClassMap: { value: classMap },
       uRisk: { value: 0 },
+      uPaper: { value: new Color(PALETTE.paper) },
+      uSea: { value: new Color(SEA_HEX) },
       uInk: { value: new Color(PALETTE.ink) },
-      uBlue: { value: new Color(PALETTE.blue) },
-      uCyan: { value: new Color(PALETTE.cyan) },
-      uCloud: { value: new Color(PALETTE.cloud) },
+      uSlate: { value: new Color(PALETTE.slate) },
+      uSignal: { value: new Color(PALETTE.signal) },
+      uSepia: { value: new Color(mixHex(PALETTE.orange, PALETTE.ink, 0.5)) },
       uLight: { value: new Vector3(-0.55, 0.62, -0.5).normalize() },
     },
     vertexShader,

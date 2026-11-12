@@ -56,14 +56,14 @@ export function cellAtPoint(n: Neighbourhood, x: number, y: number, size: number
   return n.cells[row * side + col] ?? null
 }
 
-const UNSCORED_EDGE = mixHex(PALETTE.ink, PALETTE.blue, 0.4)
+const UNSCORED_EDGE = mixHex(PALETTE.paper, PALETTE.slate, 0.4)
 
 /** Draws the square, north up: level colours from the palette, unscored cells as empty outlines, the centre in neon cyan. */
 export function drawNeighbourhood(ctx: CanvasRenderingContext2D, n: Neighbourhood, size: number): void {
   const side = 2 * n.radius + 1
   const step = size / side
   ctx.clearRect(0, 0, size, size)
-  ctx.fillStyle = PALETTE.ink
+  ctx.fillStyle = PALETTE.paper
   ctx.fillRect(0, 0, size, size)
   n.cells.forEach((c, i) => {
     const x = (i % side) * step
@@ -78,7 +78,7 @@ export function drawNeighbourhood(ctx: CanvasRenderingContext2D, n: Neighbourhoo
     }
   })
   const mid = n.radius * step
-  ctx.strokeStyle = PALETTE.cyan
+  ctx.strokeStyle = PALETTE.signal
   ctx.lineWidth = 3
   ctx.strokeRect(mid + 0.5, mid + 0.5, step - 1, step - 1)
 }

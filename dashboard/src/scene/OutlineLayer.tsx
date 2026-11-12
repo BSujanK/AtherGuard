@@ -24,7 +24,7 @@ export default function OutlineLayer({ outline, window, field }: OutlineLayerPro
         const geometry = new BufferGeometry()
         geometry.setAttribute('position', new BufferAttribute(outlineSegments(country, window, field), 3))
         const material = new LineBasicMaterial({
-          color: PALETTE.cyan,
+          color: PALETTE.ink,
           transparent: true,
           opacity: OPACITY[country.name] ?? NEIGHBOUR_OPACITY,
         })

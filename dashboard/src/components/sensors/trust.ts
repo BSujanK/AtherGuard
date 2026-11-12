@@ -2,10 +2,10 @@ import { mixHex, PALETTE } from '../../charts/theme'
 
 /** Trust at or above this reads as fully trusted (cyan); the scale ends at 0 (fire red). */
 export const TRUST_STOPS = [
-  { at: 1, color: PALETTE.cyan },
-  { at: 2 / 3, color: PALETTE.lime },
-  { at: 1 / 3, color: PALETTE.flame },
-  { at: 0, color: PALETTE.fire },
+  { at: 1, color: PALETTE.signal },
+  { at: 2 / 3, color: PALETTE.yellow },
+  { at: 1 / 3, color: PALETTE.orange },
+  { at: 0, color: PALETTE.red },
 ] as const
 
 /**

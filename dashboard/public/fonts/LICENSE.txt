@@ -1,3 +1,4 @@
-Archivo (Omnibus-Type) and Geist Mono (Vercel, with Basement Studio) are licensed under the SIL Open Font
-License, Version 1.1: https://openfontlicense.org
-The files here are the variable woff2 subsets (latin, latin-ext) served by Google Fonts, unmodified.
+National Park (The National Park Project Authors), Atkinson Hyperlegible Next and Atkinson Hyperlegible Mono
+(The Atkinson Hyperlegible Project Authors, Braille Institute) are licensed under the SIL Open Font License,
+Version 1.1: https://openfontlicense.org
+The files here are the variable woff2 subsets (latin, latin-ext) distributed by Fontsource, unmodified.

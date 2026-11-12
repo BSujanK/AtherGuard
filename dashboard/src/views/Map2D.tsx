@@ -129,7 +129,7 @@ export default function Map2D({ model }: { model: MapModel }) {
       const { width, height } = size.current
       if (!width || !height) return
       const v = (view.current ??= home('all'))
-      ctx.fillStyle = PALETTE.ink
+      ctx.fillStyle = PALETTE.paper
       ctx.fillRect(0, 0, width, height)
 
       const half = terrain.step / 2
@@ -145,7 +145,7 @@ export default function Map2D({ model }: { model: MapModel }) {
         ctx.drawImage(risk, x0, y0, w, h)
       }
 
-      ctx.strokeStyle = PALETTE.cyan
+      ctx.strokeStyle = PALETTE.signal
       ctx.lineWidth = 1
       for (const ring of rings) {
         ctx.globalAlpha = ring.alpha
@@ -162,7 +162,7 @@ export default function Map2D({ model }: { model: MapModel }) {
 
       const share = QUALITY_STEPS[useMapState.getState().quality].particles
       if (drops && share > 0) {
-        ctx.strokeStyle = PALETTE.cyan
+        ctx.strokeStyle = PALETTE.signal
         ctx.globalAlpha = 0.45
         ctx.lineWidth = 1
         ctx.beginPath()
@@ -187,7 +187,7 @@ export default function Map2D({ model }: { model: MapModel }) {
         ctx.arc(sx, sy, radius, 0, Math.PI * 2)
         ctx.fill()
         if (m.level === 3) {
-          ctx.strokeStyle = PALETTE.fire
+          ctx.strokeStyle = PALETTE.red
           ctx.globalAlpha = 0.5 * beat
           ctx.beginPath()
           ctx.arc(sx, sy, radius + 3 + 3 * beat, 0, Math.PI * 2)
@@ -203,7 +203,7 @@ export default function Map2D({ model }: { model: MapModel }) {
           const { x, z } = texelWorld(texel, terrain)
           const [sx, sy] = worldToScreen(v, width, height, x, z)
           const r = Math.max(5, terrain.step * v.scale * 0.8)
-          ctx.strokeStyle = PALETTE.cyan
+          ctx.strokeStyle = PALETTE.signal
           ctx.lineWidth = 2
           ctx.strokeRect(sx - r, sy - r, 2 * r, 2 * r)
         }

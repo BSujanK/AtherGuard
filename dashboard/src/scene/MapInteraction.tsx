@@ -48,7 +48,7 @@ export function MapInteraction({ window: win, field, grid, visible }: Interactio
         3,
       ),
     )
-    const m = new LineBasicMaterial({ color: PALETTE.cyan, depthTest: false, transparent: true })
+    const m = new LineBasicMaterial({ color: PALETTE.signal, depthTest: false, transparent: true })
     const line = new LineLoop(g, m)
     line.visible = false
     line.renderOrder = 10

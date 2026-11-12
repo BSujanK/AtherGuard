@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from 'react'
 import {
-  AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   Color,
@@ -26,7 +25,7 @@ const graticuleFragment = /* glsl */ `
     // Strongest around the map, gone well before the lines would reach the horizon. Per fragment: a line's
     // ends both lie beyond the fade, so a per-vertex value would blank the whole line.
     float fade = 1.0 - smoothstep(16.0, 58.0, length(vPlace));
-    gl_FragColor = vec4(uColor * fade, 1.0);
+    gl_FragColor = vec4(uColor, fade * 0.3);
     #include <colorspace_fragment>
   }
 `
@@ -58,10 +57,9 @@ export function Graticule({ window: w }: { window: Window }) {
     const g = new BufferGeometry()
     g.setAttribute('position', new BufferAttribute(new Float32Array(positions), 3))
     const m = new ShaderMaterial({
-      uniforms: { uColor: { value: new Color(PALETTE.blue).lerp(new Color(PALETTE.cyan), 0.3).multiplyScalar(0.2) } },
+      uniforms: { uColor: { value: new Color(PALETTE.slate) } },
       vertexShader: graticuleVertex,
       fragmentShader: graticuleFragment,
-      blending: AdditiveBlending,
       transparent: true,
       depthWrite: false,
       // Drawn over land and sea alike: stopping at the terrain would cut a rectangle (the data window) out of the grid.

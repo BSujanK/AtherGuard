@@ -20,8 +20,8 @@ const ALLOWED_HEX = new Set(Object.values(PALETTE).map((h) => h.toLowerCase()))
 /** Mixes written out as literals, each documented where it is used. None: mixes are always computed. */
 const DOCUMENTED_MIXES: string[] = []
 
-/** The old pinned palette and its mixes: smoke black, burnt brown, sand and the derived steps. */
-const OLD_PALETTE = ['#15110F', '#4B1F17', '#F0C27B', '#5F3323']
+/** The two palettes this one replaced: the smoke-and-sand one and the neon-on-ink one. */
+const OLD_PALETTE = ['#15110F', '#4B1F17', '#F0C27B', '#5F3323', '#0A0B10', '#00F0FF', '#4169E1', '#C6FF00', '#F4511E', '#D71920', '#E6FBFF']
 
 const sources = [
   ...walk(join(ROOT, 'src'), (p) => /\.(ts|tsx|css)$/.test(p) && !p.endsWith('palette.test.ts')),
@@ -56,9 +56,9 @@ describe('the palette', () => {
 
   it('declares the seven palette colours in the tokens, matching the TypeScript palette', () => {
     const tokens = parseTokens(read('src/styles/tokens.css'))
-    const names = ['--ink-black', '--neon-cyan', '--royal-blue', '--neon-lime', '--flame-orange', '--fire-red', '--cloud']
+    const names = ['--paper', '--signal', '--slate', '--yellow', '--orange', '--red', '--ink']
     expect(names.map((name) => tokens.get(name)!.toLowerCase())).toEqual(
-      [PALETTE.ink, PALETTE.cyan, PALETTE.blue, PALETTE.lime, PALETTE.flame, PALETTE.fire, PALETTE.cloud].map((h) => h.toLowerCase()),
+      [PALETTE.paper, PALETTE.signal, PALETTE.slate, PALETTE.yellow, PALETTE.orange, PALETTE.red, PALETTE.ink].map((h) => h.toLowerCase()),
     )
   })
 
@@ -86,26 +86,29 @@ describe('contrast', () => {
     },
   )
 
-  it.each(['--bg', '--surface', '--surface-raised'])('neon cyan, the accent used for text, is at least 4.5:1 on %s', (surface) => {
-    expect(contrast(colour('--neon-cyan'), onSurface(surface))).toBeGreaterThanOrEqual(4.5)
+  it.each(['--bg', '--surface', '--surface-raised'])('the plotting blue, the accent used for text, is at least 4.5:1 on %s', (surface) => {
+    expect(contrast(colour('--signal'), onSurface(surface))).toBeGreaterThanOrEqual(4.5)
   })
 
-  it.each(['--bg', '--surface'])('flame orange used as text (warnings) is at least 4.5:1 on %s', (surface) => {
-    expect(contrast(colour('--flame-orange'), onSurface(surface))).toBeGreaterThanOrEqual(4.5)
-  })
+  it.each(['--warn', '--level-watch-text', '--danger'].flatMap((text) => ['--bg', '--surface'].map((surface) => [text, surface] as const)))(
+    'warning text %s on %s is at least 4.5:1',
+    (text, surface) => {
+      expect(contrast(colour(text), onSurface(surface))).toBeGreaterThanOrEqual(4.5)
+    },
+  )
 
   it('text on the accent fill (selected chips, buttons) is at least 4.5:1', () => {
     expect(contrast(colour('--text-on-accent'), colour('--accent'))).toBeGreaterThanOrEqual(4.5)
   })
 
-  it('keeps fire red out of text: it is under 4.5:1 on ink, so it is only ever a fill, stroke or border', () => {
-    expect(contrast(colour('--fire-red'), colour('--bg'))).toBeLessThan(4.5)
+  it('keeps yellow and orange out of text: they are fills on paper, and text uses their ink-darkened steps', () => {
+    for (const fill of ['--yellow', '--orange']) expect(contrast(colour(fill), colour('--surface'))).toBeLessThan(4.5)
     const offenders = sources
       .filter((f) => f.endsWith('.css'))
       .flatMap((file) =>
         readFileSync(file, 'utf8')
           .split('\n')
-          .filter((line) => /^\s*color\s*:/.test(line) && /--(?:fire-red|danger|level-emergency)/.test(line))
+          .filter((line) => /^\s*color\s*:/.test(line) && /--(?:yellow|orange|level-watch|level-warning)\)/.test(line))
           .map((line) => `${relative(ROOT, file)}: ${line.trim()}`),
       )
     expect(offenders).toEqual([])

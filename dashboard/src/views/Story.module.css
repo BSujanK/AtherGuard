@@ -4,8 +4,6 @@
  */
 .story {
   position: relative;
-  /* The main region's own padding would show a strip of bare page above the first chapter. */
-  margin: calc(var(--sp-5) * -1) calc(var(--gutter) * -1) calc(var(--sp-6) * -1);
 }
 
 .chapter {
@@ -13,7 +11,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  min-height: calc(100svh - var(--bar-h, 6rem));
+  /* One chapter fills the scrolling region exactly, however tall the bar above it has wrapped. */
+  min-height: 100cqh;
   padding: var(--sp-7) var(--gutter);
   scroll-snap-align: start;
 }
@@ -304,4 +303,10 @@
     transform: none;
     filter: none;
   }
+}
+
+/* On a phone the two region columns sit close; keep their headings from touching. */
+.levels th + th,
+.levels td + td {
+  padding-left: var(--sp-3);
 }

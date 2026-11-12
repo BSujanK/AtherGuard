@@ -11,8 +11,8 @@ export interface ReliefImage {
 /** Elevation at which the land reaches its brightest royal blue. */
 const FULL_RELIEF_M = 3000
 /** Royal blue share of the lowland and of the highest ground (the rest is ink). */
-const LOW_BLUE = 0.16
-const HIGH_BLUE = 0.62
+const LOW_BLUE = 0.08
+const HIGH_BLUE = 0.42
 /** Land of neighbouring countries is drawn this far toward ink: context, not subject. */
 const OTHER_LAND_DIM = 0.72
 /** Metres per cell at the domain's mid latitude, to turn elevation steps into slopes. */
@@ -41,7 +41,7 @@ export function renderRelief(map: Basemap): ReliefImage {
     const y = rows - 1 - r // grid row 0 is the southern edge; the image's row 0 is the northern one
     for (let c = 0; c < cols; c++) {
       const e = elev[r * cols + c]!
-      let hex: string = PALETTE.ink
+      let hex: string = PALETTE.paper
       if (Number.isFinite(e)) {
         const here = Math.max(0, e)
         const side = (rr: number, cc: number) => (Number.isFinite(at(rr, cc)) ? Math.max(0, at(rr, cc)) : here)
@@ -51,12 +51,12 @@ export function renderRelief(map: Basemap): ReliefImage {
         const ny = -dzdy * EXAGGERATION
         const shade = (nx * LIGHT[0] + ny * LIGHT[1] + LIGHT[2]) / Math.hypot(nx, ny, 1) / flat
         const share = LOW_BLUE + (HIGH_BLUE - LOW_BLUE) * Math.min(1, here / FULL_RELIEF_M)
-        const base = mixHex(PALETTE.ink, PALETTE.blue, share)
+        const base = mixHex(PALETTE.paper, PALETTE.slate, share)
         hex =
           shade >= 1
-            ? mixHex(base, PALETTE.cyan, Math.min(1, (shade - 1) * 0.5) * 0.3)
-            : mixHex(base, PALETTE.ink, Math.min(1, (1 - shade) * 0.8) * 0.6)
-        if (mask[r * cols + c] === MASK.other) hex = mixHex(hex, PALETTE.ink, OTHER_LAND_DIM)
+            ? mixHex(base, PALETTE.paper, Math.min(1, (shade - 1) * 0.5) * 0.5)
+            : mixHex(base, PALETTE.ink, Math.min(1, (1 - shade) * 0.8) * 0.4)
+        if (mask[r * cols + c] === MASK.other) hex = mixHex(hex, PALETTE.paper, OTHER_LAND_DIM)
       }
       const [red, green, blue] = rgbOf(hex)
       const i = (y * cols + c) * 4

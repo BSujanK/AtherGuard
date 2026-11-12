@@ -9,7 +9,7 @@
   position: fixed;
   inset: 0;
   z-index: 1;
-  background: color-mix(in srgb, var(--ink-black) 86%, transparent);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--dur-slow) var(--ease-out);
@@ -50,7 +50,7 @@
 
 .brand svg {
   flex: none;
-  color: var(--neon-cyan);
+  color: var(--signal);
 }
 
 .nav {
@@ -112,7 +112,7 @@
 }
 
 .link[aria-current='page'] svg {
-  color: var(--neon-cyan);
+  color: var(--signal);
 }
 
 .pill {
@@ -138,6 +138,9 @@
   scroll-behavior: smooth;
   scroll-snap-type: y proximity;
   scrollbar-gutter: auto;
+  padding: 0;
+  /* Chapters size themselves to this region (100cqh). */
+  container-type: size;
 }
 
 /* On the map the canvas behind is interactive: the column lets the pointer through to it, and only the bar takes it back. */

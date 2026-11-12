@@ -9,7 +9,7 @@ export interface LatencyRun {
 }
 
 const LOG_AXIS = { type: 'log', logBase: 10, min: 1, max: 1000, name: 'hours', nameLocation: 'end' } as const
-const OK_BAR = mixHex(PALETTE.blue, PALETTE.cyan, 0.5)
+const OK_BAR = mixHex(PALETTE.slate, PALETTE.signal, 0.5)
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 export const latencyOf = (row: SourceRow): number | null => {
@@ -41,7 +41,7 @@ function barOption(run: LatencyRun): ChartOption {
           const h = latencyOf(r)
           return h === null
             ? { value: '-' }
-            : { value: Number(h.toFixed(1)), itemStyle: { color: r.status === 'late' ? PALETTE.flame : OK_BAR } }
+            : { value: Number(h.toFixed(1)), itemStyle: { color: r.status === 'late' ? PALETTE.orange : OK_BAR } }
         }),
       },
       {
@@ -49,7 +49,7 @@ function barOption(run: LatencyRun): ChartOption {
         type: 'scatter',
         symbol: 'rect',
         symbolSize: [3, 22],
-        itemStyle: { color: PALETTE.cloud },
+        itemStyle: { color: PALETTE.ink },
         z: 5,
         data: rows.flatMap((r) => (r.expectedLatencyH === null ? [] : [[r.expectedLatencyH, r.label]])),
       },

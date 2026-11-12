@@ -58,7 +58,7 @@
 .option input:checked + span {
   color: var(--text-on-accent);
   font-weight: 650;
-  background: var(--neon-cyan);
+  background: var(--signal);
 }
 
 .option input:focus-visible + span {

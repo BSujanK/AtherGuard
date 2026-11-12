@@ -35,7 +35,7 @@ export function buildShapOption(shap: readonly ShapFactor[]): ChartOption {
         label: { show: true, position: 'right', color: TEXT_2, fontSize: 11, textBorderWidth: 0, formatter: (p: { value: number }) => signed(p.value) },
         data: factors.map((f) => ({
           value: Number(f.contribution.toFixed(4)),
-          itemStyle: { color: f.contribution >= 0 ? PALETTE.flame : PALETTE.cyan },
+          itemStyle: { color: f.contribution >= 0 ? PALETTE.orange : PALETTE.signal },
         })),
       },
     ],

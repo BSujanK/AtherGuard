@@ -1,48 +1,49 @@
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Palette (pinned by the user, spec section 8). Everything below is a mix of these. */
-  --ink-black: #0a0b10;
-  --neon-cyan: #00f0ff;
-  --royal-blue: #4169e1;
-  --neon-lime: #c6ff00;
-  --flame-orange: #f4511e;
-  --fire-red: #d71920;
-  --cloud: #e6fbff;
+  /* Palette: the daily weather chart. Everything below is a mix of these seven. */
+  --paper: #eef2ec;
+  --ink: #17233d;
+  --slate: #2f6f8f;
+  --signal: #1746c7;
+  --yellow: #f0b400;
+  --orange: #e8700c;
+  --red: #c8201c;
 
-  /* Surfaces: ink mixed toward royal blue */
-  --bg: var(--ink-black);
-  --surface-sunken: color-mix(in srgb, var(--royal-blue) 5%, var(--ink-black));
-  --surface: color-mix(in srgb, var(--royal-blue) 10%, var(--ink-black));
-  --surface-raised: color-mix(in srgb, var(--royal-blue) 16%, var(--ink-black));
-  --surface-high: color-mix(in srgb, var(--royal-blue) 24%, var(--ink-black));
-  --border: color-mix(in srgb, var(--royal-blue) 32%, transparent);
-  --border-strong: color-mix(in srgb, var(--royal-blue) 62%, transparent);
+  /* Surfaces: the page is the chart's sea tint; panels are slips of the paper itself laid on it. */
+  --bg: color-mix(in srgb, var(--slate) 14%, var(--paper));
+  --surface-sunken: color-mix(in srgb, var(--slate) 8%, var(--paper));
+  --surface: var(--paper);
+  --surface-raised: color-mix(in srgb, var(--slate) 7%, var(--paper));
+  --surface-high: color-mix(in srgb, var(--slate) 15%, var(--paper));
+  --border: color-mix(in srgb, var(--ink) 20%, transparent);
+  --border-strong: color-mix(in srgb, var(--ink) 44%, transparent);
 
-  /* Text. Secondary steps stay >= 4.5:1 on every surface (checked by palette.test.ts). */
-  --text: var(--cloud);
-  --text-2: color-mix(in srgb, var(--cloud) 78%, transparent);
-  --text-3: color-mix(in srgb, var(--cloud) 62%, transparent);
-  --text-on-accent: var(--ink-black);
+  /* Text: ink, thinned. Secondary steps stay >= 4.5:1 on every surface (checked by palette.test.ts). */
+  --text: var(--ink);
+  --text-2: color-mix(in srgb, var(--ink) 86%, transparent);
+  --text-3: color-mix(in srgb, var(--ink) 74%, transparent);
+  --text-on-accent: var(--paper);
 
-  /* Accent and state */
-  --accent: var(--neon-cyan);
-  --focus-ring: 2px solid var(--neon-cyan);
-  --warn: var(--flame-orange);
-  --danger: var(--fire-red);
+  /* Accent and state. The warning hues are fills; as text they are darkened with ink to stay legible on paper. */
+  --accent: var(--signal);
+  --focus-ring: 2px solid var(--signal);
+  --warn: color-mix(in srgb, var(--orange) 58%, var(--ink));
+  --danger: color-mix(in srgb, var(--red) 84%, var(--ink));
 
-  /* Risk levels, cool to hot */
-  --level-normal: color-mix(in srgb, var(--royal-blue) 55%, var(--ink-black));
-  --level-watch: var(--neon-lime);
-  --level-warning: var(--flame-orange);
-  --level-emergency: var(--fire-red);
+  /* Risk levels: the weather service's own colour code. Normal is a quiet tint, never an alarm. */
+  --level-normal: color-mix(in srgb, var(--slate) 30%, var(--paper));
+  --level-watch: var(--yellow);
+  --level-warning: var(--orange);
+  --level-emergency: var(--red);
+  --level-watch-text: color-mix(in srgb, var(--yellow) 42%, var(--ink));
 
-  /* Type: one family. Archivo at its wide end is the display voice, at normal width the text; Geist Mono carries
-     measurements (ids, coordinates, probabilities, dates) so numbers never blur into words. */
-  --font-ui: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-data: 'Geist Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  --display-stretch: 122%;
+  /* Type: routed, monoline lettering for names and headings, as on a drawn chart; a face built for legibility for
+     reading; its mono for measurements (ids, coordinates, probabilities, dates) so a number never reads as a word. */
+  --font-ui: 'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'National Park', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-data: 'Atkinson Hyperlegible Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --display-stretch: normal;
   --fs-xs: 0.75rem;
   --fs-sm: 0.8125rem;
   --fs-base: 0.9375rem;
@@ -70,16 +71,17 @@
   --radius-lg: 14px;
   --content-w: 96rem;
 
-  /* Depth: offset and soft, ink only. Panels over the live terrain are glass so the map reads through them. */
+  /* Depth: offset and soft, in ink. Panels are paper, so they are all but opaque; the blur only softens the map's
+     lines where they pass under an edge. */
   --shadow-1:
-    0 1px 2px color-mix(in srgb, var(--ink-black) 50%, transparent),
-    0 10px 24px -14px color-mix(in srgb, var(--ink-black) 80%, transparent);
+    0 1px 2px color-mix(in srgb, var(--ink) 12%, transparent),
+    0 10px 24px -14px color-mix(in srgb, var(--ink) 30%, transparent);
   --shadow-2:
-    0 2px 6px color-mix(in srgb, var(--ink-black) 55%, transparent),
-    0 28px 56px -20px color-mix(in srgb, var(--ink-black) 90%, transparent);
-  --glass: color-mix(in srgb, var(--surface) 76%, transparent);
-  --glass-blur: blur(18px) saturate(1.4);
-  --hairline: color-mix(in srgb, var(--royal-blue) 22%, transparent);
+    0 2px 6px color-mix(in srgb, var(--ink) 12%, transparent),
+    0 28px 56px -20px color-mix(in srgb, var(--ink) 36%, transparent);
+  --glass: color-mix(in srgb, var(--surface) 94%, transparent);
+  --glass-blur: blur(6px);
+  --hairline: color-mix(in srgb, var(--ink) 13%, transparent);
 
   /* Motion: quick for hover and press, base for panels and state changes, slow for the scene behind. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
