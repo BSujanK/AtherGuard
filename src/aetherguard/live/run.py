@@ -33,6 +33,11 @@ Rules the run follows (spec sections 5 and 10)
   assessed and not written, and the bulletin states both counts. A cell is scored (at any lead) only when every rain
   input of the model is known (`scorable_mask`), and a forecast lead only for cells scored on day D.
 * The model must be frozen (FROZEN.json verified); otherwise the CLI exits 1 with "v3-live model not frozen yet: ...".
+* Two models (W3 live switch): lead 0 is scored by the model `lead0_model_config` names, the forecast leads by the one
+  `model_config` names (both by `model_config` when the first is absent; every study reads `model_config`). A model with
+  rain-intensity inputs (`iint_`) is never a forecast-lead model, since no forecast lead has an observed intensity day. Lead 0 reads them as training did: the
+  complete half-hourly Late days of the model's lag (D-3..D-1 at lag 1), fetched when missing; while one is missing,
+  lead 0 is scored by the forecast-lead model and run.json `intensity` says why.
 * Post-model rules (spec section 11, `live.postrules`, the file named by `post_rules`): the rain trigger caps cell-days
   without recent rain (`no_recent_rain`) before the hysteresis, which holds a level only while it rained within the hold
   window and over at most `blind_hold_days` days without a score (`held_while_blind`); a Warning+ point the ensemble does
@@ -69,11 +74,13 @@ from ..alerts.store import ALERTS_DIR, MANIFEST_FILE, SENSORS_DIR, iso, write_se
 from ..config import PROJECT_ROOT, load_config_file
 from ..features import imerg_build
 from ..features import imerg_features as F
+from ..features import imerg_intensity as ii
 from ..features.compute import MIN_SHARE_ACC3_MM, STAT_COLUMNS, ClimTable
 from ..features.sampling import candidate_cells
 from ..hazard import model as hm
 from ..hazard.freeze import FROZEN_NAME, FrozenMismatchError, default_external_files, verify_freeze
 from ..ingest import imerg as imerg_grid
+from ..ingest import imerg_hh
 from ..manifest import sha256_file
 from . import adapter, audit, bulletin, forecast_choice, forecast_features, forecast_map
 from . import postrules as pr
@@ -95,6 +102,8 @@ CAUSE_MODEL_INPUT = "model_input_missing"
 CAUSE_FORECAST_MISSING = pr.CAUSE_FORECAST_MISSING
 CAUSE_UNCALIBRATED = pr.CAUSE_UNCALIBRATED
 CAUSE_NOWCAST_TAIL = "nowcast_tail_persisted"
+INTENSITY_PREFIX = "iint_"
+LEAD0_KEY = "lead0_model_config"
 EXIT_RETRY = 3
 RISK_COLUMNS = ["risk", "risk_lo", "risk_hi", "risk_per_100k"]
 LEAD_COLUMNS = ["cell_id", "date", "lead", "lat", "lon", "region", *RISK_COLUMNS, "level", "level_name", "confidence",
@@ -128,6 +137,10 @@ class LiveDeps:
     post_rules: pr.PostRules | None = None       # None: the file named by `post_rules` (no rules without that key)
     choice: forecast_choice.ForecastChoice | None = None    # None: the file named by `forecast_selection` (GFS everywhere without it)
     maps: forecast_map.ForecastMaps | None = None            # None: the file the choice names
+    forecast_model: hm.HazardModel | None = None             # None: `model_config` when `lead0_model_config` is set, else the lead-0 model
+    forecast_thresholds: lv.Thresholds | lv.RegionThresholds | None = None    # None: from the forecast-lead model's card
+    intensity_root: Path | None = None                       # None: imerg_intensity.default_root()
+    intensity_fetch: Callable | None = None                  # None: imerg_hh.fetch_complete_days
 
 
 # ------------------------------------------------------------------------------------------------------ inputs
@@ -152,6 +165,55 @@ def load_live_model(cfg: dict) -> hm.HazardModel:
     except FrozenMismatchError as exc:
         raise ModelNotFrozen(f"v3-live model does not match its freeze record: {exc}") from exc
     return hm.HazardModel.load(model_dir)
+
+
+def uses_intensity(model) -> bool:
+    return any(str(c).startswith(INTENSITY_PREFIX) for c in model.columns)
+
+
+def lead0_key(cfg: dict) -> str:
+    """The configuration key naming the lead-0 model: `lead0_model_config` when set, else `model_config`."""
+    return LEAD0_KEY if cfg.get(LEAD0_KEY) else "model_config"
+
+
+def split_configured(cfg: dict) -> bool:
+    return lead0_key(cfg) == LEAD0_KEY and cfg[LEAD0_KEY] != cfg["model_config"]
+
+
+def load_forecast_model(cfg: dict, deps: LiveDeps, model: hm.HazardModel) -> hm.HazardModel:
+    """The model of the forecast leads: handed in, else the frozen model `model_config` names when lead 0 has a model of
+    its own, else `model`. It may not read rain intensity: no forecast lead has an observed intensity day."""
+    if deps.forecast_model is not None:
+        forecast = deps.forecast_model
+    elif deps.model is None and split_configured(cfg):
+        forecast = load_live_model(cfg)
+    else:
+        forecast = model
+    if uses_intensity(forecast):
+        raise LiveRunError("the forecast-lead model reads rain-intensity inputs, which no forecast lead has observed; "
+                           "`model_config` must name a model without them")
+    return forecast
+
+
+def intensity_inputs(day: date, cells: pd.DataFrame, model: hm.HazardModel, deps: LiveDeps) -> tuple[pd.DataFrame | None, dict]:
+    """The six `iint_` inputs of IMD day `day` for lead 0, built as training built them: from the complete Late day files of
+    the model's lag (`card.intensity.lag_days`), fetched when missing. None, with the reason, while a day is missing."""
+    lag = int(model.card.get("intensity", {}).get("lag_days", 0))
+    root = Path(deps.intensity_root or ii.default_root())
+    days = ii.window_days([day], lag)
+    status = {"run": ii.RUN, "lag_days": lag, "days": [d.isoformat() for d in days]}
+    problems: dict = {}
+    if ii.missing_days(root, days, ii.RUN):
+        try:
+            problems = (deps.intensity_fetch or imerg_hh.fetch_complete_days)(ii.RUN, days, root)
+        except Exception as exc:      # a failing source never stops the run
+            problems = {d: f"{type(exc).__name__}: {str(exc)[:160]}" for d in days}
+    missing = ii.missing_days(root, days, ii.RUN)
+    if missing:
+        why = "; ".join(f"{d.isoformat()}: {problems.get(d, 'no day file')}" for d in missing)
+        return None, {**status, "used": False, "reason": f"half-hourly Late days missing ({why})"}
+    frame = ii.cell_features(day, cells["cell_id"].to_numpy(dtype=np.int64), root, ii.RUN, lag)
+    return frame, {**status, "used": True, "reason": None}
 
 
 def imd_lon_offset(cfg: dict) -> int:
@@ -718,12 +780,20 @@ def _forecast_leads(day: date, cfg: dict, deps: LiveDeps, model, thresholds, ale
     return summaries, widening
 
 
-def model_files(cfg: dict, deps: LiveDeps) -> dict:
-    """Where the scoring model lives and its card checksum (None for a model handed in directly)."""
-    if deps.model is not None:
+def model_files(cfg: dict, handed: bool, key: str = "model_config") -> dict:
+    """Where the model `cfg[key]` names lives and its card checksum (None for a model handed in directly)."""
+    if handed:
         return {"dir": None, "card_sha256": None}
-    model_dir = hm.configured_model_dir(hm.hazard_config(project_path(cfg["model_config"])))
+    model_dir = hm.configured_model_dir(hm.hazard_config(project_path(cfg[key])))
     return {"dir": hm.display_path(model_dir), "card_sha256": sha256_file(model_dir / hm.CARD_FILE)}
+
+
+def model_record(cfg: dict, handed: bool, key: str, model: hm.HazardModel, thresholds) -> dict:
+    """run.json's record of one scoring model: its files, inputs, calibration and the thresholds its risk is compared with."""
+    return {**model_files(cfg, handed, key), "n_columns": len(model.columns),
+            "calibration": "per_region" if model.region_calibrator else "pooled",
+            "thresholds": pooled_thresholds(thresholds).to_dict(),
+            "thresholds_by_region": thresholds.to_dict() if isinstance(thresholds, lv.RegionThresholds) else None}
 
 
 def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, deps: LiveDeps | None = None) -> dict:
@@ -738,7 +808,8 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
         previous = json.loads(summary_path.read_text(encoding="utf-8"))
         if not previous.get("retry_recommended"):
             return {**previous, "skipped": True}
-    model = deps.model or load_live_model(cfg)
+    model = deps.model or load_live_model({**cfg, "model_config": cfg[lead0_key(cfg)]})
+    forecast_model = load_forecast_model(cfg, deps, model)
     alert_config = deps.alert_config or load_alert_config(project_path(cfg["alert_config"]))
     rules = load_post_rules(cfg, deps)
     if deps.cells is not None:
@@ -748,6 +819,10 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
     else:
         cells, cell_set = load_candidate_cells(cfg)
     thresholds = deps.thresholds or card_thresholds(model, cells["region"])
+    split = forecast_model is not model
+    forecast_thresholds = (deps.forecast_thresholds or card_thresholds(forecast_model, cells["region"])) if split else thresholds
+    forecast_key = "model_config"
+    lead0 = {"key": lead0_key(cfg) if split else "model_config", "handed": deps.model is not None}
     cells = cells.assign(date=pd.Timestamp(day))
 
     # ---- sources
@@ -773,6 +848,16 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
     flat = F.cell_pixels(cells["cell_id"].to_numpy(dtype=np.int64))
     clim = deps.clim if deps.clim is not None else load_climatology(cfg, store_for_clim, flat)
     irain = F.build_imerg_features(cells[["cell_id", "date"]], view, clim)
+    intensity = {"used": False, "reason": "the lead-0 model reads no rain-intensity input"}
+    if uses_intensity(model):
+        extra, intensity = intensity_inputs(day, cells, model, deps)
+        if extra is None:
+            log.warning("lead 0 scored with the forecast-lead model: %s", intensity["reason"])
+            model, thresholds, split = forecast_model, forecast_thresholds, False
+            lead0 = {"key": forecast_key, "handed": deps.forecast_model is not None or deps.model is not None}
+            intensity["fallback"] = "lead 0 scored with the forecast-lead model"
+        else:
+            irain = pd.concat([irain, extra], axis=1)
     features = pd.concat([cells, irain], axis=1)
 
     # ---- integrity engine on the recent gauges
@@ -844,7 +929,7 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
 
     # ---- forecast leads
     choice, maps = load_choice_and_maps(cfg, deps)
-    forecast_leads, widening = _forecast_leads(day, cfg, deps, model, thresholds, alert_config, cells, view, clim,
+    forecast_leads, widening = _forecast_leads(day, cfg, deps, forecast_model, forecast_thresholds, alert_config, cells, view, clim,
                                                forecast_products(gfs, ecmwf_forecast), choice, maps, statuses, alerts,
                                                ~unscorable, run_dir, rules)
     leads.update(forecast_leads)
@@ -861,10 +946,10 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
         "retry_recommended": retry,
         "retry_reason": ("the rain of IMD day D could not be assembled (" + ", ".join(
             f"{k}: {v}" for k, v in inputs["D"].items() if k != "product") + ")") if retry else None,
-        "model": {**model_files(cfg, deps), "n_columns": len(model.columns),
-                  "calibration": "per_region" if model.region_calibrator else "pooled",
-                  "thresholds": pooled_thresholds(thresholds).to_dict(),
-                  "thresholds_by_region": thresholds.to_dict() if isinstance(thresholds, lv.RegionThresholds) else None},
+        "model": model_record(cfg, lead0["handed"], lead0["key"], model, thresholds),
+        **({"forecast_model": model_record(cfg, deps.forecast_model is not None or deps.model is not None, forecast_key,
+                                           forecast_model, forecast_thresholds)} if split else {}),
+        "intensity": intensity,
         "sources": {name: {**status.to_dict(), "state": states[name]} for name, status in statuses.items()},
         "failed_sources": [n for n in SOURCE_NAMES if states[n] == "failed"],
         "late_sources": [n for n in SOURCE_NAMES if states[n] == "late"],
@@ -893,7 +978,8 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
     top_ids = [c["cell_id"] for info in summary["leads"].values() if info["published"] for c in info["top_cells"]]
     places_table = cfg.get("places_table")
     places = bulletin.place_labels(project_path(places_table) if places_table else None, top_ids)
-    summary["audit"] = audit_run(run_dir, rules, summary, project_path(cfg["report_dir"]) / "audit", cfg, model, alert_config)
+    summary["audit"] = audit_run(run_dir, rules, summary, project_path(cfg["report_dir"]) / "audit", cfg, model, alert_config,
+                                 forecast_model if split else None)
     summary["bulletin"] = report_path.name
     report_path.write_text(bulletin.render(summary, places), encoding="utf-8")
     write_json_atomic(summary_path, summary)
@@ -909,11 +995,12 @@ def post_rule_counts(codes, causes) -> dict:
 
 
 def audit_run(run_dir: Path, rules: pr.PostRules, summary: dict, out_dir: Path, cfg: dict | None = None, model=None,
-              alert_config: AlertConfig | None = None) -> dict:
+              alert_config: AlertConfig | None = None, forecast_model=None) -> dict:
     """Audit the rows the run just published (`live.audit`, with the integrity checks of spec section 13: the inputs `cfg`
     names, and the stored features scored again with `model`), write `<out_dir>/<D>.json` and return its totals for
     run.json; a violation is logged, never raised (the day stays published and the bulletin says so)."""
-    context = audit.context_from_config(cfg, rescore=True, model=model, alert_config=alert_config) if cfg is not None else None
+    context = (audit.context_from_config(cfg, rescore=True, model=model, alert_config=alert_config, forecast_model=forecast_model)
+               if cfg is not None else None)
     result = audit.audit_day(run_dir, rules, summary, context)
     out_dir.mkdir(parents=True, exist_ok=True)
     write_json_atomic(out_dir / f"{summary['date']}.json", result)

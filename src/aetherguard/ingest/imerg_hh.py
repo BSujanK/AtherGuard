@@ -504,6 +504,42 @@ def build(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *,
     log.info("%s: done, %d written, %d already present, %d failed", store, written, skipped, failed)
 
 
+def fetch_complete_days(run: str, days, root, workers: int = 2, manifest: Manifest | None = None) -> dict[date, str]:
+    """For the daily live run: write the day file of each of `days` that has none, without the outage and login waits of
+    `build` (the run must not hang), and only when CMR lists all 48 half-hours (a day still filling is not written, so the
+    next run fetches it whole instead of keeping a partial day for good). Returns {day: why it is still missing}."""
+    _check_run(run)
+    root = Path(root)
+    manifest = manifest if manifest is not None else Manifest(imerg.MANIFEST_PATH, data_root())
+    problems: dict[date, str] = {}
+    pending = [d for d in sorted(set(days)) if not _day_path(root, run, d).exists()]
+    if not pending:
+        return problems
+    fetchers = _Fetchers(workers)
+    try:
+        for day in pending:
+            try:
+                listing = _half_hour_listing(run, day)
+                if len(listing) < HALF_HOURS:
+                    problems[day] = f"CMR lists {len(listing)} of {HALF_HOURS} half-hours"
+                    continue
+                maps = _reduce_within_deadline(run, day, listing, fetchers, HALF_HOURS)
+            except (DownloadError, requests.RequestException, OSError, ValueError, KeyError) as exc:
+                problems[day] = f"{type(exc).__name__}: {str(exc)[:160]}"
+                continue
+            path = _day_path(root, run, day)
+            _write_day(path, maps)
+            try:
+                _record(manifest, path, run)
+            except Exception:
+                path.unlink(missing_ok=True)      # never leave a data file without a manifest entry
+                raise
+            log.info("%s %s: written for the live run", run, day)
+    finally:
+        fetchers.close()
+    return problems
+
+
 def repair(run: str, start: date, end: date, root, workers: int = MAX_WORKERS, *, months=None,
            manifest: Manifest | None = None) -> dict[str, int]:
     """Revisit the existing day files in [start, end] (restricted to `months`); days without a file are left alone.

@@ -42,6 +42,7 @@ import argparse
 import json
 import sys
 import time
+import dataclasses
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -74,9 +75,14 @@ def _codes(text) -> list[str]:
     return text.split(";") if isinstance(text, str) and text else []
 
 
-def run_thresholds(summary: dict) -> lv.Thresholds | lv.RegionThresholds:
-    """The thresholds a run compared its risk with, as its run.json records them."""
-    model = summary["model"]
+def split_models(summary: dict) -> bool:
+    """True when the run scored its forecast leads with a model of their own (run.json `forecast_model`)."""
+    return summary.get("forecast_model") is not None
+
+
+def run_thresholds(summary: dict, lead: int = 0) -> lv.Thresholds | lv.RegionThresholds:
+    """The thresholds a run compared the risk of `lead` with, as its run.json records them."""
+    model = summary["forecast_model"] if lead and split_models(summary) else summary["model"]
 
     def make(entry: dict, source: str) -> lv.Thresholds:
         return lv.Thresholds(float(entry["watch"]), float(entry["warning"]), float(entry["emergency"]), source)
@@ -377,21 +383,55 @@ class AuditContext:
     imd_lon_offset_columns: int = 0        # columns the live IMD sampling is moved east (`imd_lon_offset_columns`)
     alert_config: object | None = None     # the run's AlertConfig (`uncertain_percentile` of the uncertain_high test)
     model_loader: object | None = None     # () -> HazardModel
+    forecast_model: object | None = None   # the model of the forecast leads when the run used one of their own
+    forecast_columns: tuple | None = None  # its inputs (shap of the forecast leads)
+    forecast_loader: object | None = None  # () -> the forecast-lead model, for a split day audited without one handed in
 
     def load_model(self):
         if self.model is None and self.model_loader is not None:
             self.model = self.model_loader()
         return self.model
 
+    def model_for(self, lead: int, split: bool):
+        """The model that scored `lead`: the forecast-lead model for a forecast lead of a split run, else the lead-0 one."""
+        if not (lead and split):
+            return self.load_model()
+        if self.forecast_model is None and self.forecast_loader is not None:
+            self.forecast_model = self.forecast_loader()
+            self.forecast_columns = self.forecast_columns or tuple(self.forecast_model.columns)
+        return self.forecast_model
 
-def context_from_config(cfg: dict, rescore: bool = False, model=None, alert_config=None) -> AuditContext:
+    def columns_for(self, lead: int, split: bool) -> tuple:
+        return (self.forecast_columns if lead and split else self.model_columns) or ()
+
+    def for_summary(self, summary: dict) -> "AuditContext":
+        """This context with each model that is not handed in taken from the model directory run.json names for it, so a
+        day is checked against the models that scored it, whatever the configuration says today."""
+        from ..hazard import model as hm
+        out = dataclasses.replace(self)
+        for entry, handed, columns, loader in ((summary.get("model"), "model", "model_columns", "model_loader"),
+                                               (summary.get("forecast_model"), "forecast_model", "forecast_columns",
+                                                "forecast_loader")):
+            directory = (entry or {}).get("dir")
+            if getattr(out, handed) is not None or not directory:
+                continue
+            path = project_path(directory)
+            try:
+                setattr(out, columns, tuple(json.loads((path / hm.CARD_FILE).read_text(encoding="utf-8"))["columns"]))
+            except (OSError, ValueError, KeyError):
+                continue
+            setattr(out, loader, lambda path=path: hm.HazardModel.load(path))
+        return out
+
+
+def context_from_config(cfg: dict, rescore: bool = False, model=None, alert_config=None, forecast_model=None) -> AuditContext:
     """The context of a run configuration (`basemap_file`, `places_table`, `model_config`); `model` is the model the run
     scored with, when the caller has it (its inputs, and the model to rescore with); likewise `alert_config`."""
     from ..hazard import model as hm
     from . import run as live_run
     columns = tuple(model.columns) if model is not None else None
     if columns is None:
-        model_dir = hm.configured_model_dir(hm.hazard_config(project_path(cfg["model_config"])))
+        model_dir = hm.configured_model_dir(hm.hazard_config(project_path(cfg[live_run.lead0_key(cfg)])))
         try:
             columns = tuple(json.loads((model_dir / hm.CARD_FILE).read_text(encoding="utf-8"))["columns"])
         except (OSError, ValueError, KeyError):
@@ -403,7 +443,10 @@ def context_from_config(cfg: dict, rescore: bool = False, model=None, alert_conf
     return AuditContext(basemap=project_path(basemap) if basemap else None, places=project_path(places) if places else None,
                         model_columns=columns, rescore=rescore, model=model, alert_config=alert_config,
                         imd_lon_offset_columns=int(cfg.get("imd_lon_offset_columns", 0)),
-                        model_loader=lambda: live_run.load_live_model(cfg))
+                        model_loader=lambda: live_run.load_live_model({**cfg, "model_config": cfg[live_run.lead0_key(cfg)]}),
+                        forecast_model=forecast_model,
+                        forecast_columns=tuple(forecast_model.columns) if forecast_model is not None else None,
+                        forecast_loader=(lambda: live_run.load_live_model(cfg)) if live_run.split_configured(cfg) else None)
 
 
 def _read(run_dir: Path, name: str) -> pd.DataFrame | None:
@@ -429,7 +472,7 @@ def _optional(path: Path | None, label: str, found_list: list[Findings], reader)
 
 
 def integrity_checks(run_dir: Path, day: date, risk_tables: dict[str, pd.DataFrame], founds: dict[str, Findings],
-                     features: dict[int, pd.DataFrame], context: AuditContext) -> dict[str, Findings]:
+                     features: dict[int, pd.DataFrame], context: AuditContext, split: bool = False) -> dict[str, Findings]:
     """The integrity checks (module doc) over the risk tables `risk_tables` ({name: table}, `alerts` first) and the
     features tables `features` ({lead: table}); returns the Findings of the features tables."""
     lead_of = {"alerts": 0, **{f"risk_D{k}": k for k in range(4)}}
@@ -449,7 +492,7 @@ def integrity_checks(run_dir: Path, day: date, risk_tables: dict[str, pd.DataFra
             if places is not None:
                 audit_geo.check_places(table, places, base, found)
         if name != "risk_D0":
-            audit_math.check_shap(table, features.get(lead), context.model_columns or (), found)
+            audit_math.check_shap(table, features.get(lead), context.columns_for(lead, split), found)
         if terrain is not None and name != "risk_D0":
             audit_geo.terrain_notes(table, terrain, found)
     for lead, table in features.items():
@@ -468,11 +511,12 @@ def integrity_checks(run_dir: Path, day: date, risk_tables: dict[str, pd.DataFra
 
 
 def rescore_checks(risk_tables: dict[str, pd.DataFrame], founds: dict[str, Findings], features: dict[int, pd.DataFrame],
-                   context: AuditContext, thresholds, rules: pr.PostRules) -> dict:
-    """`reproducible` and the full-vector `shap` check with the context's model; returns {"ran", "seconds", "factors", ...}."""
+                   context: AuditContext, summary: dict, rules: pr.PostRules) -> dict:
+    """`reproducible` and the full-vector `shap` check, each lead with the model and thresholds that scored it; returns
+    {"ran", "seconds", "factors", ...}."""
     start = time.monotonic()
-    model = context.load_model()
-    if model is None:
+    split = split_models(summary)
+    if context.load_model() is None or (split and context.model_for(1, split) is None):
         for found in founds.values():
             found.notes.append("no model to rescore with: reproducible is not checked")
         return {"ran": False}
@@ -484,6 +528,7 @@ def rescore_checks(risk_tables: dict[str, pd.DataFrame], founds: dict[str, Findi
         if name not in risk_tables or lead not in features:
             continue
         table = risk_tables[name]
+        model, thresholds = context.model_for(lead, split), run_thresholds(summary, lead)
         on_day_d = None if lead == 0 else scored_on_d.reindex(table["cell_id"].to_numpy()).fillna(False).to_numpy(dtype=bool)
         done = audit_rescore.check_reproducible(model, table, features[lead], lead, on_day_d, founds[name])
         audit_rescore.check_contributions(model, table, features[lead], done["scorable"], founds[name])
@@ -501,12 +546,12 @@ def audit_day(run_dir: Path, rules: pr.PostRules, summary: dict | None = None, c
     """The audit of one published day (`<live_dir>/<D>/`): its run.json, or `summary` (the run's summary before run.json
     is written). `context` names the optional inputs of the integrity checks (none: they run on the day's tables only)."""
     run_dir = Path(run_dir)
-    context = context or AuditContext()
     summary_path = run_dir / "run.json"
     if summary is None:
         if not summary_path.is_file():
             raise FileNotFoundError(f"{summary_path} not found: the day is not published")
         summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    context = (context or AuditContext()).for_summary(summary)
     day = date.fromisoformat(summary["date"])
     thresholds = run_thresholds(summary)
     tables = {}
@@ -527,10 +572,10 @@ def audit_day(run_dir: Path, rules: pr.PostRules, summary: dict | None = None, c
         table = _read(run_dir, f"risk_D{lead}.parquet")
         if table is None:
             continue
-        tables[f"risk_D{lead}"] = audit_table(table, lead, thresholds, rules, features.get(lead), None)
+        tables[f"risk_D{lead}"] = audit_table(table, lead, run_thresholds(summary, lead), rules, features.get(lead), None)
         risk_tables[f"risk_D{lead}"] = table
-    feature_tables = integrity_checks(run_dir, day, risk_tables, tables, features, context)
-    extra = {"rescore": rescore_checks(risk_tables, tables, features, context, thresholds, rules)} if context.rescore else {}
+    feature_tables = integrity_checks(run_dir, day, risk_tables, tables, features, context, split_models(summary))
+    extra = {"rescore": rescore_checks(risk_tables, tables, features, context, summary, rules)} if context.rescore else {}
     everyone = {**tables, **feature_tables}
     totals = {name: sum(t.counts[name] for t in everyone.values()) for name in CHECKS}
     notes = {f"{name}.{key}": count for name, found in everyone.items() for key, count in found.note_counts.items() if count}
