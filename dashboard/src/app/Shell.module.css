@@ -44,6 +44,8 @@
   letter-spacing: -0.01em;
   color: var(--text);
   white-space: nowrap;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
 }
 
 .brand svg {
@@ -129,6 +131,13 @@
   overflow: auto;
   padding: var(--sp-5) var(--gutter) var(--sp-6);
   scrollbar-gutter: stable;
+}
+
+/* The story is a run of full-height chapters: it scrolls smoothly, settles on a chapter, and shows no scrollbar gutter. */
+.main[data-story='true'] {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  scrollbar-gutter: auto;
 }
 
 /* On the map the canvas behind is interactive: the column lets the pointer through to it, and only the bar takes it back. */

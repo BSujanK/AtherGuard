@@ -1,28 +1,13 @@
-import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 import {
   AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   Color,
-  type LineSegments,
   ShaderMaterial,
 } from 'three'
-import { frameNow } from './frame'
 import { lonLatToWorld, type Window } from './geo'
 import { PALETTE } from './levelColors'
-
-/** Deterministic pseudo-random sequence so the scene looks the same on every load. */
-function seeded(seed: number): () => number {
-  let s = seed >>> 0
-  return () => {
-    s = (s + 0x6d2b79f5) >>> 0
-    let t = s
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
 
 const graticuleVertex = /* glsl */ `
   varying vec2 vPlace;
@@ -94,73 +79,4 @@ export function Graticule({ window: w }: { window: Window }) {
   )
 
   return <lineSegments geometry={geometry} material={material} frustumCulled={false} />
-}
-
-const rainVertex = /* glsl */ `
-  uniform float uTime;
-  uniform float uIntensity;
-  attribute vec3 aSeed;
-  attribute float aEnd;
-  varying float vAlpha;
-
-  void main() {
-    float fall = fract(aSeed.z + uTime * (0.55 + aSeed.x * 0.35));
-    float y = 9.0 - fall * 10.0;
-    vec3 p = vec3((aSeed.x - 0.5) * 40.0, y, (aSeed.y - 0.5) * 42.0);
-    p += aEnd * vec3(0.12, 0.7, 0.0);
-    vAlpha = (1.0 - aEnd * 0.9) * uIntensity * smoothstep(0.0, 0.1, fall) * (1.0 - smoothstep(0.9, 1.0, fall));
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
-  }
-`
-
-const rainFragment = /* glsl */ `
-  uniform vec3 uCyan;
-  varying float vAlpha;
-
-  void main() {
-    gl_FragColor = vec4(uCyan * vAlpha * 0.22, 1.0);
-    #include <colorspace_fragment>
-  }
-`
-
-export function Rain({ count = 420 }: { count?: number }) {
-  const ref = useRef<LineSegments>(null)
-  const { geometry, material } = useMemo(() => {
-    const rand = seeded(11)
-    const seeds = new Float32Array(count * 2 * 3)
-    const ends = new Float32Array(count * 2)
-    for (let i = 0; i < count; i++) {
-      const sx = rand()
-      const sy = rand()
-      const sz = rand()
-      for (let v = 0; v < 2; v++) {
-        seeds.set([sx, sy, sz], (i * 2 + v) * 3)
-        ends[i * 2 + v] = v
-      }
-    }
-    const g = new BufferGeometry()
-    g.setAttribute('position', new BufferAttribute(new Float32Array(count * 2 * 3), 3))
-    g.setAttribute('aSeed', new BufferAttribute(seeds, 3))
-    g.setAttribute('aEnd', new BufferAttribute(ends, 1))
-    const m = new ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uIntensity: { value: 1 },
-        uCyan: { value: new Color(PALETTE.cyan) },
-      },
-      vertexShader: rainVertex,
-      fragmentShader: rainFragment,
-      blending: AdditiveBlending,
-      transparent: true,
-      depthWrite: false,
-    })
-    return { geometry: g, material: m }
-  }, [count])
-
-  useFrame((state) => {
-    material.uniforms.uTime!.value = state.clock.elapsedTime
-    material.uniforms.uIntensity!.value = frameNow().atmosphere
-  })
-
-  return <lineSegments ref={ref} geometry={geometry} material={material} frustumCulled={false} />
 }

@@ -1,10 +1,10 @@
-import { useIntro } from '../state/intro'
-import { introFrame, REST_FRAME, type IntroFrame } from './timeline'
+import { prefersReducedMotion } from '../lib/motion'
+import { REST_FRAME, type SceneFrame, storyFrame, useStory } from '../state/story'
 
-/** The animated values for this instant: the landing sequence while it plays, the rest state after. */
-export function frameNow(): IntroFrame {
-  const { status, startedAt } = useIntro.getState()
-  if (status !== 'playing') return REST_FRAME
-  const t = startedAt === 0 ? 0 : (performance.now() - startedAt) / 1000
-  return introFrame(t)
+/** What the scene draws this instant: the story's layers while the story is on screen, the finished chart otherwise. */
+export function frameNow(): SceneFrame {
+  const { active, position, startedAt } = useStory.getState()
+  if (!active) return REST_FRAME
+  const seconds = prefersReducedMotion() ? Infinity : (performance.now() - startedAt) / 1000
+  return storyFrame(position, seconds)
 }

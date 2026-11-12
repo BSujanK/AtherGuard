@@ -1,8 +1,9 @@
-import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom'
+import { createBrowserRouter, type RouteObject } from 'react-router-dom'
 import EmptyState from '../components/EmptyState'
 import Alerts from '../views/Alerts'
 import LiveMap from '../views/LiveMap'
 import Sensors from '../views/Sensors'
+import Story from '../views/Story'
 import Shell from './Shell'
 
 /**
@@ -14,7 +15,7 @@ export const routes: RouteObject[] = [
     path: '/',
     element: <Shell />,
     children: [
-      { index: true, element: <Navigate to="/map" replace /> },
+      { index: true, element: <Story /> },
       { path: 'map', element: <LiveMap /> },
       { path: 'alerts-why', element: <Alerts /> },
       { path: 'sensors-sources', element: <Sensors /> },
@@ -22,7 +23,7 @@ export const routes: RouteObject[] = [
         path: '*',
         element: (
           <EmptyState title="That page does not exist">
-            Use the navigation on the left to open the live map, the alerts or the sensors.
+            Use the navigation above to open the live map, the alerts or the sensors.
           </EmptyState>
         ),
       },
