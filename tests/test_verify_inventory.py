@@ -174,7 +174,8 @@ def test_the_combined_file_carries_the_qa_columns(tmp_path):
     with (tmp_path / "qa" / "inventory_admitted.csv").open(newline="", encoding="utf-8") as handle:
         (record,) = list(csv.DictReader(handle))
     assert list(record) == ["date", "latitude", "longitude", "location_text", "source_url", "accuracy_km", "year", "place",
-                            "district", "state", "outlet", "geocode_source", "description"]
+                            "district", "state", "outlet", "geocode_source", "description", "date_basis", "window_end",
+                            "how_found", "trigger", "record_id"]
     assert (record["year"], record["geocode_source"], record["outlet"]) == ("2024", "geonames", "Hindu")
 
 
@@ -520,3 +521,99 @@ def test_write_inventory_says_how_many_admitted_rows_are_unchecked(tmp_path, mon
     said.clear()
     inv.write_inventory(tmp_path, None, said.append)
     assert said[-1] == "every admitted row has a result in qa/qa_results.csv"
+
+
+# --- located sources (W1b): own coordinates, triggers, date windows, the accuracy limit -----------------------------------
+
+LOCATED_HEADER = HEADER + ["latitude", "longitude", "accuracy_km", "window_end", "how_found", "trigger", "record_id"]
+
+
+def located(date="2024-08-01", basis="stated", place="Ward 3", lat="27.70000", lon="85.30000", accuracy="2.0", end="",
+            trigger="unknown", record="bipad:1", state="Nepal"):
+    return dict(zip(LOCATED_HEADER, [date, basis, place, "", state, f"https://b.example/{record}", "B", "d", lat, lon,
+                                     accuracy, end, "reported", trigger, record]))
+
+
+def build_located(tmp_path, *rows, year=2024, **kwargs):
+    raw = tmp_path / "raw"
+    raw.mkdir(exist_ok=True)
+    with (raw / f"{year}.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, LOCATED_HEADER)
+        writer.writeheader()
+        writer.writerows(rows)
+    asked = []
+    admitted = inv.build_inventory(raw, None, out_dir=tmp_path, geocoder=lambda *a: asked.append(a), **kwargs)
+    return admitted, report_of(tmp_path), asked
+
+
+def test_a_located_row_keeps_its_own_point_and_is_never_geocoded(tmp_path):
+    admitted, report, asked = build_located(tmp_path, located())
+    assert asked == []
+    assert (admitted["latitude"].iloc[0], admitted["longitude"].iloc[0], admitted["accuracy_km"].iloc[0]) == (27.7, 85.3, 2.0)
+    assert admitted["geocode_source"].iloc[0] == "source_point"
+    assert (admitted["record_id"].iloc[0], admitted["how_found"].iloc[0]) == ("bipad:1", "reported")
+
+
+def test_a_located_row_without_coordinates_is_ungeocodable_not_geocoded(tmp_path):
+    admitted, report, asked = build_located(tmp_path, located(lat="", lon="", accuracy=""))
+    assert asked == [] and admitted.empty
+    assert reasons(report) == {("Ward 3", "ungeocodable")}
+
+
+def test_half_given_coordinates_are_an_error(tmp_path):
+    with pytest.raises(ValueError, match="all be numbers or all be empty"):
+        build_located(tmp_path, located(lon=""))
+
+
+@pytest.mark.parametrize("trigger", ["earthquake", "construction", "GLOF", "glacial lake outburst flood", "snowmelt"])
+def test_a_non_rain_trigger_is_rejected(tmp_path, trigger):
+    admitted, report, _ = build_located(tmp_path, located(trigger=trigger))
+    assert admitted.empty and reasons(report) == {("Ward 3", "non_rain_trigger")}
+    assert report["rejected"][0]["trigger"] == trigger
+
+
+@pytest.mark.parametrize("trigger", ["rain", "monsoon", "downpour", "unknown", ""])
+def test_rain_and_unknown_triggers_are_admitted(tmp_path, trigger):
+    admitted, _, _ = build_located(tmp_path, located(trigger=trigger))
+    assert len(admitted) == 1
+
+
+def test_the_accuracy_limit_is_a_parameter(tmp_path):
+    admitted, report, _ = build_located(tmp_path, located(accuracy="6.0"), max_accuracy_km=5.0)
+    assert admitted.empty and reasons(report) == {("Ward 3", "accuracy_over_5km")}
+    assert report["max_accuracy_km"] == 5.0
+
+
+def test_a_short_window_is_admitted_to_the_combined_file_only(tmp_path):
+    admitted, _, _ = build_located(tmp_path, located(basis="window", end="2024-08-05"))
+    assert list(admitted["window_end"]) == ["2024-08-05"]
+    assert (tmp_path / "2024.csv").read_text(encoding="utf-8").strip().count("\n") == 0   # header only
+    with (tmp_path / "qa" / "inventory_admitted.csv").open(newline="", encoding="utf-8") as handle:
+        (record,) = list(csv.DictReader(handle))
+    assert (record["date_basis"], record["window_end"]) == ("window", "2024-08-05")
+
+
+def test_a_window_over_seven_days_is_rejected(tmp_path):
+    admitted, report, _ = build_located(tmp_path, located(basis="window", end="2024-08-08"))
+    assert admitted.empty and reasons(report) == {("Ward 3", "window_over_7d")}
+
+
+def test_a_window_ending_before_it_starts_is_an_error(tmp_path):
+    with pytest.raises(ValueError, match="before event_date"):
+        build_located(tmp_path, located(basis="window", end="2024-07-30"))
+
+
+def test_a_window_row_never_merges_with_a_day_row(tmp_path):
+    admitted, _, _ = build_located(tmp_path, located(), located(basis="window", end="2024-08-03", record="x:2", place="W"))
+    assert len(admitted) == 2
+
+
+def test_overlapping_windows_at_one_place_merge(tmp_path):
+    admitted, report, _ = build_located(tmp_path, located(basis="window", end="2024-08-03"),
+                                        located(basis="window", date="2024-08-04", end="2024-08-06", place="W", record="x:2"))
+    assert len(admitted) == 1 and reasons(report) == {("W", "duplicate")}
+
+
+def test_located_rows_of_one_slide_merge_by_the_existing_rule(tmp_path):
+    admitted, report, _ = build_located(tmp_path, located(), located(date="2024-08-02", lat="27.71000", place="W", record="x:2"))
+    assert len(admitted) == 1 and admitted["date"].iloc[0] == "2024-08-01"

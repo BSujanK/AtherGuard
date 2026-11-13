@@ -40,6 +40,18 @@ QA coverage. `qa/qa_results.csv` (columns `date`, `place`, `state`, ...) holds t
 each, by the admitted date, place and state. `unchecked` in the report lists every admitted event that has no row there (all
 of them when the file does not exist) and the command prints their number.
 
+Located sources (W1b). A raw file may carry the further columns `LOCATED_COLUMNS` (`verify.open_sources` writes them for
+inventories that come with coordinates). In a file whose header has `latitude`, every row is located by its own `latitude`,
+`longitude` and `accuracy_km` (`geocode_source` "source_point") and never by its place text, so no name is sent to a geocoder;
+a row with an empty coordinate is `ungeocodable`. `trigger` (optional) is classed with `events.policy.normalize_trigger`;
+only "rain" and "unknown" are admitted, anything else (earthquake, construction or mining, snow, other) and any text naming
+a glacial lake outburst is rejected as `non_rain_trigger`. `date_basis` may also be "window": the slide happened on some
+day from `event_date` to `window_end` (an imagery-mapped inventory); such a row is admitted only when the window is at most
+`MAX_WINDOW_DAYS` days long (else `window_over_7d`), never merges with a day-dated row, and goes only to
+`qa/inventory_admitted.csv` (the ledger format has no window). `how_found` ("reported" or "imagery") and `record_id` are
+carried through. `build_inventory(max_accuracy_km=...)` sets the accuracy limit (10 km by default, as W1 admitted; W1b
+admits its sources at 5 km, reason `accuracy_over_limit` then).
+
 Admitted rows go to `<year>.csv` in the ledger format (`ledger.COLUMNS`, `location_text` = "place, district, state") and, with
 the extra columns `EXTRA_COLUMNS`, to `qa/inventory_admitted.csv` for the spot-check against the source URLs. That file is in a
 subfolder because `ledger.load_reported` reads every top-level `*.csv` and would count each event twice. An event's year is the
@@ -56,12 +68,13 @@ import math
 import re
 from collections import Counter
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
 
 from .. import grid
+from ..events.policy import normalize_trigger
 from ..hazard.jsonio import dump_json
 from . import geocode as gc
 from . import ledger
@@ -69,7 +82,12 @@ from .geocode import GeocodeError
 from .geocode_osm import geocode_any, nominatim_fetch
 
 RAW_COLUMNS = ("event_date", "date_basis", "place", "district", "state", "source_url", "outlet", "description")
-EXTRA_COLUMNS = ("year", "place", "district", "state", "outlet", "geocode_source", "description")
+LOCATED_COLUMNS = ("latitude", "longitude", "accuracy_km", "window_end", "how_found", "trigger", "record_id")
+EXTRA_COLUMNS = ("year", "place", "district", "state", "outlet", "geocode_source", "description",
+                 "date_basis", "window_end", "how_found", "trigger", "record_id")
+MAX_WINDOW_DAYS = 7
+ADMITTED_TRIGGERS = frozenset({"rain", "unknown"})
+_GLOF_WORDS = ("glof", "glacial lake", "lake outburst", "outburst flood")
 REPORT_NAME, QA_DIR, COMBINED_NAME, CORRECTIONS_NAME = "inventory_report.json", "qa", "inventory_admitted.csv", "corrections.csv"
 QA_RESULTS_NAME = "qa_results.csv"
 CORRECTION_COLUMNS = ("date", "place", "state", "action", "latitude", "longitude", "accuracy_km", "reason", "source_url")
@@ -104,6 +122,9 @@ def _read_raw(raw_dir: Path) -> list[dict]:
                 if not any(cell.strip() for cell in raw):
                     continue
                 fields = {name: (raw[i] if i < len(raw) else "").strip() for i, name in enumerate(header)}
+                for name in LOCATED_COLUMNS:
+                    fields.setdefault(name, "")
+                fields["located"] = "latitude" in header
                 try:
                     records.append({**fields, **_check(fields, int(path.stem))})
                 except ValueError as error:
@@ -121,12 +142,37 @@ def _check(fields: dict[str, str], year: int) -> dict:
         raise ValueError(f"event_date {fields['event_date']!r} is not YYYY-MM-DD") from None
     if day.year != year:
         raise ValueError(f"event_date {fields['event_date']} is not in {year}")
-    if fields["date_basis"] not in ("stated", "report"):
-        raise ValueError(f"date_basis {fields['date_basis']!r} is neither 'stated' nor 'report'")
+    if fields["date_basis"] not in ("stated", "report", "window"):
+        raise ValueError(f"date_basis {fields['date_basis']!r} is not 'stated', 'report' or 'window'")
     for name in ("place", "state", "source_url"):
         if not fields[name]:
             raise ValueError(f"{name} is empty")
-    return {"day": day, "year": year}
+    end = None
+    if fields["date_basis"] == "window":
+        try:
+            end = datetime.strptime(fields["window_end"], "%Y-%m-%d").date()
+        except ValueError:
+            raise ValueError(f"window_end {fields['window_end']!r} is not YYYY-MM-DD") from None
+        if end < day:
+            raise ValueError(f"window_end {end} is before event_date {day}")
+    elif fields["window_end"]:
+        raise ValueError("window_end is given but date_basis is not 'window'")
+    point = None
+    if fields["located"] and any(fields[n] for n in ("latitude", "longitude", "accuracy_km")):
+        try:
+            point = tuple(float(fields[n]) for n in ("latitude", "longitude", "accuracy_km"))
+        except ValueError:
+            raise ValueError("latitude, longitude and accuracy_km must all be numbers or all be empty") from None
+        if not all(math.isfinite(v) for v in point) or point[2] < 0:
+            raise ValueError("latitude, longitude and accuracy_km must be finite and accuracy_km >= 0")
+    return {"day": day, "year": year, "window_end_day": end, "point": point}
+
+
+def trigger_class(text: str) -> str:
+    """The trigger class of a raw `trigger` text (`events.policy.normalize_trigger`; a glacial lake outburst is 'glof')."""
+    if any(word in text.lower() for word in _GLOF_WORDS):
+        return "glof"
+    return normalize_trigger(text)
 
 
 def _correction(fields: dict[str, str]) -> dict:
@@ -196,27 +242,45 @@ def _check_corrections(corrections: dict, records: list[dict]) -> None:
     for key in corrections:
         if key not in basis:
             raise ValueError(f"{CORRECTIONS_NAME}: no raw row matches {key}")
-        if "stated" not in basis[key]:
+        if not basis[key] & {"stated", "window"}:
             raise ValueError(f"{CORRECTIONS_NAME}: the raw row {key} is report-dated and never enters the test set")
 
 
 # --- deciding -----------------------------------------------------------------------------------------------------
 
 def _duplicate(a: dict, b: dict) -> bool:
-    """Whether two located rows are one event: same cell on the same day, or within a day in one cell or within 5 km."""
-    if abs((a["day"] - b["day"]).days) > 1:
+    """Whether two located rows are one event: same cell on the same day, or within a day in one cell or within 5 km. Two
+    window rows are one event when their windows (widened by a day) overlap at that distance; a window row and a day row never
+    are."""
+    if (a["date_basis"] == "window") != (b["date_basis"] == "window"):
+        return False
+    if a["date_basis"] == "window":
+        if a["day"] > b["window_end_day"] + timedelta(days=1) or b["day"] > a["window_end_day"] + timedelta(days=1):
+            return False
+    elif abs((a["day"] - b["day"]).days) > 1:
         return False
     return a["cell_id"] == b["cell_id"] or float(gc._haversine_km(a["lat"], a["lon"], b["lat"], b["lon"])) <= SAME_PLACE_KM
 
 
-def _locate(record: dict, geocoder: Geocoder) -> None:
-    """Geocode a stated row and set its `reason` (None = still a candidate) and, when placed, its point and region. The point
-    is the geocoder's: QA corrections come later (`_apply_corrections`)."""
+def _locate(record: dict, geocoder: Geocoder, max_accuracy_km: float = MAX_ACCURACY_KM) -> None:
+    """Geocode a stated (or window) row and set its `reason` (None = still a candidate) and, when placed, its point and region.
+    The point is the geocoder's, or the row's own in a located file: QA corrections come later (`_apply_corrections`)."""
     _reset(record)
-    if record["date_basis"] != "stated":
+    record["max_accuracy_km"] = max_accuracy_km
+    record["found"] = None
+    if record["date_basis"] == "report":
         record["reason"] = "report_dated"
         return
-    record["found"] = geocoder(record["place"], record["district"], record["state"])
+    if record["trigger"] and trigger_class(record["trigger"]) not in ADMITTED_TRIGGERS:
+        record["reason"] = "non_rain_trigger"
+        return
+    if record["date_basis"] == "window" and (record["window_end_day"] - record["day"]).days + 1 > MAX_WINDOW_DAYS:
+        record["reason"] = f"window_over_{MAX_WINDOW_DAYS}d"
+        return
+    if record["located"]:
+        record["found"] = None if record["point"] is None else (*record["point"], "source_point")
+    else:
+        record["found"] = geocoder(record["place"], record["district"], record["state"])
     _place(record, record["found"])
 
 
@@ -240,8 +304,9 @@ def _place(record: dict, found: tuple[float, float, float, str] | None) -> None:
         record["reason"] = OUTSIDE
         return
     record["cell_id"] = int(grid.latlon_to_cell(record["lat"], record["lon"]))
-    if record["accuracy_km"] > MAX_ACCURACY_KM:
-        record["reason"] = "accuracy_over_10km"
+    limit = record.get("max_accuracy_km", MAX_ACCURACY_KM)
+    if record["accuracy_km"] > limit:
+        record["reason"] = f"accuracy_over_{limit:g}km"
 
 
 def _group(candidates: list[dict]) -> list[list[dict]]:
@@ -272,7 +337,7 @@ def _apply_corrections(records: list[dict], corrections: dict[tuple[str, str, st
     groups = {r["order"]: g for g in _group([r for r in records if r["reason"] is None]) for r in g}
     moved: dict[int, tuple[tuple[str, str, str], list[dict]]] = {}
     for key, entry in corrections.items():
-        rows = [r for r in records if (r["event_date"], r["place"], r["state"]) == key and r["date_basis"] == "stated"]
+        rows = [r for r in records if (r["event_date"], r["place"], r["state"]) == key and r["date_basis"] in ("stated", "window")]
         members = {m["order"]: m for r in rows for m in groups.get(r["order"], [r])}
         entry.update(rows=len(rows), group_rows=len(members), geocoded=None if rows[-1]["found"] is None else
                      dict(zip(("latitude", "longitude", "accuracy_km", "source"), rows[-1]["found"])))
@@ -331,7 +396,9 @@ def _admitted_frame(records: list[dict]) -> pd.DataFrame:
     rows = [{"date": r["day"].isoformat(), "latitude": r["lat"], "longitude": r["lon"], "location_text": _location_text(r),
              "source_url": r["source_url"], "accuracy_km": r["accuracy_km"], "year": r["day"].year, "place": r["place"],
              "district": r["district"], "state": r["state"], "outlet": r["outlet"], "geocode_source": r["geocode_source"],
-             "description": r["description"]} for r in admitted]
+             "description": r["description"], "date_basis": r["date_basis"],
+             "window_end": "" if r["window_end_day"] is None else r["window_end_day"].isoformat(),
+             "how_found": r["how_found"], "trigger": r["trigger"], "record_id": r["record_id"]} for r in admitted]
     return pd.DataFrame(rows, columns=[*ledger.COLUMNS, *EXTRA_COLUMNS])
 
 
@@ -382,6 +449,9 @@ def _rejected_entry(record: dict) -> dict:
              "district": record["district"], "state": record["state"], "source_url": record["source_url"],
              "outlet": record["outlet"], "reason": record["reason"], "latitude": record["lat"], "longitude": record["lon"],
              "accuracy_km": record["accuracy_km"], "geocode_source": record["geocode_source"]}
+    for extra in ("trigger", "record_id"):
+        if record.get(extra):
+            entry[extra] = record[extra]
     for extra in ("duplicate_of", "qa_reason"):
         if extra in record:
             entry[extra] = record[extra]
@@ -392,7 +462,8 @@ def _rejected_entry(record: dict) -> dict:
 
 def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | None = None, geocoder: Geocoder | None = None,
                     fetch: Callable[[str], list[dict]] | None = None, cache: Path | None = None,
-                    offline: bool = False, corrections: Path | None = None, qa_results: Path | None = None) -> pd.DataFrame:
+                    offline: bool = False, corrections: Path | None = None, qa_results: Path | None = None,
+                    max_accuracy_km: float = MAX_ACCURACY_KM) -> pd.DataFrame:
     """Geocode the rows of `<raw_dir>/<year>.csv`, admit those the module docstring allows and write the files into `out_dir`
     (default the parent of `raw_dir`): `<year>.csv` per raw year, `qa/inventory_admitted.csv` and `inventory_report.json`.
 
@@ -401,7 +472,7 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
     district, state) -> (lat, lon, accuracy_km, source) | None` replaces `geocode_any` (for tests). With `offline` a Nominatim
     query missing from the cache raises `GeocodeError` naming it instead of being fetched. `corrections` is the QA corrections file
     (default `<out_dir>/qa/corrections.csv`, used when it exists) and `qa_results` the spot-check results the admitted rows are
-    held against (default `<out_dir>/qa/qa_results.csv`)."""
+    held against (default `<out_dir>/qa/qa_results.csv`). `max_accuracy_km` is the accuracy limit of admission."""
     raw_dir = Path(raw_dir)
     out_dir = Path(out_dir) if out_dir is not None else raw_dir.parent
     fetched = []
@@ -417,7 +488,7 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
     corrections = _read_corrections(corrections if corrections is not None else out_dir / QA_DIR / CORRECTIONS_NAME)
     _check_corrections(corrections, records)
     for record in records:
-        _locate(record, geocoder)
+        _locate(record, geocoder, max_accuracy_km)
     _apply_corrections(records, corrections)
     _drop_duplicates(records)
 
@@ -425,12 +496,13 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
     out_dir.mkdir(parents=True, exist_ok=True)
     years = sorted({r["year"] for r in records})
     for year in years:
-        _write_csv(out_dir / f"{year}.csv", admitted[admitted["year"] == year], ledger.COLUMNS)
+        _write_csv(out_dir / f"{year}.csv", admitted[(admitted["year"] == year) & (admitted["date_basis"] != "window")],
+                   ledger.COLUMNS)
     (out_dir / QA_DIR).mkdir(exist_ok=True)
     _write_csv(out_dir / QA_DIR / COMBINED_NAME, admitted, [*ledger.COLUMNS, *EXTRA_COLUMNS])
     unchecked = _unchecked(admitted, qa_results if qa_results is not None else out_dir / QA_DIR / QA_RESULTS_NAME)
     dump_json(out_dir / REPORT_NAME, {
-        "max_accuracy_km": MAX_ACCURACY_KM,
+        "max_accuracy_km": max_accuracy_km,
         "same_place_km": SAME_PLACE_KM,
         "osm_fetched": len(fetched),
         "totals": {**_summary(records), "unchecked": len(unchecked)},
@@ -444,9 +516,11 @@ def build_inventory(raw_dir: Path, places: pd.DataFrame | None, out_dir: Path | 
     return admitted
 
 
-def write_inventory(directory: Path, places: pd.DataFrame, say=print, offline: bool = False) -> pd.DataFrame:
+def write_inventory(directory: Path, places: pd.DataFrame, say=print, offline: bool = False,
+                    max_accuracy_km: float = MAX_ACCURACY_KM) -> pd.DataFrame:
     """`build_inventory` of `<directory>/raw` into `directory`, saying one line per year and the number of Nominatim fetches."""
-    admitted = build_inventory(Path(directory) / "raw", places, out_dir=directory, offline=offline)
+    admitted = build_inventory(Path(directory) / "raw", places, out_dir=directory, offline=offline,
+                               max_accuracy_km=max_accuracy_km)
     report = json.loads((Path(directory) / REPORT_NAME).read_text(encoding="utf-8"))
     for year, entry in report["years"].items():
         say(f"{year}: {entry['raw']} raw, {entry['stated']} stated, {entry['geocoded']} geocoded, {entry['admitted']} admitted")

@@ -428,7 +428,7 @@ def test_measure_set_counts_the_events_in_cells_off_the_panel():
 
 def test_the_heldout_command_writes_the_report_to_the_chosen_folder(monkeypatch, tmp_path):
     calls = []
-    monkeypatch.setattr(heldout, "write_heldout", lambda out, say=print: calls.append(out))
+    monkeypatch.setattr(heldout, "write_heldout", lambda out, say=print, assembly=None, stem=None: calls.append(out))
     monkeypatch.setattr(sys, "argv", ["aetherguard.verify", "heldout", "--out", str(tmp_path)])
     with pytest.raises(SystemExit) as stop:
         runpy.run_module("aetherguard.verify", run_name="__main__")
@@ -442,3 +442,64 @@ def test_markdown_says_lies_for_one_event_off_the_panel_and_nothing_for_none():
     assert f"1 of the {entry['events']} events lies outside the panel cells" in heldout.markdown(result_json)
     entry["events_off_panel_cells"] = 0
     assert "outside the panel cells" not in heldout.markdown(result_json)
+
+
+# --- assembly v2 (W1b) ------------------------------------------------------------------------------------------------
+
+def frozen_assembly(tmp_path, window_rows=0):
+    from aetherguard.verify import assembly
+    events = pd.DataFrame({"cell_id": np.array([5, 6], dtype=np.int64), "date": pd.to_datetime(["2020-07-01", "2020-07-02"]),
+                           "source": ["reported", "bipad_nepal"], "storm_id": np.array([0, 0], dtype=np.int64)})
+    window = pd.DataFrame({"cell_id": np.arange(window_rows, dtype=np.int64)})
+    assembly._write_frozen(tmp_path / "v2", {"events": events, "window_events": window}, {"version": 2})
+    return tmp_path / "v2"
+
+
+def test_an_assembly_is_read_with_its_storm_ids_and_checked_hashes(tmp_path):
+    events = heldout.load_event_table({}, frozen_assembly(tmp_path))
+    assert list(events.columns) == ["cell_id", "date", "source", "storm_id"] and len(events) == 2
+
+
+def test_an_assembly_with_window_records_is_refused(tmp_path):
+    with pytest.raises(ValueError, match="window records"):
+        heldout.assembly_events(frozen_assembly(tmp_path, window_rows=1))
+
+
+def test_the_gate_line_reads_storm_clusters_when_given():
+    assert heldout.gate_line(200, 160, storms=40) == (
+        "Held-out events: 200 records of 160 independent slides in 40 storm clusters against the 150-event gate "
+        "(storm clusters): NOT MET, 110 short.")
+    assert heldout.gate_line(92, 87).endswith("NOT MET, 63 short.")
+
+
+def test_an_assembly_run_must_name_its_own_report(tmp_path):
+    with pytest.raises(ValueError, match="must not overwrite"):
+        heldout.write_heldout(tmp_path, assembly=tmp_path)
+
+
+def test_the_heldout_command_passes_the_assembly_and_stem(monkeypatch, tmp_path):
+    calls = []
+    monkeypatch.setattr(heldout, "write_heldout", lambda out, say=print, assembly=None, stem=None: calls.append((assembly, stem)))
+    monkeypatch.setattr(sys, "argv", ["aetherguard.verify", "heldout", "--out", str(tmp_path), "--assembly", "a", "--stem", "s"])
+    with pytest.raises(SystemExit) as stop:
+        runpy.run_module("aetherguard.verify", run_name="__main__")
+    assert stop.value.code == 0 and calls == [(heldout.Path("a"), "s")]
+
+
+def test_measure_set_counts_storm_clusters_when_the_events_carry_them():
+    part, result = toy_season()
+    events = toy_events(part).assign(storm_id=[4, 4, 9, 7])
+    entry = heldout.measure_set("S2018", [result], events, part.cell_ids, lambda m: None)
+    assert entry["storm_clusters"] == 1 and entry["events"] == 2
+    assert entry["models"]["v3"]["tolerant"]["1"]["events"] == 2
+    assert "storm_clusters" not in heldout.measure_set("S2018", [result], toy_events(part), part.cell_ids, lambda m: None)
+
+
+def test_markdown_of_an_assembly_run_names_the_assembly_and_its_storm_clusters():
+    result_json = markdown_inputs()[2]
+    result_json["assembly"] = "data/processed/heldout_v2"
+    for entry in result_json["sets"].values():
+        entry["storm_clusters"] = 3
+    text = heldout.markdown(result_json)
+    assert "assembly `data/processed/heldout_v2`" in text and "3 storm clusters" in text
+    assert "S2018 events are the June-September catalog events" not in text

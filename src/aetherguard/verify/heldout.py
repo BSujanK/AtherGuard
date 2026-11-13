@@ -29,6 +29,12 @@ de-duplicated on (cell, day) only, so the same slide in two sources, or in neigh
 `distinct_events` merges records within 10 km and a day into independent slides, and the 150-event gate is read on those
 slides, not on the records. Events dated outside the panel days are counted, not scored; events in cells outside the panel
 (`events_off_panel_cells`) can be matched only tolerantly, never cell-exact.
+
+`--assembly DIR` reads the events from a frozen held-out assembly instead (`verify.assembly`, v2: `events.parquet` with
+`storm_id`); its hashes are checked against `FROZEN.json`, a non-empty `window_events.parquet` is refused (window records
+have their own matching rule, spec 2026-11-13 section 4, not implemented here), each set also counts storm clusters, and the
+gate line is read on the storm clusters of POOLED (spec 2026-11-13 section 5). `--stem` names the report, so the W1 report
+is never overwritten.
 """
 from __future__ import annotations
 
@@ -142,10 +148,15 @@ def days_below_half(scored: np.ndarray) -> int:
     return int((np.asarray(scored, dtype=bool).mean(axis=0) < 0.5).sum())
 
 
-def gate_line(records: int, slides: int, gate: int = GATE_EVENTS) -> str:
-    """The gate is read on `slides`, the independent slides behind the `records` (see `event_clusters`)."""
-    verdict = f"MET, {slides - gate} over" if slides >= gate else f"NOT MET, {gate - slides} short"
-    return f"Held-out events: {records} records of {slides} independent slides against the {gate}-event gate: {verdict}."
+def gate_line(records: int, slides: int, gate: int = GATE_EVENTS, storms: int | None = None) -> str:
+    """The gate is read on `slides`, the independent slides behind the `records` (see `event_clusters`), or on `storms`, the
+    storm clusters of an assembly that has them (spec 2026-11-13 section 5)."""
+    basis = slides if storms is None else storms
+    verdict = f"MET, {basis - gate} over" if basis >= gate else f"NOT MET, {gate - basis} short"
+    if storms is None:
+        return f"Held-out events: {records} records of {slides} independent slides against the {gate}-event gate: {verdict}."
+    return (f"Held-out events: {records} records of {slides} independent slides in {storms} storm clusters against the "
+            f"{gate}-event gate (storm clusters): {verdict}.")
 
 
 # ------------------------------------------------------------------------------------------------------ events
@@ -332,7 +343,9 @@ def measure_set(name: str, results: list[SeasonResult], events: pd.DataFrame, ce
     levels, scored, days = pool_seasons(results, SETS[name])
     kept, outside = events_on_days(events[pd.to_datetime(events["date"]).dt.year.isin(SETS[name])], days)
     say(f"{name}: scoring {len(cell_ids)} cells x {len(days)} days, {len(kept)} events, models {list(levels)}")
+    storms = {"storm_clusters": int(kept["storm_id"].nunique())} if "storm_id" in kept.columns else {}
     return {
+        **storms,
         "years": list(SETS[name]),
         "note": SET_NOTES[name],
         "cells": int(len(cell_ids)),
@@ -381,7 +394,24 @@ def refit_threshold(store, say) -> dict:
     return {"alpha": alpha, "gamma": gamma, "events_used": used, "events": int(len(events))}
 
 
-def load_event_table(cfg: dict) -> pd.DataFrame:
+def assembly_events(directory: Path) -> pd.DataFrame:
+    """The day-precise events of a frozen held-out assembly as (cell_id, date, source, storm_id), hashes checked."""
+    from .assembly import _check_frozen
+    directory = Path(directory)
+    _check_frozen(directory)
+    window = pd.read_parquet(directory / "window_events.parquet")
+    if len(window):
+        raise ValueError(f"{directory}: {len(window)} window records; their matching rule (spec 2026-11-13 section 4) is not "
+                         "implemented in this report, and they must not be mixed with day-precise records")
+    events = pd.read_parquet(directory / "events.parquet", columns=["cell_id", "date", "source", "storm_id"])
+    events["date"] = pd.to_datetime(events["date"]).astype("datetime64[ns]")
+    events["cell_id"] = events["cell_id"].astype(np.int64)
+    return events
+
+
+def load_event_table(cfg: dict, assembly: Path | None = None) -> pd.DataFrame:
+    if assembly is not None:
+        return assembly_events(assembly)
     catalog = bt.load_set("season_2018", cfg=cfg).events
     positives = pd.read_parquet(data_root() / "processed" / "splits" / "positive_cell_days.parquet",
                                 columns=["cell_id", "event_date", "split"])
@@ -398,7 +428,7 @@ def season_summary(part: Part, result: SeasonResult, events: pd.DataFrame, lhasa
     }
 
 
-def run(cfg: dict, say=print) -> dict:
+def run(cfg: dict, say=print, assembly: Path | None = None) -> dict:
     started = time.perf_counter()
     model, config, base_rules = ps.load_inputs(cfg)
     say("loading the development panels")
@@ -410,7 +440,7 @@ def run(cfg: dict, say=print) -> dict:
     published = published_ed_threshold()
     ed_fits = {"ed_threshold": published, "ed_threshold_refit": (refit["alpha"], refit["gamma"])}
     reference = H.load_panel(H.alerts_dir(H.HELDOUT_DIR) / H.HELDOUT_FILE).cells["cell_id"].to_numpy()
-    events = load_event_table(cfg)
+    events = load_event_table(cfg, assembly)
     results, per_season = [], {}
     for year in SEASON_YEARS:
         say(f"season {year}: loading the panel and scoring the models")
@@ -426,7 +456,10 @@ def run(cfg: dict, say=print) -> dict:
     store.close()
     sets = {name: measure_set(name, results, events, reference, say) for name in SETS}
     held_out, slides = sets["POOLED"]["events"], sets["POOLED"]["distinct_events"]
+    storms = sets["POOLED"].get("storm_clusters")
+    basis = slides if storms is None else storms
     return {
+        "assembly": None if assembly is None else Path(assembly).as_posix(),
         "protocol": {
             "alert_levels": LEVEL_NAMES,
             "tolerances": {n: {"km": t.km, "days": t.days} for n, t in TOLERANCES.items()},
@@ -442,8 +475,9 @@ def run(cfg: dict, say=print) -> dict:
         },
         "seasons": per_season,
         "sets": sets,
-        "gate": {"gate": GATE_EVENTS, "events": held_out, "distinct_events": slides, "met": slides >= GATE_EVENTS,
-                 "line": gate_line(held_out, slides)},
+        "gate": {"gate": GATE_EVENTS, "events": held_out, "distinct_events": slides, "storm_clusters": storms,
+                 "basis": "independent slides" if storms is None else "storm clusters", "met": basis >= GATE_EVENTS,
+                 "line": gate_line(held_out, slides, storms=storms)},
         "seconds": time.perf_counter() - started,
     }
 
@@ -487,7 +521,8 @@ def _set_section(name: str, entry: dict) -> list[str]:
         "",
         f"{entry['note']}. Events by source: {sources}. {entry['distinct_events']} independent slides when events within "
         f"10 km and a day are merged (`POD (independent slides)` counts a slide as detected when any of its records is); "
-        f"{outside_text} dated outside the panel days and not scored.",
+        + (f"{entry['storm_clusters']} storm clusters (spec 2026-11-13 section 5); " if "storm_clusters" in entry else "")
+        + f"{outside_text} dated outside the panel days and not scored.",
         "",
         *off_panel,
         TABLE_HEADER_SLIDES,
@@ -542,8 +577,11 @@ def markdown(result: dict) -> str:
         "fitted on the same kind of daily events, is the fairer threshold benchmark.",
         *shift_note,
         "- `susceptibility` is computed from v3's risk over the season it is scored on (hindsight), an optimistic baseline.",
-        "- S2018 events are the June-September catalog events while the 2018 panel runs to December: alerts in October-"
-        "December cannot be verified there, which lowers S2018 precision for every model alike.",
+        *(["- S2018 events are the June-September catalog events while the 2018 panel runs to December: alerts in October-"
+           "December cannot be verified there, which lowers S2018 precision for every model alike."] if not result.get("assembly")
+          else [f"- Events come from the frozen assembly `{result['assembly']}` (spec 2026-11-13): every day-precise record of "
+                "2018-2025 in it, whatever the set notes below say about the W1 sources; most are BIPAD Nepal ward reports, so "
+                "every number must be read by country as well (the assembly report has the breakdown)."]),
         "- Every set holds the same panel cells, which are not all cells of India; an event is matched to the panel cells "
         "within tolerance.",
         "- `lhasa_v2` covers 2018-2020 only, so it appears in S2018 and in L1820, which holds every model on the same days "
@@ -573,11 +611,13 @@ def markdown(result: dict) -> str:
     return "\n".join(lines)
 
 
-def write_heldout(out: Path, say=print) -> dict:
-    result = run(live_run.load_run_config(), say)
+def write_heldout(out: Path, say=print, assembly: Path | None = None, stem: str = REPORT_STEM) -> dict:
+    if assembly is not None and stem == REPORT_STEM:
+        raise ValueError(f"an assembly run must not overwrite reports/{REPORT_STEM}: give --stem")
+    result = run(live_run.load_run_config(), say, assembly)
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
-    dump_json(out / f"{REPORT_STEM}.json", result)
-    (out / f"{REPORT_STEM}.md").write_text(markdown(result), encoding="utf-8")
-    say(f"wrote {hm.display_path(out / REPORT_STEM)}.{{json,md}}")
+    dump_json(out / f"{stem}.json", result)
+    (out / f"{stem}.md").write_text(markdown(result), encoding="utf-8")
+    say(f"wrote {hm.display_path(out / stem)}.{{json,md}}")
     return result
