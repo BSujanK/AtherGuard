@@ -55,6 +55,7 @@ from ..config import PROJECT_ROOT, data_root, load_config_file
 from ..features import imerg_build as B
 from ..features import imerg_intensity as ii
 from ..features import static_w5 as sw
+from ..features import wetness as wt
 from ..live import backtest as bt
 from ..live import hardening as H
 from ..live import precision_study as ps
@@ -160,8 +161,16 @@ def iint_spec(study: dict, lag_days: int) -> dict:
 
 
 def extra_groups(study: dict, lag_days: int = 0) -> dict:
-    """The feature groups the base configuration knows plus the `iint` group of this study at `lag_days`."""
-    return {**study["base"]["extra_groups"], ii.GROUP: iint_spec(study, lag_days)}
+    """The feature groups the base configuration knows plus this study's own: the `iint` group at `lag_days` and any other
+    group it declares (W4's `iwet`), as declared."""
+    own = {g: dict(spec) for g, spec in study["extra_groups"].items() if g != ii.GROUP}
+    return {**study["base"]["extra_groups"], **own, ii.GROUP: iint_spec(study, lag_days)}
+
+
+def season_groups(study: dict) -> list[str]:
+    """The challenger's added groups that are joined to the season panels from their own frozen season tables
+    (`season_<year>_<suffix>.parquet`): every added group other than `iint`, which has its own lag-aware reader."""
+    return [g for g in study["candidates"][study["challenger"]].get("add_groups", []) if g != ii.GROUP]
 
 
 def groups_used(study: dict) -> list[str]:
@@ -200,13 +209,16 @@ def check_requires(study: dict) -> list[dict]:
         path = root / _plain_name(requires["adopted"], "requires.adopted") / HELDOUT
         adopted = path.is_file() and json.loads(path.read_text(encoding="utf-8"))["decision"]["adopt"] is True
         checks.append(_check(f"incumbent {requires['adopted']} was adopted on its own look", adopted, str(path)))
-    for name in requires.get("stage_one", []):
+    stage_one_req = requires.get("stage_one", [])
+    named = isinstance(stage_one_req, dict)       # {study: [inputs it must have tested]}; a list means the static inputs
+    for name in stage_one_req:
         path = root / _plain_name(name, "requires.stage_one") / DEV_RESULTS
         record = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
         passed = record is not None and record["stage_one"]["passed"] is True
         tested = set() if record is None else {c for cand in record["candidates"].values() for c in cand["columns"]}
-        checks.append(_check(f"{name} passed its own stage 1 with the static inputs added here",
-                             passed and set(static_inputs(study)) <= tested, str(path)))
+        needed = set(stage_one_req[name]) if named else set(static_inputs(study))
+        what = "the inputs " + ", ".join(sorted(needed)) if named else "the static inputs added here"
+        checks.append(_check(f"{name} passed its own stage 1 with {what}", passed and needed <= tested, str(path)))
     return checks
 
 
@@ -261,13 +273,46 @@ def compare(frames: dict[str, pd.DataFrame], study: dict) -> dict:
     return {"difference": paired["differences"][f"{challenger}-{reference}"], "metrics": paired["metrics"]}
 
 
-def stage_one(difference: dict) -> dict:
+def stage_one(difference: dict, challenger: str = "v4_int", label: str = "v4-int", reference: str = "C0",
+              than: str = "v3") -> dict:
     """Spec section 3, development: passes when the interval of v4_int - C0 has a lower bound <= 0 (it includes 0 or lies
-    below it). FA@90 is a false-alarm share, so a negative difference favours v4-int; only an interval wholly above 0 fails."""
+    below it). FA@90 is a false-alarm share, so a negative difference favours v4-int; only an interval wholly above 0 fails.
+    The names only change the wording (a study's `challenger_label`); the defaults give W3's text exactly."""
     lo, hi = float(difference["ci_lo"]), float(difference["ci_hi"])
-    return {"rule": STAGE_ONE_RULE, "difference": float(difference["point_difference"]), "ci": [lo, hi],
+    rule = (STAGE_ONE_RULE if (challenger, label, reference) == ("v4_int", "v4-int", "C0") else
+            STAGE_ONE_RULE.replace("v4_int - C0", f"{challenger} - {reference}").replace("v4-int", label))
+    return {"rule": rule, "difference": float(difference["point_difference"]), "ci": [lo, hi],
             "level": difference.get("level"), "passed": bool(lo <= 0),
-            "verdict": "favours v4-int" if hi < 0 else "includes zero" if lo <= 0 else "significantly worse than v3"}
+            "verdict": f"favours {label}" if hi < 0 else "includes zero" if lo <= 0 else f"significantly worse than {than}"}
+
+
+def study_stage_one(study: dict, difference: dict, reference: str | None = None, than: str = "v3") -> dict:
+    """`stage_one` worded for the study: its `challenger_label` when it has one, else W3's text."""
+    if "challenger_label" not in study:
+        return stage_one(difference)
+    return stage_one(difference, study["challenger"], study["challenger_label"], reference or study["reference"], than)
+
+
+def incumbent_dev_stage(study: dict, frames: dict[str, pd.DataFrame]) -> dict | None:
+    """The second development guard of a study with `incumbent_dev` ({output_dir, candidate}): the challenger must not be
+    significantly worse than the incumbent either, on identical OOF rows (the incumbent's stored OOF scores, same folds), by
+    the same paired bootstrap. None for a study without it."""
+    spec = study.get("incumbent_dev")
+    if not spec:
+        return None
+    name = spec["candidate"]
+    path = data_root() / "processed" / "hazard" / _plain_name(spec["output_dir"], "incumbent_dev.output_dir") / OOF_SUBDIR
+    incumbent = ch.read_oof(path / f"oof_{name}.parquet")
+    mine = frames[study["challenger"]]
+    if not incumbent[ch.SAME_ROWS].reset_index(drop=True).equals(mine[ch.SAME_ROWS].reset_index(drop=True)):
+        raise ValueError(f"the stored OOF rows of {name} differ from this study's rows: the paired comparison is not defined")
+    boot, ops = study["base"]["bootstrap"], study["base"]["operating_points"]
+    key = name if name not in frames else f"{name}_incumbent"
+    paired = ch.paired_fa_differences({study["challenger"]: mine, key: incumbent}, [(study["challenger"], key)], boot["n"],
+                                      boot["seed"], boot["level"], recalls=ops["recalls"], fa_shares=ops["fa_shares"])
+    difference = paired["differences"][f"{study['challenger']}-{key}"]
+    return {"incumbent": name, "oof": hm.display_path(path / f"oof_{name}.parquet"), "difference": difference,
+            "metrics": paired["metrics"][key], "stage": study_stage_one(study, difference, name, name)}
 
 
 def check_reproduction(result: cv.CVResult, selected: dict, tolerance: float) -> dict:
@@ -289,11 +334,17 @@ def fit_model(study: dict, candidate: vc.Candidate, dev: hd.Development, layout:
     base = study["base"]
     model = vc.fit_final(candidate, dev, layout, result, base, NO_KEYS, directory)
     added = list(study["candidates"][candidate.name].get("add_increasing", []))
+    wet = [c for c in added if c in wt.feature_names()]
+    intensity = [c for c in added if c not in wet]
     model.card.update(
         protocol="v2 (year-blocked CV over 2007-2017); W3 rain-intensity challenger, spec 2026-11-06",
-        description=f"W3 challenger {candidate.name}: {candidate.description}",
-        monotone_assumptions={"increasing": [*base["monotone"]["increasing"], *added], "decreasing": base["monotone"]["decreasing"]},
-        intensity={"group": ii.GROUP, "lag_days": lag_days, "inputs": added})
+        description=f"{study.get('card_label', 'W3 challenger')} {candidate.name}: {candidate.description}",
+        monotone_assumptions={"increasing": [*base["monotone"]["increasing"], *added], "decreasing": base["monotone"]["decreasing"]})
+    if intensity or not wet:                # W3's record, unchanged; a study that adds only wetness has no intensity input
+        model.card.update(intensity={"group": ii.GROUP, "lag_days": lag_days, "inputs": intensity})
+    if wet:
+        model.card.update(protocol=study["protocol"], wetness={"group": wt.GROUP, "lag_days": wt.LAG_DAYS, "inputs": wet,
+                                                               "constraints": "non-decreasing"})
     if static_inputs(study):
         model.card.update(protocol=study["protocol"],
                           static={"group": sw.GROUP, "inputs": static_inputs(study), "excluded": list(sw.EXPOSURE_COLUMNS),
@@ -351,9 +402,16 @@ def run_dev(study: dict, features_dir: Path | None = None, say=print, force: boo
         results[name], frames[name] = result, ch.oof_frame(layout, result.oof)
         vc.save_oof(out / OOF_SUBDIR, frames[name], result)
     comparison = compare(frames, study)
-    stage = stage_one(comparison["difference"])
+    stage = study_stage_one(study, comparison["difference"])
     say(f"stage 1: {study['challenger']} - {reference} FA@90 {stage['difference']:+.4f} [{stage['ci'][0]:+.4f}, {stage['ci'][1]:+.4f}] "
         f"-> {'passed' if stage['passed'] else 'FAILED'} ({stage['verdict']})")
+    against = incumbent_dev_stage(study, frames)
+    if against is not None:
+        second = against["stage"]
+        say(f"  and against {against['incumbent']}: {second['difference']:+.4f} [{second['ci'][0]:+.4f}, {second['ci'][1]:+.4f}] "
+            f"-> {'passed' if second['passed'] else 'FAILED'} ({second['verdict']})")
+        comparison["against_incumbent"] = against
+        stage = {**stage, "passed": bool(stage["passed"] and second["passed"]), "against_incumbent": second}
     model_dir = None
     if stage["passed"]:
         model_dir = out / MODEL_SUBDIR / study["challenger"]
@@ -369,7 +427,8 @@ def run_dev(study: dict, features_dir: Path | None = None, say=print, force: boo
                            "constraints": dict(zip(c.columns, c.constraints)), "n_trees": results[n].n_trees,
                            "fold_best_iterations": results[n].fold_best_iterations, "seconds": results[n].seconds}
                        for n, c in candidates.items()},
-        "comparison": comparison, "stage_one": stage, "decision": None if stage["passed"] else decide(stage),
+        "comparison": comparison, "stage_one": stage,
+        "decision": None if stage["passed"] else decide(stage, label=study.get("challenger_label", "v4-int")),
         "model_dir": None if model_dir is None else hm.display_path(model_dir),
         "seconds": time.perf_counter() - started}
     dump_json(out / DEV_RESULTS, payload)
@@ -395,7 +454,7 @@ def current_lag(dev: dict) -> int:
 
 # ------------------------------------------------------------------------------------------ the decision
 
-def decide(stage: dict, scores: dict | None = None, incumbent: str = "v3_ranked") -> dict:
+def decide(stage: dict, scores: dict | None = None, incumbent: str = "v3_ranked", label: str = "v4-int") -> dict:
     """The pre-declared adoption criterion of spec section 3, literally.
 
     Stage 1 failed: not adopted, the held-out set is not evaluated. Otherwise `scores` (`operating_point.score_heldout` of
@@ -404,9 +463,12 @@ def decide(stage: dict, scores: dict | None = None, incumbent: str = "v3_ranked"
     comparisons and > in at least one. Watch+ is reported in the scores but does not decide.
     """
     if not stage["passed"]:
-        return {"adopt": False, "stage": 1, "conditions": [], "failed": ["stage 1"],
-                "reason": "the paired FA@90 interval of v4_int - C0 lies wholly above 0: v4-int is not evaluated on the "
-                          "held-out set and is not adopted"}
+        reason = ("the paired FA@90 interval of v4_int - C0 lies wholly above 0: v4-int is not evaluated on the held-out set "
+                  "and is not adopted")
+        if label != "v4-int":
+            reason = (f"a pre-declared development guard failed ({stage['rule']}): {label} is not evaluated on the held-out "
+                      "set and is not adopted")
+        return {"adopt": False, "stage": 1, "conditions": [], "failed": ["stage 1"], "reason": reason}
     if scores is None:
         raise ValueError("stage 1 passed: the held-out scores are required to decide")
     conditions, failed = [], []
@@ -456,6 +518,51 @@ def season_iint(study: dict, directory: Path, year: int, cell_ids, days: list[da
     return table[ii.feature_names()].to_numpy(dtype=np.float32).reshape(len(cell_ids), len(days), -1)
 
 
+def group_dir(study: dict, group: str, features_dir: Path) -> Path:
+    return Path(features_dir) / study["extra_groups"][group]["subdir"]
+
+
+def season_group(study: dict, group: str, features_dir: Path, year: int, cell_ids, days: list[date]) -> pd.DataFrame:
+    """The columns of an added group (other than `iint`) for a held-out season, cells x days in panel order (cell-major, the
+    order of `panel[cells, days].ravel()`), from its frozen table `season_<year>_<suffix>.parquet`, verified against the group's
+    manifest (listed, same checksum, frozen) and the panel's cells (and their order) and days."""
+    spec = study["extra_groups"][group]
+    directory = group_dir(study, group, features_dir)
+    path, manifest = directory / f"season_{year}_{spec['suffix']}.parquet", directory / spec["manifest_file"]
+    if not path.is_file() or not manifest.is_file():
+        raise FileNotFoundError(f"{path} or {manifest} not found; build the {group} tables first")
+    record = json.loads(manifest.read_text(encoding="utf-8"))
+    entry = record["files"].get(path.name)
+    if entry is None or record.get("frozen") is not True:
+        raise IintTableError(f"{path.name} is not listed in {manifest.name}, or the group is not frozen")
+    if sha256_file(path) != entry["sha256"]:
+        raise IintTableError(f"{path.name} does not match the checksum in {manifest.name}")
+    names = list(json.loads((directory / spec["columns_file"]).read_text(encoding="utf-8")))
+    table = pd.read_parquet(path)
+    cell_ids = np.asarray(cell_ids, dtype=np.int64)
+    if len(table) != len(cell_ids) * len(days):
+        raise IintTableError(f"{path.name} has {len(table)} rows; {len(cell_ids)} cells x {len(days)} days need "
+                             f"{len(cell_ids) * len(days)}")
+    if not np.array_equal(table["cell_id"].to_numpy(dtype=np.int64), np.repeat(cell_ids, len(days))):
+        raise IintTableError(f"{path.name}: its cells differ from the panel's cells or their order")
+    if not np.array_equal(table["date"].to_numpy(dtype="datetime64[ns]"), np.tile(np.array(days, dtype="datetime64[ns]"), len(cell_ids))):
+        raise IintTableError(f"{path.name}: its days differ from the panel's days")
+    return table[names].reset_index(drop=True)
+
+
+def check_group_tables(study: dict, features_dir: Path) -> list[dict]:
+    """The frozen tables of the season groups: frozen, every file as its manifest records it."""
+    checks = []
+    for group in season_groups(study):
+        spec = study["extra_groups"][group]
+        directory = group_dir(study, group, features_dir)
+        manifest = json.loads((directory / spec["manifest_file"]).read_text(encoding="utf-8"))
+        bad = [n for n, e in manifest["files"].items() if not (directory / n).is_file() or sha256_file(directory / n) != e["sha256"]]
+        checks += [_check(f"{group} tables frozen", manifest.get("frozen") is True, manifest.get("created_utc")),
+                   _check(f"{group} tables intact", not bad, {"changed_or_missing": bad})]
+    return checks
+
+
 def season_path(directory: Path, year: int, tag: str = SEASON_TAG) -> Path:
     return Path(directory) / f"season_{year}_{tag}.npz"
 
@@ -477,12 +584,15 @@ def score_season(model, card_sha: str, study: dict, year: int, features_dir: Pat
     column = {day: j for j, day in enumerate(days)}
     static = static_inputs(study)       # per cell, the same every day: what training joined, read from the same table
     ground = sw.join_static(spec.cells[["cell_id"]], sw.static_table())[static] if static else None
+    extra = {g: season_group(study, g, features_dir, year, spec.cells["cell_id"].to_numpy(), days) for g in season_groups(study)}
+    extra = {g: (list(t.columns), t.to_numpy(dtype=np.float32).reshape(len(spec.cells), len(days), -1)) for g, t in extra.items()}
     stores = bt.build_stores(spec.cells, cfg)
     say(f"season {year}: {len(spec.cells)} cells, {spec.start} to {spec.end}")
 
     def features(day: date) -> pd.DataFrame:
         base = bt.training_style_features(day, spec.cells, stores).reset_index(drop=True)
         return pd.concat([base, pd.DataFrame(intensity[:, column[day], :], columns=ii.feature_names()),
+                          *(pd.DataFrame(values[:, column[day], :], columns=names) for names, values in extra.values()),
                           *([] if ground is None else [ground])], axis=1)
 
     panel = H.score_panel(days, spec.cells.assign(in_universe=True), lambda day: model, features, say)
@@ -890,7 +1000,7 @@ def run_preflight(study: dict, features_dir: Path | None = None, say=print, load
     if dev["stage_one"]["passed"]:
         prov = provenance(study, lag, features_dir)
         record["provenance"] = prov
-        checks += check_provenance(study, lag, prov) + check_iint_tables(study, features_dir, lag)
+        checks += check_provenance(study, lag, prov) + check_iint_tables(study, features_dir, lag) + check_group_tables(study, features_dir)
         try:
             assembly = load(study, lag, features_dir, say)
         except (ValueError, BurdenMatchError, FileNotFoundError, IintTableError) as exc:

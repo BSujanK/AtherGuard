@@ -1,0 +1,87 @@
+# W4 stage 2: the combined model v5 = v4 plus the antecedent-wetness group
+# (docs/superpowers/specs/2026-11-13-aetherguard-w4-wetness.md sections 3-4, written before any result):
+#   python -m aetherguard.hazard.v4_combined dev --config configs/hazard_v5.yaml        # CV of v3 (reference) and v5, the refit
+#   python -m aetherguard.hazard.v4_combined seasons --config configs/hazard_v5.yaml    # v5 on the 2018-2025 panels (no outcome)
+#   python -m aetherguard.hazard.v4_combined preflight --config configs/hazard_v5.yaml  # the assembly and its checks, no outcome
+#   python -m aetherguard.hazard.v4_combined heldout --config configs/hazard_v5.yaml    # the single look (the lead takes it)
+# v5 is v4's inputs (v3-live, six iint inputs lagged 1 day, nine static inputs) plus the three iwet inputs (lag 2,
+# non-decreasing). Development guards: v5 - C0 and v5 - v4 (v4's stored OOF) each not significantly worse. The look is
+# against the incumbent v4, ranked by its own calibrated risk (its W6 season panels); both cut to the shares v3 realised with
+# the section 11 rules. W3's burden matching, tie-break, preflight and one-look guards apply unchanged (hazard.v4_int).
+base_config: configs/hazard_v3.yaml
+output_dir: v5                          # under data/processed/hazard
+seasons_dir: v5_seasons                 # under data/processed/alerts
+season_tag: v5                          # season_<year>_v5.npz
+features_tag: training_style+iint+static_w5+iwet
+report_stem: phase8_wetness_heldout     # the look's report; the development report is phase8_wetness (hazard.w4_wetness)
+spec: docs/superpowers/specs/2026-11-13-aetherguard-w4-wetness.md
+protocol: "v2 (year-blocked CV over 2007-2017); W4 combined model v5, spec 2026-11-13"
+card_label: "W4 combined model"
+challenger_label: v5
+reference: C0
+challenger: v5
+pool_names: [v4_ranked, v5]             # the ranked incumbent and the candidate, as the results name them
+requires:
+  adopted: v4                           # the incumbent's own look must have adopted it
+  stage_one:                            # the wetness group's own development stage must have passed with these inputs
+    w4_wet: [iwet_sat_l2, iwet_sat_anom_l2, iwet_satdays30_l2]
+incumbent:                              # the ranked incumbent's season panels (scored for the W6 look, unchanged since)
+  seasons_dir: v4_seasons
+  season_tag: v4
+incumbent_dev:                          # the second development guard: v5 - v4 on identical OOF rows
+  output_dir: v4
+  candidate: v4
+extra_groups:
+  iint:
+    subdir: imerg
+    suffix: iint
+    columns_file: iint_columns.json
+    manifest_file: iint_manifest.json
+  iwet:
+    subdir: imerg
+    suffix: iwet
+    columns_file: iwet_columns.json
+    manifest_file: iwet_manifest.json
+candidates:
+  C0:
+    description: "v3-live refit (reference): the frozen inputs with the v3 monotone constraints"
+  v5:
+    description: "v4 (C0, six rain-intensity inputs non-decreasing, nine physical static inputs unconstrained) plus the three antecedent-wetness inputs (non-decreasing)"
+    add_groups: [iint, iwet]
+    add_increasing:
+      - iint_max1h_1
+      - iint_max3h_1
+      - iint_max6h_1
+      - iint_max3h_max3d
+      - iint_max6h_max3d
+      - iint_wet_hours_1
+      - iwet_sat_l2
+      - iwet_sat_anom_l2
+      - iwet_satdays30_l2
+    add_static: [lc_tree, lc_shrub_grass, lc_crop, lc_bare, soil_clay, soil_sand, soil_coarse, ter_steep25, ter_steep35]
+provenance_files:                       # under the data root; a change after the preflight blocks the look
+  static_table: processed/features/static_w5/cell_static.parquet
+  iwet_manifest: processed/features/imerg/iwet_manifest.json
+  incumbent_heldout: processed/hazard/v4/heldout.json
+  incumbent_card: processed/hazard/v4/models/v4/card.json
+  incumbent_season_2018: processed/alerts/v4_seasons/season_2018_v4.npz
+  incumbent_season_2019: processed/alerts/v4_seasons/season_2019_v4.npz
+  incumbent_season_2020: processed/alerts/v4_seasons/season_2020_v4.npz
+  incumbent_season_2021: processed/alerts/v4_seasons/season_2021_v4.npz
+  incumbent_season_2022: processed/alerts/v4_seasons/season_2022_v4.npz
+  incumbent_season_2023: processed/alerts/v4_seasons/season_2023_v4.npz
+  incumbent_season_2024: processed/alerts/v4_seasons/season_2024_v4.npz
+  incumbent_season_2025: processed/alerts/v4_seasons/season_2025_v4.npz
+tie_seed: 20261106                      # W3's
+reproduction_tolerance: 1.0e-12
+preflight:                              # the W1 facts, as in configs/hazard_v4.yaml
+  burden_tolerance: 1.0e-4
+  straddle_tolerance: 0.01
+  pooled_alert_tolerance: 5.0e-4
+  cells: 36792
+  days: 1712
+  v3_alert_cell_days: [25582037, 10356868, 4275304]
+  events: 92
+  events_outside_panel_days: 1
+  distinct_slides: 87
+  events_by_source: {catalog_2018: 56, catalog_sparse: 6, reported: 30}

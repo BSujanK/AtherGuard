@@ -1,0 +1,33 @@
+# W4 stage 1: the antecedent-wetness group alone on v3 (docs/superpowers/specs/2026-11-13-aetherguard-w4-wetness.md
+# sections 3-4, written before any result):
+#   python -m aetherguard.hazard.v4_int dev --config configs/hazard_w4_wet.yaml   # CV of v3 (reference) and w4_wet, stage 1
+# w4_wet is the frozen v3-live configuration plus the three `iwet` bucket inputs (lag 2 IMD days, each non-decreasing). It
+# takes no held-out look of its own: a passing group goes into v5 (configs/hazard_v5.yaml).
+base_config: configs/hazard_v3.yaml
+output_dir: w4_wet                      # under data/processed/hazard: OOF scores, dev_results.json, models/<candidate>
+seasons_dir: w4_wet_seasons             # not used: w4_wet is never scored on the held-out seasons
+report_stem: phase8_wetness_stage1      # never written: w4_wet takes no look
+protocol: "v2 (year-blocked CV over 2007-2017); W4 antecedent-wetness group, spec 2026-11-13"
+card_label: "W4 stage 1"
+challenger_label: w4-wet
+reference: C0
+challenger: w4_wet
+extra_groups:
+  iint:                                 # declared because the study machinery reads the iint lag; w4_wet does not use it
+    subdir: imerg
+    suffix: iint
+    columns_file: iint_columns.json
+    manifest_file: iint_manifest.json
+  iwet:                                 # aetherguard.features.wetness writes exactly these files
+    subdir: imerg
+    suffix: iwet
+    columns_file: iwet_columns.json
+    manifest_file: iwet_manifest.json
+candidates:
+  C0:
+    description: "v3-live refit (reference): the frozen inputs with the v3 monotone constraints"
+  w4_wet:
+    description: "C0 plus the three antecedent-wetness bucket inputs (lag 2 IMD days), each constrained non-decreasing"
+    add_groups: [iwet]
+    add_increasing: [iwet_sat_l2, iwet_sat_anom_l2, iwet_satdays30_l2]
+reproduction_tolerance: 1.0e-12
