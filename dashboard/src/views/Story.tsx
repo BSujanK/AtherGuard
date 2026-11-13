@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { countCodes } from '../data/api'
 import { useGrid, useMode } from '../data/hooks'
-import { formatCount, formatDate, formatPer100k, modeLabel } from '../data/summary'
+import { formatCount, formatDate, formatPer100k } from '../data/summary'
 import { thresholdsFor } from '../data/thresholds'
 import { LEVELS } from '../data/types'
 import { CHAPTERS, useStory } from '../state/story'
@@ -83,14 +83,6 @@ export default function Story() {
         <div className={styles.masthead}>
           <h1 className={styles.wordmark}>AetherGuard</h1>
           <p className={styles.lede}>The daily landslide chart for the Himalaya and the Western Ghats, plotted every morning.</p>
-          <p className={styles.issue}>
-            {mode.isError ? 'The data service is not answering.' : !data ? 'Reading the latest run.' : data.mode === 'none' ? 'No run has been published yet.' : (
-              <>
-                {modeLabel(data.mode)} data through <span className="num">{formatDate(latest)}</span>.
-              </>
-            )}{' '}
-            Research prototype, not validated for public warnings.
-          </p>
           <div className={styles.actions}>
             <button type="button" className={styles.primary} onClick={() => goTo(1)}>
               Read the chart

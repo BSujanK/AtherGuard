@@ -82,12 +82,6 @@
   color: var(--text);
 }
 
-.issue {
-  max-width: 52ch;
-  margin-top: var(--sp-3);
-  font-size: var(--fs-sm);
-  color: var(--text-2);
-}
 
 .actions {
   display: flex;
