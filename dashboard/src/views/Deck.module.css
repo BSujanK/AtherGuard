@@ -1,0 +1,604 @@
+/*
+ * The presentation: one full-screen slide at a time over the live terrain. Copy sits in a column on the left, on a veil
+ * of ink that thins toward the map; the camera, behind, flies to each slide's view.
+ */
+.deck {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--ink-black) 88%, transparent) 0%,
+    color-mix(in srgb, var(--ink-black) 70%, transparent) 38%,
+    transparent 66%
+  );
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+/* Wide slides (the pipeline, the sources) need the full width, so the veil covers more of it. */
+.deck[data-slide='pipeline'] .veil,
+.deck[data-slide='sources'] .veil {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--ink-black) 40%, transparent) 0%,
+    color-mix(in srgb, var(--ink-black) 82%, transparent) 46%,
+    color-mix(in srgb, var(--ink-black) 90%, transparent) 100%
+  );
+}
+
+.deck[data-slide='title'] .veil {
+  background: linear-gradient(
+    to top right,
+    color-mix(in srgb, var(--ink-black) 80%, transparent) 0%,
+    transparent 55%
+  );
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: clamp(2rem, 6vh, 4.5rem) clamp(1.25rem, 5vw, 5.5rem) clamp(5rem, 11vh, 7rem);
+}
+
+.deck[data-slide='title'] .slide {
+  align-items: flex-end;
+}
+
+.deck[data-slide='pipeline'] .slide,
+.deck[data-slide='sources'] .slide {
+  align-items: flex-end;
+}
+
+.column {
+  width: min(44rem, 100%);
+}
+
+.wide {
+  width: min(84rem, 100%);
+}
+
+/* ---------------------------------------------------------------------------------------------- type */
+
+.wordmark {
+  font-size: clamp(3.5rem, 11vw, 9.5rem);
+  font-stretch: 125%;
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.035em;
+}
+
+.lede {
+  max-width: 30ch;
+  margin-top: var(--sp-5);
+  font-size: clamp(1.25rem, 1rem + 0.9vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1.28;
+  color: var(--text);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  margin-top: var(--sp-5);
+  color: var(--text-2);
+  font-size: var(--fs-md);
+}
+
+.meta i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--neon-cyan);
+}
+
+.meta :global(.num) {
+  color: var(--text);
+}
+
+.heading {
+  font-size: clamp(1.875rem, 1.2rem + 2.2vw, 3.25rem);
+  font-weight: 750;
+  line-height: 1.04;
+  letter-spacing: -0.024em;
+  max-width: 24ch;
+  margin-bottom: var(--sp-6);
+}
+
+.wide .heading {
+  max-width: 28ch;
+}
+
+.body {
+  max-width: 56ch;
+  font-size: var(--fs-md);
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.note {
+  max-width: 64ch;
+  margin-top: var(--sp-6);
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.fine {
+  margin-top: var(--sp-6);
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+/* ------------------------------------------------------------------------------------------- failures */
+
+.failures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-6) var(--sp-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.failures li {
+  display: grid;
+  gap: var(--sp-2);
+  padding-top: var(--sp-3);
+  border-top: 1px solid color-mix(in srgb, var(--flame-orange) 55%, transparent);
+}
+
+.failures strong {
+  font-family: var(--font-display);
+  font-stretch: 110%;
+  font-size: var(--fs-lg);
+  font-weight: 650;
+  color: var(--text);
+}
+
+.failures span {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+/* ------------------------------------------------------------------------------------------- solution */
+
+.triad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-5);
+  margin-top: var(--sp-6);
+}
+
+.triad > div {
+  display: grid;
+  gap: var(--sp-1);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border-strong);
+}
+
+.triad :global(.num) {
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
+  font-weight: 600;
+  color: var(--neon-cyan);
+  letter-spacing: -0.02em;
+}
+
+.triad > div > span:last-child {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.today {
+  margin-top: var(--sp-6);
+  font-size: var(--fs-md);
+  color: var(--text-2);
+}
+
+.level :global(.num) {
+  font-weight: 600;
+}
+
+.level[data-level='emergency'] :global(.num) {
+  color: var(--flame-orange);
+}
+
+.level[data-level='warning'] :global(.num) {
+  color: var(--flame-orange);
+}
+
+.level[data-level='watch'] :global(.num) {
+  color: var(--neon-lime);
+}
+
+/* ------------------------------------------------------------------------------------------- pipeline */
+
+.pipeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-5);
+  padding-top: var(--sp-6);
+}
+
+.wire {
+  position: absolute;
+  top: calc(var(--sp-6) + 7px);
+  left: 7px;
+  right: 7px;
+  width: calc(100% - 14px);
+  height: 8px;
+  overflow: visible;
+}
+
+.wire line {
+  stroke: var(--neon-cyan);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--sp-2);
+}
+
+.node {
+  width: 16px;
+  height: 16px;
+  margin-bottom: var(--sp-4);
+  border-radius: 50%;
+  background: var(--ink-black);
+  box-shadow: inset 0 0 0 2px var(--neon-cyan);
+}
+
+.node[data-core='true'] {
+  background: var(--neon-cyan);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--neon-cyan) 22%, transparent);
+}
+
+.stage strong {
+  font-family: var(--font-display);
+  font-stretch: 110%;
+  font-size: var(--fs-lg);
+  font-weight: 650;
+}
+
+.stage span {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+/* ---------------------------------------------------------------------------------------------- model */
+
+.bar {
+  display: flex;
+  gap: 3px;
+  height: 0.875rem;
+  margin-top: var(--sp-6);
+}
+
+.bar span {
+  border-radius: 2px;
+  transform-origin: left center;
+}
+
+[data-tone='cyan'] {
+  background: var(--neon-cyan);
+}
+
+[data-tone='blue'] {
+  background: var(--royal-blue);
+}
+
+[data-tone='lime'] {
+  background: var(--neon-lime);
+}
+
+[data-tone='flame'] {
+  background: var(--flame-orange);
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-2) var(--sp-5);
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.legend i {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 2px;
+}
+
+.legend :global(.num) {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-6);
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--hairline);
+  color: var(--text-2);
+}
+
+.specs b {
+  margin-right: var(--sp-1);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* -------------------------------------------------------------------------------------------- sources */
+
+.sources {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-6) var(--sp-6);
+}
+
+.source {
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border-strong);
+}
+
+.source strong {
+  display: block;
+  margin-bottom: var(--sp-2);
+  font-family: var(--font-display);
+  font-stretch: 110%;
+  font-size: var(--fs-lg);
+  font-weight: 650;
+}
+
+.source ul {
+  display: grid;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+/* -------------------------------------------------------------------------------------------- numbers */
+
+.ledger {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.row dt {
+  font-size: var(--fs-base);
+  color: var(--text-2);
+}
+
+.row dd {
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------------------------------------ demo */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-4);
+  margin-top: var(--sp-6);
+}
+
+.primary,
+.secondary {
+  min-height: 3rem;
+  padding: 0 var(--sp-5);
+  border-radius: 999px;
+  font-weight: 600;
+  border: 0;
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.primary:hover {
+  background: color-mix(in srgb, var(--accent) 86%, var(--text));
+}
+
+.secondary {
+  background: transparent;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.secondary:hover {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--neon-cyan);
+}
+
+/* ------------------------------------------------------------------------------------------- controls */
+
+.controls {
+  position: absolute;
+  left: clamp(1.25rem, 5vw, 5.5rem);
+  bottom: clamp(1.25rem, 4vh, 2.25rem);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.controls > button {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 0;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.controls > button:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 1px var(--neon-cyan);
+}
+
+.controls > button:disabled {
+  opacity: 0.35;
+}
+
+.controls svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.controls ol {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.controls ol button {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.controls ol span {
+  width: 1rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-strong);
+  transition:
+    width var(--dur-base) var(--ease-out),
+    background var(--dur-base) var(--ease-out);
+}
+
+.controls ol button:hover span {
+  background: var(--text-2);
+}
+
+.controls ol button[aria-current='step'] span {
+  width: 1.5rem;
+  background: var(--neon-cyan);
+}
+
+.counter {
+  min-width: 4.5em;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.exit {
+  position: absolute;
+  top: clamp(1rem, 3vh, 1.75rem);
+  right: clamp(1.25rem, 3vw, 2.5rem);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  text-decoration: none;
+}
+
+.exit:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+@media (max-width: 900px) {
+  .failures,
+  .sources,
+  .pipeline,
+  .triad {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-4);
+  }
+
+  .wire {
+    display: none;
+  }
+
+  .heading {
+    margin-bottom: var(--sp-4);
+  }
+
+  /* A slide taller than the screen starts at its top and scrolls; a short one still sits at the bottom. */
+  .slide,
+  .deck[data-slide] .slide {
+    align-items: stretch;
+    overflow-y: auto;
+    padding-top: var(--sp-7);
+  }
+
+  .slide > * {
+    margin-top: auto;
+  }
+
+  /* The controls float over a slide that scrolls under them: give them a ground of their own. */
+  .controls {
+    left: var(--sp-3);
+    right: var(--sp-3);
+    bottom: var(--sp-3);
+    justify-content: space-between;
+    padding: var(--sp-1);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ink-black) 92%, transparent);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .veil,
+  .deck[data-slide] .veil {
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--ink-black) 92%, transparent) 0%,
+      color-mix(in srgb, var(--ink-black) 78%, transparent) 55%,
+      color-mix(in srgb, var(--ink-black) 30%, transparent) 100%
+    );
+  }
+}

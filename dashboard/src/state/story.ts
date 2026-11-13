@@ -19,7 +19,9 @@ interface StoryState {
   position: number
   /** performance.now() when the story was entered; the chart plots itself once from there. */
   startedAt: number
-  enter: () => void
+  /** The presentation drives the scene: the chart is shown plotted from its first slide. */
+  deck: boolean
+  enter: (deck?: boolean) => void
   leave: () => void
   setPosition: (position: number) => void
 }
@@ -28,8 +30,9 @@ export const useStory = create<StoryState>((set) => ({
   active: false,
   position: 0,
   startedAt: 0,
-  enter: () => set({ active: true, position: 0, startedAt: performance.now() }),
-  leave: () => set({ active: false }),
+  deck: false,
+  enter: (deck = false) => set({ active: true, position: 0, startedAt: performance.now(), deck }),
+  leave: () => set({ active: false, deck: false }),
   setPosition: (position) => set({ position: Math.min(LAST_CHAPTER, Math.max(0, position)) }),
 }))
 

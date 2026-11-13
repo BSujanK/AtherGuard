@@ -35,7 +35,7 @@ function target(): SceneNow {
     const layers = storyFrame(story.position, seconds)
     // The chart is plotted once per page load: by the landing, by the story's opening, or by any other view. Coming back
     // to the story later keeps the lines and the relief instead of drawing them again from nothing.
-    const plotted = intro.played || chartShown
+    const plotted = intro.played || chartShown || story.deck
     return { ...REST_FRAME, ...layers, reveal: plotted ? 1 : layers.reveal, fill: plotted ? 1 : layers.fill }
   }
   if (!playing) chartShown = true

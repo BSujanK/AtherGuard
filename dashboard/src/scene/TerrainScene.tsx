@@ -265,7 +265,8 @@ export default function TerrainScene() {
   const terrain = model.terrain
   const reducedMotion = usePrefersReducedMotion()
   const onMap = useMatch('/map') !== null
-  const onStory = useMatch('/') !== null
+  // The story and the presentation both drive the camera along the chapter poses.
+  const onStory = useMatch('/') !== null || useMatch('/deck') !== null
   const quality = useMapState((s) => s.quality)
   const poses = useMemo(() => (terrain ? storyPoses(terrain) : null), [terrain])
   const introPlaying = useIntro((s) => s.status === 'playing')

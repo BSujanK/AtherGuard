@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom'
 import EmptyState from '../components/EmptyState'
 import Alerts from '../views/Alerts'
+import Deck from '../views/Deck'
 import LiveMap from '../views/LiveMap'
 import Sensors from '../views/Sensors'
 import Story from '../views/Story'
@@ -20,6 +21,7 @@ export const routes: RouteObject[] = [
       { path: 'alerts-why', element: <Alerts /> },
       { path: 'sensors-sources', element: <Sensors /> },
       { path: 'story', element: <Navigate to="/" replace /> },
+      { path: 'deck', element: <Deck /> },
       {
         path: '*',
         element: (

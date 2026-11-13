@@ -142,6 +142,13 @@
   container-type: size;
 }
 
+/* The presentation owns the whole screen; it does not scroll. */
+.main[data-deck='true'] {
+  padding: 0;
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+
 /* On the map the canvas behind is interactive: the column lets the pointer through to it, and only the bar takes it back. */
 .column:has(> .main[data-map='true']) {
   pointer-events: none;

@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { act } from 'react'
@@ -103,6 +104,22 @@ describe('Shell with replay data', () => {
     expect(within(tally).getAllByRole('listitem')).toHaveLength(4)
     expect(screen.getByRole('link', { name: 'Open the live map' })).toHaveAttribute('href', '/map')
     expect(screen.getByRole('link', { name: 'AetherGuard, the story of the chart' })).toHaveAttribute('aria-current', 'page')
+    await settled()
+  })
+
+  it('runs the presentation full screen, slide by slide from the keyboard', async () => {
+    window.history.replaceState(null, '', '/')
+    renderApp('/deck')
+    expect(screen.getByRole('region', { name: '1 of 8: AetherGuard' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'AetherGuard' })).toBeInTheDocument()
+    await userEvent.keyboard('{ArrowRight}')
+    expect(await screen.findByRole('region', { name: '2 of 8: Why warnings fail' })).toBeInTheDocument()
+    expect(window.location.hash).toBe('#2')
+    await userEvent.keyboard('{End}')
+    expect(await screen.findByRole('region', { name: '8 of 8: The demo' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next slide' })).toBeDisabled()
+    await userEvent.click(screen.getByRole('button', { name: '5: The core model' }))
+    expect(await screen.findByRole('region', { name: '5 of 8: The core model' })).toBeInTheDocument()
     await settled()
   })
 

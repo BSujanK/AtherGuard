@@ -21,7 +21,8 @@ const EASE_OUT = [0.16, 1, 0.3, 1] as const
 export default function Shell() {
   const chrome = useIntro((s) => s.chrome)
   const onMap = useMatch('/map') !== null
-  const onStory = useMatch('/') !== null
+  const onDeck = useMatch('/deck') !== null
+  const onStory = useMatch('/') !== null || onDeck
   const { pathname } = useLocation()
 
   // The views share one scrolling region: each opens at its top, not where the last view was left.
@@ -44,11 +45,13 @@ export default function Shell() {
         <div className={styles.scrim} data-dim={!onMap && !onStory} aria-hidden="true" />
 
         <div className={styles.column}>
+          {/* The presentation is full-screen: the bar steps away while it runs. */}
           <motion.div
             className={styles.top}
             initial={false}
-            animate={{ y: chrome ? 0 : '-100%', opacity: chrome ? 1 : 0 }}
-            inert={!chrome}
+            animate={{ y: chrome && !onDeck ? 0 : '-100%', opacity: chrome && !onDeck ? 1 : 0 }}
+            style={onDeck ? { position: 'absolute', insetInline: 0 } : undefined}
+            inert={!chrome || onDeck}
           >
             <StatusStrip>
               <NavLink to="/" end viewTransition className={styles.brand} aria-label="AetherGuard, the story of the chart">
@@ -82,7 +85,8 @@ export default function Shell() {
             className={styles.main}
             id="view"
             data-map={onMap}
-            data-story={onStory}
+            data-story={onStory && !onDeck}
+            data-deck={onDeck}
             initial={false}
             animate={{ opacity: chrome ? 1 : 0 }}
             inert={!chrome}
