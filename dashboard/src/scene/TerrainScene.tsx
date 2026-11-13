@@ -266,7 +266,10 @@ export default function TerrainScene() {
   const reducedMotion = usePrefersReducedMotion()
   const onMap = useMatch('/map') !== null
   // The story and the presentation both drive the camera along the chapter poses.
-  const onStory = useMatch('/') !== null || useMatch('/deck') !== null
+  // Both hooks run on every render (never behind ||): a hook called only sometimes breaks React's hook order.
+  const onHome = useMatch('/') !== null
+  const onDeck = useMatch('/deck') !== null
+  const onStory = onHome || onDeck
   const quality = useMapState((s) => s.quality)
   const poses = useMemo(() => (terrain ? storyPoses(terrain) : null), [terrain])
   const introPlaying = useIntro((s) => s.status === 'playing')

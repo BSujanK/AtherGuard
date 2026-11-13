@@ -5,6 +5,7 @@ import Deck from '../views/Deck'
 import LiveMap from '../views/LiveMap'
 import Sensors from '../views/Sensors'
 import Story from '../views/Story'
+import RouteError from './RouteError'
 import Shell from './Shell'
 
 /**
@@ -15,6 +16,7 @@ export const routes: RouteObject[] = [
   {
     path: '/',
     element: <Shell />,
+    errorElement: <RouteError />,
     children: [
       { index: true, element: <Story /> },
       { path: 'map', element: <LiveMap /> },
