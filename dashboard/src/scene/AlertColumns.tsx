@@ -119,7 +119,8 @@ export default function AlertColumns({ columns, reducedMotion }: AlertColumnsPro
     const f = frameNow().risk
     material.uniforms.uIntensity!.value = f * f
     material.uniforms.uRise!.value = f
-    // Not drawn at all before the levels arrive: a column of zero height would still leave its footprint on the ground.
+    // Not drawn while the levels are off (before their chapter, behind the other views): a column of zero height
+    // would still leave its footprint on the ground.
     mesh.visible = f > 0.001
   })
 

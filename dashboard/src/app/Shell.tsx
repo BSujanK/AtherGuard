@@ -1,6 +1,6 @@
 import { MotionConfig, motion } from 'framer-motion'
-import { lazy, Suspense } from 'react'
-import { NavLink, Outlet, useMatch } from 'react-router-dom'
+import { lazy, Suspense, useLayoutEffect } from 'react'
+import { NavLink, Outlet, useLocation, useMatch } from 'react-router-dom'
 import { webglAvailable } from '../lib/motion'
 import Landing from '../scene/Landing'
 import { useIntro } from '../state/intro'
@@ -22,6 +22,16 @@ export default function Shell() {
   const chrome = useIntro((s) => s.chrome)
   const onMap = useMatch('/map') !== null
   const onStory = useMatch('/') !== null
+  const { pathname } = useLocation()
+
+  // The views share one scrolling region: each opens at its top, not where the last view was left.
+  useLayoutEffect(() => {
+    const view = document.getElementById('view')
+    if (!view) return
+    view.style.scrollBehavior = 'auto'      // the story scrolls smoothly; this reset must not
+    view.scrollTop = 0
+    view.style.scrollBehavior = ''
+  }, [pathname])
 
   return (
     <MotionConfig reducedMotion="user" transition={{ duration: 0.6, ease: EASE_OUT }}>

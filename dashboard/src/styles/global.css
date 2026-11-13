@@ -94,12 +94,14 @@ a {
     border-color var(--dur-base) var(--ease-out),
     box-shadow var(--dur-base) var(--ease-out),
     opacity var(--dur-base) var(--ease-out),
-    transform var(--dur-quick) var(--ease-out);
+    scale var(--dur-quick) var(--ease-out);
 }
 
+/* `scale`, not `transform`: it composes with a control's own transform (a press offset, a centring) instead of
+   replacing it. */
 button:active:not(:disabled),
 summary:active {
-  transform: scale(0.97);
+  scale: 0.97;
 }
 
 /* One vocabulary for text fields and selects everywhere; modules only place and size them. */

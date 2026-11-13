@@ -15,7 +15,7 @@ import { Graticule, Rain } from './Atmosphere'
 import CameraRig from './CameraRig'
 import { buildColumns, columnMinLevel } from './columns'
 import { createClassTexture } from './classMap'
-import { frameNow } from './frame'
+import { frameNow, setLayersShown } from './frame'
 import { MapInteraction, QualityWatchdog } from './MapInteraction'
 import OutlineLayer from './OutlineLayer'
 import { QUALITY_STEPS } from './perf'
@@ -72,8 +72,8 @@ function MapWorld({ terrain, model, onMap, onStory, reducedMotion }: WorldProps)
   )
 
   const { grid, visible, rain } = model
-  const shownGrid = layers ? grid : undefined
-  const shownVisible = layers ? visible : null
+  const shownGrid = grid
+  const shownVisible = visible
   const watchColumns = useMapState((s) => s.watchColumns)
   const columns = useMemo(
     () =>
@@ -82,16 +82,19 @@ function MapWorld({ terrain, model, onMap, onStory, reducedMotion }: WorldProps)
         : null,
     [shownGrid, shownVisible, terrain, field, watchColumns],
   )
-  const drops = useMemo(() => (layers && rain ? buildRainDrops(rain, terrain, field) : null), [layers, rain, terrain, field])
+  const drops = useMemo(() => (rain ? buildRainDrops(rain, terrain, field) : null), [rain, terrain, field])
 
   useFrame(() => {
     const f = frameNow()
     material.uniforms.uReveal!.value = f.reveal
     material.uniforms.uFill!.value = f.fill
-    material.uniforms.uRisk!.value = layers ? f.risk * f.risk : 0
+    material.uniforms.uRisk!.value = f.risk * f.risk
   })
 
-  useEffect(() => invalidate(), [layers, invalidate])
+  useEffect(() => {
+    setLayersShown(layers)
+    invalidate()
+  }, [layers, invalidate])
   // The landing waits for this: one frame after the terrain exists, the canvas has it on screen.
   useEffect(() => {
     const id = requestAnimationFrame(() => useIntro.getState().setReady())
@@ -171,8 +174,8 @@ const NARROW_SHIFT_PX = 95
 function CameraDirector({ onStory, poses, reducedMotion }: { onStory: boolean; poses: Pose[] | null; reducedMotion: boolean }) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera
   const size = useThree((s) => s.size)
+  const controls = useThree((s) => s.controls) as { target: Vector3 } | null
   const shift = useRef<number | null>(null)
-  const placed = useRef(false)
   const want = useMemo<Pose>(() => ({ position: new Vector3(), target: new Vector3() }), [])
 
   useFrame((_, delta) => {
@@ -190,19 +193,18 @@ function CameraDirector({ onStory, poses, reducedMotion }: { onStory: boolean; p
       camera.position.lerpVectors(OVERVIEW.position, end.position, dive)
       lookTarget.lerpVectors(OVERVIEW.target, end.target, dive)
       camera.lookAt(lookTarget)
-      placed.current = false
       return
     }
     if (!onStory || !poses) {
-      placed.current = false
+      // On the map the orbit controls own the view; remember where they look, so the story flies on from there.
+      if (controls) lookTarget.copy(controls.target)
       return
     }
     poseAt(poses, useStory.getState().position, want)
-    const follow = placed.current && !reducedMotion ? 1 - Math.exp(-delta * 3.2) : 1
+    const follow = reducedMotion ? 1 : 1 - Math.exp(-delta * 3.2)
     camera.position.lerp(want.position, follow)
     lookTarget.lerp(want.target, follow)
     camera.lookAt(lookTarget)
-    placed.current = true
   })
 
   return null
