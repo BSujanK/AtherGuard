@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { lazy, type ReactNode, Suspense, useRef } from 'react'
+import { lazy, type ReactNode, Suspense, useCallback, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ApiError } from '../../data/api'
 import { queryKeys, useCell, useCellHistory, useGrid, useMode, usePlaces } from '../../data/hooks'
@@ -20,6 +20,7 @@ import {
 } from '../../data/summary'
 import { type CellDetail, LEVELS, type PlaceLabel } from '../../data/types'
 import { type ScopedThresholds, thresholdsOfCell } from '../../data/thresholds'
+import { prefersReducedMotion } from '../../lib/motion'
 import { LEVEL_HEX } from '../../scene/levelColors'
 import { REGION_LABELS, type RegionName } from '../../scene/geo'
 import EmptyState from '../EmptyState'
@@ -357,7 +358,13 @@ export default function AlertDrawer({
   const queryClient = useQueryClient()
   const detail = useCell(cell, date, set, lead)
   const places = usePlaces().data
-  useDialog(panel, onClose, returnFocus)
+  // Closing slides the sheet out before it is removed; with reduced motion (or no animation support) it goes at once.
+  const [closing, setClosing] = useState(false)
+  const close = useCallback(() => {
+    if (prefersReducedMotion() || typeof panel.current?.getAnimations !== 'function') onClose()
+    else setClosing(true)
+  }, [onClose])
+  useDialog(panel, close, returnFocus)
 
   const mode = useMode().data
   const scoped = thresholdsOfCell(detail.data, mode)
@@ -433,9 +440,19 @@ export default function AlertDrawer({
 
   // Portalled to the body: inside the view the top bar (a sibling with a higher layer) would cover the sheet's header.
   return createPortal(
-    <div className={styles.layer}>
-      <div className={styles.scrim} onClick={onClose} aria-hidden="true" />
-      <aside ref={panel} className={styles.panel} role="dialog" aria-modal="true" aria-labelledby="drawer-title" data-testid="alert-drawer">
+    <div className={styles.layer} data-closing={closing}>
+      <div className={styles.scrim} onClick={close} aria-hidden="true" />
+      <aside
+        ref={panel}
+        onAnimationEnd={(e) => {
+          if (closing && e.target === e.currentTarget) onClose()
+        }}
+        className={styles.panel}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="drawer-title"
+        data-testid="alert-drawer"
+      >
         <header className={styles.head}>
           <div className={styles.headText}>
             <p className={styles.kicker}>
@@ -460,7 +477,7 @@ export default function AlertDrawer({
                   : null}
             </p>
           </div>
-          <button type="button" className={styles.close} onClick={onClose} aria-label="Close alert details">
+          <button type="button" className={styles.close} onClick={close} aria-label="Close alert details">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>

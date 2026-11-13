@@ -205,6 +205,12 @@ select {
   animation: none;
 }
 
+/* The alert sheet changes hands without a cross-fade: it slides itself. */
+::view-transition-old(alert-drawer),
+::view-transition-new(alert-drawer) {
+  animation: none;
+}
+
 ::view-transition-old(view) {
   animation: view-out 140ms var(--ease-in) both;
 }
