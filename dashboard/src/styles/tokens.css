@@ -46,17 +46,17 @@
   --display-stretch: 125%;
   --data-stretch: 87%;
 
-  --fs-2xs: 0.6875rem;
+  --fs-2xs: 0.75rem;
   --fs-xs: 0.75rem;
   --fs-sm: 0.8125rem;
   --fs-base: 0.9375rem;
   --fs-md: 1.0625rem;
   --fs-lg: 1.375rem;
   --fs-xl: 2rem;
-  --fs-2xl: clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem);
-  --fs-3xl: clamp(2.75rem, 1.6rem + 3.6vw, 5.25rem);
-  --fs-figure: clamp(4.5rem, 2rem + 8vw, 10.5rem);
-  --fs-wordmark: clamp(3.5rem, 1rem + 10vw, 11rem);
+  --fs-2xl: clamp(1.875rem, 1.4rem + 1.5vw, 2.75rem);
+  --fs-3xl: clamp(2.25rem, 1.5rem + 2.4vw, 3.75rem);
+  --fs-figure: clamp(3.5rem, 2rem + 5vw, 7rem);
+  --fs-wordmark: clamp(3rem, 1rem + 7vw, 8rem);
 
   --w-thin: 200;
   --w-light: 300;

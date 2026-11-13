@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 import type { SensorStation } from '../../data/sources'
 import { formatDate } from '../../data/summary'
 import type { Basemap, Outline } from '../../data/types'
@@ -155,7 +155,7 @@ export default function GaugeMap({ stations, terrain, highlight = null }: GaugeM
               ))}
             </g>
           )}
-          {drawn.map((s) => {
+          {drawn.map((s, i) => {
             const missing = s.trust === null
             const cx = x(s.lon)
             const cy = y(s.lat)
@@ -167,6 +167,7 @@ export default function GaugeMap({ stations, terrain, highlight = null }: GaugeM
                 data-flagged={s.flagged}
                 data-missing={missing}
                 data-active={s.station === activeId}
+                style={{ '--i': i } as CSSProperties}
               >
                 {s.flagged && <circle className={styles.pulse} cx={cx} cy={cy} r={6} />}
                 <circle

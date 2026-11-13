@@ -49,7 +49,7 @@
     color var(--dur-slow) var(--ease-out);
 }
 
-.updated[data-flash='true'] {
+.updated[data-flash="true"] {
   color: var(--text);
   background: color-mix(in srgb, var(--neon-cyan) 14%, transparent);
 }
@@ -65,7 +65,7 @@
 
 /* A slow ring leaves the dot: the one ambient motion on the page. */
 .pulse::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: -1px;
   border: 1px solid var(--neon-cyan);
@@ -124,6 +124,37 @@
   white-space: nowrap;
 }
 
+/* Each source's row slides in after the one above it. */
+.table tbody tr {
+  animation: row-in 480ms var(--ease-out) both;
+}
+
+.table tbody tr:nth-child(2) {
+  animation-delay: 60ms;
+}
+.table tbody tr:nth-child(3) {
+  animation-delay: 120ms;
+}
+.table tbody tr:nth-child(4) {
+  animation-delay: 180ms;
+}
+.table tbody tr:nth-child(5) {
+  animation-delay: 240ms;
+}
+.table tbody tr:nth-child(6) {
+  animation-delay: 300ms;
+}
+.table tbody tr:nth-child(n + 7) {
+  animation-delay: 360ms;
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+
 .table tbody tr {
   transition: background var(--dur-quick) var(--ease-out);
 }
@@ -138,7 +169,7 @@
 }
 
 /* New values: the row blooms from a cyan tint and settles back. */
-.table tbody tr[data-flash='true'] {
+.table tbody tr[data-flash="true"] {
   animation: row-bloom var(--dur-slow) var(--ease-out);
 }
 
@@ -203,15 +234,15 @@
   border-radius: 50%;
 }
 
-.badge[data-status='late'] .mark {
+.badge[data-status="late"] .mark {
   background: var(--warn);
 }
 
-.badge[data-status='failed'] .mark {
+.badge[data-status="failed"] .mark {
   background: var(--danger);
 }
 
-.badge[data-status='unknown'] .mark {
+.badge[data-status="unknown"] .mark {
   background: transparent;
   border: 1.5px solid var(--text-3);
 }

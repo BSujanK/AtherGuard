@@ -137,13 +137,13 @@
 }
 
 .count {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
 }
 
 /* The day's counts are the bar's key figures: larger and bolder than their names. */
 .count :global(.num) {
   color: var(--text);
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
   font-weight: var(--w-bold);
   margin-right: calc(var(--sp-1) * -1);
 }

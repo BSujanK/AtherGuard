@@ -76,8 +76,10 @@
   }
 }
 
+/* The panels arrive one after another, rising into place. */
 .card {
   --panel-pad: var(--sp-4);
+  animation: panel-in 620ms var(--ease-out) both;
   position: relative;
   display: grid;
   gap: var(--sp-4);
@@ -87,6 +89,26 @@
   background: color-mix(in srgb, var(--surface) 60%, transparent);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
+}
+
+.card:nth-of-type(2) {
+  animation-delay: 90ms;
+}
+
+.card:nth-of-type(3) {
+  animation-delay: 180ms;
+}
+
+.card:nth-of-type(4) {
+  animation-delay: 270ms;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(4px);
+  }
 }
 
 @media (min-width: 640px) {

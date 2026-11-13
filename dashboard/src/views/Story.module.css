@@ -90,8 +90,8 @@
 }
 
 .body {
-  max-width: 44ch;
-  font-size: 0.875rem;
+  max-width: 46ch;
+  font-size: var(--fs-base);
   font-weight: var(--w-regular);
   line-height: var(--lh-body);
   color: var(--text-2);
@@ -158,12 +158,12 @@ table + .note {
 }
 
 .pair .value {
-  font-size: clamp(6rem, 3rem + 11vw, 15rem);
+  font-size: clamp(4.5rem, 2.5rem + 7vw, 10rem);
 }
 
 .note {
   max-width: 56ch;
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   color: var(--text-3);
 }
 
@@ -182,7 +182,7 @@ table + .note {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-base);
   font-weight: var(--w-bold);
   letter-spacing: 0.01em;
   text-decoration: none;
@@ -239,12 +239,12 @@ table + .note {
 }
 
 .levels tbody td {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-base);
   color: var(--text-2);
 }
 
 .levels td:global(.num) {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   font-weight: var(--w-light);
   color: var(--text);
 }
@@ -298,7 +298,7 @@ table + .note {
 }
 
 .count {
-  font-size: clamp(2.75rem, 1.5rem + 4vw, 5rem);
+  font-size: clamp(2.25rem, 1.4rem + 2.6vw, 3.75rem);
   font-weight: var(--w-thin);
   font-stretch: 87%;
   font-variant-numeric: tabular-nums lining-nums;

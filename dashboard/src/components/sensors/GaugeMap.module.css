@@ -60,6 +60,22 @@
   transition: r var(--dur-quick) var(--ease-out);
 }
 
+/* The gauges arrive as a wave from west to east (their order), each popping onto the map. */
+.gauge {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gauge-in 520ms var(--ease-out) both;
+  /* Capped, so a dense network still finishes arriving inside a second. */
+  animation-delay: calc(min(var(--i, 0), 120) * 6ms + 200ms);
+}
+
+@keyframes gauge-in {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+
 .gauge[data-missing='true'] .dot {
   fill: none;
   stroke: var(--text-3);

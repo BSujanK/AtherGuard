@@ -1,7 +1,7 @@
 import { MotionConfig, motion } from 'framer-motion'
-import { lazy, Suspense, useLayoutEffect } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect } from 'react'
 import { NavLink, Outlet, useLocation, useMatch } from 'react-router-dom'
-import { webglAvailable } from '../lib/motion'
+import { prefersReducedMotion, webglAvailable } from '../lib/motion'
 import Landing from '../scene/Landing'
 import { useIntro } from '../state/intro'
 import { AlertIcon, MapIcon, PeakIcon, SensorIcon } from './icons'
@@ -17,6 +17,8 @@ export const NAV_ITEMS = [
 ] as const
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const
+/** Length of the press glint (global.css keeps the same). */
+const GLINT_MS = 650
 
 export default function Shell() {
   const chrome = useIntro((s) => s.chrome)
@@ -24,6 +26,21 @@ export default function Shell() {
   const onDeck = useMatch('/deck') !== null
   const onStory = useMatch('/') !== null || onDeck
   const { pathname } = useLocation()
+
+  // Every press glints: a band of light crosses the control (global.css `[data-glint]`). One listener for the whole app.
+  useEffect(() => {
+    const onDown = (event: PointerEvent) => {
+      if (prefersReducedMotion()) return
+      const target = event.target instanceof Element ? event.target.closest<HTMLElement>('button, a, summary, [role="button"]') : null
+      if (!target || target.matches(':disabled')) return
+      target.removeAttribute('data-glint')
+      void target.offsetWidth                       // restart the animation on a second press
+      target.setAttribute('data-glint', '')
+      window.setTimeout(() => target.removeAttribute('data-glint'), GLINT_MS)
+    }
+    document.addEventListener('pointerdown', onDown)
+    return () => document.removeEventListener('pointerdown', onDown)
+  }, [])
 
   // The views share one scrolling region: each opens at its top, not where the last view was left.
   useLayoutEffect(() => {
