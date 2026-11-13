@@ -15,16 +15,16 @@ export const routes: RouteObject[] = [
     path: '/',
     element: <Shell />,
     children: [
-      { index: true, element: <Navigate to="/map" replace /> },
+      { index: true, element: <Story /> },
       { path: 'map', element: <LiveMap /> },
       { path: 'alerts-why', element: <Alerts /> },
       { path: 'sensors-sources', element: <Sensors /> },
-      { path: 'story', element: <Story /> },
+      { path: 'story', element: <Navigate to="/" replace /> },
       {
         path: '*',
         element: (
           <EmptyState title="That page does not exist">
-            Use the navigation on the left to open the live map, the alerts or the sensors.
+            Use the navigation above to open the live map, the alerts or the sensors.
           </EmptyState>
         ),
       },

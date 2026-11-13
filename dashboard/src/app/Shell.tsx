@@ -4,7 +4,7 @@ import { NavLink, Outlet, useMatch } from 'react-router-dom'
 import { webglAvailable } from '../lib/motion'
 import Landing from '../scene/Landing'
 import { useIntro } from '../state/intro'
-import { AlertIcon, MapIcon, PeakIcon, SensorIcon, StoryIcon } from './icons'
+import { AlertIcon, MapIcon, PeakIcon, SensorIcon } from './icons'
 import styles from './Shell.module.css'
 import StatusStrip from './StatusStrip'
 
@@ -14,7 +14,6 @@ export const NAV_ITEMS = [
   { to: '/map', label: 'Live map', Icon: MapIcon },
   { to: '/alerts-why', label: 'Alerts', Icon: AlertIcon },
   { to: '/sensors-sources', label: 'Sensors & sources', Icon: SensorIcon },
-  { to: '/story', label: 'How it works', Icon: StoryIcon },
 ] as const
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const
@@ -22,7 +21,7 @@ const EASE_OUT = [0.16, 1, 0.3, 1] as const
 export default function Shell() {
   const chrome = useIntro((s) => s.chrome)
   const onMap = useMatch('/map') !== null
-  const onStory = useMatch('/story') !== null
+  const onStory = useMatch('/') !== null
 
   return (
     <MotionConfig reducedMotion="user" transition={{ duration: 0.6, ease: EASE_OUT }}>
@@ -42,10 +41,10 @@ export default function Shell() {
             inert={!chrome}
           >
             <StatusStrip>
-              <div className={styles.brand}>
+              <NavLink to="/" end viewTransition className={styles.brand} aria-label="AetherGuard, the story of the chart">
                 <PeakIcon size={20} />
                 AetherGuard
-              </div>
+              </NavLink>
               <nav className={styles.nav} aria-label="Views">
                 {NAV_ITEMS.map(({ to, label, Icon }) => (
                   <NavLink key={to} to={to} viewTransition className={styles.link}>

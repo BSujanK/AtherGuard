@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 import { describe, expect, it } from 'vitest'
-import { MAP, OVERVIEW } from '../scene/poses'
+import { MAP } from '../scene/poses'
 import { poseAt, storyPoses } from '../scene/storyCamera'
 import { CHAPTERS, LAST_CHAPTER, PLOT_SECONDS, REST_FRAME, storyFrame, useStory } from './story'
 
@@ -37,9 +37,9 @@ describe('storyFrame', () => {
 describe('the story camera', () => {
   const poses = storyPoses(WINDOW)
 
-  it('has one pose per chapter, opening on the overview and ending on the live map view', () => {
+  it('has one pose per chapter, opening where the landing dive ends and ending on the live map view', () => {
     expect(poses).toHaveLength(CHAPTERS.length)
-    expect(poses[0]!.position.equals(OVERVIEW.position)).toBe(true)
+    expect(poses[0]!.position.equals(MAP.position)).toBe(true)
     for (const pose of poses.slice(-2)) {
       expect(pose.position.equals(MAP.position)).toBe(true)
       expect(pose.target.equals(MAP.target)).toBe(true)

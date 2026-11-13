@@ -44,6 +44,8 @@
   letter-spacing: -0.01em;
   color: var(--text);
   white-space: nowrap;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
 }
 
 .brand svg {

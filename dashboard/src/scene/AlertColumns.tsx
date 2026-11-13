@@ -18,6 +18,7 @@ const vertexShader = /* glsl */ `
   attribute float aLevel;
   uniform float uTime;
   uniform float uPulse;
+  uniform float uRise;
   varying float vHeight;
   varying float vLevel;
   varying float vGlow;
@@ -27,7 +28,8 @@ const vertexShader = /* glsl */ `
     vLevel = aLevel;
     float beat = 0.62 + 0.38 * sin(uTime * 6.2831853 / ${PULSE_SECONDS.toFixed(1)});
     vGlow = aLevel > 2.5 ? mix(1.0, beat, uPulse) : 1.0;
-    gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+    // Columns rise out of the ground as the levels arrive (the landing's fill, the story's levels chapter).
+    gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position.x, position.y * uRise, position.z, 1.0);
   }
 `
 
@@ -75,6 +77,7 @@ export default function AlertColumns({ columns, reducedMotion }: AlertColumnsPro
         uTime: { value: 0 },
         uPulse: { value: 1 },
         uIntensity: { value: 1 },
+        uRise: { value: 1 },
         uLime: { value: new Color(PALETTE.lime) },
         uFlame: { value: new Color(PALETTE.flame) },
         uFire: { value: new Color(PALETTE.fire) },
@@ -115,6 +118,9 @@ export default function AlertColumns({ columns, reducedMotion }: AlertColumnsPro
     material.uniforms.uTime!.value = state.clock.elapsedTime
     const f = frameNow().risk
     material.uniforms.uIntensity!.value = f * f
+    material.uniforms.uRise!.value = f
+    // Not drawn at all before the levels arrive: a column of zero height would still leave its footprint on the ground.
+    mesh.visible = f > 0.001
   })
 
   return <primitive object={mesh} />

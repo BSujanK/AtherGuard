@@ -56,13 +56,15 @@ interface IntroState {
   showChrome: () => void
   /** End the sequence (finished or skipped) and remember it for the session. */
   finish: () => void
+  /** The sequence played in this page load (to its end or skipped): the relief it filled in stays filled. */
+  played: boolean
   /** Re-evaluate whether to play, from the current URL, preferences and session. */
   reset: () => void
 }
 
-function initial(): Pick<IntroState, 'status' | 'startedAt' | 'chrome'> {
+function initial(): Pick<IntroState, 'status' | 'startedAt' | 'chrome' | 'played'> {
   const play = shouldPlayIntro(currentEnv())
-  return { status: play ? 'playing' : 'done', startedAt: 0, chrome: !play }
+  return { status: play ? 'playing' : 'done', startedAt: 0, chrome: !play, played: false }
 }
 
 export const useIntro = create<IntroState>((set) => ({
@@ -73,7 +75,7 @@ export const useIntro = create<IntroState>((set) => ({
   showChrome: () => set({ chrome: true }),
   finish: () => {
     markSeen()
-    set({ status: 'done', chrome: true })
+    set((s) => ({ status: 'done', chrome: true, played: s.played || s.status === 'playing' }))
   },
   reset: () => set(initial()),
 }))

@@ -185,8 +185,10 @@ function CameraDirector({ onStory, poses, reducedMotion }: { onStory: boolean; p
     camera.zoom = narrow ? NARROW_ZOOM : 1
     camera.setViewOffset(size.width, size.height, -shift.current / 2, narrow ? -NARROW_SHIFT_PX * dive : 0, size.width, size.height)
     if (landing) {
-      camera.position.lerpVectors(OVERVIEW.position, MAP.position, dive)
-      lookTarget.lerpVectors(OVERVIEW.target, MAP.target, dive)
+      // The dive ends where the view under it begins: the story's first chapter on the home page, else the map.
+      const end = onStory && poses ? poses[0]! : MAP
+      camera.position.lerpVectors(OVERVIEW.position, end.position, dive)
+      lookTarget.lerpVectors(OVERVIEW.target, end.target, dive)
       camera.lookAt(lookTarget)
       placed.current = false
       return
@@ -261,7 +263,7 @@ export default function TerrainScene() {
   const terrain = model.terrain
   const reducedMotion = usePrefersReducedMotion()
   const onMap = useMatch('/map') !== null
-  const onStory = useMatch('/story') !== null
+  const onStory = useMatch('/') !== null
   const quality = useMapState((s) => s.quality)
   const poses = useMemo(() => (terrain ? storyPoses(terrain) : null), [terrain])
   const introPlaying = useIntro((s) => s.status === 'playing')

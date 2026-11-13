@@ -56,17 +56,6 @@ export function SensorIcon(props: IconProps) {
   )
 }
 
-/** An open sheet with a route drawn on it: the story of how the chart is made. */
-export function StoryIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M4 5.5 9 4l6 1.5L20 4v14.5L15 20l-6-1.5L4 20z" />
-      <path d="M9 4v14.5" />
-      <path d="M15 5.5V20" />
-    </Icon>
-  )
-}
-
 /** Peak outline for empty states. */
 export function PeakIcon(props: IconProps) {
   return (

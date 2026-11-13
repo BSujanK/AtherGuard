@@ -45,8 +45,8 @@ describe('Shell with replay data', () => {
     renderApp()
     const nav = screen.getByRole('navigation', { name: 'Views' })
     const links = within(nav).getAllByRole('link')
-    expect(links.map((l) => l.textContent)).toEqual(['Live map', 'Alerts', 'Sensors & sources', 'How it works'])
-    expect(links.map((l) => l.getAttribute('href'))).toEqual(['/map', '/alerts-why', '/sensors-sources', '/story'])
+    expect(links.map((l) => l.textContent)).toEqual(['Live map', 'Alerts', 'Sensors & sources'])
+    expect(links.map((l) => l.getAttribute('href'))).toEqual(['/map', '/alerts-why', '/sensors-sources'])
     expect(within(nav).getByRole('link', { name: 'Live map' })).toHaveAttribute('aria-current', 'page')
     await settled()
   })
@@ -92,10 +92,23 @@ describe('Shell with replay data', () => {
     await settled()
   })
 
-  it('redirects the home path to the live map', async () => {
+  it('opens the story of the chart on the home path', async () => {
     const router = renderApp('/')
-    expect(router.state.location.pathname).toBe('/map')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Live map' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/')
+    expect(screen.getByRole('heading', { level: 1, name: 'AetherGuard' })).toBeInTheDocument()
+    const chapters = within(screen.getByRole('navigation', { name: 'Chapters' })).getAllByRole('link')
+    expect(chapters.map((l) => l.textContent)).toEqual(['The chart', 'The ground', 'The rain', 'The levels', 'Today', 'Its limits'])
+    expect(chapters[0]).toHaveAttribute('aria-current', 'step')
+    const tally = await screen.findByRole('list', { name: 'Cells by level' })
+    expect(within(tally).getAllByRole('listitem')).toHaveLength(4)
+    expect(screen.getByRole('link', { name: 'Open the live map' })).toHaveAttribute('href', '/map')
+    expect(screen.getByRole('link', { name: 'AetherGuard, the story of the chart' })).toHaveAttribute('aria-current', 'page')
+    await settled()
+  })
+
+  it('sends the old story address home', async () => {
+    const router = renderApp('/story')
+    expect(router.state.location.pathname).toBe('/')
     await settled()
   })
 

@@ -39,10 +39,12 @@ for (const width of [1440, 390]) {
     await page.screenshot({ path: file(`${prefix}-landing-a-${width}.png`) })
     await page.waitForTimeout(1900)
     await page.screenshot({ path: file(`${prefix}-landing-b-${width}.png`) })
+    await page.waitForTimeout(2800)
+    await page.screenshot({ path: file(`${prefix}-landing-c-${width}.png`) })
     console.log(`landing ${width}`)
   }
   // The story: one shot per chapter, each after the camera has caught up with the scroll.
-  await page.goto(`${base}/story`, { waitUntil: 'commit' })
+  await page.goto(`${base}/`, { waitUntil: 'commit' })
   await page.getByRole('heading', { level: 1, name: 'AetherGuard' }).waitFor({ timeout: 90_000 })
   await page.waitForTimeout(9000)
   for (const chapter of ['chart', 'ground', 'rain', 'levels', 'today', 'limits']) {
