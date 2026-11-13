@@ -26,7 +26,9 @@ const LIST_LENGTH = 12
 export function MapLegend({ model, degraded }: { model: MapModel; degraded: boolean }) {
   const { grid, rain, rainMissing } = model
   const notes = unavailableNotes(model)
-  const places = usePlaces().data
+  const forecast = grid !== undefined && grid.lead > 0
+  // Nothing to say on an ordinary day: no panel then, only the (empty) note the lead control points at.
+  if (notes.length === 0 && !(!rain && rainMissing) && !forecast && !degraded) return <div id="map-lead-note" hidden />
   return (
     <section className={`${styles.panel} ${styles.notes}`} aria-label="Legend">
       <div id="map-lead-note" className={styles.fine}>
@@ -43,7 +45,6 @@ export function MapLegend({ model, degraded }: { model: MapModel; degraded: bool
       )}
       {degraded && <p className={styles.fine}>Effects reduced to keep the map smooth.</p>}
       {grid?.forecast?.attribution && grid.lead > 0 && <p className={styles.attribution}>{grid.forecast.attribution}.</p>}
-      {places && <p className={styles.attribution}>{places.attribution}</p>}
     </section>
   )
 }
@@ -63,7 +64,7 @@ export function AlertList({ model }: { model: MapModel }) {
   const total = alertCount(grid, visible)
   const top = topAlerts(grid, visible, LIST_LENGTH)
   return (
-    <details className={`${styles.panel} ${styles.disclosure}`}>
+    <details className={`${styles.panel} ${styles.disclosure}`} open>
       <summary className={styles.summary}>
         <span>
           Top alerts on the map <span className="num">({formatCount(total)})</span>
@@ -111,6 +112,7 @@ export function AlertList({ model }: { model: MapModel }) {
           })}
         </ol>
       )}
+      {places && <p className={styles.attribution}>{places.attribution}</p>}
     </details>
   )
 }

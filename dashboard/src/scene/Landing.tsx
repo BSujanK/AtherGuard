@@ -11,6 +11,8 @@ import {
 } from './timeline'
 
 const LETTERS = Array.from(WORDMARK)
+/** Longest the sequence waits for the terrain before starting without it. */
+const READY_WAIT_MS = 2500
 
 /** Fixed scatter per letter so the assembly looks hand-placed and identical on every run. */
 const SCATTER = LETTERS.map((_, i) => ({
@@ -32,7 +34,6 @@ export default function Landing() {
 
   useEffect(() => {
     if (status !== 'playing') return
-    begin()
     let raf = 0
     const tick = () => {
       const startedAt = useIntro.getState().startedAt
@@ -45,13 +46,25 @@ export default function Landing() {
       }
       raf = requestAnimationFrame(tick)
     }
-    raf = requestAnimationFrame(tick)
+    // Start the clock when the terrain is on screen, so no beat plays over a blank canvas; do not wait for ever.
+    let started = false
+    const start = () => {
+      if (started) return
+      started = true
+      begin()
+      raf = requestAnimationFrame(tick)
+    }
+    const unsubscribe = useIntro.subscribe((s) => s.ready && start())
+    const fallback = window.setTimeout(start, READY_WAIT_MS)
+    if (useIntro.getState().ready) start()
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') finish()
     }
     window.addEventListener('keydown', onKey)
     return () => {
       cancelAnimationFrame(raf)
+      unsubscribe()
+      window.clearTimeout(fallback)
       window.removeEventListener('keydown', onKey)
     }
   }, [status, begin, finish, showChrome])
@@ -85,9 +98,8 @@ export default function Landing() {
                 className={styles.letter}
                 style={{
                   opacity: p,
-                  transform: `translate(${s.dx * (1 - p)}px, ${s.dy * (1 - p)}px) rotate(${s.rot * (1 - p)}deg)`,
-                  color: `color-mix(in srgb, var(--text) ${Math.round(p * 100)}%, var(--neon-cyan))`,
-                  textShadow: `0 0 ${Math.round(10 + 26 * (1 - p))}px color-mix(in srgb, var(--neon-cyan) ${Math.round(70 - 20 * p)}%, transparent)`,
+                  // Transform and opacity only: both are composited, so the assembly never repaints the text.
+                  transform: `translate3d(${s.dx * (1 - p)}px, ${s.dy * (1 - p)}px, 0) rotate(${s.rot * (1 - p)}deg)`,
                 }}
               >
                 {ch}

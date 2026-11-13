@@ -4,7 +4,7 @@ import { NavLink, Outlet, useMatch } from 'react-router-dom'
 import { webglAvailable } from '../lib/motion'
 import Landing from '../scene/Landing'
 import { useIntro } from '../state/intro'
-import { AlertIcon, MapIcon, PeakIcon, SensorIcon } from './icons'
+import { AlertIcon, MapIcon, PeakIcon, SensorIcon, StoryIcon } from './icons'
 import styles from './Shell.module.css'
 import StatusStrip from './StatusStrip'
 
@@ -14,6 +14,7 @@ export const NAV_ITEMS = [
   { to: '/map', label: 'Live map', Icon: MapIcon },
   { to: '/alerts-why', label: 'Alerts', Icon: AlertIcon },
   { to: '/sensors-sources', label: 'Sensors & sources', Icon: SensorIcon },
+  { to: '/story', label: 'How it works', Icon: StoryIcon },
 ] as const
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const
@@ -21,6 +22,7 @@ const EASE_OUT = [0.16, 1, 0.3, 1] as const
 export default function Shell() {
   const chrome = useIntro((s) => s.chrome)
   const onMap = useMatch('/map') !== null
+  const onStory = useMatch('/story') !== null
 
   return (
     <MotionConfig reducedMotion="user" transition={{ duration: 0.6, ease: EASE_OUT }}>
@@ -30,7 +32,7 @@ export default function Shell() {
             <TerrainScene />
           </Suspense>
         )}
-        <div className={styles.scrim} data-dim={!onMap} aria-hidden="true" />
+        <div className={styles.scrim} data-dim={!onMap && !onStory} aria-hidden="true" />
 
         <div className={styles.column}>
           <motion.div
@@ -71,6 +73,7 @@ export default function Shell() {
             className={styles.main}
             id="view"
             data-map={onMap}
+            data-story={onStory}
             initial={false}
             animate={{ opacity: chrome ? 1 : 0 }}
             inert={!chrome}

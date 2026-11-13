@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { INTRO_SEEN_KEY, shouldPlayIntro, useIntro } from '../state/intro'
 import Landing from './Landing'
-import { INTRO_DURATION, TAGLINE } from './timeline'
+import { CHROME_AT, INTRO_DURATION, TAGLINE } from './timeline'
 
 const env = vi.hoisted(() => ({ reducedMotion: false, webgl: true }))
 
@@ -101,12 +101,17 @@ describe('Landing', () => {
       startAt('/')
       render(<Landing />)
       act(() => {
-        vi.advanceTimersByTime(4000)
+        vi.advanceTimersByTime(1000)
+      })
+      expect(useIntro.getState().startedAt).toBe(0)                    // the clock waits for the terrain
+      act(() => {
+        useIntro.getState().setReady()
+        vi.advanceTimersByTime(CHROME_AT * 1000 + 100)
       })
       expect(useIntro.getState().chrome).toBe(true)
       expect(screen.getByTestId('landing')).toBeInTheDocument()
       act(() => {
-        vi.advanceTimersByTime(INTRO_DURATION * 1000 - 4000 + 100)
+        vi.advanceTimersByTime((INTRO_DURATION - CHROME_AT) * 1000 + 100)
       })
       expect(screen.queryByTestId('landing')).not.toBeInTheDocument()
       expect(window.sessionStorage.getItem(INTRO_SEEN_KEY)).toBe('1')

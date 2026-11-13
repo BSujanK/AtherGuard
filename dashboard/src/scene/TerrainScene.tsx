@@ -1,7 +1,7 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
-import { Component, type ReactNode, useCallback, useEffect, useMemo, useRef } from 'react'
+import { Component, type ReactNode, useEffect, useMemo, useRef } from 'react'
 import { useMatch } from 'react-router-dom'
 import { MathUtils, type PerspectiveCamera, Vector3 } from 'three'
 import type { BloomEffect } from 'postprocessing'
@@ -9,6 +9,7 @@ import type { Basemap } from '../data/types'
 import { usePrefersReducedMotion } from '../lib/motion'
 import { useIntro } from '../state/intro'
 import { useMapState } from '../state/map'
+import { useStory } from '../state/story'
 import AlertColumns from './AlertColumns'
 import { Graticule, Rain } from './Atmosphere'
 import CameraRig from './CameraRig'
@@ -24,6 +25,7 @@ import RainParticles from './RainParticles'
 import { buildRainDrops } from './rainField'
 import RiskLayer, { createRiskTexture } from './RiskLayer'
 import styles from './TerrainScene.module.css'
+import { lookTarget, poseAt, type Pose, storyPoses } from './storyCamera'
 import { buildTerrainGeometry } from './terrainGeometry'
 import { terrainField } from './terrainField'
 import { createTerrainMaterial } from './terrainMaterial'
@@ -32,14 +34,17 @@ import { type MapModel, useMapModel } from './useMapModel'
 interface WorldProps {
   terrain: Basemap
   model: MapModel
-  /** The live map is the current view: risk, columns, rain and interaction show only then. */
+  /** The live map is the current view: interaction and the orbit controls exist only then. */
   onMap: boolean
+  /** The story is the current view: it draws the map's layers too, as far as the scroll has brought them in. */
+  onStory: boolean
   reducedMotion: boolean
 }
 
 /** The terrain with everything the live map draws on it. */
-function MapWorld({ terrain, model, onMap, reducedMotion }: WorldProps) {
+function MapWorld({ terrain, model, onMap, onStory, reducedMotion }: WorldProps) {
   const invalidate = useThree((s) => s.invalidate)
+  const layers = onMap || onStory
   const introDone = useIntro((s) => s.status === 'done')
   const field = useMemo(() => terrainField(terrain), [terrain])
 
@@ -67,8 +72,8 @@ function MapWorld({ terrain, model, onMap, reducedMotion }: WorldProps) {
   )
 
   const { grid, visible, rain } = model
-  const shownGrid = onMap ? grid : undefined
-  const shownVisible = onMap ? visible : null
+  const shownGrid = layers ? grid : undefined
+  const shownVisible = layers ? visible : null
   const watchColumns = useMapState((s) => s.watchColumns)
   const columns = useMemo(
     () =>
@@ -77,16 +82,23 @@ function MapWorld({ terrain, model, onMap, reducedMotion }: WorldProps) {
         : null,
     [shownGrid, shownVisible, terrain, field, watchColumns],
   )
-  const drops = useMemo(() => (onMap && rain ? buildRainDrops(rain, terrain, field) : null), [onMap, rain, terrain, field])
+  const drops = useMemo(() => (layers && rain ? buildRainDrops(rain, terrain, field) : null), [layers, rain, terrain, field])
 
   useFrame(() => {
     const f = frameNow()
     material.uniforms.uReveal!.value = f.reveal
     material.uniforms.uFill!.value = f.fill
-    material.uniforms.uRisk!.value = onMap ? f.fill * f.fill : 0
+    material.uniforms.uRisk!.value = layers ? f.risk * f.risk : 0
   })
 
-  useEffect(() => invalidate(), [onMap, invalidate])
+  useEffect(() => invalidate(), [layers, invalidate])
+  // The landing waits for this: one frame after the terrain exists, the canvas has it on screen.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => useIntro.getState().setReady())
+    return () => cancelAnimationFrame(id)
+  }, [geometry])
+  // With reduced motion the canvas draws on demand, so the story's scroll has to ask for each frame.
+  useEffect(() => useStory.subscribe(() => invalidate()), [invalidate])
 
   return (
     <>
@@ -101,7 +113,7 @@ function MapWorld({ terrain, model, onMap, reducedMotion }: WorldProps) {
           <QualityWatchdog />
         </>
       )}
-      {introDone && (
+      {introDone && !onStory && (
         <OrbitControls
           makeDefault
           enabled={onMap}
@@ -114,25 +126,34 @@ function MapWorld({ terrain, model, onMap, reducedMotion }: WorldProps) {
           zoomToCursor
         />
       )}
-      {introDone && <CameraRig window={terrain} field={field} />}
+      {introDone && !onStory && <CameraRig window={terrain} field={field} />}
     </>
   )
 }
 
-/** Puts the orbit target on the map pose the camera rests at once the landing has handed over. */
+/**
+ * Hands the camera to the orbit controls where it was last looking (the map pose after the landing, a chapter's view
+ * after the story), then flies it to the map's resting pose, so leaving the story is a camera move and never a cut.
+ */
 function OrbitStart() {
   const controls = useThree((s) => s.controls) as { target: Vector3; update: () => unknown } | null
+  const camera = useThree((s) => s.camera)
   useEffect(() => {
-    controls?.target.copy(MAP.target)
-    controls?.update()
-  }, [controls])
+    if (!controls) return
+    controls.target.copy(lookTarget)
+    controls.update()
+    if (camera.position.distanceTo(MAP.position) > 0.01) useMapState.getState().resetView()
+  }, [controls, camera])
   return null
 }
 
-/** Width in px the map is nudged right by (twice the shift), so it sits clear of the controls dock on the left. */
-function dockAllowance(): number {
+/**
+ * Width in px the map is nudged right by (twice the shift), so it sits clear of what is on the left: the controls
+ * dock on the map, the wider column of copy in the story.
+ */
+function leftAllowance(onStory: boolean): number {
   if (window.innerWidth <= 900) return 0
-  return parseFloat(getComputedStyle(document.documentElement).fontSize) * 13.5
+  return parseFloat(getComputedStyle(document.documentElement).fontSize) * (onStory ? 27 : 13.5)
 }
 
 /** Below this width the map controls wrap to three rows and cover the top of the map. */
@@ -142,37 +163,46 @@ const NARROW_ZOOM = 0.88
 const NARROW_SHIFT_PX = 95
 
 /**
- * Drives the camera along the landing dive and hands over to the map pose once the sequence ends.
- * The projection is shifted right so the map is centred in the area the controls dock leaves free.
+ * Owns the projection and, outside the live map, the camera. During the landing it flies the dive from the overview
+ * to the map pose; in the story it follows the scroll along the chapter poses with a little lag, which is what makes
+ * the flight read as one continuous move. The projection is shifted right so the map is centred in the area the left
+ * column leaves free; between views the shift eases instead of jumping.
  */
-function CameraDirector() {
+function CameraDirector({ onStory, poses, reducedMotion }: { onStory: boolean; poses: Pose[] | null; reducedMotion: boolean }) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera
   const size = useThree((s) => s.size)
-  const target = useMemo(() => new Vector3(), [])
-  const settled = useRef(false)
+  const shift = useRef<number | null>(null)
+  const placed = useRef(false)
+  const want = useMemo<Pose>(() => ({ position: new Vector3(), target: new Vector3() }), [])
 
-  const applyOffset = useCallback(
-    (dive: number) => {
-      const narrow = window.innerWidth <= NARROW_PX
-      camera.zoom = narrow ? NARROW_ZOOM : 1
-      camera.setViewOffset(size.width, size.height, (-dockAllowance() / 2) * dive, narrow ? -NARROW_SHIFT_PX * dive : 0, size.width, size.height)
-    },
-    [camera, size],
-  )
-
-  useEffect(() => {
-    if (settled.current) applyOffset(1)
-  }, [applyOffset])
-
-  useFrame(() => {
-    if (settled.current) return
-    const { dive } = frameNow()
-    camera.position.lerpVectors(OVERVIEW.position, MAP.position, dive)
-    target.lerpVectors(OVERVIEW.target, MAP.target, dive)
-    camera.lookAt(target)
-    applyOffset(dive)
-    if (useIntro.getState().status === 'done') settled.current = true
+  useFrame((_, delta) => {
+    const landing = useIntro.getState().status === 'playing'
+    const dive = landing ? frameNow().dive : 1
+    const narrow = !onStory && window.innerWidth <= NARROW_PX
+    const ease = reducedMotion ? 1 : 1 - Math.exp(-delta * 5)
+    const allowance = leftAllowance(onStory) * dive
+    shift.current = shift.current === null || landing ? allowance : MathUtils.lerp(shift.current, allowance, ease)
+    camera.zoom = narrow ? NARROW_ZOOM : 1
+    camera.setViewOffset(size.width, size.height, -shift.current / 2, narrow ? -NARROW_SHIFT_PX * dive : 0, size.width, size.height)
+    if (landing) {
+      camera.position.lerpVectors(OVERVIEW.position, MAP.position, dive)
+      lookTarget.lerpVectors(OVERVIEW.target, MAP.target, dive)
+      camera.lookAt(lookTarget)
+      placed.current = false
+      return
+    }
+    if (!onStory || !poses) {
+      placed.current = false
+      return
+    }
+    poseAt(poses, useStory.getState().position, want)
+    const follow = placed.current && !reducedMotion ? 1 - Math.exp(-delta * 3.2) : 1
+    camera.position.lerp(want.position, follow)
+    lookTarget.lerp(want.target, follow)
+    camera.lookAt(lookTarget)
+    placed.current = true
   })
+
   return null
 }
 
@@ -231,7 +261,9 @@ export default function TerrainScene() {
   const terrain = model.terrain
   const reducedMotion = usePrefersReducedMotion()
   const onMap = useMatch('/map') !== null
+  const onStory = useMatch('/story') !== null
   const quality = useMapState((s) => s.quality)
+  const poses = useMemo(() => (terrain ? storyPoses(terrain) : null), [terrain])
   const introPlaying = useIntro((s) => s.status === 'playing')
 
   return (
@@ -245,9 +277,9 @@ export default function TerrainScene() {
           onCreated={({ camera }) => camera.lookAt(MAP.target)}
         >
           <color attach="background" args={[PALETTE.ink]} />
-          <CameraDirector />
-          {terrain && <MapWorld terrain={terrain} model={model} onMap={onMap} reducedMotion={reducedMotion} />}
-          {terrain && <OrbitStart />}
+          <CameraDirector onStory={onStory} poses={poses} reducedMotion={reducedMotion} />
+          {terrain && <MapWorld terrain={terrain} model={model} onMap={onMap} onStory={onStory} reducedMotion={reducedMotion} />}
+          {terrain && !onStory && <OrbitStart />}
           {terrain && <Graticule window={terrain} />}
           {!reducedMotion && introPlaying && <Rain />}
           <Effects />

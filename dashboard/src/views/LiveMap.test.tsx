@@ -249,8 +249,8 @@ describe('text alternative and click-through', () => {
     const list = await screen.findByRole('list', { name: 'Top alerts', hidden: true })
     const items = within(list).getAllByRole('button', { hidden: true })
     expect(items).toHaveLength(6)
+    expect(list.closest('details')).toHaveAttribute('open')               // open without a click
     expect(items[0]).toHaveAccessibleName(/Cell 109,.*Emergency, risk 90,000 per 100k cell-days, Insufficient confidence/)
-    await userEvent.click(screen.getByText(/Top alerts on the map/))
     await userEvent.click(items[0]!)
     await waitFor(() => expect(router.state.location.pathname).toBe('/alerts-why'))
     expect(router.state.location.search).toBe('?cell=109&date=2024-08-05')
@@ -274,7 +274,6 @@ describe('click-through of a forecast', () => {
     await controls()
     await waitFor(() => expect(useMapState.getState().lead).toBe(3))
     const list = await screen.findByRole('list', { name: 'Top alerts', hidden: true })
-    await userEvent.click(screen.getByText(/Top alerts on the map/))
     await userEvent.click(within(list).getAllByRole('button', { hidden: true })[0]!)
     await waitFor(() => expect(router.state.location.pathname).toBe('/alerts-why'))
     expect(router.state.location.search).toBe('?cell=109&date=2024-08-05&lead=3')
@@ -283,7 +282,6 @@ describe('click-through of a forecast', () => {
   it('does not add a lead to the address for D0', async () => {
     const router = renderMap()
     const list = await screen.findByRole('list', { name: 'Top alerts', hidden: true })
-    await userEvent.click(screen.getByText(/Top alerts on the map/))
     await userEvent.click(within(list).getAllByRole('button', { hidden: true })[0]!)
     await waitFor(() => expect(router.state.location.pathname).toBe('/alerts-why'))
     expect(router.state.location.search).not.toContain('lead')

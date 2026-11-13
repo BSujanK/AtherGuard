@@ -41,12 +41,12 @@ async function settled() {
 }
 
 describe('Shell with replay data', () => {
-  it('renders the three navigation items on their own routes', async () => {
+  it('renders the navigation items on their own routes', async () => {
     renderApp()
     const nav = screen.getByRole('navigation', { name: 'Views' })
     const links = within(nav).getAllByRole('link')
-    expect(links.map((l) => l.textContent)).toEqual(['Live map', 'Alerts', 'Sensors & sources'])
-    expect(links.map((l) => l.getAttribute('href'))).toEqual(['/map', '/alerts-why', '/sensors-sources'])
+    expect(links.map((l) => l.textContent)).toEqual(['Live map', 'Alerts', 'Sensors & sources', 'How it works'])
+    expect(links.map((l) => l.getAttribute('href'))).toEqual(['/map', '/alerts-why', '/sensors-sources', '/story'])
     expect(within(nav).getByRole('link', { name: 'Live map' })).toHaveAttribute('aria-current', 'page')
     await settled()
   })

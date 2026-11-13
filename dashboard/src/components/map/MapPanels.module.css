@@ -113,13 +113,18 @@
   padding: var(--sp-2) var(--sp-4) var(--sp-3);
 }
 
+/* The credit for the place names, under the list that shows them. */
+.disclosure > .attribution {
+  padding: 0 var(--sp-4) var(--sp-3);
+}
+
 .alerts {
   display: grid;
   gap: 2px;
   margin: 0;
   padding: var(--sp-2);
   list-style: none;
-  max-height: 14rem;
+  max-height: min(19rem, 36vh);
   overflow: auto;
   border-top: 1px solid var(--hairline);
 }

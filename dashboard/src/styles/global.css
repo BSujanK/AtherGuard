@@ -80,6 +80,28 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/*
+ * Every control answers a click the same way: its colours cross-fade to the new state and it gives a little under the
+ * press. Modules that set their own transition keep it; this is the floor, so no button ever changes state in one frame.
+ */
+button,
+summary,
+select,
+a {
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-quick) var(--ease-out);
+}
+
+button:active:not(:disabled),
+summary:active {
+  transform: scale(0.97);
+}
+
 /* One vocabulary for text fields and selects everywhere; modules only place and size them. */
 select,
 input[type='search'],

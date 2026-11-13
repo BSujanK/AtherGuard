@@ -45,8 +45,11 @@ function currentEnv(): IntroEnv {
 
 interface IntroState {
   status: 'playing' | 'done'
-  /** performance.now() when the sequence started; 0 until Landing mounts. */
+  /** performance.now() when the sequence started; 0 until the scene is ready and Landing starts the clock. */
   startedAt: number
+  /** The terrain has been built and drawn once: the sequence has something to show. */
+  ready: boolean
+  setReady: () => void
   begin: () => void
   /** True once the shell chrome may slide in. */
   chrome: boolean
@@ -64,6 +67,8 @@ function initial(): Pick<IntroState, 'status' | 'startedAt' | 'chrome'> {
 
 export const useIntro = create<IntroState>((set) => ({
   ...initial(),
+  ready: false,
+  setReady: () => set({ ready: true }),
   begin: () => set((s) => (s.startedAt === 0 ? { startedAt: performance.now() } : s)),
   showChrome: () => set({ chrome: true }),
   finish: () => {

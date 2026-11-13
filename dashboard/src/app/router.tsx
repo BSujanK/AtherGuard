@@ -3,6 +3,7 @@ import EmptyState from '../components/EmptyState'
 import Alerts from '../views/Alerts'
 import LiveMap from '../views/LiveMap'
 import Sensors from '../views/Sensors'
+import Story from '../views/Story'
 import Shell from './Shell'
 
 /**
@@ -18,6 +19,7 @@ export const routes: RouteObject[] = [
       { path: 'map', element: <LiveMap /> },
       { path: 'alerts-why', element: <Alerts /> },
       { path: 'sensors-sources', element: <Sensors /> },
+      { path: 'story', element: <Story /> },
       {
         path: '*',
         element: (

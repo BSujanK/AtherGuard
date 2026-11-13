@@ -37,6 +37,8 @@
   line-height: 1;
   letter-spacing: -0.03em;
   white-space: nowrap;
+  /* One steady glow for the whole word; it used to be redrawn per letter, per frame. */
+  text-shadow: 0 0 18px color-mix(in srgb, var(--neon-cyan) 55%, transparent);
 }
 
 /* A soft cyan band sweeping down the wordmark; it replaces the heat shimmer and keeps its timing. */

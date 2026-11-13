@@ -22,7 +22,8 @@ describe('introFrame', () => {
     expect(introFrame(2.5).wordmark).toBeGreaterThan(0.5)
     expect(introFrame(2.5).fill).toBe(0)
     expect(introFrame(4.0).fill).toBe(1)
-    expect(introFrame(4.0).dive).toBeGreaterThan(0.5)
+    expect(introFrame(4.6).dive).toBeGreaterThan(0.5)
+    expect(introFrame(2.8).dive).toBeLessThan(0.001)                 // the dive eases off its mark
     expect(introFrame(CHROME_AT - 0.01).chrome).toBe(false)
     expect(introFrame(CHROME_AT).chrome).toBe(true)
   })

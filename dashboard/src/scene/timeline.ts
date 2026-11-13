@@ -1,12 +1,12 @@
 /** Landing sequence (spec section 3). One pure function maps seconds since start to every animated value. */
 
-export const INTRO_DURATION = 4.5
+export const INTRO_DURATION = 5.6
 export const WORDMARK = 'AetherGuard'
 export const TAGLINE =
   'Landslide risk for every 5 km of the Himalaya and the Western Ghats, every morning.'
 
 /** Seconds at which the shell chrome starts sliding in. */
-export const CHROME_AT = 3.8
+export const CHROME_AT = 4.7
 
 export const clamp01 = (x: number): number => Math.min(1, Math.max(0, x))
 
@@ -18,6 +18,8 @@ export const easeInOutCubic = (x: number): number =>
 export const easeOutQuad = (x: number): number => 1 - (1 - x) ** 2
 
 export const easeOutExpo = (x: number): number => (x >= 1 ? 1 : 1 - 2 ** (-10 * x))
+/** Smootherstep: no velocity and no acceleration at either end, so a long camera move neither lurches off nor lands hard. */
+export const easeInOutQuint = (x: number): number => x * x * x * (x * (x * 6 - 15) + 10)
 
 export interface IntroFrame {
   /** Contour lines revealed from low to high elevation, 0..1. */
@@ -51,13 +53,13 @@ export const REST_FRAME: IntroFrame = {
 export function introFrame(t: number): IntroFrame {
   if (t >= INTRO_DURATION) return REST_FRAME
   return {
-    reveal: easeOutQuad(ramp(t, 0.2, 2.6)),
-    fill: easeInOutCubic(ramp(t, 2.6, 3.7)),
-    dive: easeInOutCubic(ramp(t, 2.8, INTRO_DURATION)),
-    wordmark: ramp(t, 0.9, 2.1),
-    tagline: ramp(t, 1.8, 2.4),
-    textOpacity: 1 - ramp(t, 3.2, 3.8),
-    atmosphere: 1 - 0.7 * ramp(t, 3.2, INTRO_DURATION),
+    reveal: easeOutQuad(ramp(t, 0.2, 2.8)),
+    fill: easeInOutCubic(ramp(t, 2.6, 4.0)),
+    dive: easeInOutQuint(ramp(t, 2.7, INTRO_DURATION)),
+    wordmark: ramp(t, 0.9, 2.2),
+    tagline: easeOutQuad(ramp(t, 1.8, 2.6)),
+    textOpacity: 1 - easeInOutCubic(ramp(t, 3.3, 4.4)),
+    atmosphere: 1 - 0.7 * easeInOutCubic(ramp(t, 3.3, INTRO_DURATION)),
     chrome: t >= CHROME_AT,
   }
 }
