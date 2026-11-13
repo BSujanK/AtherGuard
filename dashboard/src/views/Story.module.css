@@ -1,94 +1,180 @@
 /*
- * The story scrolls inside the shell's main region; the terrain behind it is fixed and follows the scroll. Each chapter
- * is one viewport tall and holds one slip of copy on the left, clear of where the map is drawn.
+ * The story scrolls inside the shell's main region; the terrain behind it is fixed and follows the scroll. No cards: each
+ * chapter is type set straight on the chart, on a shadow that deepens toward the left edge where the copy sits. The
+ * hierarchy is carried by scale and weight alone: an extended, heavy heading; a figure larger still but thin; small, quiet
+ * supporting text.
  */
 .story {
   position: relative;
+}
+
+/* The shadow the copy stands on: ink at the left edge, gone by the middle of the map. Fixed, so it never scrolls. */
+.story::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--ink-black) 90%, transparent) 0%,
+    color-mix(in srgb, var(--ink-black) 72%, transparent) 30%,
+    color-mix(in srgb, var(--ink-black) 18%, transparent) 55%,
+    transparent 70%
+  );
 }
 
 .chapter {
   --away: 0;
   position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   /* One chapter fills the scrolling region exactly, however tall the bar above it has wrapped. */
   min-height: 100cqh;
-  padding: var(--sp-7) var(--gutter);
+  padding: clamp(2.5rem, 7vh, 5rem) clamp(1.25rem, 5vw, 5.5rem);
   scroll-snap-align: start;
 }
 
-.chapter[data-side='low'] {
-  align-items: flex-end;
+/* Copy sits high in some chapters and low in others, so the eye travels down the page as the camera travels the map. */
+.chapter[data-place='head'] {
+  justify-content: flex-start;
 }
 
-.chapter[data-opening] {
-  align-items: flex-end;
-  padding-bottom: clamp(2rem, 9vh, 6rem);
+.chapter[data-place='foot'] {
+  justify-content: flex-end;
 }
 
 /* The copy settles as its chapter reaches the reading position and lifts away as it leaves: one move, driven by scroll. */
-.slip,
-.masthead {
+.text,
+.pair {
   opacity: calc(1 - var(--away) * 1.6);
   transform: translateY(calc(var(--away) * 2.25rem));
   filter: blur(calc(var(--away) * 6px));
   will-change: opacity, transform;
 }
 
-.slip {
-  width: min(31rem, 100%);
-  padding: var(--sp-5) var(--sp-5) var(--sp-5);
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-2);
+.text {
+  width: min(40rem, 100%);
+  text-shadow: 0 1px 18px color-mix(in srgb, var(--ink-black) 70%, transparent);
 }
 
-.slip h2 {
-  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.125rem);
-  margin-bottom: var(--sp-4);
-}
-
-.slip p {
-  max-width: 62ch;
-  color: var(--text-2);
-}
-
-.slip p + p,
-.slip p + table,
-.slip table + p,
-.slip ul + .actions,
-.slip p + .actions {
-  margin-top: var(--sp-4);
-}
-
-.masthead {
-  width: min(46rem, 100%);
-}
+/* ------------------------------------------------------------------------------------------------- type */
 
 .wordmark {
   font-size: var(--fs-wordmark);
   font-stretch: 125%;
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: -0.035em;
+  font-weight: var(--w-black);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  /* The wordmark runs past the copy column toward the map: deliberately oversized, never wrapped. */
+  white-space: nowrap;
 }
 
 .lede {
-  max-width: 34ch;
-  margin-top: var(--sp-4);
-  font-size: var(--fs-lg);
+  max-width: 26ch;
+  margin-top: var(--sp-5);
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  font-weight: var(--w-light);
+  font-stretch: 100%;
   line-height: 1.3;
+  letter-spacing: -0.01em;
   color: var(--text);
 }
 
+.heading {
+  max-width: 13ch;
+  font-size: var(--fs-3xl);
+  font-weight: var(--w-black);
+  line-height: 0.95;
+  letter-spacing: var(--track-display);
+}
+
+.body {
+  max-width: 44ch;
+  font-size: 0.875rem;
+  font-weight: var(--w-regular);
+  line-height: var(--lh-body);
+  color: var(--text-2);
+}
+
+.heading + .body,
+.heading + .figure {
+  margin-top: var(--sp-5);
+}
+
+.figure + .body,
+.body + .body,
+.body + table,
+table + .note {
+  margin-top: var(--sp-4);
+}
+
+/* The key figure of a chapter: the largest thing on it, and the lightest. */
+.figure {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.value {
+  font-size: var(--fs-figure);
+  font-weight: var(--w-thin);
+  font-stretch: 87%;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  color: var(--neon-cyan);
+}
+
+.value small {
+  margin-left: 0.12em;
+  font-size: 0.24em;
+  font-weight: var(--w-semibold);
+  font-stretch: 100%;
+  letter-spacing: 0;
+  color: var(--text-2);
+}
+
+.figure[data-dim] .value {
+  color: var(--text-3);
+}
+
+/* The rain chapter's pair sits at the foot, so large that the chapter's edge trims its baseline. */
+.chapter[data-crop] {
+  overflow: hidden;
+}
+
+.pair {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0 clamp(2rem, 6vw, 6rem);
+  margin-top: auto;
+  margin-bottom: calc(clamp(2.5rem, 7vh, 5rem) * -1 - 0.06em);
+}
+
+.pair .figure {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.pair .value {
+  font-size: clamp(6rem, 3rem + 11vw, 15rem);
+}
+
+.note {
+  max-width: 56ch;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+/* ---------------------------------------------------------------------------------------------- actions */
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--sp-3) var(--sp-5);
-  margin-top: var(--sp-5);
+  margin-top: var(--sp-6);
 }
 
 .primary,
@@ -96,14 +182,12 @@
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
-  font-weight: 600;
+  font-size: var(--fs-sm);
+  font-weight: var(--w-bold);
+  letter-spacing: 0.01em;
   text-decoration: none;
   border: 0;
   background: none;
-  transition:
-    background var(--dur-quick) var(--ease-out),
-    color var(--dur-quick) var(--ease-out),
-    transform var(--dur-quick) var(--ease-out);
 }
 
 .primary {
@@ -117,43 +201,52 @@
   background: color-mix(in srgb, var(--accent) 86%, var(--text));
 }
 
-.primary:active {
-  transform: translateY(1px);
-}
-
 .quiet {
   padding: 0;
   color: var(--text);
   text-decoration: underline;
   text-decoration-color: var(--border-strong);
-  text-underline-offset: 0.3em;
+  text-underline-offset: 0.35em;
 }
 
 .quiet:hover {
   text-decoration-color: var(--accent);
 }
 
+/* --------------------------------------------------------------------------------------------- the levels */
+
 .levels {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--fs-sm);
 }
 
 .levels th,
 .levels td {
-  padding: var(--sp-2) var(--sp-3) var(--sp-2) 0;
+  padding: var(--sp-3) var(--sp-4) var(--sp-3) 0;
   text-align: left;
   border-bottom: 1px solid var(--hairline);
 }
 
 .levels thead th {
-  color: var(--text-3);
-  font-weight: 500;
+  padding-bottom: var(--sp-2);
 }
 
 .levels tbody th {
-  font-weight: 600;
+  font-size: var(--fs-md);
+  font-weight: var(--w-bold);
+  font-stretch: 112%;
   white-space: nowrap;
+}
+
+.levels tbody td {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.levels td:global(.num) {
+  font-size: var(--fs-lg);
+  font-weight: var(--w-light);
+  color: var(--text);
 }
 
 .levels td:global(.num),
@@ -162,22 +255,18 @@
   padding-right: 0;
 }
 
-.note {
-  font-size: var(--fs-xs);
-  color: var(--text-3);
-}
-
 .swatch {
   display: inline-block;
   width: 0.625rem;
   height: 0.625rem;
   margin-right: var(--sp-2);
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px var(--border-strong);
+  vertical-align: 0.05em;
 }
 
 .swatch[data-level='normal'] {
   background: var(--level-normal);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
 }
 
 .swatch[data-level='watch'] {
@@ -192,24 +281,42 @@
   background: var(--level-emergency);
 }
 
+/* ---------------------------------------------------------------------------------------------- the day */
+
 .tally {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-3) var(--sp-5);
-  margin: 0;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  gap: var(--sp-5) clamp(2rem, 5vw, 4.5rem);
+  margin: var(--sp-6) 0 0;
   padding: 0;
   list-style: none;
-  color: var(--text-2);
 }
 
-.tally :global(.num) {
-  margin-right: var(--sp-1);
-  font-size: var(--fs-lg);
-  font-weight: 600;
-  color: var(--text);
+.tally li {
+  display: grid;
+  gap: var(--sp-2);
 }
 
-/* The margin scale: where you are in the chart, and a way to jump. It sits on the right edge like a sheet's border ticks. */
+.count {
+  font-size: clamp(2.75rem, 1.5rem + 4vw, 5rem);
+  font-weight: var(--w-thin);
+  font-stretch: 87%;
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+}
+
+/* The most severe level leads with weight; Normal steps back. */
+.tally li[data-level='emergency'] .count {
+  font-weight: var(--w-semibold);
+}
+
+.tally li[data-level='normal'] .count {
+  color: var(--text-3);
+}
+
+/* ------------------------------------------------------------------------------- the margin scale (chapters) */
+
 .rail {
   position: fixed;
   top: 50%;
@@ -233,8 +340,10 @@
   gap: var(--sp-3);
   min-height: 1.75rem;
   color: var(--text-3);
-  font-size: var(--fs-xs);
-  font-weight: 500;
+  font-size: var(--fs-2xs);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
   text-decoration: none;
 }
 
@@ -274,15 +383,29 @@
 }
 
 @media (max-width: 900px) {
-  .chapter,
-  .chapter[data-side='low'],
-  .chapter[data-opening] {
-    align-items: flex-end;
-    padding: var(--sp-5) var(--sp-4);
+  .story::before {
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--ink-black) 92%, transparent) 0%,
+      color-mix(in srgb, var(--ink-black) 75%, transparent) 55%,
+      color-mix(in srgb, var(--ink-black) 35%, transparent) 100%
+    );
   }
 
-  .slip {
-    padding: var(--sp-4);
+  .chapter,
+  .chapter[data-place] {
+    justify-content: flex-end;
+    padding: var(--sp-6) var(--sp-4);
+  }
+
+  /* On a phone the extended cut would run off the screen: a narrower, smaller wordmark that still fills the width. */
+  .wordmark {
+    font-size: clamp(2.5rem, 13.5vw, 4.5rem);
+    font-stretch: 108%;
+  }
+
+  .pair {
+    margin-bottom: 0;
   }
 
   .rail {
@@ -291,16 +414,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slip,
-  .masthead {
+  .text,
+  .pair {
     opacity: 1;
     transform: none;
     filter: none;
   }
-}
-
-/* On a phone the two region columns sit close; keep their headings from touching. */
-.levels th + th,
-.levels td + td {
-  padding-left: var(--sp-3);
 }

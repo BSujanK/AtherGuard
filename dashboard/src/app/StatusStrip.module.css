@@ -110,9 +110,10 @@
 
 .ledgerLabel {
   color: var(--text-3);
-  font-size: var(--fs-xs);
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-size: var(--fs-2xs);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
 }
 
 .split {
@@ -135,9 +136,15 @@
   color: var(--text-2);
 }
 
+.count {
+  font-size: var(--fs-xs);
+}
+
+/* The day's counts are the bar's key figures: larger and bolder than their names. */
 .count :global(.num) {
   color: var(--text);
-  font-weight: 600;
+  font-size: var(--fs-md);
+  font-weight: var(--w-bold);
   margin-right: calc(var(--sp-1) * -1);
 }
 

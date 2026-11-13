@@ -15,7 +15,9 @@
 }
 
 .head p {
-  margin-top: var(--sp-1);
+  max-width: 60ch;
+  margin-top: var(--sp-3);
+  font-size: var(--fs-sm);
   color: var(--text-2);
 }
 
@@ -38,9 +40,10 @@
 
 .date span {
   color: var(--text-3);
-  font-size: var(--fs-xs);
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-size: var(--fs-2xs);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
 }
 
 .date select {
@@ -50,7 +53,7 @@
 .provenance {
   margin-top: calc(-1 * var(--sp-2));
   color: var(--text-3);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
 }
 
 .hint {

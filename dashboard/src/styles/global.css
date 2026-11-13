@@ -27,30 +27,45 @@ body {
   accent-color: var(--neon-cyan);
 }
 
-/* The display voice: the same family at its wide end, heavier, a touch tighter. */
+/* The display voice: the same family at its extended end, heavy and tight. Size steps are large so the order of a page
+   reads at a glance: a view's title, then its sections, then the small print. */
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
   font-stretch: var(--display-stretch);
-  font-weight: 650;
+  font-weight: var(--w-black);
   line-height: var(--lh-tight);
-  letter-spacing: -0.012em;
+  letter-spacing: var(--track-heading);
   margin: 0;
   text-wrap: balance;
 }
 
 h1 {
-  font-size: var(--fs-xl);
+  font-size: var(--fs-2xl);
+  letter-spacing: var(--track-display);
 }
 
 h2 {
   font-size: var(--fs-lg);
+  font-weight: var(--w-bold);
+  line-height: var(--lh-snug);
 }
 
 h3 {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--w-bold);
+  font-stretch: 112%;
+  line-height: var(--lh-snug);
+}
+
+/* A field's name: small, wide-tracked capitals, quiet; the value beside it carries the weight. */
+.label {
+  font-size: var(--fs-2xs);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text-3);
 }
 
 p {
@@ -175,9 +190,10 @@ select {
 /* Measurements: ids, coordinates, probabilities, counts, dates. A second face so a number never reads as a word. */
 .num {
   font-family: var(--font-data);
-  font-size: 0.94em;
-  font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.01em;
+  font-stretch: var(--data-stretch);
+  font-weight: var(--w-semibold);
+  font-variant-numeric: tabular-nums lining-nums slashed-zero;
+  letter-spacing: 0;
 }
 
 .sr-only {

@@ -79,8 +79,8 @@ export default function Story() {
         </ol>
       </nav>
 
-      <section id="chart" data-chapter className={styles.chapter} data-opening>
-        <div className={styles.masthead}>
+      <section id="chart" data-chapter className={styles.chapter} data-place="foot">
+        <div className={styles.text}>
           <h1 className={styles.wordmark}>AetherGuard</h1>
           <p className={styles.lede}>The daily landslide chart for the Himalaya and the Western Ghats, plotted every morning.</p>
           <div className={styles.actions}>
@@ -94,52 +94,65 @@ export default function Story() {
         </div>
       </section>
 
-      <section id="ground" data-chapter className={styles.chapter}>
-        <div className={styles.slip}>
-          <h2>The ground decides where.</h2>
-          <p>
-            The chart is cut into cells about 5 km across. Before any rain falls it already knows each one&rsquo;s shape: how
-            steep, how high, how broken the relief is, measured from a 90 m elevation model.
-          </p>
-          <p>
-            Flat ground cannot slide, so it is left off.{' '}
-            {assessed !== null ? (
-              <>
-                <span className="num">{formatCount(assessed)}</span> cells are steep enough to be assessed.
-              </>
-            ) : (
-              'Only cells steep enough to slide are assessed.'
-            )}
+      <section id="ground" data-chapter className={styles.chapter} data-place="head">
+        <div className={styles.text}>
+          <h2 className={styles.heading}>The ground decides where.</h2>
+          {assessed !== null && (
+            <p className={styles.figure}>
+              <span className={styles.value}>{formatCount(assessed)}</span>
+              <span className="label">steep cells assessed every day</span>
+            </p>
+          )}
+          <p className={styles.body}>
+            The chart is cut into cells about 5 km across. Before any rain falls it knows each one&rsquo;s shape: how steep, how
+            high, how broken the relief is, from a 90 m elevation model. Flat ground cannot slide, so it is left off.
           </p>
         </div>
       </section>
 
-      <section id="rain" data-chapter className={styles.chapter} data-side="low">
-        <div className={styles.slip}>
-          <h2>The rain decides when.</h2>
-          <p>
-            Each morning the run reads satellite rain from NASA&rsquo;s IMERG: what fell in the last day, the last three days
-            and the last week, and how wet the season has been.
+      <section id="rain" data-chapter className={styles.chapter} data-place="head" data-crop>
+        <div className={styles.text}>
+          <h2 className={styles.heading}>The rain decides when.</h2>
+          <p className={styles.body}>
+            Each morning the run reads satellite rain from NASA&rsquo;s IMERG: the last day, the last three, the last week,
+            the wettest hours, and how wet the season has been. A slope soaked for a week fails under rain that would do
+            nothing to a dry one.
           </p>
-          <p>A slope that has soaked for a week fails under rain that would do nothing to a dry one. That is why a total alone is never the whole reading.</p>
+          <p className={styles.body}>
+            Rain is also the input most often wrong. At Wayanad on 30 July 2024, the day of its landslides:
+          </p>
+        </div>
+        <div className={styles.pair} aria-label="Rain recorded at Wayanad on 30 July 2024">
+          <p className={styles.figure}>
+            <span className={styles.value}>
+              179<small>mm</small>
+            </span>
+            <span className="label">IMD gridded rain</span>
+          </p>
+          <p className={styles.figure} data-dim>
+            <span className={styles.value}>
+              0<small>mm</small>
+            </span>
+            <span className="label">CHIRPS, a global product</span>
+          </p>
         </div>
       </section>
 
-      <section id="levels" data-chapter className={styles.chapter}>
-        <div className={styles.slip}>
-          <h2>Three lines, each drawn on purpose.</h2>
-          <p>
-            Ground and rain become one number per cell: the chance of a landslide there that day. Crossing a line raises the
-            cell. Each line sits where it would have caught a known share of past landslides.
+      <section id="levels" data-chapter className={styles.chapter} data-place="head">
+        <div className={styles.text}>
+          <h2 className={styles.heading}>Three lines, each drawn on purpose.</h2>
+          <p className={styles.body}>
+            Ground and rain become one number per cell: the chance of a landslide there that day. Each line sits where it
+            would have caught a known share of past landslides.
           </p>
           <table className={styles.levels}>
             <caption className="sr-only">Alert levels, the share of past landslides each catches, and the chance that raises it</caption>
             <thead>
               <tr>
-                <th scope="col">Level</th>
-                <th scope="col">Catches</th>
+                <th scope="col" className="label">Level</th>
+                <th scope="col" className="label">Catches</th>
                 {REGIONS.map((r) => (
-                  <th scope="col" key={r.key}>
+                  <th scope="col" key={r.key} className="label">
                     {r.name}
                   </th>
                 ))}
@@ -169,20 +182,25 @@ export default function Story() {
         </div>
       </section>
 
-      <section id="today" data-chapter className={styles.chapter} data-side="low">
-        <div className={styles.slip}>
-          <h2>{latest ? <>The chart for {formatDate(latest)}.</> : 'Today&rsquo;s chart.'}</h2>
+      <section id="today" data-chapter className={styles.chapter} data-place="foot">
+        <div className={styles.text}>
+          <h2 className={styles.heading}>{latest ? <>The chart for {formatDate(latest)}.</> : 'Today&rsquo;s chart.'}</h2>
           {counts ? (
             <ul className={styles.tally} aria-label="Cells by level">
               {[3, 2, 1, 0].map((level) => (
-                <li key={level}>
-                  <span className={styles.swatch} data-level={LEVELS[level]!.toLowerCase()} aria-hidden="true" />
-                  <span className="num">{formatCount(counts[level]!)}</span> {LEVELS[level]}
+                <li key={level} data-level={LEVELS[level]!.toLowerCase()}>
+                  <span className={styles.count}>{formatCount(counts[level]!)}</span>
+                  <span className="label">
+                    <span className={styles.swatch} data-level={LEVELS[level]!.toLowerCase()} aria-hidden="true" />
+                    {LEVELS[level]}
+                  </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>{mode.isError ? 'The data service is not answering, so there is no chart to show.' : 'The counts appear once a run has been published.'}</p>
+            <p className={styles.body}>
+              {mode.isError ? 'The data service is not answering, so there is no chart to show.' : 'The counts appear once a run has been published.'}
+            </p>
           )}
           <div className={styles.actions}>
             <Link to="/map" viewTransition className={styles.primary}>
@@ -195,14 +213,18 @@ export default function Story() {
         </div>
       </section>
 
-      <section id="limits" data-chapter className={styles.chapter}>
-        <div className={styles.slip}>
-          <h2>What this chart cannot tell you.</h2>
-          <p>
-            It says where a landslide is more likely, never that one will happen. It has been checked against 87 recorded
-            landslides from 2018 to 2025, a small and incomplete record, so its skill is known only roughly.
+      <section id="limits" data-chapter className={styles.chapter} data-place="head">
+        <div className={styles.text}>
+          <h2 className={styles.heading}>What this chart cannot tell you.</h2>
+          <p className={styles.figure}>
+            <span className={styles.value}>87</span>
+            <span className="label">recorded landslides it was tested on, 2018 to 2025</span>
           </p>
-          <p>It is a research prototype and has never been used to warn anyone. The inputs can fail too, which is why every reading carries a confidence.</p>
+          <p className={styles.body}>
+            It says where a landslide is more likely, never that one will happen. Its test record is small and incomplete,
+            so its skill is known only roughly. It is a research prototype and has never been used to warn anyone; the
+            inputs can fail too, which is why every reading carries a confidence.
+          </p>
           <div className={styles.actions}>
             <Link to="/sensors-sources" viewTransition className={styles.primary}>
               Check sensors and sources
