@@ -113,3 +113,20 @@ iwet_report.json, iwet_clim.npz}`; `data/processed/hazard/w4_wet/`, `data/proces
 
 Caveats carried into every report: ground truth after 2018 is very incomplete, so held-out detection counts compare models at
 equal burden and are not absolute; tolerant matching has a high chance floor at Watch+ and Warning+.
+
+## 7. Amendment 2026-11-14 (after the development stages, before any held-out number of v5)
+
+Written after stage 1 (w4_wet - C0 +0.0003 [-0.0209, +0.0141], no gain), stage 2 (v5 - C0 -0.0241 [-0.0515, +0.0052];
+v5 - v4 -0.0058 [-0.0167, +0.0113]) and a passed preflight (54 of 54 checks, no outcome computed), and before any held-out
+number of v5 exists. Nothing in sections 3-5 changes.
+
+- **The deciding comparison stays exactly as declared in section 4:** v5 against `v4_ranked` on the licence-clean W1 assembly
+  (POOLED 2018-2025, 92 records of 87 independent slides: `catalog_2018`, `catalog_sparse`, `reported`), at equal burden,
+  every independent-slide detection row at Warning+ and Emergency (tolerant and cell-exact) not lower and at least one higher.
+- **Assembly v2** (`data/processed/heldout_v2`, frozen 2026-11-13, 1,509 day records: 1,417 from the Nepal BIPAD register,
+  91 India, 1 Bangladesh) is reported beside it and decides nothing: the same v5 against `v4_ranked` comparison at the same
+  burden, broken down by country and with and without BIPAD. The BIPAD register states no licence; by the user's decision
+  (2026-11-14) it is used locally only and its numbers may appear in public reports, always beside the licence-clean numbers
+  and marked as from a source without a stated licence. The register data itself is never committed.
+- The v2 beside-report is computed after the look, from the stored v5 and v4 season panels, and cannot change the decision of
+  section 4. If it disagrees with the W1 result, the report says so; nothing is tuned to reconcile them.
