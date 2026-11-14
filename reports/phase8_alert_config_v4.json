@@ -1,0 +1,141 @@
+{
+  "parameters": {
+    "exit_factor": 0.8,
+    "exit_days": 2,
+    "radius_km": 100.0,
+    "ood_window_days": 90,
+    "ood_multiple": 3.0,
+    "ood_min_observed_days": 30,
+    "engine_target_flag_rate": 0.01,
+    "dis_ratio_lo": 0.14827170287288302,
+    "dis_ratio_hi": 5.207462656698434,
+    "heavy_acc1_mm": 31.321022033691406,
+    "heavy_acc3_mm": 80.47637176513672,
+    "agree_abs_mm": 4.178124904632568,
+    "agree_rel": 0.7311684774315875,
+    "uncertain_percentile": 90.0
+  },
+  "created_utc": "2026-11-14T10:06:19Z",
+  "proxy": {
+    "imd": "IMD final grid at the live sampling point (nearest 0.25 degree point moved -1 column(s), imd_lon_offset_columns), standing in for the IMD real-time grid (same product family; no real-time archive exists for 2007-2017)",
+    "satellite": "IMERG Late on the IMD day at the cell's pixel (irain_acc_1 / irain_acc_3)",
+    "stations": "|integ_trw_rain_1 - irain_acc_1| (trust-weighted gauges against IMERG)"
+  },
+  "percentiles": {
+    "dis_ratio_percentiles": [
+      5,
+      95
+    ],
+    "heavy_rain_universe_percentile": 95,
+    "station_agree_abs_percentile": 50,
+    "station_agree_rel_percentile": 50,
+    "station_agree_rel_min_mm": 10.0
+  },
+  "rows": {
+    "universe": 400000,
+    "both_sources": 361156,
+    "station": 90887,
+    "station_wet": 38494
+  },
+  "inputs": {
+    "universe_train_features.parquet": {
+      "sha256": "9503245ae270acf084c1c95f39c13f1a88149f858965df983bfaaacbc938e884",
+      "n_rows": 200000
+    },
+    "universe_validation_features.parquet": {
+      "sha256": "ccf76e91a5a786b327c275ac83d4be0a9c9a892b4d2a96e8fcfafd4f388b83f1",
+      "n_rows": 200000
+    }
+  },
+  "copied_from_v3": {
+    "exit_factor": 0.8,
+    "exit_days": 2,
+    "uncertain_percentile": 90.0,
+    "radius_km": 100.0,
+    "ood_window_days": 90,
+    "ood_multiple": 3.0,
+    "ood_min_observed_days": 30,
+    "engine_target_flag_rate": 0.01
+  },
+  "side_by_side": {
+    "dis_ratio_lo": {
+      "v3": 0.12478674203157425,
+      "v4": 0.14827170287288302
+    },
+    "dis_ratio_hi": {
+      "v3": 13.471030235290527,
+      "v4": 5.207462656698434
+    },
+    "heavy_acc1_mm": {
+      "v3": 32.51171875,
+      "v4": 31.321022033691406
+    },
+    "heavy_acc3_mm": {
+      "v3": 79.05380249023438,
+      "v4": 80.47637176513672
+    },
+    "agree_abs_mm": {
+      "v3": 3.0,
+      "v4": 4.178124904632568
+    },
+    "agree_rel": {
+      "v3": 0.6834401487021482,
+      "v4": 0.7311684774315875
+    }
+  },
+  "validity": {
+    "development_share_outside_range": {
+      "v3": {
+        "all_months": 0.052711798915874776,
+        "live_months": 0.04744865981977575
+      },
+      "v4": {
+        "all_months": 0.09999487567516631,
+        "live_months": 0.08119580868508527
+      }
+    },
+    "live_share_outside_range": {
+      "days": [
+        "2026-10-16",
+        "2026-10-17",
+        "2026-10-18",
+        "2026-10-19",
+        "2026-10-20",
+        "2026-10-21",
+        "2026-10-22",
+        "2026-10-23",
+        "2026-10-24",
+        "2026-10-28",
+        "2026-11-02",
+        "2026-11-04",
+        "2026-11-05",
+        "2026-11-07",
+        "2026-11-08",
+        "2026-11-09",
+        "2026-11-11",
+        "2026-11-12"
+      ],
+      "cell_days": 563958,
+      "months": [
+        10,
+        11
+      ],
+      "outside": {
+        "v3": 0.03243858585213793,
+        "v4": 0.05010656821961919
+      },
+      "ratio_percentiles": {
+        "1": 0.06235143169760704,
+        "5": 0.17927169799804688,
+        "25": 0.7843137383460999,
+        "50": 1.0,
+        "75": 1.0,
+        "95": 1.965981847047813,
+        "99": 5.821666717529297
+      }
+    },
+    "expected_share_outside": 0.09999999999999998
+  },
+  "period": "2007-01-01..2017-12-31 (train + validation splits)",
+  "note": "development data only; no held-out row is read. Not read by the live run until its effect on levels (blind escalation) has passed its gate."
+}
