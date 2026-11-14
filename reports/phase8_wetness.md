@@ -1,6 +1,6 @@
 # Antecedent wetness inputs and the combined model v5 (phase 8, W4): development
 
-**Status: stage 2 not run.** Next: `python -m aetherguard.hazard.v4_combined dev --config configs/hazard_v5.yaml`.
+**Status: seasons scored: 0 of 8.** Next: `python -m aetherguard.hazard.v4_combined seasons --config configs/hazard_v5.yaml`.
 
 Criteria fixed before any model result: `docs/superpowers/specs/2026-11-13-aetherguard-w4-wetness.md`. Development only (year-blocked CV 2007-2017, v3's folds and seeds); no 2018-2025 outcome was read for anything below.
 
@@ -81,6 +81,18 @@ Ablation (reported only, not used to choose inputs): v3 plus
 | v3+iwet-iwet_sat_anom_l2 | 367 | 0.1966 | +0.0010 [-0.0144, +0.0189] |
 | v3+iwet-iwet_satdays30_l2 | 345 | 0.2004 | +0.0049 [-0.0117, +0.0179] |
 | v3+iwet_sat_clim | 296 | 0.1981 | +0.0026 [-0.0156, +0.0133] |
+
+## Stage 2: v5 = v4 plus the wetness group
+
+C0 reproduces the frozen v3-live FA@90 to 0.0e+00.
+
+| model | inputs | trees | pooled OOF FA@90 (95% CI) |
+|---|---|---|---|
+| C0 | 26 | 315 | 0.1955 [0.1679, 0.2348] |
+| v5 | 44 | 449 | 0.1715 [0.1425, 0.2019] |
+| v4 (stored OOF) | 41 | | 0.1773 [0.1467, 0.2014] |
+
+v5 - C0 = -0.0241 [-0.0515, +0.0052]; v5 - v4 = -0.0058 [-0.0167, +0.0113]. Guards: both lower bounds at or below 0. Stage 2 **passed**.
 
 ## Seasons and preflight
 

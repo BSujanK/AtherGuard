@@ -1,8 +1,8 @@
 {
-  "created_utc": "2026-11-14T05:04:42Z",
+  "created_utc": "2026-11-14T10:06:00Z",
   "spec": "docs/superpowers/specs/2026-11-13-aetherguard-w4-wetness.md",
-  "status": "stage 2 not run",
-  "next": "python -m aetherguard.hazard.v4_combined dev --config configs/hazard_v5.yaml",
+  "status": "seasons scored: 0 of 8",
+  "next": "python -m aetherguard.hazard.v4_combined seasons --config configs/hazard_v5.yaml",
   "probe": {
     "choice": "iwet: bucket water balance on the IMERG Late store, lag 2 IMD days",
     "candidates": [
@@ -1360,7 +1360,454 @@
     "passed": true,
     "seconds": 482.98549669999994
   },
-  "v5": null,
+  "v5": {
+    "created_utc": "2026-11-14T10:05:40Z",
+    "lag_days": 1,
+    "intensity_group": "iint_lag1",
+    "development": {
+      "positives": 789,
+      "universe_rows": 399272,
+      "matched_rows": 8240,
+      "folds": [
+        [
+          2007,
+          2008
+        ],
+        [
+          2009,
+          2010
+        ],
+        [
+          2011,
+          2012
+        ],
+        [
+          2013,
+          2014
+        ],
+        [
+          2015
+        ],
+        [
+          2016
+        ],
+        [
+          2017
+        ]
+      ]
+    },
+    "frozen_reference": "model_v3_live",
+    "reproduction": {
+      "recomputed_fa_at_90": 0.19554142779163688,
+      "reported_fa_at_90": 0.19554142779163688,
+      "abs_difference": 0.0,
+      "tolerance": 1e-12,
+      "n_trees": 315,
+      "reported_n_trees": 315
+    },
+    "candidates": {
+      "C0": {
+        "description": "v3-live refit (reference): the frozen inputs with the v3 monotone constraints",
+        "n_inputs": 26,
+        "columns": [
+          "stat_elev_mean",
+          "stat_elev_std",
+          "stat_relief",
+          "stat_slope_mean",
+          "stat_slope_p90",
+          "stat_slope_max",
+          "stat_curvature_mean",
+          "stat_aspect_sin",
+          "stat_aspect_cos",
+          "stat_twi_proxy",
+          "irain_acc_1",
+          "irain_acc_3",
+          "irain_acc_5",
+          "irain_acc_7",
+          "irain_acc_14",
+          "irain_acc_30",
+          "irain_acc_60",
+          "irain_acc_90",
+          "irain_max1d_7",
+          "irain_max1d_30",
+          "irain_wetdays_30",
+          "irain_days_since_10mm",
+          "irain_share1_3",
+          "irain_acc3_vs_clim",
+          "irain_acc7_vs_clim",
+          "irain_acc30_vs_clim"
+        ],
+        "constraints": {
+          "stat_elev_mean": 0,
+          "stat_elev_std": 0,
+          "stat_relief": 1,
+          "stat_slope_mean": 1,
+          "stat_slope_p90": 1,
+          "stat_slope_max": 1,
+          "stat_curvature_mean": 0,
+          "stat_aspect_sin": 0,
+          "stat_aspect_cos": 0,
+          "stat_twi_proxy": 0,
+          "irain_acc_1": 1,
+          "irain_acc_3": 1,
+          "irain_acc_5": 1,
+          "irain_acc_7": 1,
+          "irain_acc_14": 1,
+          "irain_acc_30": 1,
+          "irain_acc_60": 1,
+          "irain_acc_90": 1,
+          "irain_max1d_7": 1,
+          "irain_max1d_30": 1,
+          "irain_wetdays_30": 1,
+          "irain_days_since_10mm": -1,
+          "irain_share1_3": 0,
+          "irain_acc3_vs_clim": 1,
+          "irain_acc7_vs_clim": 1,
+          "irain_acc30_vs_clim": 1
+        },
+        "n_trees": 315,
+        "fold_best_iterations": [
+          999,
+          352,
+          142,
+          316,
+          257,
+          315,
+          151
+        ],
+        "seconds": 6.064529499999935
+      },
+      "v5": {
+        "description": "v4 (C0, six rain-intensity inputs non-decreasing, nine physical static inputs unconstrained) plus the three antecedent-wetness inputs (non-decreasing)",
+        "n_inputs": 44,
+        "columns": [
+          "stat_elev_mean",
+          "stat_elev_std",
+          "stat_relief",
+          "stat_slope_mean",
+          "stat_slope_p90",
+          "stat_slope_max",
+          "stat_curvature_mean",
+          "stat_aspect_sin",
+          "stat_aspect_cos",
+          "stat_twi_proxy",
+          "irain_acc_1",
+          "irain_acc_3",
+          "irain_acc_5",
+          "irain_acc_7",
+          "irain_acc_14",
+          "irain_acc_30",
+          "irain_acc_60",
+          "irain_acc_90",
+          "irain_max1d_7",
+          "irain_max1d_30",
+          "irain_wetdays_30",
+          "irain_days_since_10mm",
+          "irain_share1_3",
+          "irain_acc3_vs_clim",
+          "irain_acc7_vs_clim",
+          "irain_acc30_vs_clim",
+          "iint_max1h_1",
+          "iint_max3h_1",
+          "iint_max6h_1",
+          "iint_max3h_max3d",
+          "iint_max6h_max3d",
+          "iint_wet_hours_1",
+          "iwet_sat_l2",
+          "iwet_sat_anom_l2",
+          "iwet_satdays30_l2",
+          "lc_tree",
+          "lc_shrub_grass",
+          "lc_crop",
+          "lc_bare",
+          "soil_clay",
+          "soil_sand",
+          "soil_coarse",
+          "ter_steep25",
+          "ter_steep35"
+        ],
+        "constraints": {
+          "stat_elev_mean": 0,
+          "stat_elev_std": 0,
+          "stat_relief": 1,
+          "stat_slope_mean": 1,
+          "stat_slope_p90": 1,
+          "stat_slope_max": 1,
+          "stat_curvature_mean": 0,
+          "stat_aspect_sin": 0,
+          "stat_aspect_cos": 0,
+          "stat_twi_proxy": 0,
+          "irain_acc_1": 1,
+          "irain_acc_3": 1,
+          "irain_acc_5": 1,
+          "irain_acc_7": 1,
+          "irain_acc_14": 1,
+          "irain_acc_30": 1,
+          "irain_acc_60": 1,
+          "irain_acc_90": 1,
+          "irain_max1d_7": 1,
+          "irain_max1d_30": 1,
+          "irain_wetdays_30": 1,
+          "irain_days_since_10mm": -1,
+          "irain_share1_3": 0,
+          "irain_acc3_vs_clim": 1,
+          "irain_acc7_vs_clim": 1,
+          "irain_acc30_vs_clim": 1,
+          "iint_max1h_1": 1,
+          "iint_max3h_1": 1,
+          "iint_max6h_1": 1,
+          "iint_max3h_max3d": 1,
+          "iint_max6h_max3d": 1,
+          "iint_wet_hours_1": 1,
+          "iwet_sat_l2": 1,
+          "iwet_sat_anom_l2": 1,
+          "iwet_satdays30_l2": 1,
+          "lc_tree": 0,
+          "lc_shrub_grass": 0,
+          "lc_crop": 0,
+          "lc_bare": 0,
+          "soil_clay": 0,
+          "soil_sand": 0,
+          "soil_coarse": 0,
+          "ter_steep25": 0,
+          "ter_steep35": 0
+        },
+        "n_trees": 449,
+        "fold_best_iterations": [
+          996,
+          465,
+          562,
+          449,
+          317,
+          219,
+          307
+        ],
+        "seconds": 11.624347599999965
+      }
+    },
+    "comparison": {
+      "difference": {
+        "fa_a": 0.17146696578167053,
+        "fa_b": 0.19554142779163688,
+        "point_difference": -0.024074462009966352,
+        "mean_difference": -0.02221953410074404,
+        "se": 0.014801667440039452,
+        "ci_lo": -0.051471770766401054,
+        "ci_hi": 0.005235395182737827,
+        "level": 0.95,
+        "n_boot": 2000,
+        "excludes_zero": false,
+        "share_a_better": 0.95,
+        "share_tied": 0.0
+      },
+      "metrics": {
+        "C0": {
+          "fa_at_recall_0.8": {
+            "value": 0.11185889977258454,
+            "lo": 0.09624302709513682,
+            "hi": 0.12561620942296187,
+            "se": 0.0075148515689170475
+          },
+          "fa_at_recall_0.9": {
+            "value": 0.19554142779163688,
+            "lo": 0.1679492295501935,
+            "hi": 0.23482366691325304,
+            "se": 0.017813584014420413
+          },
+          "fa_at_recall_0.95": {
+            "value": 0.27888222052618117,
+            "lo": 0.2527831666951377,
+            "hi": 0.32555239155283033,
+            "se": 0.020263901292069907
+          },
+          "recall_at_fa_0.001": {
+            "value": 0.07731305449936629,
+            "lo": 0.058301647655259824,
+            "hi": 0.09885931558935361,
+            "se": 0.010305242151734742
+          },
+          "recall_at_fa_0.01": {
+            "value": 0.30038022813688214,
+            "lo": 0.26996197718631176,
+            "hi": 0.3358681875792142,
+            "se": 0.017411744268040402
+          },
+          "recall_at_fa_0.05": {
+            "value": 0.6261089987325729,
+            "lo": 0.5918884664131813,
+            "hi": 0.6615969581749049,
+            "se": 0.017440868328731374
+          },
+          "recall_at_fa_0.1": {
+            "value": 0.7782002534854245,
+            "lo": 0.7490494296577946,
+            "hi": 0.8060836501901141,
+            "se": 0.014770903595941163
+          },
+          "pr_auc": {
+            "value": 0.005326744155254767,
+            "lo": 0.001462071939481135,
+            "hi": 0.014202552392422489,
+            "se": 0.0033030635698535395
+          }
+        },
+        "v5": {
+          "fa_at_recall_0.8": {
+            "value": 0.07614086412032608,
+            "lo": 0.06410095667676924,
+            "hi": 0.09330146134525617,
+            "se": 0.007304349848137058
+          },
+          "fa_at_recall_0.9": {
+            "value": 0.17146696578167053,
+            "lo": 0.14248446718995825,
+            "hi": 0.20187855554835693,
+            "se": 0.01469771237371726
+          },
+          "fa_at_recall_0.95": {
+            "value": 0.27853521364408196,
+            "lo": 0.23048448606046765,
+            "hi": 0.3364319400216245,
+            "se": 0.02828294822968664
+          },
+          "recall_at_fa_0.001": {
+            "value": 0.16096324461343473,
+            "lo": 0.13307984790874525,
+            "hi": 0.19138149556400508,
+            "se": 0.014728360446260799
+          },
+          "recall_at_fa_0.01": {
+            "value": 0.4385297845373891,
+            "lo": 0.40304182509505704,
+            "hi": 0.47275031685678076,
+            "se": 0.017568618918023148
+          },
+          "recall_at_fa_0.05": {
+            "value": 0.7224334600760456,
+            "lo": 0.6907477820025348,
+            "hi": 0.752851711026616,
+            "se": 0.01570434006838795
+          },
+          "recall_at_fa_0.1": {
+            "value": 0.8339670468948035,
+            "lo": 0.8073510773130546,
+            "hi": 0.8593155893536122,
+            "se": 0.013290755843572147
+          },
+          "pr_auc": {
+            "value": 0.008007249906893714,
+            "lo": 0.0035269209550964466,
+            "hi": 0.027137365636584004,
+            "se": 0.0062526184316049754
+          }
+        }
+      },
+      "against_incumbent": {
+        "incumbent": "v4",
+        "oof": "oof_v4.parquet",
+        "difference": {
+          "fa_a": 0.17146696578167053,
+          "fa_b": 0.17731300267902567,
+          "point_difference": -0.0058460368973551335,
+          "mean_difference": -0.002515481434130423,
+          "se": 0.006999760058442152,
+          "ci_lo": -0.01673304915788593,
+          "ci_hi": 0.011330233245723307,
+          "level": 0.95,
+          "n_boot": 2000,
+          "excludes_zero": false,
+          "share_a_better": 0.641,
+          "share_tied": 0.0
+        },
+        "metrics": {
+          "fa_at_recall_0.8": {
+            "value": 0.07720267778467113,
+            "lo": 0.06228603811713775,
+            "hi": 0.09117985507534038,
+            "se": 0.008173853382939526
+          },
+          "fa_at_recall_0.9": {
+            "value": 0.17731300267902567,
+            "lo": 0.14666115946365557,
+            "hi": 0.20143024404501292,
+            "se": 0.01495590864448104
+          },
+          "fa_at_recall_0.95": {
+            "value": 0.27362986750727064,
+            "lo": 0.2282532349194207,
+            "hi": 0.33262492110199016,
+            "se": 0.025026274346442865
+          },
+          "recall_at_fa_0.001": {
+            "value": 0.15842839036755388,
+            "lo": 0.12927756653992395,
+            "hi": 0.18631178707224336,
+            "se": 0.014950853952529205
+          },
+          "recall_at_fa_0.01": {
+            "value": 0.44106463878326996,
+            "lo": 0.4055766793409379,
+            "hi": 0.47655259822560203,
+            "se": 0.017728014849946152
+          },
+          "recall_at_fa_0.05": {
+            "value": 0.7224334600760456,
+            "lo": 0.6920152091254753,
+            "hi": 0.7541191381495564,
+            "se": 0.015816863713694986
+          },
+          "recall_at_fa_0.1": {
+            "value": 0.8403041825095057,
+            "lo": 0.8136882129277566,
+            "hi": 0.8656527249683144,
+            "se": 0.013015219185157727
+          },
+          "pr_auc": {
+            "value": 0.005066281150399119,
+            "lo": 0.0018568093619505408,
+            "hi": 0.028704994296239572,
+            "se": 0.00698953880133996
+          }
+        },
+        "stage": {
+          "rule": "pooled OOF FA@90 is a false-alarm share (lower is better); passes when the paired bootstrap interval of v5 - v4 has lower bound <= 0, i.e. v5 is not significantly worse",
+          "difference": -0.0058460368973551335,
+          "ci": [
+            -0.01673304915788593,
+            0.011330233245723307
+          ],
+          "level": 0.95,
+          "passed": true,
+          "verdict": "includes zero"
+        }
+      }
+    },
+    "stage_one": {
+      "rule": "pooled OOF FA@90 is a false-alarm share (lower is better); passes when the paired bootstrap interval of v5 - C0 has lower bound <= 0, i.e. v5 is not significantly worse",
+      "difference": -0.024074462009966352,
+      "ci": [
+        -0.051471770766401054,
+        0.005235395182737827
+      ],
+      "level": 0.95,
+      "passed": true,
+      "verdict": "includes zero",
+      "against_incumbent": {
+        "rule": "pooled OOF FA@90 is a false-alarm share (lower is better); passes when the paired bootstrap interval of v5 - v4 has lower bound <= 0, i.e. v5 is not significantly worse",
+        "difference": -0.0058460368973551335,
+        "ci": [
+          -0.01673304915788593,
+          0.011330233245723307
+        ],
+        "level": 0.95,
+        "passed": true,
+        "verdict": "includes zero"
+      }
+    },
+    "decision": null,
+    "model_dir": "v5",
+    "seconds": 188.93270929999994
+  },
   "seasons_scored": 0,
   "preflight": null,
   "heldout_decision": null
