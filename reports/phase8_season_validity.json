@@ -1,0 +1,1043 @@
+{
+  "created_utc": "2026-11-14T04:57:20Z",
+  "chain": {
+    "development_days": {
+      "train": {
+        "start": "2007-01-01",
+        "end": "2015-12-31",
+        "role": "train"
+      },
+      "validation": {
+        "start": "2016-01-01",
+        "end": "2017-12-31",
+        "role": "validation"
+      }
+    },
+    "model_training": "every calendar day of 2007-2017 (positives, matched negatives and universe negatives year-round; configs/splits.yaml day_splits)",
+    "post_rules_and_alert_parameters_months": [
+      6,
+      9
+    ],
+    "heldout_panel_months": [
+      6,
+      12
+    ],
+    "live_run": "every day of the year"
+  },
+  "development": {
+    "positives_by_region_month": {
+      "himalaya": {
+        "1": 6.0,
+        "2": 12.0,
+        "3": 12.0,
+        "4": 43.0,
+        "5": 24.0,
+        "6": 110.0,
+        "7": 202.0,
+        "8": 169.0,
+        "9": 89.0,
+        "10": 30.0,
+        "11": 2.0,
+        "12": 0.0
+      },
+      "western_ghats": {
+        "1": 0.0,
+        "2": 0.0,
+        "3": 0.0,
+        "4": 3.0,
+        "5": 3.0,
+        "6": 36.0,
+        "7": 24.0,
+        "8": 30.0,
+        "9": 11.0,
+        "10": 8.0,
+        "11": 8.0,
+        "12": 2.0
+      }
+    },
+    "events_by_region_month": {
+      "himalaya": {
+        "1": 6.0,
+        "2": 12.0,
+        "3": 12.0,
+        "4": 45.0,
+        "5": 25.0,
+        "6": 113.0,
+        "7": 212.0,
+        "8": 174.0,
+        "9": 95.0,
+        "10": 30.0,
+        "11": 2.0,
+        "12": 0.0
+      },
+      "western_ghats": {
+        "1": 0.0,
+        "2": 0.0,
+        "3": 0.0,
+        "4": 3.0,
+        "5": 3.0,
+        "6": 37.0,
+        "7": 26.0,
+        "8": 33.0,
+        "9": 11.0,
+        "10": 9.0,
+        "11": 8.0,
+        "12": 2.0
+      }
+    },
+    "sample_rows_by_kind_month": {
+      "negative": {
+        "1": 54.0,
+        "2": 127.0,
+        "3": 135.0,
+        "4": 455.0,
+        "5": 263.0,
+        "6": 1461.0,
+        "7": 2253.0,
+        "8": 1967.0,
+        "9": 985.0,
+        "10": 394.0,
+        "11": 128.0,
+        "12": 18.0
+      },
+      "positive": {
+        "1": 6.0,
+        "2": 12.0,
+        "3": 12.0,
+        "4": 46.0,
+        "5": 27.0,
+        "6": 146.0,
+        "7": 226.0,
+        "8": 199.0,
+        "9": 100.0,
+        "10": 38.0,
+        "11": 10.0,
+        "12": 2.0
+      },
+      "universe": {
+        "1": 32040.0,
+        "2": 30822.0,
+        "3": 34143.0,
+        "4": 33031.0,
+        "5": 33918.0,
+        "6": 33297.0,
+        "7": 34091.0,
+        "8": 34194.0,
+        "9": 32935.0,
+        "10": 34167.0,
+        "11": 33152.0,
+        "12": 34210.0
+      }
+    },
+    "oof_v4": {
+      "thresholds_raw": {
+        "watch": 0.015939810950036836,
+        "warning": 0.08034068060090097,
+        "emergency": 0.2662909854288143
+      },
+      "positives": {
+        "1": 6.0,
+        "2": 11.0,
+        "3": 11.0,
+        "4": 45.0,
+        "5": 24.0,
+        "6": 139.0,
+        "7": 220.0,
+        "8": 191.0,
+        "9": 97.0,
+        "10": 35.0,
+        "11": 8.0,
+        "12": 2.0
+      },
+      "detected": {
+        "watch": {
+          "1": 4.0,
+          "2": 9.0,
+          "3": 6.0,
+          "4": 36.0,
+          "5": 20.0,
+          "6": 124.0,
+          "7": 215.0,
+          "8": 181.0,
+          "9": 93.0,
+          "10": 30.0,
+          "11": 4.0,
+          "12": 2.0
+        },
+        "warning": {
+          "1": 3.0,
+          "2": 7.0,
+          "3": 4.0,
+          "4": 26.0,
+          "5": 14.0,
+          "6": 105.0,
+          "7": 185.0,
+          "8": 140.0,
+          "9": 81.0,
+          "10": 23.0,
+          "11": 3.0,
+          "12": 1.0
+        },
+        "emergency": {
+          "1": 3.0,
+          "2": 4.0,
+          "3": 2.0,
+          "4": 16.0,
+          "5": 6.0,
+          "6": 74.0,
+          "7": 135.0,
+          "8": 78.0,
+          "9": 55.0,
+          "10": 19.0,
+          "11": 3.0,
+          "12": 0.0
+        }
+      },
+      "universe_share": {
+        "watch": {
+          "1": 0.0594425632342032,
+          "2": 0.08293565761107222,
+          "3": 0.09593830060989815,
+          "4": 0.16953775695673418,
+          "5": 0.22267416999525821,
+          "6": 0.32159051623786167,
+          "7": 0.3986436344440334,
+          "8": 0.3755651963742847,
+          "9": 0.3125474928092917,
+          "10": 0.18854899479005954,
+          "11": 0.0710590435011479,
+          "12": 0.04285097503979465
+        },
+        "warning": {
+          "1": 0.011424039600198898,
+          "2": 0.01580579198971088,
+          "3": 0.017926269021137343,
+          "4": 0.03461953951937358,
+          "5": 0.051688101675727356,
+          "6": 0.10237647935799363,
+          "7": 0.15072798479481342,
+          "8": 0.13357340247099359,
+          "9": 0.09177872042552758,
+          "10": 0.03828592573058967,
+          "11": 0.009405506542539906,
+          "12": 0.00660772037790584
+        },
+        "emergency": {
+          "1": 0.0024449954044542654,
+          "2": 0.003504281592291357,
+          "3": 0.003963980967205005,
+          "4": 0.0067997959017219375,
+          "5": 0.008975184094862334,
+          "6": 0.026087060203311075,
+          "7": 0.042920212676522684,
+          "8": 0.03823766656820532,
+          "9": 0.02326445327463505,
+          "10": 0.007781499464229592,
+          "11": 0.0019272714484746987,
+          "12": 0.001358312820735283
+        }
+      },
+      "universe_rows": {
+        "1": 32024.0,
+        "2": 30797.0,
+        "3": 34125.0,
+        "4": 32990.0,
+        "5": 33887.0,
+        "6": 33141.0,
+        "7": 33906.0,
+        "8": 34081.0,
+        "9": 32872.0,
+        "10": 34113.0,
+        "11": 33143.0,
+        "12": 34193.0
+      },
+      "pooled": {
+        "watch": {
+          "inside": {
+            "positives": 647,
+            "detected": 613,
+            "universe_share": 0.3526632352881668
+          },
+          "outside": {
+            "positives": 142,
+            "detected": 111,
+            "universe_share": 0.11740202458382613
+          }
+        },
+        "warning": {
+          "inside": {
+            "positives": 647,
+            "detected": 511,
+            "universe_share": 0.11998677376455447
+          },
+          "outside": {
+            "positives": 142,
+            "detected": 81,
+            "universe_share": 0.023381727495691052
+          }
+        },
+        "emergency": {
+          "inside": {
+            "positives": 647,
+            "detected": 342,
+            "universe_share": 0.03275919504254657
+          },
+          "outside": {
+            "positives": 142,
+            "detected": 53,
+            "universe_share": 0.004622245883047857
+          }
+        }
+      }
+    }
+  },
+  "heldout_panels_v4_point_shares": {
+    "years": [
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "cell_days": {
+      "6": 8830080.0,
+      "7": 9124416.0,
+      "8": 9124416.0,
+      "9": 8830080.0,
+      "10": 9124416.0,
+      "11": 8830080.0,
+      "12": 9124416.0
+    },
+    "share": {
+      "6": {
+        "watch": 0.32240183554395885,
+        "warning": 0.10871135935348264,
+        "emergency": 0.028863158657679206
+      },
+      "7": {
+        "watch": 0.4134880522764416,
+        "warning": 0.17240610248370963,
+        "emergency": 0.05269027628727142
+      },
+      "8": {
+        "watch": 0.3915056043038809,
+        "warning": 0.15101130855936423,
+        "emergency": 0.04211973675904299
+      },
+      "9": {
+        "watch": 0.33526230792926,
+        "warning": 0.11093919873885627,
+        "emergency": 0.02939588316300645
+      },
+      "10": {
+        "watch": 0.22041246256198752,
+        "warning": 0.0500766295618262,
+        "emergency": 0.01118997643246428
+      },
+      "11": {
+        "watch": 0.09198206584764804,
+        "warning": 0.015666222729578894,
+        "emergency": 0.0026291947524824237
+      },
+      "12": {
+        "watch": 0.05892530546612518,
+        "warning": 0.00829587340165113,
+        "emergency": 0.0014154330534688468
+      }
+    }
+  },
+  "live": {
+    "days": [
+      {
+        "date": "2026-10-09",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 23649,
+          "Watch": 9653,
+          "Warning": 2621,
+          "Emergency": 869
+        },
+        "emergency_held": 0,
+        "share": {
+          "watch": 0.35722439660795824,
+          "warning": 0.09485757773429006,
+          "emergency": 0.02361926505762122
+        }
+      },
+      {
+        "date": "2026-10-10",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36788,
+        "levels": {
+          "Normal": 21909,
+          "Watch": 9021,
+          "Warning": 3535,
+          "Emergency": 2327
+        },
+        "emergency_held": 314,
+        "share": {
+          "watch": 0.40451728636660145,
+          "warning": 0.15932811480756687,
+          "emergency": 0.06324744509676017
+        }
+      },
+      {
+        "date": "2026-10-11",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36788,
+        "levels": {
+          "Normal": 22354,
+          "Watch": 8755,
+          "Warning": 3421,
+          "Emergency": 2262
+        },
+        "emergency_held": 1409,
+        "share": {
+          "watch": 0.39242226570993693,
+          "warning": 0.1544629267232007,
+          "emergency": 0.061480756686236135
+        }
+      },
+      {
+        "date": "2026-10-12",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 22702,
+          "Watch": 9164,
+          "Warning": 3197,
+          "Emergency": 1729
+        },
+        "emergency_held": 588,
+        "share": {
+          "watch": 0.3829636877582083,
+          "warning": 0.13388780169602088,
+          "emergency": 0.046993911719939115
+        }
+      },
+      {
+        "date": "2026-10-13",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36788,
+        "levels": {
+          "Normal": 24341,
+          "Watch": 8853,
+          "Warning": 2409,
+          "Emergency": 1189
+        },
+        "emergency_held": 1010,
+        "share": {
+          "watch": 0.3384159599913025,
+          "warning": 0.09779299847792998,
+          "emergency": 0.03231680800173951
+        }
+      },
+      {
+        "date": "2026-10-14",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 25037,
+          "Watch": 9416,
+          "Warning": 2121,
+          "Emergency": 218
+        },
+        "emergency_held": 154,
+        "share": {
+          "watch": 0.3194988040878452,
+          "warning": 0.0635736029571646,
+          "emergency": 0.005925201130680582
+        }
+      },
+      {
+        "date": "2026-10-15",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 25187,
+          "Watch": 9300,
+          "Warning": 1851,
+          "Emergency": 454
+        },
+        "emergency_held": 32,
+        "share": {
+          "watch": 0.31542183083278974,
+          "warning": 0.06264948901935204,
+          "emergency": 0.012339639051967818
+        }
+      },
+      {
+        "date": "2026-10-16",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 24742,
+          "Watch": 8866,
+          "Warning": 1745,
+          "Emergency": 1439
+        },
+        "emergency_held": 212,
+        "share": {
+          "watch": 0.32751685148945425,
+          "warning": 0.08654055229397695,
+          "emergency": 0.03911176342683192
+        }
+      },
+      {
+        "date": "2026-10-17",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 25485,
+          "Watch": 8334,
+          "Warning": 1670,
+          "Emergency": 1303
+        },
+        "emergency_held": 764,
+        "share": {
+          "watch": 0.3073222439660796,
+          "warning": 0.08080560991519896,
+          "emergency": 0.035415307675581646
+        }
+      },
+      {
+        "date": "2026-10-18",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 28676,
+          "Watch": 5982,
+          "Warning": 1455,
+          "Emergency": 679
+        },
+        "emergency_held": 237,
+        "share": {
+          "watch": 0.22059143292020003,
+          "warning": 0.05800173950858882,
+          "emergency": 0.01845509893455099
+        }
+      },
+      {
+        "date": "2026-10-19",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 30515,
+          "Watch": 4597,
+          "Warning": 1085,
+          "Emergency": 595
+        },
+        "emergency_held": 212,
+        "share": {
+          "watch": 0.17060774081322028,
+          "warning": 0.045662100456621,
+          "emergency": 0.016171993911719938
+        }
+      },
+      {
+        "date": "2026-10-20",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 31670,
+          "Watch": 3835,
+          "Warning": 840,
+          "Emergency": 447
+        },
+        "emergency_held": 130,
+        "share": {
+          "watch": 0.13921504674929333,
+          "warning": 0.03498043052837573,
+          "emergency": 0.012149380300065231
+        }
+      },
+      {
+        "date": "2026-10-21",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 31832,
+          "Watch": 3568,
+          "Warning": 905,
+          "Emergency": 487
+        },
+        "emergency_held": 148,
+        "share": {
+          "watch": 0.13481191563383343,
+          "warning": 0.037834311806914545,
+          "emergency": 0.013236573168080017
+        }
+      },
+      {
+        "date": "2026-10-22",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 32645,
+          "Watch": 2762,
+          "Warning": 524,
+          "Emergency": 861
+        },
+        "emergency_held": 68,
+        "share": {
+          "watch": 0.11271472059143292,
+          "warning": 0.03764405305501196,
+          "emergency": 0.023401826484018264
+        }
+      },
+      {
+        "date": "2026-10-23",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 33194,
+          "Watch": 1852,
+          "Warning": 603,
+          "Emergency": 1143
+        },
+        "emergency_held": 247,
+        "share": {
+          "watch": 0.09779299847792998,
+          "warning": 0.0474559686888454,
+          "emergency": 0.031066536203522503
+        }
+      },
+      {
+        "date": "2026-10-24",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 33130,
+          "Watch": 1713,
+          "Warning": 914,
+          "Emergency": 1035
+        },
+        "emergency_held": 350,
+        "share": {
+          "watch": 0.09953250706675364,
+          "warning": 0.052973472494020436,
+          "emergency": 0.02813111545988258
+        }
+      },
+      {
+        "date": "2026-10-25",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 0,
+        "levels": {
+          "Normal": 33130,
+          "Watch": 1713,
+          "Warning": 914,
+          "Emergency": 1035
+        },
+        "emergency_held": 1035,
+        "share": {
+          "watch": 0.09953250706675364,
+          "warning": 0.052973472494020436,
+          "emergency": 0.02813111545988258
+        }
+      },
+      {
+        "date": "2026-10-26",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 32903,
+          "Watch": 1919,
+          "Warning": 870,
+          "Emergency": 1100
+        },
+        "emergency_held": 589,
+        "share": {
+          "watch": 0.10570232659273755,
+          "warning": 0.0535442487497282,
+          "emergency": 0.02989780387040661
+        }
+      },
+      {
+        "date": "2026-10-28",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 33716,
+          "Watch": 2610,
+          "Warning": 387,
+          "Emergency": 79
+        },
+        "emergency_held": 0,
+        "share": {
+          "watch": 0.08360513155033703,
+          "warning": 0.012665796912372254,
+          "emergency": 0.002147205914329202
+        }
+      },
+      {
+        "date": "2026-10-31",
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 25102,
+          "Watch": 8293,
+          "Warning": 1820,
+          "Emergency": 1577
+        },
+        "emergency_held": 0,
+        "share": {
+          "watch": 0.3177321156773212,
+          "warning": 0.09232985431615569,
+          "emergency": 0.04286257882148293
+        }
+      },
+      {
+        "date": "2026-11-01",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 0,
+        "levels": {
+          "Normal": 25070,
+          "Watch": 8325,
+          "Warning": 1820,
+          "Emergency": 1577
+        },
+        "emergency_held": 1577,
+        "share": {
+          "watch": 0.318601869971733,
+          "warning": 0.09232985431615569,
+          "emergency": 0.04286257882148293
+        }
+      },
+      {
+        "date": "2026-11-02",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36789,
+        "levels": {
+          "Normal": 23969,
+          "Watch": 9200,
+          "Warning": 1976,
+          "Emergency": 1647
+        },
+        "emergency_held": 1384,
+        "share": {
+          "watch": 0.34852685366383995,
+          "warning": 0.09847249402043923,
+          "emergency": 0.044765166340508804
+        }
+      },
+      {
+        "date": "2026-11-03",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 25901,
+          "Watch": 8384,
+          "Warning": 2144,
+          "Emergency": 363
+        },
+        "emergency_held": 235,
+        "share": {
+          "watch": 0.29601543813872583,
+          "warning": 0.0681398130028267,
+          "emergency": 0.00986627527723418
+        }
+      },
+      {
+        "date": "2026-11-04",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 26080,
+          "Watch": 8345,
+          "Warning": 2148,
+          "Emergency": 219
+        },
+        "emergency_held": 116,
+        "share": {
+          "watch": 0.2911502500543596,
+          "warning": 0.06433463796477495,
+          "emergency": 0.005952380952380952
+        }
+      },
+      {
+        "date": "2026-11-05",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 26019,
+          "Watch": 9613,
+          "Warning": 892,
+          "Emergency": 268
+        },
+        "emergency_held": 60,
+        "share": {
+          "watch": 0.2928082191780822,
+          "warning": 0.03152859317242879,
+          "emergency": 0.007284192215699065
+        }
+      },
+      {
+        "date": "2026-11-06",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 26730,
+          "Watch": 8801,
+          "Warning": 776,
+          "Emergency": 485
+        },
+        "emergency_held": 76,
+        "share": {
+          "watch": 0.2734833659491194,
+          "warning": 0.03427375516416612,
+          "emergency": 0.013182213524679277
+        }
+      },
+      {
+        "date": "2026-11-07",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 28787,
+          "Watch": 6911,
+          "Warning": 640,
+          "Emergency": 454
+        },
+        "emergency_held": 320,
+        "share": {
+          "watch": 0.21757447271145902,
+          "warning": 0.02973472494020439,
+          "emergency": 0.012339639051967818
+        }
+      },
+      {
+        "date": "2026-11-08",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 32706,
+          "Watch": 3182,
+          "Warning": 725,
+          "Emergency": 179
+        },
+        "emergency_held": 83,
+        "share": {
+          "watch": 0.11105675146771037,
+          "warning": 0.024570558817134158,
+          "emergency": 0.004865188084366166
+        }
+      },
+      {
+        "date": "2026-11-09",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 33854,
+          "Watch": 2154,
+          "Warning": 682,
+          "Emergency": 102
+        },
+        "emergency_held": 49,
+        "share": {
+          "watch": 0.07985431615568601,
+          "warning": 0.0213089802130898,
+          "emergency": 0.0027723418134377037
+        }
+      },
+      {
+        "date": "2026-11-10",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 33245,
+          "Watch": 2856,
+          "Warning": 554,
+          "Emergency": 137
+        },
+        "emergency_held": 29,
+        "share": {
+          "watch": 0.09640682757121113,
+          "warning": 0.018781256794955424,
+          "emergency": 0.0037236355729506412
+        }
+      },
+      {
+        "date": "2026-11-11",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 32253,
+          "Watch": 2980,
+          "Warning": 922,
+          "Emergency": 637
+        },
+        "emergency_held": 59,
+        "share": {
+          "watch": 0.12336921069797782,
+          "warning": 0.042373342030876275,
+          "emergency": 0.017313546423135463
+        }
+      },
+      {
+        "date": "2026-11-12",
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 30883,
+          "Watch": 3616,
+          "Warning": 1308,
+          "Emergency": 985
+        },
+        "emergency_held": 369,
+        "share": {
+          "watch": 0.16060556642748425,
+          "warning": 0.062323331158947594,
+          "emergency": 0.0267721243748641
+        }
+      },
+      {
+        "date": "2026-11-13",
+        "month": 11,
+        "model": "data/processed/hazard/model_v4_live",
+        "n_cells": 36792,
+        "n_scored": 36792,
+        "levels": {
+          "Normal": 30129,
+          "Watch": 4392,
+          "Warning": 1585,
+          "Emergency": 686
+        },
+        "emergency_held": 579,
+        "share": {
+          "watch": 0.18109915198956295,
+          "warning": 0.06172537508153946,
+          "emergency": 0.018645357686453576
+        }
+      }
+    ],
+    "by_month_model": {
+      "10|data/processed/hazard/model_v3_live": {
+        "month": 10,
+        "model": "data/processed/hazard/model_v3_live",
+        "days": 20,
+        "cell_days": 735840,
+        "share": {
+          "watch": 0.23635708849749945,
+          "warning": 0.07299820613176777,
+          "emergency": 0.02830506631876495
+        }
+      },
+      "11|data/processed/hazard/model_v3_live": {
+        "month": 11,
+        "model": "data/processed/hazard/model_v3_live",
+        "days": 12,
+        "cell_days": 441504,
+        "share": {
+          "watch": 0.21745442849894905,
+          "warning": 0.04901427846633326,
+          "emergency": 0.01597494020439226
+        }
+      },
+      "11|data/processed/hazard/model_v4_live": {
+        "month": 11,
+        "model": "data/processed/hazard/model_v4_live",
+        "days": 1,
+        "cell_days": 36792,
+        "share": {
+          "watch": 0.18109915198956295,
+          "warning": 0.06172537508153946,
+          "emergency": 0.018645357686453576
+        }
+      }
+    }
+  },
+  "caveats": [
+    "Development numbers are out of fold (year-blocked CV 2007-2017) but every month has few events outside June-September, so the monthly detection there has wide uncertainty (the counts are given).",
+    "Detection counts what the catalogues recorded; the catalogues miss most landslides and report them where people live.",
+    "Held-out season shares are point levels of the model (risk against the card's thresholds of the region), without the post-model rules or the hysteresis the live run adds; they read risks only, never an event.",
+    "Live shares come from the published run.json of each day; the days before 2026-11-13 were scored by v3, from 2026-11-13 by v4."
+  ],
+  "recommendation": {
+    "declared_months": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "positives_inside": {
+      "himalaya": 570,
+      "western_ghats": 101
+    },
+    "positives_outside": {
+      "himalaya": 129,
+      "western_ghats": 24
+    },
+    "flag": "outside_validated_season",
+    "decision": "declare June-September the season of validity of the published alert chain and publish a visible flag on every lead whose date falls outside it (no suppression)",
+    "alternative": "a year-round study: post-model rules and alert parameters chosen on twelve-month development panels, a per-month calibration check, and a held-out look that includes January-May; it needs the out-of-season events listed here, which are few"
+  }
+}

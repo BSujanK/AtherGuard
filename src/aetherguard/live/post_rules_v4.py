@@ -153,10 +153,13 @@ def analyze_dev(cfg: dict, directory: Path, rules_path: Path, say, force: bool =
         raise FileExistsError(f"{rules_path} exists; pass --force to derive it again")
     from . import hardening_dev
     analysis = hardening_dev.run(directory, v4_cfg(cfg), None, say, MODEL_TEXT)
+    relative = f"data/processed/alerts/{Path(directory).name}"      # display_path resolves a data junction to its name only
+    analysis["protocol"]["panels"] = relative
+    dump_json(Path(directory) / hardening_dev.ANALYSIS_FILE, analysis)
     v3_rules = pr.load_rules(live_run.project_path(RULES_V3))
     rules = rules_from_analysis(analysis, v3_rules)
     pr.save_rules(rules_path, rules, {
-        "source": hm.display_path(Path(directory) / hardening_dev.ANALYSIS_FILE),
+        "source": f"{relative}/{hardening_dev.ANALYSIS_FILE}",
         "agreement": analysis["agreement"]["choice"], "rain_rule": analysis["rain"]["chosen"],
         "blind_hold": analysis["blind_hold"]["choice"],
         "hold_window": None if analysis["rain"]["hold_window"] is None else
@@ -265,6 +268,13 @@ def markdown(result: dict) -> str:
     for level, d in result["v4_rules_against_v3_rules"].items():
         lines.append(f"| {level}+ | {_pct(d['share_v3_rules'])} | {_pct(d['share_v4_rules'])} | "
                      f"{100 * d['share_change']:+.2f} pp | {d['hits_v3_rules']} | {d['hits_v4_rules']} | {d['hits_change']:+d} |")
+    same = all(d["share_change"] == 0 and d["hits_change"] == 0 for d in result["v4_rules_against_v3_rules"].values())
+    differing = [k for k in p3 if p3.get(k) != p4.get(k)]
+    if same:
+        lines += ["", f"The two rule sets differ only in {', '.join(f'`{k}`' for k in differing) or 'nothing'}; on "
+                  "development they publish identical levels. The blind-hold limit acts only on cell-days without a score "
+                  "(missing model inputs), and the development panels are scored on every cell-day that has its rain "
+                  "inputs, so it changes nothing here: its effect appears only during input outages."]
     agreement = result["derivation_v4"]["agreement"]
     split = agreement["split"]["by_minimum"].get("0.25", {})
     lines += ["", "## How the v4 rules were chosen", "",
@@ -291,6 +301,155 @@ def write_report(cfg: dict, out_dir: Path, say=print) -> dict:
     return result
 
 
+# ------------------------------------------------------------------------------- the held-out gate (spec 2026-11-13)
+
+PREFLIGHT = "post_rules_v4_preflight.json"             # under data/processed/alerts/
+HELDOUT = "post_rules_v4_heldout.json"
+HELDOUT_STEM = "phase8_post_rules_v4_heldout"
+V4_SEASONS = "v4_seasons"
+ARMS = ("v4_v3_rules", "v4_v4_rules")                  # the incumbent (live today) and the candidate
+
+
+def _rules_digest() -> dict:
+    from ..manifest import sha256_file
+    return {name: sha256_file(live_run.project_path(path)) for name, path in (("v3", RULES_V3), ("v4", RULES_V4))}
+
+
+def season_levels_both(year: int, reference: np.ndarray, model, config, rules: dict) -> tuple:
+    """(days from 1 June, scored, {arm: levels}) of the v4 held-out season panel of `year`: the section 11 chain
+    (`hardening_dev.season_levels`) with each arm's rules. Reads risks only, never an event."""
+    from datetime import date as _date
+    from . import hardening_dev as hdv
+    from ..verify import heldout
+    panel = H.load_panel(alerts_dir(V4_SEASONS) / f"season_{year}_v4.npz")
+    heldout.check_cell_order(panel.cells["cell_id"].to_numpy(), reference, f"v4 season {year}")
+    first = panel.days.index(_date(year, 6, 1))
+    season = hdv.Season(year, panel, first, pd.DataFrame({"cell_id": np.zeros(0, dtype=np.int64), "date": pd.to_datetime([])}),
+                        lv.card_region_thresholds(model.card, panel.cells["region"]))
+    levels = {arm: hdv.season_levels(season, "new_hi", config, rules[arm])[:, first:] for arm in ARMS}
+    return list(panel.days[first:]), panel.scored[:, first:].copy(), levels
+
+
+def _inputs(cfg: dict):
+    from ..verify import heldout
+    config = load_alert_config(live_run.project_path(cfg["alert_config"]))
+    rules = {"v4_v3_rules": pr.load_rules(live_run.project_path(RULES_V3)),
+             "v4_v4_rules": pr.load_rules(live_run.project_path(RULES_V4))}
+    model = live_run.load_live_model(v4_cfg(cfg))
+    reference = H.load_panel(alerts_dir(H.HELDOUT_DIR) / H.HELDOUT_FILE).cells["cell_id"].to_numpy()
+    return heldout, config, rules, model, reference
+
+
+def run_preflight(cfg: dict, say=print) -> dict:
+    """Everything before the look, computing no outcome: both arms' levels on the pooled held-out panels, how many
+    cell-days they differ on, and the event assembly counted against the W1 facts (configs/hazard_v4.yaml `preflight`).
+    Writes data/processed/alerts/post_rules_v4_preflight.json."""
+    from ..config import load_config_file
+    heldout, config, rules, model, reference = _inputs(cfg)
+    facts = load_config_file(PROJECT_ROOT / V4_STUDY)["preflight"]
+    days, differ, scored_total, unscored = [], 0, 0, 0
+    per_year = {}
+    for year in bt.SEASON_YEARS:
+        say(f"season {year}: both arms")
+        season_days, scored, levels = season_levels_both(year, reference, model, config, rules)
+        n_diff = int((levels[ARMS[0]] != levels[ARMS[1]]).sum())
+        per_year[str(year)] = {"days": len(season_days), "scored_cell_days": int(scored.sum()),
+                               "unscored_cell_days": int((~scored).sum()), "differing_cell_days": n_diff}
+        days += season_days
+        differ += n_diff
+        scored_total += int(scored.sum())
+        unscored += int((~scored).sum())
+        del scored, levels
+    events = heldout.load_event_table(cfg)
+    events = events[pd.to_datetime(events["date"]).dt.year.isin(bt.SEASON_YEARS)]
+    kept, outside = heldout.events_on_days(events, days)
+    slides = int(len(np.unique(heldout.event_clusters(kept)))) if len(kept) else 0
+    checks = [{"name": "cells", "value": int(len(reference)), "expected": facts["cells"]},
+              {"name": "days", "value": len(days), "expected": facts["days"]},
+              {"name": "events", "value": int(len(kept)), "expected": facts["events"]},
+              {"name": "events_outside_panel_days", "value": int(outside), "expected": facts["events_outside_panel_days"]},
+              {"name": "distinct_slides", "value": slides, "expected": facts["distinct_slides"]}]
+    for c in checks:
+        c["passed"] = c["value"] == c["expected"]
+    result = {"created_utc": pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%dT%H:%M:%SZ"), "outcome_computed": False,
+              "arms": list(ARMS), "rules_sha256": _rules_digest(), "per_year": per_year, "scored_cell_days": scored_total,
+              "unscored_cell_days": unscored, "differing_cell_days": differ, "checks": checks,
+              "passed": all(c["passed"] for c in checks),
+              "look_informative": differ > 0,
+              "note": "no event is joined with a level here; the look is informative only when the arms differ somewhere"}
+    dump_json(alerts_dir("") / PREFLIGHT, result)
+    say(f"preflight: {'passed' if result['passed'] else 'FAILED'}; arms differ on {differ:,} cell-days "
+        f"({unscored:,} unscored cell-days in the pool)")
+    return result
+
+
+def decide(scores: dict) -> dict:
+    """The pre-declared criterion of spec 2026-11-13 section 3, literally: in both tolerances the candidate's
+    independent-slide detection at Watch+, Warning+ and Emergency is not lower than the incumbent's, and its Warning+
+    alert cell-days are not higher."""
+    from ..verify.report import TOLERANCES
+    conditions = []
+    for name in TOLERANCES:
+        entry = scores[name]
+        for level in (lv.WATCH, lv.WARNING, lv.EMERGENCY):
+            inc, cand = entry["v3"][level]["group_hits"], entry["candidate"][level]["group_hits"]
+            conditions.append({"tolerance": name, "condition": f"{lv.level_name(level)}+ detection", "incumbent": inc,
+                               "candidate": cand, "passed": cand >= inc})
+        change = entry["change"][lv.WARNING]["alert_cell_days_change"]
+        conditions.append({"tolerance": name, "condition": "Warning+ alert cell-days", "change": change, "passed": change <= 0})
+    failed = [f"{c['tolerance']}: {c['condition']}" for c in conditions if not c["passed"]]
+    return {"adopt": not failed, "conditions": conditions, "failed": failed}
+
+
+def run_heldout(cfg: dict, say=print) -> dict:
+    """The one look (spec section 3). Refuses without a passed, current preflight, when the arms never differ (the look
+    would spend the held-out set on identical levels), and when a result exists."""
+    from ..verify import operating_point as op
+    pre_path = alerts_dir("") / PREFLIGHT
+    if not pre_path.is_file():
+        raise FileNotFoundError(f"{pre_path} not found: run `preflight` first")
+    pre = json.loads(pre_path.read_text(encoding="utf-8"))
+    if not pre["passed"] or pre["rules_sha256"] != _rules_digest():
+        raise ValueError("the preflight did not pass or the rule files changed since; rerun `preflight`")
+    if not pre["look_informative"]:
+        raise ValueError("the two arms publish identical levels on every pooled held-out cell-day: the look is not taken "
+                         "(spec section 3, no-difference clause); the decision goes to the lead")
+    path = alerts_dir("") / HELDOUT
+    op.refuse_second_look(path)
+    op.refuse_second_look(PROJECT_ROOT / "reports" / f"{HELDOUT_STEM}.json")
+    heldout, config, rules, model, reference = _inputs(cfg)
+
+    def build():
+        days, scored, inc, cand = [], [], [], []
+        for year in bt.SEASON_YEARS:
+            say(f"held-out season {year}")
+            d, s, levels = season_levels_both(year, reference, model, config, rules)
+            days += d
+            scored.append(s)
+            inc.append(levels[ARMS[0]])
+            cand.append(levels[ARMS[1]])
+        events = heldout.load_event_table(cfg)
+        events = events[pd.to_datetime(events["date"]).dt.year.isin(bt.SEASON_YEARS)]
+        kept, outside = heldout.events_on_days(events, days)
+        return op.HeldOut(reference, days, np.concatenate(scored, axis=1), np.concatenate(inc, axis=1),
+                          np.concatenate(cand, axis=1), kept, outside)
+
+    scores = op.score_heldout(build(), op.BOOTSTRAP, None)
+    result = {"arms": {"v3": ARMS[0], "candidate": ARMS[1]}, "preflight": pre_path.name, "scores": scores,
+              "decision": decide(scores)}
+    text = json.dumps(jsonable_result(result), indent=2, allow_nan=False)
+    with open(path, "x", encoding="utf-8") as handle:
+        handle.write(text + "\n")
+    dump_json(PROJECT_ROOT / "reports" / f"{HELDOUT_STEM}.json", result)
+    say(f"decision: {'ADOPT' if result['decision']['adopt'] else 'do not adopt'} {result['decision']['failed']}")
+    return result
+
+
+def jsonable_result(value):
+    from ..hazard.jsonio import jsonable
+    return jsonable(value)
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m aetherguard.live.post_rules_v4", description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -301,6 +460,8 @@ def main(argv=None) -> int:
     analysis.add_argument("--force", action="store_true")
     report = sub.add_parser("report", help=f"reports/{REPORT_STEM}.{{json,md}}")
     report.add_argument("--out", type=Path, default=PROJECT_ROOT / "reports")
+    sub.add_parser("preflight", help="both arms on the held-out panels, the assembly checked, no outcome computed")
+    sub.add_parser("heldout", help="the one held-out look of spec 2026-11-13 (refuses without a passed preflight)")
     args = parser.parse_args(argv)
     cfg = live_run.load_run_config()
     say = lambda m: print(m, flush=True)
@@ -309,6 +470,10 @@ def main(argv=None) -> int:
             score_dev(args.years, cfg, args.out or alerts_dir(PANEL_DIR), say)
         elif args.command == "analyze-dev":
             analyze_dev(cfg, alerts_dir(PANEL_DIR), live_run.project_path(RULES_V4), say, args.force)
+        elif args.command == "preflight":
+            run_preflight(cfg, say)
+        elif args.command == "heldout":
+            run_heldout(cfg, say)
         else:
             write_report(cfg, args.out, say)
     except (live_run.LiveRunError, ValueError, OSError) as exc:

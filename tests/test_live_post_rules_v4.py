@@ -48,3 +48,28 @@ def test_the_report_renders_every_set_and_the_difference():
     text = P.markdown(result)
     assert "v4 with the v3 rules (live today)" in text and "-2.00 pp" in text and "| -1 |" in text
     assert "lead_uncertain_bound" in text and "—" not in text
+
+
+def _scores(inc, cand, change):
+    level = lambda hits: {k: {"group_hits": h} for k, h in zip((1, 2, 3), hits)}
+    entry = {"v3": level(inc), "candidate": level(cand), "change": {2: {"alert_cell_days_change": change}}}
+    return {"tolerant": entry, "cell_exact": entry}
+
+
+def test_the_criterion_needs_no_lost_slide_and_no_extra_warning_burden():
+    assert P.decide(_scores((85, 80, 70), (85, 80, 71), 0))["adopt"] is True
+    lost = P.decide(_scores((85, 80, 70), (85, 79, 72), -100))
+    assert lost["adopt"] is False and any("Warning+ detection" in f for f in lost["failed"])
+    assert P.decide(_scores((85, 80, 70), (85, 80, 70), 5))["adopt"] is False
+
+
+def test_no_look_when_the_arms_never_differ(tmp_path, monkeypatch):
+    import json
+    import pytest
+    monkeypatch.setattr(P, "alerts_dir", lambda name: tmp_path / name)
+    monkeypatch.setattr(P, "_rules_digest", lambda: {"v3": "a", "v4": "b"})
+    (tmp_path / P.PREFLIGHT).write_text(json.dumps({"passed": True, "rules_sha256": {"v3": "a", "v4": "b"},
+                                                    "look_informative": False}), encoding="utf-8")
+    with pytest.raises(ValueError, match="identical levels"):
+        P.run_heldout({}, print)
+    assert not (tmp_path / P.HELDOUT).exists()
