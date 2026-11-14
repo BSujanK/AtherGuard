@@ -1,0 +1,100 @@
+{
+  "created_utc": "2026-11-14T15:19:38Z",
+  "outcome_computed": false,
+  "arms": [
+    "v4_v3_rules",
+    "v4_v4_rules"
+  ],
+  "rules_sha256": {
+    "v3": "39fb051658d7ed51635c52d71c7fd000f441b3a3115017f2f5532e1fba128906",
+    "v4": "d82812a93775adede9d92f409438e8a82335f6bac2865353551e3fcbd28371a6"
+  },
+  "per_year": {
+    "2018": {
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "unscored_cell_days": 0,
+      "differing_cell_days": 0
+    },
+    "2019": {
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "unscored_cell_days": 0,
+      "differing_cell_days": 0
+    },
+    "2020": {
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "unscored_cell_days": 0,
+      "differing_cell_days": 0
+    },
+    "2021": {
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "unscored_cell_days": 0,
+      "differing_cell_days": 0
+    },
+    "2022": {
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "unscored_cell_days": 0,
+      "differing_cell_days": 0
+    },
+    "2023": {
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "unscored_cell_days": 0,
+      "differing_cell_days": 0
+    },
+    "2024": {
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "unscored_cell_days": 0,
+      "differing_cell_days": 0
+    },
+    "2025": {
+      "days": 214,
+      "scored_cell_days": 7873488,
+      "unscored_cell_days": 0,
+      "differing_cell_days": 0
+    }
+  },
+  "scored_cell_days": 62987904,
+  "unscored_cell_days": 0,
+  "differing_cell_days": 0,
+  "checks": [
+    {
+      "name": "cells",
+      "value": 36792,
+      "expected": 36792,
+      "passed": true
+    },
+    {
+      "name": "days",
+      "value": 1712,
+      "expected": 1712,
+      "passed": true
+    },
+    {
+      "name": "events",
+      "value": 92,
+      "expected": 92,
+      "passed": true
+    },
+    {
+      "name": "events_outside_panel_days",
+      "value": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "name": "distinct_slides",
+      "value": 87,
+      "expected": 87,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "look_informative": false,
+  "note": "no event is joined with a level here; the look is informative only when the arms differ somewhere"
+}

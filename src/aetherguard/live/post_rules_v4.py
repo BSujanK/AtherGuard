@@ -363,10 +363,11 @@ def run_preflight(cfg: dict, say=print) -> dict:
     events = heldout.load_event_table(cfg)
     events = events[pd.to_datetime(events["date"]).dt.year.isin(bt.SEASON_YEARS)]
     kept, outside = heldout.events_on_days(events, days)
-    slides = int(len(np.unique(heldout.event_clusters(kept)))) if len(kept) else 0
+    slides = int(heldout.distinct_events(kept)) if len(kept) else 0       # counted as the W1 report and v4_int count them
+    unique = kept.drop_duplicates(["cell_id", "date"])
     checks = [{"name": "cells", "value": int(len(reference)), "expected": facts["cells"]},
               {"name": "days", "value": len(days), "expected": facts["days"]},
-              {"name": "events", "value": int(len(kept)), "expected": facts["events"]},
+              {"name": "events", "value": int(len(unique)), "expected": facts["events"]},
               {"name": "events_outside_panel_days", "value": int(outside), "expected": facts["events_outside_panel_days"]},
               {"name": "distinct_slides", "value": slides, "expected": facts["distinct_slides"]}]
     for c in checks:
