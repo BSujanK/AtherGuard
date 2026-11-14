@@ -1,6 +1,6 @@
 # Antecedent wetness inputs and the combined model v5 (phase 8, W4): development
 
-**Status: seasons scored: 0 of 8.** Next: `python -m aetherguard.hazard.v4_combined seasons --config configs/hazard_v5.yaml`.
+**Status: READY FOR HELD-OUT LOOK.** Next: `python -m aetherguard.hazard.v4_combined heldout --config configs/hazard_v5.yaml`.
 
 Criteria fixed before any model result: `docs/superpowers/specs/2026-11-13-aetherguard-w4-wetness.md`. Development only (year-blocked CV 2007-2017, v3's folds and seeds); no 2018-2025 outcome was read for anything below.
 
@@ -96,7 +96,8 @@ v5 - C0 = -0.0241 [-0.0515, +0.0052]; v5 - v4 = -0.0058 [-0.0167, +0.0113]. Guar
 
 ## Seasons and preflight
 
-v5 season panels scored: 0 of 8 (no outcome read).
+v5 season panels scored: 8 of 8 (no outcome read).
+Preflight passed: 54 of 54 checks. It computes no outcome.
 
 ## Caveats
 

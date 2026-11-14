@@ -1,8 +1,8 @@
 {
-  "created_utc": "2026-11-14T10:06:00Z",
+  "created_utc": "2026-11-14T15:05:28Z",
   "spec": "docs/superpowers/specs/2026-11-13-aetherguard-w4-wetness.md",
-  "status": "seasons scored: 0 of 8",
-  "next": "python -m aetherguard.hazard.v4_combined seasons --config configs/hazard_v5.yaml",
+  "status": "READY FOR HELD-OUT LOOK",
+  "next": "python -m aetherguard.hazard.v4_combined heldout --config configs/hazard_v5.yaml",
   "probe": {
     "choice": "iwet: bucket water balance on the IMERG Late store, lag 2 IMD days",
     "candidates": [
@@ -1808,7 +1808,13 @@
     "model_dir": "v5",
     "seconds": 188.93270929999994
   },
-  "seasons_scored": 0,
-  "preflight": null,
+  "seasons_scored": 8,
+  "preflight": {
+    "passed": true,
+    "checks": 54,
+    "failed": [],
+    "peak_memory_mb": 4592.515625,
+    "events_sha256": "6b1afcaeb01c89a897ff3d8a7a29aa0bb0fbb615131f1d14d8adad5d93b35571"
+  },
   "heldout_decision": null
 }
