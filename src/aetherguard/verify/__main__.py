@@ -8,7 +8,7 @@ from pathlib import Path
 
 from ..config import PROJECT_ROOT
 from ..live import run as live_run
-from . import assembly, geocode, heldout, inventory, ledger, open_sources, operating_point, report, seasons
+from . import assembly, geocode, harvest, heldout, inventory, ledger, open_sources, operating_point, report, seasons
 from .geocode import GeocodeError
 
 
@@ -38,6 +38,11 @@ def main(argv=None) -> int:
     asm = sub.add_parser("assembly", help="held-out assembly v2: rule QA records, freeze, or the expansion report")
     asm.add_argument("action", choices=("qa", "freeze", "report"))
     asm.add_argument("--out", type=Path, default=PROJECT_ROOT / "reports", help="report directory (default reports/)")
+    crop = sub.add_parser("harvest", help="GDELT landslide reports of a date range as a review queue (never admitted)")
+    crop.add_argument("--start", type=date.fromisoformat, required=True, help="YYYY-MM-DD (UTC day of the first query)")
+    crop.add_argument("--end", type=date.fromisoformat, required=True, help="YYYY-MM-DD (UTC day of the last query)")
+    crop.add_argument("--out", type=Path, required=True, help="queue directory (keep it out of reported_events/)")
+    crop.add_argument("--bipad", action="store_true", help="add the local BIPAD Nepal register rows of the range")
     held = sub.add_parser("seasons", help="score June-December of the held-out years with the frozen model (training-style features)")
     held.add_argument("--years", type=seasons.parse_years, default=seasons.parse_years("2018-2025"), help="YYYY or YYYY-YYYY (default 2018-2025)")
     held.add_argument("--out", type=Path, default=None, help="panel directory (default data/processed/alerts/heldout_seasons)")
@@ -52,6 +57,12 @@ def main(argv=None) -> int:
             report.write_baseline(args.out, say)
         elif args.command == "heldout":
             heldout.write_heldout(args.out, say, args.assembly, args.stem)
+        elif args.command == "harvest":
+            if ledger.REPORTED_DIR.resolve() in [args.out.resolve(), *args.out.resolve().parents]:
+                raise ValueError("the review queue must not be written into reported_events/")
+            harvest.harvest(args.start, args.end, args.out, geocode.load_places(), universe=harvest.universe_set(),
+                            bipad_csv=(open_sources.source_dir(open_sources.BIPAD) / inventory.QA_DIR / inventory.COMBINED_NAME
+                                       if args.bipad else None), say=say)
         elif args.command == "sources":
             (open_sources.FETCHERS if args.action == "fetch" else open_sources.NORMALISERS)[args.source](say=say)
         elif args.command == "assembly":
