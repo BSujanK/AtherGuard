@@ -485,7 +485,9 @@ def terrain_summary(frame: pd.DataFrame) -> dict:
 
 # ------------------------------------------------------------------------------------------------------- run
 
-def run(directory: Path, cfg: dict, write_rules: Path | None, say=print) -> dict:
+def run(directory: Path, cfg: dict, write_rules: Path | None, say=print, model_text: str | None = None) -> dict:
+    """Choose the rules on the panels of `directory`; the levels use the card of the model `cfg["model_config"]` names.
+    `model_text` describes the models that scored the panels (default: the v3-live fold models)."""
     started = time.perf_counter()
     model = live_run.load_live_model(cfg)
     config = load_alert_config(live_run.project_path(cfg["alert_config"]))
@@ -538,7 +540,7 @@ def run(directory: Path, cfg: dict, write_rules: Path | None, say=print) -> dict
 
     analysis = {
         "protocol": {"period": "06-01 to 09-30 of 2007-2017 (train + validation years)", "panels": hm.display_path(directory),
-                     "model": burden.BASES["oof"]["model"], "alert_config": cfg["alert_config"],
+                     "model": model_text or burden.BASES["oof"]["model"], "alert_config": cfg["alert_config"],
                      "universe_cells": universe_cells, "note": "chosen on development years only; test_2018, the 2023 "
                      "window, Wayanad 2024 and the live days are not read"},
         "events": {"in_season": int(len(events)), "in_panel_cells": int(sum(len(s.events) for s in seasons))},

@@ -14,7 +14,9 @@ Every row of `alerts.parquet` (lead 0) and of `risk_D1..3.parquet` (the forecast
               at a gated level on its own raw level, and a hold at a gated level needs rain within the hold window;
   blind_hold  with a blind-hold limit H: a cell without a score is held above its raw level for at most H consecutive
               days without a score, then at most one level lower per further such day, and carries `held_while_blind`;
-  confidence  Degraded and Insufficient carry at least one cause, High none;
+  confidence  Degraded and Insufficient carry at least one cause, High none; at lead 0, for a day whose run.json records
+              `second_opinion`, the state and the source causes are re-derived from features_D0 and the row's station
+              counts (`rederive_confidence`) and must match;
   forecast_confidence  a forecast-lead row is never High (High states that the rain sources of the day agree, and a
               future day has no observation);
   certainty   a forecast-lead row with a score is `firm` or `depends_on_forecast` and has none without one; `level_min <=
@@ -167,6 +169,78 @@ def check_confidence(table: pd.DataFrame, found: Findings) -> None:
     bad = unknown | ((state == "High") & has_cause) | (np.isin(state, CONFIDENCE[1:]) & ~has_cause)
     why = ["unknown confidence state" if u else "High with a cause" if s == "High" else f"{s} without a cause"
            for u, s in zip(unknown, state)]
+    found.add("confidence", bad, table, why)
+
+
+SOURCE_CAUSES = ("no_valid_source", "imd_missing", "chirps_missing", "sources_disagree")
+DEGRADING_CAUSES = ("ensemble_disagrees", "nowcast_tail_persisted")     # added after the engine; they cap High at Degraded
+INSUFFICIENT_CAUSES = ("model_input_missing",)                          # added after the engine; the row is Insufficient
+
+
+def rederive_confidence(table: pd.DataFrame, features: pd.DataFrame, parameters: dict) -> tuple[np.ndarray, list[set]]:
+    """(the confidence state, the source causes) of each lead-0 row, derived again from the stored alert inputs.
+
+    Independent of the engine's code: the second opinion is read from the check columns (`chk_imd_acc_1`,
+    `chk_dis_ratio_3`) when features_D0 has them, else from day D's `src_*` columns; the satellite source is `src_chi_acc_1`;
+    a trusted station agrees when |integ_trw_rain_1 - rain_acc_1| <= max(agree_abs_mm, agree_rel x the larger); the
+    station counts are the row's `n_stations`, `n_trusted`, `n_flagged_7d`, `n_ood_stations`. The causes added after the
+    engine (DEGRADING_CAUSES, INSUFFICIENT_CAUSES) are taken from the published row."""
+    joined = features.drop_duplicates("cell_id").set_index("cell_id").reindex(table["cell_id"].to_numpy())
+    col = lambda name: (joined[name].to_numpy(dtype=np.float64) if name in joined.columns
+                        else np.full(len(table), np.nan))
+    check = "chk_imd_acc_1" in joined.columns
+    imd = np.isfinite(col("chk_imd_acc_1" if check else "src_imd_acc_1"))
+    ratio = col("chk_dis_ratio_3" if check else "src_dis_ratio_3")
+    sat = np.isfinite(col("src_chi_acc_1"))
+    any_source, both = imd | sat, imd & sat
+    with np.errstate(invalid="ignore"):
+        disagree = both & ((ratio < parameters["dis_ratio_lo"]) | (ratio > parameters["dis_ratio_hi"]))
+        station, grid = col("integ_trw_rain_1"), col("rain_acc_1")
+        tolerance = np.maximum(parameters["agree_abs_mm"], parameters["agree_rel"] * np.fmax(station, grid))
+        agrees = np.isfinite(station) & np.isfinite(grid) & (np.abs(station - grid) <= tolerance)
+    number = lambda name: table[name].fillna(0).to_numpy(dtype=np.int64) if name in table.columns else np.zeros(len(table), int)
+    untrusted = (number("n_stations") >= 1) & (number("n_trusted") == 0)
+    problem = (number("n_flagged_7d") > 0) | (number("n_ood_stations") > 0)
+    insufficient = ~any_source | (untrusted & disagree)
+    high = ~insufficient & ~problem & ((both & ~disagree) | agrees)
+    published = [set(_codes(c)) for c in table["confidence_causes"]]
+    state = np.where(insufficient | np.array([bool(p & set(INSUFFICIENT_CAUSES)) for p in published]), CONFIDENCE[2],
+                     np.where(~high | np.array([bool(p & set(DEGRADING_CAUSES)) for p in published]), CONFIDENCE[1],
+                              CONFIDENCE[0]))
+    causes = []
+    for i in range(len(table)):
+        expected = set()
+        if not high[i]:
+            expected |= {"no_valid_source"} if not any_source[i] else set()
+            expected |= {"imd_missing"} if any_source[i] and not imd[i] else set()
+            expected |= {"chirps_missing"} if any_source[i] and not sat[i] else set()
+            expected |= {"sources_disagree"} if disagree[i] else set()
+        causes.append(expected)
+    return state, causes
+
+
+def check_confidence_rederived(table: pd.DataFrame, features: pd.DataFrame | None, parameters: dict | None,
+                               found: Findings) -> None:
+    """Lead 0: the published confidence and its source causes are those re-derived from the stored inputs
+    (`rederive_confidence`), with the parameters run.json `second_opinion` records. Skipped, with a note, for a day
+    published before that record existed or without features_D0."""
+    if features is None or not parameters:
+        found.notes.append("confidence not re-derived: no features_D0 or no second_opinion parameters in run.json "
+                           "(a day published before the check was recorded)")
+        return
+    state, causes = rederive_confidence(table, features, parameters)
+    published_state = table["confidence"].to_numpy(dtype=object)
+    published = [set(_codes(c)) & set(SOURCE_CAUSES) for c in table["confidence_causes"]]
+    why = [""] * len(table)
+    bad = np.zeros(len(table), dtype=bool)
+    for i in range(len(table)):
+        problems = []
+        if published_state[i] != state[i]:
+            problems.append(f"confidence {published_state[i]} where the stored inputs re-derived give {state[i]}")
+        if published[i] != causes[i]:
+            problems.append(f"source causes {sorted(published[i])} where the stored inputs re-derived give {sorted(causes[i])}")
+        if problems:
+            bad[i], why[i] = True, "; ".join(problems)
     found.add("confidence", bad, table, why)
 
 
@@ -472,9 +546,11 @@ def _optional(path: Path | None, label: str, found_list: list[Findings], reader)
 
 
 def integrity_checks(run_dir: Path, day: date, risk_tables: dict[str, pd.DataFrame], founds: dict[str, Findings],
-                     features: dict[int, pd.DataFrame], context: AuditContext, split: bool = False) -> dict[str, Findings]:
+                     features: dict[int, pd.DataFrame], context: AuditContext, split: bool = False,
+                     check_day: date | None = None) -> dict[str, Findings]:
     """The integrity checks (module doc) over the risk tables `risk_tables` ({name: table}, `alerts` first) and the
-    features tables `features` ({lead: table}); returns the Findings of the features tables."""
+    features tables `features` ({lead: table}); returns the Findings of the features tables. `check_day` is the
+    second-opinion day of run.json, whose grid `chk_imd_acc_1` must sample like `src_imd_acc_1` samples day D's."""
     lead_of = {"alerts": 0, **{f"risk_D{k}": k for k in range(4)}}
     feature_founds = {f"features_D{k}": Findings(len(t)) for k, t in features.items()}
     base = _optional(context.basemap, "base map", [*founds.values(), *feature_founds.values()], audit_geo.load_basemap)
@@ -504,6 +580,9 @@ def integrity_checks(run_dir: Path, day: date, risk_tables: dict[str, pd.DataFra
             audit_geo.check_georef_terrain(table, base, found)
         if lead == 0 and day_grid is not None:
             audit_geo.check_imd_sampling(table, day_grid, context.imd_lon_offset_columns, found)
+        if lead == 0 and check_day is not None:
+            audit_geo.check_imd_sampling(table, _imd_grid_of(run_dir, check_day), context.imd_lon_offset_columns, found,
+                                         column="chk_imd_acc_1")
     audit_math.check_cell_sets({**risk_tables, **{n: features[int(n[-1])] for n in feature_founds}},
                                {**founds, **feature_founds})
     audit_math.check_rain_chain(features, {k: feature_founds[f"features_D{k}"] for k in features})
@@ -562,6 +641,8 @@ def audit_day(run_dir: Path, rules: pr.PostRules, summary: dict | None = None, c
     history = pr.previous_rain_ok(run_dir.parent, day, longest - 1, rules) if rules.gates and longest > 1 else None
     previous = previous_alerts(run_dir.parent, day, 30)
     tables["alerts"] = audit_table(alerts, 0, thresholds, rules, features.get(0), history, previous)
+    opinion = summary.get("second_opinion") or {}
+    check_confidence_rederived(alerts.reset_index(drop=True), features.get(0), opinion.get("parameters"), tables["alerts"])
     d0 = _read(run_dir, "risk_D0.parquet")
     if d0 is not None:
         found = Findings(len(alerts))
@@ -574,7 +655,8 @@ def audit_day(run_dir: Path, rules: pr.PostRules, summary: dict | None = None, c
             continue
         tables[f"risk_D{lead}"] = audit_table(table, lead, run_thresholds(summary, lead), rules, features.get(lead), None)
         risk_tables[f"risk_D{lead}"] = table
-    feature_tables = integrity_checks(run_dir, day, risk_tables, tables, features, context, split_models(summary))
+    check_day = date.fromisoformat(opinion["check_day"]) if opinion.get("check_day") else None
+    feature_tables = integrity_checks(run_dir, day, risk_tables, tables, features, context, split_models(summary), check_day)
     extra = {"rescore": rescore_checks(risk_tables, tables, features, context, summary, rules)} if context.rescore else {}
     everyone = {**tables, **feature_tables}
     totals = {name: sum(t.counts[name] for t in everyone.values()) for name in CHECKS}

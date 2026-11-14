@@ -13,7 +13,17 @@ Confidence
   Degraded      everything else: a rain source missing or strong disagreement with no agreeing trusted station,
                 nearby flagged stations, or a nearby out-of-distribution station.
 Causes are listed only for Degraded and Insufficient rows: a High row (for example strong source disagreement that an
-agreeing trusted station overrides) carries none. A trusted station "agrees" when |station - grid| <= max(agree_abs_mm, agree_rel x the larger of the two) on day D
+agreeing trusted station overrides) carries none.
+
+Second opinion of the newest due IMD day (live runs). The IMD real-time grid of day D is published about a day after D
+ends, so at the 11:00 IST run it never exists and the day-D columns `src_imd_acc_*` are NaN by construction. A frame
+that carries the check columns `chk_imd_acc_1` and `chk_dis_ratio_3` (the same `source_block` quantities over the 3-day
+window ending on the newest IMD day that is due by the run time under the source's declared latency, normally D-1,
+`live.run.second_opinion`) is judged on them instead: the IMD source is valid when that day has a value
+(`chk_imd_acc_1`), and the sources disagree when `chk_dis_ratio_3` is outside the development range. A source that
+arrives inside its declared latency is therefore not a degradation; `imd_missing` means IMD is later than that latency
+(no due day arrived) or has no value for the cell. The satellite source (`src_chi_acc_1`, the model's own rain of day
+D) and the heavy-rain test below stay on day D. Without the check columns (replay sets, the v2 store) nothing changes. A trusted station "agrees" when |station - grid| <= max(agree_abs_mm, agree_rel x the larger of the two) on day D
 (`integ_trw_rain_1` is the trust-weighted mean of the usable, i.e. unflagged, stations; `rain_acc_1` is the grid).
 
 Blind escalation (no silent Normal when blind): confidence Insufficient or Degraded AND ANY independent source shows
@@ -38,6 +48,16 @@ BLIND_SENSORS = "sensors_untrusted_heavy_rain"
 REQUIRED = ["src_imd_acc_1", "src_chi_acc_1", "src_dis_ratio_3", "rain_acc_1"]
 OPTIONAL = ["src_imd_acc_3", "src_chi_acc_3", "integ_n_st_100km", "integ_frac_trusted_100km", "integ_trw_rain_1",
             "integ_trw_rain_3", "integ_max_st_rain_1_100km", "integ_n_flagged_100km_7d"]
+CHECK_IMD, CHECK_RATIO = "chk_imd_acc_1", "chk_dis_ratio_3"     # the second opinion of the newest due IMD day (module doc)
+
+
+def second_opinion_columns(frame: pd.DataFrame) -> tuple[str, str]:
+    """(the IMD column, the ratio column) the source test reads: the check columns when the frame has them, else day D's."""
+    if CHECK_IMD not in frame.columns:
+        return "src_imd_acc_1", "src_dis_ratio_3"
+    if CHECK_RATIO not in frame.columns:
+        raise ValueError(f"feature frame has {CHECK_IMD} but lacks {CHECK_RATIO}")
+    return CHECK_IMD, CHECK_RATIO
 
 
 def _col(frame: pd.DataFrame, name: str) -> np.ndarray:
@@ -67,9 +87,10 @@ def assess(frame: pd.DataFrame, n_ood, config: AlertConfig) -> pd.DataFrame:
     if n_ood.shape != (n,):
         raise ValueError("n_ood must have one entry per row")
     c = {name: _col(frame, name) for name in REQUIRED + OPTIONAL}
-    imd_valid, chirps_valid = np.isfinite(c["src_imd_acc_1"]), np.isfinite(c["src_chi_acc_1"])
+    imd_column, ratio_column = second_opinion_columns(frame)
+    imd_valid, chirps_valid = np.isfinite(_col(frame, imd_column)), np.isfinite(c["src_chi_acc_1"])
     any_source, both = imd_valid | chirps_valid, imd_valid & chirps_valid
-    ratio = c["src_dis_ratio_3"]
+    ratio = _col(frame, ratio_column)
     with np.errstate(invalid="ignore"):
         disagree = both & ((ratio < config.dis_ratio_lo) | (ratio > config.dis_ratio_hi))
     n_st = np.nan_to_num(c["integ_n_st_100km"], nan=0.0)

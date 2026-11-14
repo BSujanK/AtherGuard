@@ -56,6 +56,47 @@ def sources_table(summary: dict) -> list[str]:
     return lines
 
 
+MONTH_NAMES = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+               "November", "December")
+
+
+def months_label(months) -> str:
+    months = sorted(int(m) for m in months)
+    if months == list(range(months[0], months[-1] + 1)):
+        return f"{MONTH_NAMES[months[0] - 1]}-{MONTH_NAMES[months[-1] - 1]}" if len(months) > 1 else MONTH_NAMES[months[0] - 1]
+    return ", ".join(MONTH_NAMES[m - 1] for m in months)
+
+
+def season_lines(summary: dict) -> list[str]:
+    """The flag of the leads dated outside the declared season of validity (`live.season`); none when every lead is inside
+    or the summary predates the record."""
+    record = summary.get("season_of_validity")
+    if not record or not record["any_outside"]:
+        return []
+    flagged = ["D" if k == "0" else f"D+{k}" for k, out in sorted(record["leads"].items()) if out]
+    return [f"**Outside the validated season ({months_label(record['months'])})**: {', '.join(flagged)}. The alert chain "
+            "(post-model rules, alert parameters) was developed on June-September and evaluated on June-December; these "
+            "alerts are published unchanged and should be read as outside the validated season "
+            f"(`{record['flag']}`, {record['source']}).", ""]
+
+
+def second_opinion_line(summary: dict) -> list[str]:
+    """Which IMD real-time days the confidence check compared with IMERG; a summary from before the check had a record has
+    no line."""
+    record = summary.get("second_opinion")
+    if not record:
+        return []
+    due = f"the day due under its declared {record['latency_h']:g} h latency is {record['due_day']}"
+    if record["check_day"] is None:
+        why = "later than its declared latency" if record["state"] == "late" else "no file at all"
+        return [f"Second opinion (IMD real-time against IMERG, used for confidence): none ({why}; {due}); every cell "
+                "carries `imd_missing`.", ""]
+    lag = "D" if record["lag_days"] == 0 else f"D-{record['lag_days']}"
+    return [f"Second opinion (IMD real-time against IMERG, used for confidence): check day {record['check_day']} ({lag}), "
+            f"3-day window {record['window'][0]} to {record['window'][1]} (files present: "
+            f"{', '.join(record['days_present']) or 'none'}); {due}, so the source is on time.", ""]
+
+
 def failed_section(summary: dict) -> list[str]:
     """The explicit failed / missing list; every entry says what the run did without it."""
     items = []
@@ -218,10 +259,10 @@ def render(summary: dict, places: dict[int, str] | None = None) -> str:
              f"Watch {summary['model']['thresholds']['watch']:.3g}, Warning {summary['model']['thresholds']['warning']:.3g}, "
              f"Emergency {summary['model']['thresholds']['emergency']:.3g} (source: {summary['model']['thresholds']['source']})."
              f"{_region_thresholds(summary['model'].get('thresholds_by_region'))}", "",
-             cell_set_line(summary["cell_set"]), "",
+             *season_lines(summary), cell_set_line(summary["cell_set"]), "",
              f"Cells scored for D: {lead0['n_scored']} of {lead0['n_cells']}; Watch or above: "
              f"{lead0['n_cells'] - lead0['levels']['Normal']}; blind-rule checks that applied: {lead0['n_blind']}.", "",
-             "## Sources", "", *sources_table(summary), "",
+             "## Sources", "", *sources_table(summary), "", *second_opinion_line(summary),
              "## Rain behind the last two IMD days", "",
              "| IMD day | UTC day weighted 0.875 | part weighted 0.125 | product |", "|---|---|---|---|"]
     for label in ("D", "D-1"):

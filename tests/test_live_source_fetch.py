@@ -398,9 +398,28 @@ def test_imd_backtest_only_reads_days_published_before_the_cutoff(tmp_path):
     calls = []
     source = H.imd_source(H.imd_post(calls=calls))
     status = source.fetch(S.make_context(H.DAY, H.make_cfg(tmp_path), H.NOW, True))
-    # IMD day d is published about 24 h after 03:00 UTC of d: day D is not there at 11:00 IST of D, D-1 is
+    # IMD day d is published about 24 h after 03:00 UTC of d: day D is not there at 11:00 IST of D, D-1 is, and D-1 is
+    # the newest day due by then, so the source is on time
     assert sorted(calls) == [H.DAY - timedelta(days=2), H.DAY - timedelta(days=1)]
-    assert not status.ok and status.usable and "no file for IMD day" in status.error
+    assert status.ok and status.error is None and status.valid_through == S.imd_day_end(H.DAY - timedelta(days=1))
+
+
+def test_the_newest_due_imd_day_follows_the_declared_latency():
+    assert S.imd_due_day(H.DAY, H.NOW, 24) == H.DAY - timedelta(days=1)            # 11:00 IST: D-1 is due, D is not
+    assert S.imd_due_day(H.DAY, S.imd_day_end(H.DAY) + timedelta(hours=24), 24) == H.DAY
+    assert S.imd_due_day(H.DAY, H.NOW, 2) == H.DAY                                   # a 2 h latency: D is due at 05:30 UTC
+    assert S.imd_due_day(H.DAY, H.NOW, 60) == H.DAY - timedelta(days=3)
+
+
+def test_imd_inside_its_latency_is_on_time_and_later_than_it_is_not(tmp_path):
+    cfg = H.make_cfg(tmp_path)
+    not_today = lambda day, timeout: None if day == H.DAY else H.imd_grid_bytes()
+    status = H.imd_source(not_today).fetch(S.make_context(H.DAY, cfg, H.NOW, False))
+    assert status.ok and status.error is None and S.source_state(status, H.DAY, cfg) == "ok"
+    behind = lambda day, timeout: None if day >= H.DAY - timedelta(days=1) else H.imd_grid_bytes()
+    late = H.imd_source(behind).fetch(S.make_context(H.DAY, H.make_cfg(tmp_path / "late"), H.NOW, False))
+    assert late.usable and not late.ok and "later than its declared latency" in late.error
+    assert S.source_state(late, H.DAY, cfg) == "late"
 
 
 # ---- GHCN ----------------------------------------------------------------------------------------------------------
@@ -449,9 +468,10 @@ def test_freshness_states_and_expectations(tmp_path):
     day = H.DAY
     assert S.expected_valid_through("imerg_late", day, cfg) == S.utc_day_end(day - timedelta(days=2))
     assert S.expected_valid_through("imerg_early", day, cfg) == S.utc_day_end(day - timedelta(days=1))
-    assert S.expected_valid_through("imd_rt", day, cfg) == S.imd_day_end(day)
-    on_time = S.SourceStatus("imd_rt", True, S.imd_day_end(day), H.NOW, 2.0, None)
-    behind = S.SourceStatus("imd_rt", True, S.imd_day_end(day - timedelta(days=1)), H.NOW, 26.0, None)
+    # the IMD real-time day due by the scheduled run under its declared latency (24 h): D-1 at 11:00 IST
+    assert S.expected_valid_through("imd_rt", day, cfg) == S.imd_day_end(day - timedelta(days=1))
+    on_time = S.SourceStatus("imd_rt", True, S.imd_day_end(day - timedelta(days=1)), H.NOW, 26.0, None)
+    behind = S.SourceStatus("imd_rt", True, S.imd_day_end(day - timedelta(days=2)), H.NOW, 50.0, None)
     assert S.source_state(on_time, day, cfg) == "ok" and S.source_state(behind, day, cfg) == "late"
     assert S.source_state(S.failed("imd_rt", "x"), day, cfg) == "failed"
     record = S.freshness_record(day, cfg, {"imd_rt": on_time}, H.NOW, True, {"D": {}})

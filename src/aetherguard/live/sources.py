@@ -91,6 +91,16 @@ def imd_day_end(day: date) -> datetime:
     return datetime.combine(day, clock(3), tzinfo=UTC)
 
 
+def imd_due_day(day: date, at: datetime, latency_h: float) -> date:
+    """The newest IMD day (at most `day`) whose file is due by the instant `at` under a declared publication latency of
+    `latency_h` hours after the day ends: the day the second opinion can be expected for. At the 11:00 IST run with the
+    24 h latency of the real-time grid this is D-1."""
+    due = day
+    while imd_day_end(due) + timedelta(hours=latency_h) > at:
+        due -= timedelta(days=1)
+    return due
+
+
 def project_path(value: str | Path) -> Path:
     path = Path(value)
     return path if path.is_absolute() else PROJECT_ROOT / path
@@ -562,6 +572,11 @@ class ImdRealtimeSource:
     The server is slow and flaky, so each request has a timeout, a failed transport stops further requests of the
     run, and every file received is cached under `raw/imd_rt/` (days are looked up in the raw folders of the
     neighbouring runs first, so a daily run asks for one new file).
+
+    The file of day d is published about `latency_h` hours after d ends, so at the 11:00 IST run day D is normally not
+    there yet. The source is on time (`ok`) when it delivered the newest day due by the run under that declared latency
+    (`imd_due_day`, D-1 at 11:00 IST); day D is requested too and used when it is already there. Later than that it is
+    reported late, with the day that was due.
     """
 
     name = "imd_rt"
@@ -623,8 +638,10 @@ class ImdRealtimeSource:
         newest = max(self.grids)
         valid_through = imd_day_end(newest)
         issued = min(self.issue_time(newest), ctx.now)
-        ok = ctx.day in self.grids
-        error = None if ok else (problem or f"IMD real-time has no file for IMD day {ctx.day} yet; newest {newest}")
+        due = imd_due_day(ctx.day, ctx.horizon, self.latency_h)
+        ok = newest >= due            # inside its declared latency a missing day D is not a delay
+        error = None if ok else (problem or f"IMD real-time later than its declared latency of {self.latency_h:g} h: no "
+                                            f"file for IMD day {due} (due {self.issue_time(due).isoformat()}); newest {newest}")
         return SourceStatus(self.name, ok, valid_through, issued, hours_between(valid_through, issued), error)
 
     def load(self, ctx: FetchContext) -> dict[date, np.ndarray]:
@@ -804,12 +821,14 @@ def fetch_all(day: date, cfg: dict, *, sources: dict[str, Source] | None = None,
 # ------------------------------------------------------------------------------------------------------ freshness
 
 def expected_valid_through(name: str, day: date, cfg: dict) -> datetime:
-    """Where a source's data should end on the run morning of `day` for the source to count as on time."""
+    """Where a source's data should end on the run morning of `day` for the source to count as on time. For the IMD
+    real-time grid that is the newest IMD day due by the scheduled run time under its declared latency (`imd_due_day`):
+    a day still inside its latency is not late."""
     return {"imerg_late": lambda: utc_day_end(day - timedelta(days=2)),
             "imerg_early": lambda: utc_day_end(day - timedelta(days=1)),
             "gfs": lambda: imd_day_end(day + timedelta(days=3)),
             "ecmwf": lambda: imd_day_end(day + timedelta(days=3)),
-            "imd_rt": lambda: imd_day_end(day),
+            "imd_rt": lambda: imd_day_end(imd_due_day(day, cutoff_utc(day, cfg), float(cfg["imd_rt"]["latency_h"]))),
             "ghcn": lambda: utc_day_end(day - timedelta(days=int(cfg["ghcn"]["expected_lag_days"])))}[name]()
 
 

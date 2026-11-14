@@ -125,3 +125,50 @@ def test_missing_required_columns_and_misaligned_n_ood_are_errors():
         cf.assess(frame.drop(columns=["src_dis_ratio_3"]), np.zeros(1, dtype=int), CONFIG)
     with pytest.raises(ValueError, match="n_ood"):
         cf.assess(frame, np.zeros(3, dtype=int), CONFIG)
+
+
+# ------------------------------------------------------------------- second opinion of the newest due IMD day (live)
+
+# The live run's IMD real-time file of day D is published about a day after D ends, so at the 11:00 IST run the second
+# opinion is the newest IMD day that is due by then (normally D-1): the `chk_` columns hold that day's comparison.
+TODAY_NOT_OUT = {"src_imd_acc_1": NAN, "src_imd_acc_3": NAN, "src_dis_ratio_3": NAN}
+CHECK = {"chk_imd_acc_1": 4.0, "chk_imd_acc_3": 8.0, "chk_chi_acc_1": 4.5, "chk_chi_acc_3": 8.5, "chk_dis_ratio_3": 1.0,
+         "chk_lag_days": 1.0, **NO_STATION}
+
+
+def test_the_newest_due_imd_day_agreeing_gives_high_although_day_d_is_not_published_yet():
+    out = assess([{**TODAY_NOT_OUT, **CHECK}])
+    assert out["confidence"].tolist() == [cf.HIGH] and out["causes"].tolist() == [""]
+    assert bool(out["imd_valid"].iloc[0])
+
+
+def test_without_a_due_imd_day_the_second_opinion_is_missing():
+    out = assess([{**TODAY_NOT_OUT, **CHECK, "chk_imd_acc_1": NAN, "chk_imd_acc_3": NAN, "chk_dis_ratio_3": NAN,
+                   "chk_lag_days": NAN}])
+    assert out["confidence"].tolist() == [cf.DEGRADED] and out["causes"].tolist() == ["imd_missing"]
+
+
+def test_a_disagreeing_check_window_degrades():
+    out = assess([{**TODAY_NOT_OUT, **CHECK, "chk_dis_ratio_3": 30.0}, {**TODAY_NOT_OUT, **CHECK, "chk_dis_ratio_3": 0.05}])
+    assert out["confidence"].tolist() == [cf.DEGRADED, cf.DEGRADED]
+    assert out["causes"].tolist() == ["sources_disagree", "sources_disagree"]
+
+
+def test_the_check_columns_decide_the_source_test_and_the_heavy_rain_test_stays_on_day_d():
+    # day D's own ratio is ignored once the check columns exist; the satellite of day D still has to be valid
+    agree = assess([{**CHECK, "src_dis_ratio_3": 30.0}])
+    no_satellite = assess([{**CHECK, "src_chi_acc_1": NAN, "src_chi_acc_3": NAN}])
+    assert agree["confidence"].tolist() == [cf.HIGH]
+    assert no_satellite["confidence"].tolist() == [cf.DEGRADED] and no_satellite["causes"].tolist() == ["chirps_missing"]
+    # heavy rain on day D (satellite) with a disagreeing check window: blind, from the day-D evidence
+    heavy = assess([{**TODAY_NOT_OUT, **CHECK, "chk_dis_ratio_3": 30.0, "src_chi_acc_1": 90.0, "rain_acc_1": 90.0}])
+    assert heavy["blind"].tolist() == [True] and heavy["blind_codes"].tolist() == [cf.BLIND_SOURCES]
+    # heavy rain only on the check day (IMD of D-1) does not escalate by itself
+    old_heavy = assess([{**TODAY_NOT_OUT, **CHECK, "chk_dis_ratio_3": 30.0, "chk_imd_acc_1": 90.0}])
+    assert old_heavy["blind"].tolist() == [False]
+
+
+def test_check_columns_need_their_ratio():
+    frame = feature_rows([{**CHECK}]).drop(columns=["chk_dis_ratio_3"])
+    with pytest.raises(ValueError, match="chk_dis_ratio_3"):
+        cf.assess(frame, np.zeros(1, dtype=int), CONFIG)

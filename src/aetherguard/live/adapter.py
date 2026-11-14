@@ -75,13 +75,36 @@ def imerg_cell_series(store, cell_ids, day: date, length: int = SOURCE_WINDOW) -
     return out
 
 
+CHECK_PREFIX = "chk_"
+CHECK_LAG = "chk_lag_days"
+
+
+def check_columns(grids: dict[date, np.ndarray], imerg_store, cell_ids, day: date, check_day: date | None,
+                  lon_offset_columns: int = 0) -> dict[str, np.ndarray]:
+    """The second-opinion check columns (`alerts.confidence`, module doc): `source_block` of the IMD real-time and IMERG
+    IMD-day series ending on `check_day` (the newest IMD day due by the run, `run.second_opinion`), prefixed `chk_`,
+    plus `chk_lag_days` = D - check day. Every column is NaN when there is no check day (IMD later than its latency)."""
+    n = len(np.asarray(cell_ids))
+    if check_day is None:
+        names = [f"{CHECK_PREFIX}{k}" for k in source_block(np.full((1, SOURCE_WINDOW), np.nan),
+                                                            np.full((1, SOURCE_WINDOW), np.nan))]
+        return {**{name: np.full(n, np.nan, dtype=np.float32) for name in names},
+                CHECK_LAG: np.full(n, np.nan, dtype=np.float32)}
+    imd = imd_cell_series(grids, cell_ids, check_day, lon_offset_columns=lon_offset_columns)
+    imerg = imerg_cell_series(imerg_store, cell_ids, check_day)
+    out = {f"{CHECK_PREFIX}{k}": v.astype(np.float32) for k, v in source_block(imd, imerg).items()}
+    out[CHECK_LAG] = np.full(n, (day - check_day).days, dtype=np.float32)
+    return out
+
+
 def alert_frame(features: pd.DataFrame, imd_rt: np.ndarray, imerg: np.ndarray,
-                integ: pd.DataFrame | None = None) -> pd.DataFrame:
+                integ: pd.DataFrame | None = None, check: dict[str, np.ndarray] | None = None) -> pd.DataFrame:
     """`features` (cells of IMD day D with the `irain_*` columns) plus the alert engine's inputs.
 
     `imd_rt` and `imerg` are (n, 7) IMD-day series ending on D (`imd_cell_series`, `imerg_cell_series`), rows in the
     order of `features`; `integ` the `integ_*` columns of the same rows, or None when no station information exists
-    (the columns are then absent, which the confidence logic reads as "no station information").
+    (the columns are then absent, which the confidence logic reads as "no station information"); `check` the
+    second-opinion columns of `check_columns` (absent: the confidence logic reads day D's `src_*` columns).
     """
     n = len(features)
     for name, series in (("imd_rt", imd_rt), ("imerg", imerg)):
@@ -98,6 +121,10 @@ def alert_frame(features: pd.DataFrame, imd_rt: np.ndarray, imerg: np.ndarray,
     if integ is not None:
         for column in INTEG_COLUMNS:
             out[column] = integ[column].to_numpy(dtype=np.float32)
+    for name, values in (check or {}).items():
+        if np.shape(values) != (n,):
+            raise ValueError(f"check column {name} must have shape ({n},), got {np.shape(values)}")
+        out[name] = np.asarray(values, dtype=np.float32)
     return out
 
 

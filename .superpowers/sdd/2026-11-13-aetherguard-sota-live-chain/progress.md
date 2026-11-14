@@ -1,0 +1,8 @@
+# AetherGuard SOTA programme, workstream live-chain (branch sota-live-chain, worktree C:\Users\sujan\AtherGuard-wt-live)
+
+2026-11-13 ~20:05 IST: worktree created from w5-static-susceptibility (dc93f98); data junction `data` -> main tree data (remove with `cmd /c rmdir data` before deleting the worktree); second detached worktree C:\Users\sujan\AtherGuard-wt-live-base at dc93f98 for old-code scratch replays (no junction there; configs made absolute).
+2026-11-13 ~20:10: Task 1 measured over all 33 published run.json: every run made before the day-D IMD file existed has High 0 (imd_missing on every cell); afternoon/forced runs have High ~29-31k; 5,461 cells are imd_missing on every day (outside IMD coverage).
+2026-11-13 ~20:20: Task 3 v4 OOF panels: burden.fold_models takes the v4 development rows (dev=); fold models reproduce the v4 card OOF recall at Watch exactly (0.917617237008872, 789 positives); 11 seasons scored in ~20 min into data/processed/alerts/accuracy_hardening_oof_v4 (log logs/live_chain_v4_oof.log).
+2026-11-13 ~20:30: Task 1 code (tests first): alerts.confidence reads the chk_ check columns; sources.imd_due_day + IMD on-time state; run.second_opinion + run.json second_opinion; adapter.check_columns; bulletin line; audit re-derives confidence (rederive_confidence) and checks chk_imd_acc_1 sampling; configs imd_rt.days 4.
+2026-11-13 ~20:35: Task 2 study module live.season_validity + flag live.season (run.json season_of_validity, each lead outside_validated_season, bulletin line), tests first; config season_of_validity months 6-9.
+2026-11-13 ~20:40: Task 4 derivation module alerts.derive_imerg (IMD final at the live sampling point vs IMERG Late, gauges vs IMERG) with tests.
