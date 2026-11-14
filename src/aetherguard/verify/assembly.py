@@ -447,7 +447,11 @@ def markdown(result: dict) -> str:
         "",
         f"**Gate (storm clusters, all sources, deciding): {deciding['storm_clusters']:,} storm clusters of "
         f"{deciding['slides']:,} independent slides ({deciding['records']:,} records) against the {GATE}-event gate: "
-        f"{deciding['verdict']}.** No model was scored on any v2 event; this report only counts.",
+        f"{deciding['verdict']}.** **Without BIPAD Nepal (no licence stated; its raw rows stay local and are never "
+        f"committed): {gate['without_bipad']['storm_clusters']:,} storm clusters of {gate['without_bipad']['slides']:,} "
+        f"slides ({gate['without_bipad']['records']:,} records): {gate['without_bipad']['verdict']}.** India only: "
+        f"{gate['india_only']['storm_clusters']:,} storm clusters, {gate['india_only']['verdict']}. "
+        "No model was scored on any v2 event; this report only counts.",
         "",
         "Rules (pre-declared in `docs/superpowers/specs/2026-11-13-aetherguard-w1b-ground-truth.md`): new records are dated to "
         "the day (no window record qualified), located to 5 km or better, in a scored cell, rain-triggered or cause unknown, "
@@ -511,6 +515,9 @@ def markdown(result: dict) -> str:
         "## Next step (the lead's)",
         "",
         ("READY FOR HELD-OUT LOOK. " if deciding["met"] else "The gate is not met by the deciding count. ")
+        + ("" if gate["without_bipad"]["met"] else
+           "The verdict rests on BIPAD Nepal: from sources with a known open licence the gate is not met, and until the "
+           "register's terms are known a G1-G4 claim must be stated both ways. ")
         + f"The W1 held-out report re-run on assembly v2 (writes `reports/phase8_heldout_v2.{{json,md}}`, never the phase 7 "
         f"report): `{heldout_command()}`. It is a held-out look and follows the one-look-per-adopted-change rule.",
         "",

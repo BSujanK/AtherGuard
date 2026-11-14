@@ -1,0 +1,279 @@
+{
+  "version": 2,
+  "rules": {
+    "spec": "docs/superpowers/specs/2026-11-13-aetherguard-w1b-ground-truth.md",
+    "max_accuracy_km_new": 5.0,
+    "same_place_km": 5.0,
+    "max_window_days": 7,
+    "priority": [
+      "catalog_2018",
+      "reported",
+      "catalog_sparse",
+      "gfld",
+      "bipad_nepal"
+    ],
+    "slide_rule": "10 km and 1 day, single linkage (heldout.event_clusters)",
+    "storm_rule": "1-degree tile, fixed 5-day episodes (sensitivity 2)",
+    "gate": 150,
+    "gate_basis": "storm clusters of the day-precise held-out records on panel days, all sources"
+  },
+  "heldout": {
+    "all_dates": {
+      "records": 1509,
+      "slides": 1352,
+      "storm_clusters": 783,
+      "storm_clusters_2deg": 616
+    },
+    "panel_days": {
+      "records": 1422,
+      "slides": 1266,
+      "storm_clusters": 701,
+      "storm_clusters_2deg": 539
+    },
+    "outside_panel_days": 87,
+    "v1_part_on_panel_days": {
+      "records": 91,
+      "slides": 87,
+      "storm_clusters": 72,
+      "storm_clusters_2deg": 66
+    },
+    "by_source": [
+      {
+        "source": "bipad_nepal",
+        "records": 1331,
+        "slides": 1179,
+        "storm_clusters": 630
+      },
+      {
+        "source": "catalog_2018",
+        "records": 55,
+        "slides": 52,
+        "storm_clusters": 39
+      },
+      {
+        "source": "catalog_sparse",
+        "records": 6,
+        "slides": 6,
+        "storm_clusters": 6
+      },
+      {
+        "source": "reported",
+        "records": 30,
+        "slides": 30,
+        "storm_clusters": 28
+      }
+    ],
+    "by_year": [
+      {
+        "year": "2018",
+        "records": 189,
+        "slides": 171,
+        "storm_clusters": 110
+      },
+      {
+        "year": "2019",
+        "records": 174,
+        "slides": 152,
+        "storm_clusters": 85
+      },
+      {
+        "year": "2020",
+        "records": 237,
+        "slides": 207,
+        "storm_clusters": 100
+      },
+      {
+        "year": "2021",
+        "records": 165,
+        "slides": 142,
+        "storm_clusters": 73
+      },
+      {
+        "year": "2022",
+        "records": 161,
+        "slides": 150,
+        "storm_clusters": 86
+      },
+      {
+        "year": "2023",
+        "records": 132,
+        "slides": 121,
+        "storm_clusters": 66
+      },
+      {
+        "year": "2024",
+        "records": 176,
+        "slides": 157,
+        "storm_clusters": 82
+      },
+      {
+        "year": "2025",
+        "records": 188,
+        "slides": 166,
+        "storm_clusters": 99
+      }
+    ],
+    "by_region": [
+      {
+        "region": "himalaya",
+        "records": 1379,
+        "slides": 1226,
+        "storm_clusters": 672
+      },
+      {
+        "region": "out_of_scope",
+        "records": 1,
+        "slides": 1,
+        "storm_clusters": 1
+      },
+      {
+        "region": "western_ghats",
+        "records": 42,
+        "slides": 39,
+        "storm_clusters": 28
+      }
+    ],
+    "by_country": [
+      {
+        "country": "BD",
+        "records": 1,
+        "slides": 1,
+        "storm_clusters": 1
+      },
+      {
+        "country": "IN",
+        "records": 90,
+        "slides": 86,
+        "storm_clusters": 71
+      },
+      {
+        "country": "NP",
+        "records": 1331,
+        "slides": 1180,
+        "storm_clusters": 631
+      }
+    ],
+    "by_how_found": [
+      {
+        "how_found": "reported",
+        "records": 1422,
+        "slides": 1266,
+        "storm_clusters": 701
+      }
+    ],
+    "by_date_precision": [
+      {
+        "date_precision": "day",
+        "records": 1422,
+        "slides": 1266,
+        "storm_clusters": 701,
+        "storm_clusters_2deg": 539
+      },
+      {
+        "date_precision": "window (<= 7 days)",
+        "records": 0
+      }
+    ],
+    "accuracy_km_new_sources": {
+      "p25": 3.065,
+      "p50": 3.81,
+      "p75": 4.32,
+      "p100": 5.0
+    },
+    "dropped_duplicates": 8,
+    "dropped_by_pair": {
+      "bipad_nepal -> bipad_nepal": 2,
+      "bipad_nepal -> catalog_2018": 1,
+      "bipad_nepal -> gfld": 2,
+      "catalog_2018 -> catalog_2018": 1,
+      "catalog_sparse -> reported": 2
+    },
+    "rejected_outside_scored_cells": 120
+  },
+  "gate": {
+    "all_sources": {
+      "records": 1422,
+      "slides": 1266,
+      "storm_clusters": 701,
+      "storm_clusters_2deg": 539,
+      "note": "every source (deciding)",
+      "met": true,
+      "verdict": "MET, 551 over"
+    },
+    "without_bipad": {
+      "records": 91,
+      "slides": 87,
+      "storm_clusters": 72,
+      "storm_clusters_2deg": 66,
+      "note": "without BIPAD Nepal (its register states no licence: a user decision)",
+      "met": false,
+      "verdict": "NOT MET, 78 short"
+    },
+    "india_only": {
+      "records": 90,
+      "slides": 86,
+      "storm_clusters": 71,
+      "storm_clusters_2deg": 65,
+      "note": "records in Indian cells only",
+      "met": false,
+      "verdict": "NOT MET, 79 short"
+    },
+    "nepal_bhutan_only": {
+      "records": 1331,
+      "slides": 1180,
+      "storm_clusters": 631,
+      "storm_clusters_2deg": 476,
+      "note": "records in Nepal and Bhutan cells only",
+      "met": true,
+      "verdict": "MET, 481 over"
+    }
+  },
+  "dev_added": {
+    "records": 506,
+    "by_source": {
+      "bipad_nepal": 142,
+      "gfld": 364
+    },
+    "by_year": {
+      "2007": 43,
+      "2008": 40,
+      "2009": 45,
+      "2010": 28,
+      "2011": 55,
+      "2012": 53,
+      "2013": 47,
+      "2014": 36,
+      "2015": 34,
+      "2016": 83,
+      "2017": 42
+    },
+    "by_region": {
+      "himalaya": 486,
+      "western_ghats": 20
+    },
+    "by_country": {
+      "BT": 3,
+      "IN": 139,
+      "NP": 364
+    },
+    "dropped_as_existing_or_duplicate": 103
+  },
+  "frozen": {
+    "heldout": {
+      "dir": "processed/heldout_v2",
+      "manifest_sha256": "146a30c7a4e8c6c20a44015099f7813250c3ffcb4f1fd141536651cb822932a2",
+      "files": {
+        "events.parquet": "8dbef353f1a8499b05e741e4c45b6b1cdc0d4286b840f17dbb484c4c57974c68",
+        "window_events.parquet": "d570eb598312c32c9b7c8f48b65381ed0e31ee166b500549ce42978fdc2dd4e4"
+      }
+    },
+    "dev": {
+      "dir": "processed/labels_dev_v2",
+      "manifest_sha256": "fb5c6f6871b968d5247609e59a88632cbc552034fd1e7cbb4376e613aadca871",
+      "files": {
+        "added_positives.parquet": "2c254d683573ce882b1cb8a4f85cccc887cec14a3ca311d8a17d6f99ea844c20"
+      }
+    }
+  },
+  "heldout_command": "python -m aetherguard.verify heldout --assembly data/processed/heldout_v2 --stem phase8_heldout_v2"
+}

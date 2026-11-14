@@ -1,0 +1,238 @@
+{
+  "date": "2026-11-13",
+  "sources": [
+    {
+      "name": "BIPAD Nepal incident register (NDRRMA)",
+      "decision": "loaded (licence to be settled by the user)",
+      "url": "https://bipadportal.gov.np/api/v1/incident/?hazard=17",
+      "licence": "No licence or terms stated on the portal or in its API (checked 2026-11-13). Public API, no key or account.",
+      "date_precision": "day (incidentOn)",
+      "location_precision": "per-ward point; bounded by the ward box (median bound of admitted rows 3.81 km)",
+      "how_found": "reported (Nepal Police and agencies)",
+      "years": "2011-2026",
+      "count_in_domain": "6672 incidents; 2009 admitted at 5 km (4174 over 5 km, 489 same-ward duplicates); in assembly v2: 1331 held-out records on panel days, 142 development",
+      "overlap": "HMA catalog (Nepal to 2018) and GFLD: a few cross-source duplicates (expansion report)",
+      "use": "raw rows local only, never committed; the gate is reported with and without it"
+    },
+    {
+      "name": "Global Fatal Landslide Database v2 (Froude and Petley)",
+      "decision": "loaded (development labels)",
+      "url": "https://services2.arcgis.com/Dn40vzt2R38VJsSS/arcgis/rest/services/Fatal_landslide_points_2004_to_2017/FeatureServer",
+      "licence": "'The dataset is covered by a University of Sheffield copyright and database rights reserved 2019. For the full license see http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/' (Landslide Blog, 2019-06-18); public feature service, no account needed to query",
+      "date_precision": "day",
+      "location_precision": "polygon of slide or village; radius of equal-area circle",
+      "how_found": "reported (news, remapped by the authors)",
+      "years": "2004-2017",
+      "count_in_domain": "1431 points in India, Nepal, Bhutan; 546 admitted at 5 km (260 non-rain trigger, 567 over 5 km); 364 development records added",
+      "overlap": "HMA / GLC development positives (repeats dropped)",
+      "use": "development labels 2007-2017 only (no held-out years)"
+    },
+    {
+      "name": "Kerala 2018 monsoon inventory (Hao et al. 2020, ESSD; van Westen 2020, DANS)",
+      "decision": "downloaded, not admitted",
+      "url": "https://doi.org/10.17026/dans-x6c-y7x2",
+      "licence": "CC-BY-4.0 (DANS record)",
+      "date_precision": "window 1 June - 26 August 2018 (87 days), no per-slide date",
+      "location_precision": "point per slide",
+      "how_found": "imagery (NRSC, GSI) and Google Earth, partly field-checked",
+      "years": "2018",
+      "count_in_domain": "4,728 slides, 4,726 in scored cells (365 cells)",
+      "overlap": "2018 catalog events of Kerala (August 2018)",
+      "use": "over the 7-day window limit: kept for spatial (where) checks, never scored as dated events"
+    },
+    {
+      "name": "Kodagu 2018 (Meena et al. 2021, Landslides)",
+      "decision": "not found openly",
+      "url": "https://doi.org/10.1007/s10346-020-01602-4",
+      "licence": "no open dataset located",
+      "date_precision": "post-event PlanetScope window",
+      "location_precision": "polygons",
+      "how_found": "imagery",
+      "years": "2018",
+      "count_in_domain": "n/a",
+      "overlap": "2018 catalog",
+      "use": "user decision: ask the authors"
+    },
+    {
+      "name": "Himachal Pradesh 2023 monsoon (HPSCCC post-monsoon mapping 2025; Sana et al. 2025, Landslides, ~6,500 slides)",
+      "decision": "not obtained",
+      "url": "https://www.hpsdma.nic.in/admnis/admin/showimg.aspx?ID=3759",
+      "licence": "report PDF; no data licence; paper data availability not open",
+      "date_precision": "season window",
+      "location_precision": "polygons",
+      "how_found": "imagery",
+      "years": "2023",
+      "count_in_domain": "n/a",
+      "overlap": "W1 reported 2023 rows",
+      "use": "season-dated: not admissible as dated events even if obtained"
+    },
+    {
+      "name": "Kerala 2019-2021 and Wayanad 2024 named events (Puthumala, Kavalappara, Pettimudi, Koottickal, Mundakkai)",
+      "decision": "already in W1 reported events (except Mundakkai: no W1 row; NRSC/Charter maps only)",
+      "url": "https://www.nrsc.gov.in/sites/default/files/pdf/DMSP/Charter_1029_VAP_3_31july2024.pdf",
+      "licence": "news facts; Charter/NRSC products without a data licence",
+      "date_precision": "day",
+      "location_precision": "village",
+      "how_found": "reported",
+      "years": "2019-2024",
+      "count_in_domain": "single events",
+      "overlap": "W1",
+      "use": "no change"
+    },
+    {
+      "name": "NASA COOLR / Landslide Reporter refresh",
+      "decision": "no new records",
+      "url": "https://gis.earthdata.nasa.gov/portal/rest/services/Landslides/COOLR_Reports_Points/FeatureServer/0",
+      "licence": "NASA open data",
+      "date_precision": "day",
+      "location_precision": "stated per record",
+      "how_found": "reported",
+      "years": "to 2025-05-18",
+      "count_in_domain": "0 new: the service's max event_date (2025-05-18) equals the loaded export",
+      "overlap": "is the loaded source",
+      "use": "none"
+    },
+    {
+      "name": "NASA High Mountain Asia multitemporal inventories (HMA_MTLI, HMA2_MTLI, NSIDC)",
+      "decision": "not admissible",
+      "url": "https://nsidc.org/data/hma_mtli",
+      "licence": "NASA open data; Earthdata login (the existing account would do)",
+      "date_precision": "year",
+      "location_precision": "points / polygons",
+      "how_found": "imagery",
+      "years": "2009-2020",
+      "count_in_domain": "three Nepal highways and the Arun basin",
+      "overlap": "BIPAD",
+      "use": "annual dating, not scoreable"
+    },
+    {
+      "name": "GSI Bhukosh national landslide inventory",
+      "decision": "user decision (account and terms)",
+      "url": "https://bhukosh.gsi.gov.in",
+      "licence": "download needs a registered account and acceptance of Terms and Conditions",
+      "date_precision": "partly dated (post-disaster studies by year)",
+      "location_precision": "polygons",
+      "how_found": "field and imagery",
+      "years": "to 2025",
+      "count_in_domain": "largest Indian source (tens of thousands)",
+      "overlap": "unknown",
+      "use": "not used"
+    },
+    {
+      "name": "NRSC Landslide Atlas of India (2023)",
+      "decision": "user decision (request to NRSC)",
+      "url": "https://www.isro.gov.in/media_isro/pdf/LandslideAtlas_2023.pdf",
+      "licence": "atlas PDF; no data licence; data via Bhuvan login",
+      "date_precision": "event inventories by event, mostly undated per slide",
+      "location_precision": "polygons",
+      "how_found": "imagery",
+      "years": "1998-2022",
+      "count_in_domain": "about 80,000",
+      "overlap": "Kerala 2018 (NRSC part of Hao)",
+      "use": "not used"
+    },
+    {
+      "name": "State disaster authority situation reports (KSDMA, HPSDMA, USDMA)",
+      "decision": "not done (manual extraction)",
+      "url": "https://www.hpsdma.nic.in",
+      "licence": "government PDFs, no stated data licence",
+      "date_precision": "day",
+      "location_precision": "district / village",
+      "how_found": "reported",
+      "years": "varies",
+      "count_in_domain": "not counted",
+      "overlap": "news",
+      "use": "candidate for a future manual pass"
+    },
+    {
+      "name": "ReliefWeb API",
+      "decision": "user decision (registration)",
+      "url": "https://apidoc.reliefweb.int/",
+      "licence": "a pre-approved appname is required on every call since 1 November 2025",
+      "date_precision": "report day",
+      "location_precision": "country / region",
+      "how_found": "reported",
+      "years": "all",
+      "count_in_domain": "n/a",
+      "overlap": "news",
+      "use": "not used"
+    },
+    {
+      "name": "EM-DAT",
+      "decision": "not admissible (and needs registration)",
+      "url": "https://doc.emdat.be/docs/legal/terms-of-use/",
+      "licence": "free for non-commercial use after registration; national governments counted as commercial users",
+      "date_precision": "event",
+      "location_precision": "admin area",
+      "how_found": "reported",
+      "years": "all",
+      "count_in_domain": "n/a",
+      "overlap": "n/a",
+      "use": "location far coarser than 5 km"
+    },
+    {
+      "name": "GDACS / Copernicus EMS",
+      "decision": "nothing to load",
+      "url": "https://emergency.copernicus.eu/mapping/list-of-components/EMSR049",
+      "licence": "open",
+      "date_precision": "n/a",
+      "location_precision": "n/a",
+      "how_found": "imagery",
+      "years": "n/a",
+      "count_in_domain": "no Indian landslide activation found (EMSR049 Uttarakhand 2013 is a flood activation)",
+      "overlap": "n/a",
+      "use": "none"
+    },
+    {
+      "name": "Global ML landslide datasets (DLR Landslide Reference Data, GLaD4CD, GBMT-SLID; Zenodo)",
+      "decision": "not loaded",
+      "url": "https://zenodo.org/records/17007637",
+      "licence": "CC BY 4.0",
+      "date_precision": "event day (from reports) / image pair",
+      "location_precision": "polygons",
+      "how_found": "reported then imagery-verified",
+      "years": "2015-2025",
+      "count_in_domain": "a handful of Indian events expected; event lists sit inside 6 GB archives",
+      "overlap": "W1 large events",
+      "use": "low yield for the cost"
+    },
+    {
+      "name": "GDELT DOC 2.0",
+      "decision": "used for the live harvester (review queue only)",
+      "url": "https://api.gdeltproject.org/api/v2/doc/doc",
+      "licence": "open, no key; one request per 5 s",
+      "date_precision": "report day",
+      "location_precision": "from title (geocoded)",
+      "how_found": "reported",
+      "years": "live",
+      "count_in_domain": "see the harvest summary",
+      "overlap": "news",
+      "use": "candidates, never auto-admitted"
+    }
+  ],
+  "user_decisions": [
+    "BIPAD Nepal register: no licence stated. Confirm its terms with NDRRMA or accept local-only use. Until then its raw rows stay local, are never committed, and every gate count is given with and without it (without it the gate is not met).",
+    "GSI Bhukosh: an account and acceptance of its terms (the largest Indian inventory).",
+    "NRSC Landslide Atlas / Bhuvan event inventories: a data request to NRSC.",
+    "ReliefWeb: an appname registration.",
+    "Authors of the Kodagu 2018 and Himachal 2023 inventories: a data request (they would still be window-dated)."
+  ],
+  "gate": {
+    "all_sources": {
+      "storm_clusters": 701,
+      "verdict": "MET, 551 over"
+    },
+    "without_bipad": {
+      "storm_clusters": 72,
+      "verdict": "NOT MET, 78 short"
+    },
+    "india_only": {
+      "storm_clusters": 71,
+      "verdict": "NOT MET, 79 short"
+    },
+    "nepal_bhutan_only": {
+      "storm_clusters": 631,
+      "verdict": "MET, 481 over"
+    }
+  }
+}

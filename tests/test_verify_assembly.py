@@ -153,3 +153,18 @@ def test_a_frozen_directory_is_never_overwritten(tmp_path):
     (tmp_path / "v" / "events.parquet").write_bytes(b"changed")
     with pytest.raises(ValueError, match="does not match"):
         asm._check_frozen(tmp_path / "v")
+
+
+def test_the_report_states_the_gate_with_and_without_bipad():
+    held = asm.with_clusters(gate_frame())
+    held["on_panel_day"] = True
+    dev = records(("gfld", 27.7, 85.3, "2012-07-01"))
+    frozen = {"manifest_sha256": "m" * 64, "files": {"events.parquet": "e" * 64}}
+    manifests = {"heldout": {"rules": {}, "dropped_duplicates": [], "rejected": []},
+                 "dev": {"dropped_as_existing_or_duplicate": []},
+                 "frozen": {"heldout": ("heldout_v2", frozen), "dev": ("labels_dev_v2", frozen)}}
+    result = asm.summarise(held, held.iloc[0:0], dev, manifests)
+    text = asm.markdown(result)
+    assert "Without BIPAD Nepal (no licence stated" in text and "2 storm clusters of 2 slides" in text
+    assert "The verdict rests on BIPAD Nepal" not in text or not result["gate"]["without_bipad"]["met"]
+    assert result["gate"]["all_sources"]["storm_clusters"] == 6
