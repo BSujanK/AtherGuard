@@ -34,6 +34,7 @@ point and the incident day, one source each.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import re
 import time
@@ -55,7 +56,7 @@ ATTEMPTS, BACKOFF_S = 5, 60.0                          # a 429 waits 60, 120, 24
 TIMEOUT_S = 90
 MAX_RECORDS = 250
 COUNTRIES = {"IN": "India", "NP": "Nepal"}
-QUERY = '(landslide OR landslides OR landslip OR mudslide OR "land slide")'
+QUERY = "landslide"                    # a plain term: the OR form returned "{}" on 4 of 6 days (2026-11-14), unexplained
 LANDSLIDE_WORDS = re.compile(r"landslides?|landslips?|mudslides?|land ?slides?|भूस्खलन|"
                              r"पहिरो", re.IGNORECASE)
 GROUP_KM, GROUP_DAYS = 10.0, 2
@@ -99,6 +100,11 @@ def gdelt_fetch(params: dict, sleep=time.sleep) -> dict:
     raise RuntimeError(f"GDELT: {error}")
 
 
+def query_tag() -> str:
+    """Eight hex digits of the query text, part of every cache file name, so a changed query never reads old answers."""
+    return hashlib.sha1(QUERY.encode("utf-8")).hexdigest()[:8]
+
+
 def day_params(day: date, country: str) -> dict:
     start = datetime(day.year, day.month, day.day)
     return {"query": f"{QUERY} sourcecountry:{country}", "mode": "artlist", "format": "json", "maxrecords": MAX_RECORDS,
@@ -109,7 +115,7 @@ def day_params(day: date, country: str) -> dict:
 def fetch_range(start: date, end: date, cache: Path, fetch=gdelt_fetch, say=print,
                 missing: list | None = None) -> list[dict]:
     """Every article of the range (UTC days `start`..`end`) and countries, each tagged with its query country; responses are
-    cached as `<cache>/<country>_<YYYY-MM-DD>.json` and a cached day is never fetched again, except today's.
+    cached as `<cache>/<country>_<YYYY-MM-DD>_<query_tag>.json` and a cached day is never fetched again, except today's.
 
     When a fetch fails after its retries (GDELT answering 429 for a long time), fetching stops for the rest of the run, so
     the API is not pressed further: the remaining uncached (country, day) pairs are appended to `missing` and only cached
@@ -123,7 +129,7 @@ def fetch_range(start: date, end: date, cache: Path, fetch=gdelt_fetch, say=prin
     day = start
     while day <= end:
         for country in COUNTRIES:
-            path = cache / f"{country}_{day.isoformat()}.json"
+            path = cache / f"{country}_{day.isoformat()}_{query_tag()}.json"
             if path.is_file() and day < today:
                 page = json.loads(path.read_text(encoding="utf-8"))
             elif blocked:

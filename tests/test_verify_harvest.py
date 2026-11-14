@@ -141,3 +141,13 @@ def test_a_failed_fetch_stops_fetching_and_lists_the_days_not_fetched(tmp_path):
     assert len(calls) == 1
     assert result["days_not_fetched"] == ["IN 2026-10-20", "NP 2026-10-20", "IN 2026-10-21", "NP 2026-10-21"]
     assert not list((tmp_path / "gdelt").glob("*.json"))          # nothing cached for a failed day
+
+
+def test_the_cache_name_carries_the_query_so_a_new_query_never_reads_old_answers(tmp_path, monkeypatch):
+    hv.harvest(date(2026, 10, 20), date(2026, 10, 20), tmp_path, PLACES, fetch=recorded_fetch, say=lambda m: None)
+    assert (tmp_path / "gdelt" / f"IN_2026-10-20_{hv.query_tag()}.json").is_file()
+    monkeypatch.setattr(hv, "QUERY", "landslip")
+    fetched = []
+    hv.harvest(date(2026, 10, 20), date(2026, 10, 20), tmp_path, PLACES, fetch=lambda p: fetched.append(p) or {"articles": []},
+               say=lambda m: None)
+    assert len(fetched) == 2
