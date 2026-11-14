@@ -55,7 +55,22 @@ The live run reads one `post_rules` file for every lead. Adopting the v4 rules f
 v3 needs a `lead0_post_rules` key in the runner (not written) and the audit reading the rules each lead was scored with.
 Until then `configs/live_run.yaml` keeps `post_rules_v3.json`.
 
-## 5. Caveats
+## 5. Preflight result (2026-11-14, no outcome computed)
+
+`reports/phase8_post_rules_v4_preflight.json`: the assembly checks pass (36,792 cells, 1,712 days, 92 events, 1 outside
+the panel days, 87 slides) and the two arms differ on 0 of 62,987,904 pooled cell-days (0 unscored). The no-difference
+clause applies: the look is not taken and `heldout` refuses.
+
+## 6. The IMERG-era alert parameters (alert_config_v4.json), also gated
+
+`alert_config_v4.json` (`reports/phase8_alert_config_v4.md`) sets confidence, and confidence feeds the blind-escalation
+rule, so it changes levels at Watch: on the six scratch replays of 2026-11-08..13 (`reports/phase8_live_replays.md`)
+blind escalations go from 43 to 64 and Watch cell-days from 18,793 to 18,830, Warning and Emergency unchanged. It is
+therefore not wired into the live configuration. A held-out look at it needs confidence on the held-out season panels
+(IMD and IMERG on every cell-day of 2018-2025; the panels hold the model's risk only), which is not built; until then
+the decision is the lead's.
+
+## 7. Caveats
 
 Ground truth after 2018 is very incomplete; tolerant matching has a high chance floor at Watch+ and Warning+; 87
 independent slides is a small sample (one slide is 1.1 points of detection).
