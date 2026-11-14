@@ -10,7 +10,7 @@ already carries), where `python -m aetherguard.verify inventory` geocodes, dedup
 reported row. The queue never writes there itself.
 
 Source. The GDELT DOC 2.0 API (https://api.gdeltproject.org/api/v2/doc/doc, no key, no account), article list mode, one
-query per day and source country (`COUNTRIES`: India, Nepal), at most one request per `MIN_INTERVAL_S` (GDELT asks for no
+query per day and source country (`COUNTRIES`: India, Nepal), at most one request per `MIN_INTERVAL_S` = 15 s (GDELT asks for no
 more than one every 5 seconds) with a generic User-Agent. Every response is saved under `<out>/gdelt/` and read from there
 on a rerun. GDELT supplies the title, URL, outlet domain, language and the time it saw the article, not the article text.
 Titles and URLs are facts about the articles; the articles stay with their publishers.
@@ -50,8 +50,8 @@ from .inventory import RAW_COLUMNS
 
 GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
 USER_AGENT = "AetherGuard-research/1.0 (landslide verification research prototype)"
-MIN_INTERVAL_S = 6.0
-ATTEMPTS, BACKOFF_S = 5, 30.0                          # a 429 waits 30, 60, 120, 240 s before giving up
+MIN_INTERVAL_S = 15.0                                 # GDELT asks for one per 5 s; it throttled at 6 s (2026-11-14)
+ATTEMPTS, BACKOFF_S = 5, 60.0                          # a 429 waits 60, 120, 240, 480 s before giving up
 TIMEOUT_S = 90
 MAX_RECORDS = 250
 COUNTRIES = {"IN": "India", "NP": "Nepal"}
@@ -106,21 +106,37 @@ def day_params(day: date, country: str) -> dict:
             "enddatetime": (start + timedelta(days=1) - timedelta(seconds=1)).strftime("%Y%m%d%H%M%S")}
 
 
-def fetch_range(start: date, end: date, cache: Path, fetch=gdelt_fetch, say=print) -> list[dict]:
+def fetch_range(start: date, end: date, cache: Path, fetch=gdelt_fetch, say=print,
+                missing: list | None = None) -> list[dict]:
     """Every article of the range (UTC days `start`..`end`) and countries, each tagged with its query country; responses are
-    cached as `<cache>/<country>_<YYYY-MM-DD>.json` and a cached day is never fetched again, except today's."""
+    cached as `<cache>/<country>_<YYYY-MM-DD>.json` and a cached day is never fetched again, except today's.
+
+    When a fetch fails after its retries (GDELT answering 429 for a long time), fetching stops for the rest of the run, so
+    the API is not pressed further: the remaining uncached (country, day) pairs are appended to `missing` and only cached
+    days are read. A rerun resumes from the cache."""
     cache = Path(cache)
     cache.mkdir(parents=True, exist_ok=True)
     today = datetime.now(timezone.utc).date()
     articles = []
+    missing = [] if missing is None else missing
+    blocked = False
     day = start
     while day <= end:
         for country in COUNTRIES:
             path = cache / f"{country}_{day.isoformat()}.json"
             if path.is_file() and day < today:
                 page = json.loads(path.read_text(encoding="utf-8"))
+            elif blocked:
+                missing.append(f"{country} {day.isoformat()}")
+                continue
             else:
-                page = fetch(day_params(day, country))
+                try:
+                    page = fetch(day_params(day, country))
+                except RuntimeError as exc:
+                    say(f"gdelt: {country} {day}: {exc}; no further fetches in this run")
+                    blocked = True
+                    missing.append(f"{country} {day.isoformat()}")
+                    continue
                 path.write_text(json.dumps(page, ensure_ascii=False), encoding="utf-8")
             rows = page.get("articles", []) or []
             if len(rows) >= MAX_RECORDS:
@@ -321,18 +337,21 @@ def harvest(start: date, end: date, out: Path, places: pd.DataFrame, fetch=gdelt
             bipad_csv: Path | None = None, say=print) -> dict:
     """Fetch (or read cached), extract, group and write `<out>/review_queue_<start>_<end>.csv` and its summary JSON."""
     out = Path(out)
-    articles = fetch_range(start, end, out / "gdelt", fetch, say)
+    missing: list[str] = []
+    articles = fetch_range(start, end, out / "gdelt", fetch, say, missing)
     rows = queue_rows(group(candidates(articles, places, universe)))
     if bipad_csv is not None:
         rows += bipad_rows(start, end, bipad_csv, universe)
     stem = f"review_queue_{start.isoformat()}_{end.isoformat()}"
     write_queue(out / f"{stem}.csv", rows)
     result = {"start": start.isoformat(), "end": end.isoformat(), "articles": len(articles), **summary(rows),
+              "days_not_fetched": missing,
               "queue": (out / f"{stem}.csv").as_posix()}
     (out / f"{stem}.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     say(f"harvest {start}..{end}: {len(articles)} articles, {result['gdelt_candidates']} GDELT candidates, "
         f"{result['gdelt_in_scored_cells']} located in scored cells ({result['gdelt_in_scored_cells_corroborated']} "
-        f"corroborated), {result['bipad_register_rows']} BIPAD register rows; wrote {out / stem}.csv")
+        f"corroborated), {result['bipad_register_rows']} BIPAD register rows, {len(missing)} country-days not fetched; "
+        f"wrote {out / stem}.csv")
     return result
 
 

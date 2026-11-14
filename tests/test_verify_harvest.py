@@ -129,3 +129,15 @@ def test_a_rate_limit_notice_is_retried_and_never_returned_as_an_empty_day(monke
     slept = []
     assert hv.gdelt_fetch({}, sleep=slept.append) == {"articles": [{"url": "u"}]}
     assert hv.BACKOFF_S in slept
+
+
+def test_a_failed_fetch_stops_fetching_and_lists_the_days_not_fetched(tmp_path):
+    calls = []
+
+    def failing(params):
+        calls.append(params)
+        raise RuntimeError("GDELT: 429")
+    result = hv.harvest(date(2026, 10, 20), date(2026, 10, 21), tmp_path, PLACES, fetch=failing, say=lambda m: None)
+    assert len(calls) == 1
+    assert result["days_not_fetched"] == ["IN 2026-10-20", "NP 2026-10-20", "IN 2026-10-21", "NP 2026-10-21"]
+    assert not list((tmp_path / "gdelt").glob("*.json"))          # nothing cached for a failed day
