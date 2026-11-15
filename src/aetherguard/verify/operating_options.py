@@ -427,9 +427,248 @@ def tradeoff(window: str, say=print, years=burden.DEV_YEARS) -> dict:
         result["strata"][f"{r}|{s}"] = entry
     result["seconds"] = time.perf_counter() - started
     path = results_dir() / f"tradeoff_{window}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
     dump_json(path, jsonable(result))
     say(f"wrote {path}")
     return result
+
+
+# ------------------------------------------------------------------------------------------- Tasks 2 and 3
+
+# The named options: caps per season (Watch+, Warning+, Emergency share of the scored cell-days of a region and season),
+# floored at the card's thresholds. None: today's card thresholds (detection-first).
+OPTIONS: dict[str, dict | None] = {
+    "A_detection_first": None,
+    "B_balanced": {s: (0.20, 0.06, 0.02) for s in FL.SEASON_NAMES},
+    "C_rare_emergency": {s: (0.10, 0.03, 0.01) for s in FL.SEASON_NAMES},
+}
+
+
+def option_thresholds(window: str, events: pd.DataFrame, card: dict[str, lv.Thresholds], years=burden.DEV_YEARS
+                      ) -> dict[str, dict[tuple[str, str], tuple[float, float, float]]]:
+    """Per option the (watch, warning, emergency) threshold of every (region, season) of `window`: the cap thresholds
+    of the pooled development risks, raised to the card's, non-decreasing across the levels."""
+    strata = [(r, s) for r in REGIONS for s in WINDOW_SEASONS[window]]
+    wanted = {k: tuple(sorted({x for caps in OPTIONS.values() if caps for x in caps[k[1]]}, reverse=True)) for k in strata}
+    found = streamed_cap_thresholds_multi(stratum_risks(window, events, years), wanted)
+    out = {}
+    for name, caps in OPTIONS.items():
+        out[name] = {}
+        for (r, s) in strata:
+            floor = card[r].as_array()
+            if caps is None:
+                values = floor
+            else:
+                values = np.maximum([found[(r, s)][wanted[(r, s)].index(x)] for x in caps[s]], floor)
+            out[name][(r, s)] = tuple(float(v) for v in np.maximum.accumulate(np.asarray(values, dtype=np.float64)))
+    return out
+
+
+def full_row_thresholds(y: Year, thresholds: dict[tuple[str, str], tuple]) -> np.ndarray:
+    """(cells, panel days, 3) thresholds; the warm-up days take the season of the first evaluation day."""
+    n_days = len(y.panel.days)
+    season = np.concatenate([np.full(y.first, y.season[0] if len(y.season) else 0), y.season]).astype(int)
+    out = np.full((len(y.cell_ids), n_days, 3), np.nan)
+    for (r, s), values in thresholds.items():
+        cols = season == FL.SEASON_NAMES.index(s)
+        out[np.ix_(y.region == r, cols)] = values
+    if np.isnan(out).any():
+        raise ValueError(f"{y.year}: some cell-days have no threshold")
+    return out
+
+
+def chain_levels(y: Year, thresholds: dict, card: dict, config, rules) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """(point, raw, published levels) of the evaluation days: the point level is the risk against the thresholds, the raw
+    level adds `uncertain_high` (Watch where the upper bound reaches it), the published level adds the rain cap and hold
+    release of `rules` and the hysteresis of `config`."""
+    panel = y.panel
+    rows = full_row_thresholds(y, thresholds)
+    season = D.Season(y.year, panel, y.first, y.events, {r: card[r] for r in REGIONS})
+    raw = lv.raw_level(panel["risk"], panel["new_hi"], rows)[0]
+    published = D.levels_from_raw(season, raw, config, rules, row_thresholds=rows)
+    point = lv.level_from_risk(panel["risk"], rows)
+    return point[:, y.first:], raw[:, y.first:], published[:, y.first:]
+
+
+def district_index(cell_ids: np.ndarray, region: np.ndarray) -> tuple[np.ndarray, pd.DataFrame]:
+    """(district index per cell, -1 for none; the districts with id, name, country, region and cell count). A district's
+    region is the region of most of its cells."""
+    table = pd.read_parquet(DI.out_dir() / "cell_districts.parquet")
+    frame = pd.DataFrame({"cell_id": cell_ids, "region": region}).merge(table, on="cell_id", how="left")
+    ids = frame["district_id"].astype(object)
+    known = sorted({x for x in ids if isinstance(x, str)})
+    index = pd.Index(known).get_indexer(ids.where(ids.notna(), "")).astype(np.int64)
+    sub = frame[index >= 0].assign(index=index[index >= 0])
+    info = sub.groupby("index").agg(district_id=("district_id", "first"), district=("district", "first"),
+                                    country=("country", "first"), cells=("cell_id", "size"),
+                                    region=("region", lambda x: x.value_counts().index[0])).reset_index(drop=True)
+    return index, info
+
+
+def schemes(window: str, say=print, years=burden.DEV_YEARS) -> dict:
+    """Tasks 2 and 3 on `window` (module doc, step 2); writes schemes_<window>.json and the option documents."""
+    started = time.perf_counter()
+    cfg = live_run.load_run_config()
+    config = load_alert_config(live_run.project_path(cfg["alert_config"]))
+    rules = pr.load_rules(live_run.project_path(cfg["post_rules"]))
+    events = development_events_all(years)
+    card = card_thresholds()
+    seasons = WINDOW_SEASONS[window]
+    strata = [(r, s) for r in REGIONS for s in seasons]
+    say("option thresholds (two passes over the panels)")
+    thresholds = option_thresholds(window, events, card, years)
+    names = list(OPTIONS)
+    nl = len(LEVELS) + 1
+    cell = {n: {k: {"cell_days": 0, "point": np.zeros(nl, np.int64), "raw": np.zeros(nl, np.int64),
+                    "published": np.zeros(nl, np.int64)} for k in strata} for n in names}
+    hits = {n: {t: [] for t in TOLERANCES} for n in names}
+    point_hits = {n: [] for n in names}
+    dist_hits = {n: {rule: {"same_day": [], "within_1_day": []} for rule in DISTRICT_RULES} for n in names}
+    index = info = None
+    dist_days = None
+    season_days = np.zeros(len(FL.SEASON_NAMES), np.int64)
+    ev_all = []
+    for y in years_of(window, events, years):
+        say(f"{window} {y.year}: {len(y.events)} events")
+        if index is None:
+            index, info = district_index(y.cell_ids, y.region)
+            dist_days = {n: {rule: np.zeros((len(info), len(FL.SEASON_NAMES), nl), np.int64) for rule in DISTRICT_RULES}
+                         for n in names}
+        scored = y.scored
+        for s_i in range(len(FL.SEASON_NAMES)):
+            season_days[s_i] += int((y.season == s_i).sum())
+        ev_rows = pd.Index(y.cell_ids).get_indexer(y.events["cell_id"].to_numpy(dtype=np.int64))
+        ev_cols = pd.Index(pd.to_datetime(y.days)).get_indexer(pd.to_datetime(y.events["date"]))
+        for name in names:
+            point, raw, published = chain_levels(y, thresholds[name], card, config, rules)
+            for (r, s) in strata:
+                block = np.ix_(*y.stratum_mask(r, s))
+                sc = scored[block]
+                c = cell[name][(r, s)]
+                c["cell_days"] += int(sc.sum())
+                for level in LEVELS:
+                    c["point"][level] += int(((point[block] >= level) & sc).sum())
+                    c["raw"][level] += int(((raw[block] >= level) & sc).sum())
+                    c["published"][level] += int(((published[block] >= level) & sc).sum())
+            for t, tol in TOLERANCES.items():
+                m = match(published, y.cell_ids, y.days, y.events, tol)
+                if len(m.event_level) != len(y.events):
+                    raise ValueError(f"{y.year}: {len(m.event_level)} matched events against {len(y.events)}")
+                hits[name][t].append(m.event_level)
+            point_hits[name].append(point[ev_rows, ev_cols])
+            for rule_name, rule in DISTRICT_RULES.items():
+                dl = DI.district_levels(published, scored, index, len(info), rule)
+                for s_i in range(len(FL.SEASON_NAMES)):
+                    cols = y.season == s_i
+                    if cols.any():
+                        for level in LEVELS:
+                            dist_days[name][rule_name][:, s_i, level] += (dl[:, cols] >= level).sum(axis=1)
+                d_ev = index[ev_rows]
+                same = np.where(d_ev >= 0, dl[np.maximum(d_ev, 0), ev_cols], 0)
+                near = same.copy()
+                for shift in (-1, 1):
+                    cols = np.clip(ev_cols + shift, 0, dl.shape[1] - 1)
+                    near = np.maximum(near, np.where(d_ev >= 0, dl[np.maximum(d_ev, 0), cols], 0))
+                dist_hits[name][rule_name]["same_day"].append(same)
+                dist_hits[name][rule_name]["within_1_day"].append(near)
+                del dl
+            del point, raw, published
+        e = y.events.copy()
+        e["region"] = y.region[ev_rows]
+        e["season"] = [FL.season_of_month(d.month) for d in pd.to_datetime(e["date"])]
+        e["in_district"] = index[ev_rows] >= 0
+        ev_all.append(e)
+    ev = pd.concat(ev_all, ignore_index=True)
+    labels = slide_labels(ev[["cell_id", "date"]])
+    result = {"window": window, "years": list(years), "events": int(len(ev)),
+              "events_without_district": int((~ev["in_district"]).sum()),
+              "alert_config": cfg["alert_config"], "post_rules": cfg["post_rules"],
+              "options": {n: OPTIONS[n] for n in names},
+              "thresholds": {n: {f"{r}|{s}": v for (r, s), v in thresholds[n].items()} for n in names},
+              "district_rules": {k: v.to_dict() for k, v in DISTRICT_RULES.items()},
+              "districts": {"count": int(len(info)), "by_region": info["region"].value_counts().to_dict(),
+                            "cells_median": float(info["cells"].median())},
+              "season_days": {FL.SEASON_NAMES[i]: int(season_days[i]) for i in range(len(FL.SEASON_NAMES)) if season_days[i]},
+              "results": {}}
+    for name in names:
+        per_tol = {t: np.concatenate(hits[name][t]) for t in TOLERANCES}
+        point_all = np.concatenate(point_hits[name])
+        out = {}
+        for (r, s) in strata:
+            inside = ((ev["region"] == r) & (ev["season"] == s)).to_numpy()
+            c = cell[name][(r, s)]
+            entry = {"events": int(inside.sum()), "cell_days": c["cell_days"]}
+            region_rows = (info["region"] == r).to_numpy()
+            s_i = FL.SEASON_NAMES.index(s)
+            for level in LEVELS:
+                row = {"point_share": c["point"][level] / c["cell_days"], "raw_share": c["raw"][level] / c["cell_days"],
+                       "published_share": c["published"][level] / c["cell_days"],
+                       "published_cell_days": int(c["published"][level]),
+                       "point_cell_exact_hits": int((point_all[inside] >= level).sum())}
+                row["hold_inflation"] = row["published_share"] / row["point_share"] if row["point_share"] else None
+                for t in TOLERANCES:
+                    hit = per_tol[t][inside] >= level
+                    boot = cluster_bootstrap(hit, labels[inside])
+                    row[t] = {"hits": int(hit.sum()), "detection": boot["share"][0], "ci": boot["ci"][0],
+                              "cell_days_per_event": c["published"][level] / hit.sum() if hit.sum() else None}
+                districts = {}
+                for rule_name in DISTRICT_RULES:
+                    days = dist_days[name][rule_name][region_rows, s_i, level]
+                    hit_same = np.concatenate(dist_hits[name][rule_name]["same_day"])[inside] >= level
+                    hit_near = np.concatenate(dist_hits[name][rule_name]["within_1_day"])[inside] >= level
+                    per_week = days / season_days[s_i] * 7.0
+                    districts[rule_name] = {
+                        "district_days": int(days.sum()), "districts": int(region_rows.sum()),
+                        "share_of_district_days": float(days.sum() / (region_rows.sum() * season_days[s_i])),
+                        "events_in_alerted_district": int(hit_same.sum()),
+                        "events_in_alerted_district_within_1_day": int(hit_near.sum()),
+                        "detection_same_day": cluster_bootstrap(hit_same, labels[inside])["share"][0],
+                        "detection_same_day_ci": cluster_bootstrap(hit_same, labels[inside])["ci"][0],
+                        "district_days_per_event": float(days.sum() / hit_same.sum()) if hit_same.sum() else None,
+                        "days_per_week": {"mean": float(per_week.mean()), "median": float(np.median(per_week)),
+                                          "p90": float(np.quantile(per_week, 0.9)), "max": float(per_week.max())}}
+                row["districts"] = districts
+                entry[LEVEL_NAMES[level]] = row
+            out[f"{r}|{s}"] = entry
+        result["results"][name] = out
+    result["seconds"] = time.perf_counter() - started
+    directory = results_dir()
+    directory.mkdir(parents=True, exist_ok=True)
+    dump_json(directory / f"schemes_{window}.json", jsonable(result))
+    for name in names:
+        write_document(name, window, thresholds[name], result["results"][name])
+    say(f"wrote {directory / f'schemes_{window}.json'}")
+    return result
+
+
+def document_path(name: str) -> Path:
+    return results_dir() / f"levels_{name}.json"
+
+
+def write_document(name: str, window: str, thresholds: dict, measured: dict) -> dict:
+    """The option's level document (card format per season): the seasons of `window` replace those already written by
+    the other window."""
+    caps = OPTIONS[name] or {s: (1.0, 1.0, 1.0) for s in FL.SEASON_NAMES}
+    shares = {(r, s): tuple(measured[f"{r}|{s}"][LEVEL_NAMES[L]]["point_share"] for L in LEVELS) for (r, s) in thresholds}
+    pooled = {s: tuple(np.max([thresholds[(r, s2)] for (r, s2) in thresholds if s2 == s], axis=0))
+              for s in WINDOW_SEASONS[window]}
+    new = FL.scheme_document(name, thresholds, pooled, {s: caps[s] for s in WINDOW_SEASONS[window]},
+                             floor="card (model_v4_live alert_levels risk_by_region)",
+                             provenance={"panels": f"data/processed/alerts/{F.OUT_DIR}", "years": "2007-2017 out of fold",
+                                         "pooled_risk": "the higher of the two regions' thresholds",
+                                         "module": "aetherguard.verify.operating_options"},
+                             shares=shares)
+    path = document_path(name)
+    if path.is_file():
+        old = json.loads(path.read_text(encoding="utf-8"))
+        for season, block in old["seasons"].items():
+            if season not in new["seasons"]:
+                new["seasons"][season] = block
+    new["seasons"] = {s: new["seasons"][s] for s in FL.SEASON_NAMES if s in new["seasons"]}
+    if OPTIONS[name] is None:
+        new["status"] = "today's card thresholds, written in the same format for comparison; the live run reads the card"
+    dump_json(path, jsonable(new))
+    return new
 
 
 # ------------------------------------------------------------------------------------------- CLI
@@ -439,10 +678,14 @@ def main(argv=None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     cmd = sub.add_parser("tradeoff", help="Task 1 on one window")
     cmd.add_argument("--window", choices=sorted(WINDOW_SEASONS), required=True)
+    cmd = sub.add_parser("schemes", help="Tasks 2 and 3 on one window")
+    cmd.add_argument("--window", choices=sorted(WINDOW_SEASONS), required=True)
     args = parser.parse_args(argv)
     say = lambda m: print(m, flush=True)  # noqa: E731
     if args.command == "tradeoff":
         tradeoff(args.window, say)
+    elif args.command == "schemes":
+        schemes(args.window, say)
     return 0
 
 
