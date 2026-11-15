@@ -11,3 +11,4 @@
 2026-11-15 23:27 IST RUNNING: GFS 3-hourly archive fetch resumed at the lead's request (same command as the 10:25 line; log logs/leads_v4_fetch_gfs3h.log).
 2026-11-15 23:50 IST: intensity maps fitted (fit seasons only: GFS JJAS 2021, Early JJAS 2016-2017): data/processed/lead_intensity/intensity_maps.json sha256 2f9d4aaef7c3b6f9...; 36 curves.
 2026-11-15 23:50 IST RUNNING (HEAVY.lock per day, waits outside 10:40-11:45): E2 scratch replays sets c, a, b, 2026-10-14..2026-11-14, out C:\Users\sujan\AtherGuard-backups\scratch\leads-v4\replays (never data/live). Resumable (a set's replay_summary.json lists done days): cd C:\Users\sujan\AtherGuard-wt-leads && FIRST=2026-10-14 LAST=2026-11-14 SETS="c a b" bash tools/leads_v4_replays.sh ; log logs/leads_v4_replays.log
+2026-11-15 23:58 IST RUNNING (network): Early live window JJAS 2022 for E1. Resumable: bash C:\Users\sujan\AtherGuard-wt-leads\tools\leads_v4_fetch_early_2022.sh ; log logs/leads_v4_fetch_imerg_hh.log

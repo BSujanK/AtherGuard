@@ -4,7 +4,7 @@
 # Log: logs/leads_v4_replays.log (per set: <out>/<set>.log). Output: C:\Users\sujan\AtherGuard-backups\scratch\leads-v4\replays
 WT=/c/Users/sujan/AtherGuard-wt-leads
 PY=/c/Users/sujan/AtherGuard/.venv/Scripts/python.exe
-OUT=/c/Users/sujan/AtherGuard-backups/scratch/leads-v4/replays
+OUT=${OUT:-/c/Users/sujan/AtherGuard-backups/scratch/leads-v4/replays}
 LOCK=/c/Users/sujan/AtherGuard/logs/HEAVY.lock
 LOG=/c/Users/sujan/AtherGuard/logs/leads_v4_replays.log
 FIRST=${FIRST:-2026-10-14}; LAST=${LAST:-2026-11-14}
