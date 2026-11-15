@@ -94,3 +94,43 @@ def test_replay_configs_stay_in_scratch_and_set_the_flags(tmp_path):
         assert Path(cfg["report_dir"]).is_relative_to(tmp_path)
         assert cfg["synop"]["enabled"] is synop and cfg["synop"]["collect"] is False
         assert cfg["ghcn"]["h_zero_as_missing"] is h
+
+
+class FakeSynop:
+    """A synop source that delivers one same-day total for the first helper station."""
+    name = "synop"
+
+    def __init__(self, day):
+        import live_run_helpers as H
+        index = pd.date_range(pd.Timestamp(day) - pd.Timedelta(days=29), pd.Timestamp(day))
+        values = pd.DataFrame(np.nan, index=index, columns=H.STATIONS["id"], dtype=np.float32)
+        values.loc[pd.Timestamp(day), "GH000001"] = 12.0
+        how = pd.DataFrame("no_03utc_report", index=index, columns=H.STATIONS["id"])
+        how.loc[pd.Timestamp(day), "GH000001"] = "24h_group"
+        self.data = src.SynopData(values=values, how=how, meta=H.STATIONS.copy())
+        self.day = day
+
+    def fetch(self, ctx):
+        end = src.imd_day_end(self.day)
+        return src.SourceStatus("synop", True, end, end, 0.0)
+
+    def load(self, ctx):
+        return self.data
+
+
+def test_run_merges_same_day_synop_gauges(tmp_path):
+    import json
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent))
+    import live_run_helpers as H
+    from aetherguard.live import run as live_run
+    cfg = H.make_cfg(tmp_path)
+    cfg["synop"] = {**cfg["synop"], "enabled": True}
+    sources = {**H.healthy_sources(), "synop": FakeSynop(H.DAY)}
+    summary = live_run.run_day(H.DAY, cfg, deps=H.make_deps(sources))
+    run = json.loads((Path(cfg["live_dir"]) / H.DAY.isoformat() / "run.json").read_text(encoding="utf-8"))
+    assert run["integrity"]["ran"] and run["integrity"]["n_stations_observed"] == 1
+    assert run["integrity"]["synop"]["stations_on_day_ghcn"] == 0
+    assert run["integrity"]["synop"]["stations_on_day_merged"] == 1
+    assert run["integrity"]["synop"]["how_on_day"]["24h_group"] == 1
+    assert "synop" not in run["failed_sources"] and summary["audit"]["total_violations"] == 0
