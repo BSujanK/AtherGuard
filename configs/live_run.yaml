@@ -12,6 +12,16 @@ lead0_model_config: configs/hazard_model_v4_live.yaml   # today's alerts (lead 0
                                            # (reports/phase7_static_susceptibility.md). It reads yesterday's half-hourly rain
                                            # and the static table, which no forecast lead has; without them lead 0 falls
                                            # back to model_config for that run. Remove this line to go back to v3 everywhere.
+# lead_model_config: configs/hazard_model_v4_live.yaml   # W7 (docs/superpowers/specs/2026-11-14-aetherguard-leads-v4.md): the
+#                                          # model of the forecast leads; absent = the incumbent, `model_config`. A model
+#                                          # with intensity / static inputs needs `lead_intensity`; while a day of a lead's
+#                                          # window is missing every lead falls back to `model_config`. Changes lead LEVELS:
+#                                          # a model change, wired only after the held-out look and the user's yes.
+# lead_intensity:
+#   maps_file: data/processed/lead_intensity/intensity_maps.json   # leads_v4_study fit (GFS JJAS 2021, Early JJAS 2016-2017)
+#   late_root: data/processed/imerg_intensity                       # complete Late days (default: the intensity store)
+#   early_root: data/processed/imerg_intensity                      # Early live window of day D (<root>/early_live/)
+#   expected_risk: false                                            # true: candidate b (expectation over the ensemble)
 alert_config: data/processed/alerts/alert_config_v3.json   # v3 development parameters (reports/phase6_alert_burden.md); the v2 config stays untouched
 post_rules: data/processed/alerts/post_rules_v3.json       # post-model rules (rain trigger, ensemble agreement, blind-hold limit; reports/phase6_accuracy_hardening.md)
 terrain_table: data/processed/terrain/cell_terrain.parquet
