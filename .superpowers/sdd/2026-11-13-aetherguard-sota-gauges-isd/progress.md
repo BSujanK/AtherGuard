@@ -17,3 +17,4 @@
 Replays submitted to the job runner as gauges-isd-replays (heavy; resumes: a day with run.json is skipped):
   C:\Users\sujan\AtherGuard\.venv\Scripts\python.exe -m aetherguard.live.gauges_replay run --root C:\Users\sujan\AtherGuard-backups\scratch\gauges-isd\replays --days 2026-11-10 2026-11-11 2026-11-12 2026-11-13 2026-11-14 2026-11-15 --sets before after after_h
   env PYTHONPATH=C:\Users\sujan\AtherGuard-wt-isd\src AETHERGUARD_DATA_DIR=C:\Users\sujan\AtherGuard\data; log C:\Users\sujan\AtherGuard-backups\jobs\logs\gauges-isd-replays.log
+2026-11-16 00:40 IST: job gauges-isd-collect (light): C:\Users\sujan\AtherGuard\.venv\Scripts\python.exe C:\Users\sujan\AtherGuard-backups\scratch\gauges-isd\collect_loop.py (NWS ring every 2 h for 24 h, idempotent; env PYTHONPATH=worktree src, AETHERGUARD_DATA_DIR=main data). Afterwards rerun scratch latency.py for multi-day latency.
