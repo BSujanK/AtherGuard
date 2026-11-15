@@ -119,10 +119,11 @@ class Year:
     """One development year of one window: the light panel, the evaluation days (after the warm-up), the season of each
     evaluation day, and the de-duplicated events dated on those days in the panel's cells."""
 
-    def __init__(self, year: int, window: str, events: pd.DataFrame, directory: Path | None = None):
+    def __init__(self, year: int, window: str, events: pd.DataFrame, directory: Path | None = None,
+                 panel: H.Panel | None = None, first: int | None = None):
         self.year, self.window = year, window
-        self.panel = load_light(F.panel_path(directory or F.out_dir(), window, year))
-        self.first = F.window_days(year, window)[1]
+        self.panel = panel if panel is not None else load_light(F.panel_path(directory or F.out_dir(), window, year))
+        self.first = F.window_days(year, window)[1] if first is None else first
         self.days = self.panel.days[self.first:]
         self.season = FL.season_index(np.array([d.month for d in self.days]))
         self.region = self.panel.cells["region"].to_numpy(dtype=str)
@@ -131,6 +132,12 @@ class Year:
         e = e[e["cell_id"].isin(self.cell_ids)][["cell_id", "date"]].drop_duplicates()
         e = e[pd.to_datetime(e["date"]).dt.date.isin(set(self.days))]
         self.events = e.reset_index(drop=True)
+
+    @classmethod
+    def from_panel(cls, year: int, panel: H.Panel, first: int) -> "Year":
+        """A year of another panel (the held-out seasons), without events."""
+        none = pd.DataFrame({"cell_id": np.zeros(0, dtype=np.int64), "date": pd.to_datetime([])})
+        return cls(year, "jun_dec", none, panel=panel, first=first)
 
     @property
     def risk(self) -> np.ndarray:
@@ -284,18 +291,18 @@ def decide(declared: dict, look: dict) -> dict:
     """The pre-declared confirmation of an option (spec section 5), literally.
 
     Burden: every declared realised share (key "region|season|level") may be exceeded by at most the factor
-    `burden_factor`. Detection: at every declared key ("tolerance|level"), the held-out independent slides detected are at
-    least the development detection share times the slides, less `detection_margin_slides`."""
+    `burden_factor`. Detection: at every declared key ("tolerance|level", holding the development `share` and the
+    allowed shortfall `margin_slides`), the held-out independent slides detected are at least share x slides - margin."""
     conditions = []
     for key, expected in declared["burden"].items():
         got = look["burden"][key]
         limit = expected * declared["burden_factor"]
         conditions.append({"condition": f"burden {key}", "development": expected, "heldout": got, "limit": limit,
                            "passed": bool(got <= limit)})
-    for key, share in declared["detection"].items():
+    for key, entry in declared["detection"].items():
         got = look["detection"][key]
-        need = share * got["of"] - declared["detection_margin_slides"]
-        conditions.append({"condition": f"detection {key}", "development_share": share, "heldout_hits": got["hits"],
+        need = entry["share"] * got["of"] - entry["margin_slides"]
+        conditions.append({"condition": f"detection {key}", "development_share": entry["share"], "heldout_hits": got["hits"],
                            "slides": got["of"], "need": need, "passed": bool(got["hits"] >= need)})
     return {"confirmed": all(c["passed"] for c in conditions), "conditions": conditions,
             "failed": [c["condition"] for c in conditions if not c["passed"]]}
@@ -671,6 +678,368 @@ def write_document(name: str, window: str, thresholds: dict, measured: dict) -> 
     return new
 
 
+# ------------------------------------------------------------------------------------- the one held-out look
+
+HELDOUT_SLIDES = 87               # independent slides of the W1 assembly, 2018-2025 (reports/phase7_heldout_expanded)
+BURDEN_FACTOR = 1.5               # the held-out published share may exceed the development one by at most this factor
+MARGIN_SD = 2.0                   # detection may fall short of development by at most this many binomial SDs at 87 slides
+
+
+def declared_criterion(name: str, schemes_by_window: dict) -> dict:
+    """The pre-declared confirmation of option `name` (spec section 5), from the development results only: the
+    published share per region, season (monsoon, post-monsoon) and level, and the pooled June-December detection per
+    tolerance and level with its allowed shortfall."""
+    measured = schemes_by_window["jun_dec"]["results"][name]
+    burden_keys, detection = {}, {}
+    for key, entry in measured.items():
+        for level in LEVELS:
+            burden_keys[f"{key}|{level}"] = entry[LEVEL_NAMES[level]]["published_share"]
+    for t in TOLERANCES:
+        for level in LEVELS:
+            hits = sum(e[LEVEL_NAMES[level]][t]["hits"] for e in measured.values())
+            events = sum(e["events"] for e in measured.values())
+            share = hits / events
+            margin = MARGIN_SD * float(np.sqrt(HELDOUT_SLIDES * share * (1.0 - share)))
+            detection[f"{t}|{level}"] = {"share": share, "margin_slides": margin}
+    return {"option": name, "burden": burden_keys, "burden_factor": BURDEN_FACTOR, "detection": detection,
+            "slides": HELDOUT_SLIDES,
+            "rule": f"confirmed when every held-out published share (region x season x level, June-December 2018-2025) "
+                    f"is at most {BURDEN_FACTOR} x its development value, and at every tolerance and level the "
+                    f"independent slides detected are at least the development detection share x the slides less "
+                    f"{MARGIN_SD} binomial standard deviations"}
+
+
+def heldout_path(name: str) -> Path:
+    return results_dir() / f"heldout_{name}.json"
+
+
+def document_thresholds(document: dict) -> dict[tuple[str, str], tuple[float, float, float]]:
+    out = {}
+    for season, block in document["seasons"].items():
+        for r in REGIONS:
+            card = {"alert_levels": block["alert_levels"]}
+            out[(r, season)] = tuple(float(v) for v in lv.card_region_thresholds(card, [r])[r].as_array())
+    return out
+
+
+def heldout_look(name: str, say=print) -> dict:
+    """THE look for option `name` (the lead's, once, after the user's choice): its levels on the v4 held-out season
+    panels, the realised published shares and the independent-slide detection, decided by the declared criterion of
+    the committed report. Refuses when any held-out result of this study exists."""
+    from . import heldout
+    from .scores import grouped_pod
+    existing = sorted(results_dir().glob("heldout_*.json"))
+    if existing:
+        raise FileExistsError(f"{existing[0].name} exists: this study's one held-out look has been taken")
+    report = json.loads((PROJECT_ROOT / "reports" / f"{REPORT_STEM}.json").read_text(encoding="utf-8"))
+    declared = report["options"][name]["heldout_criterion"]
+    document = json.loads(document_path(name).read_text(encoding="utf-8"))
+    thresholds = {k: v for k, v in document_thresholds(document).items() if k[1] in WINDOW_SEASONS["jun_dec"]}
+    cfg = live_run.load_run_config()
+    config = load_alert_config(live_run.project_path(cfg["alert_config"]))
+    rules = pr.load_rules(live_run.project_path(cfg["post_rules"]))
+    card = card_thresholds()
+    reference = H.load_panel(H.alerts_dir(H.HELDOUT_DIR) / H.HELDOUT_FILE).cells["cell_id"].to_numpy()
+    days, scored, published = [], [], []
+    burden_counts: dict = {}
+    for year in bt.SEASON_YEARS:
+        say(f"held-out season {year}")
+        panel = load_light(H.alerts_dir(P.V4_SEASONS) / f"season_{year}_v4.npz")
+        heldout.check_cell_order(panel.cells["cell_id"].to_numpy(), reference, f"v4 season {year}")
+        y = Year.from_panel(year, panel, panel.days.index(date(year, 6, 1)))
+        _, _, levels = chain_levels(y, thresholds, card, config, rules)
+        for (r, s) in thresholds:
+            block = np.ix_(*y.stratum_mask(r, s))
+            sc = y.scored[block]
+            counts = burden_counts.setdefault((r, s), np.zeros(len(LEVELS) + 1, np.int64))
+            counts[0] += int(sc.sum())
+            for level in LEVELS:
+                counts[level] += int(((levels[block] >= level) & sc).sum())
+        days += y.days
+        scored.append(y.scored)
+        published.append(levels)
+        del panel, y
+    levels = np.concatenate(published, axis=1)
+    events = heldout.load_event_table(cfg)
+    events = events[pd.to_datetime(events["date"]).dt.year.isin(bt.SEASON_YEARS)]
+    kept, outside = heldout.events_on_days(events, days)
+    look = {"burden": {f"{r}|{s}|{level}": counts[level] / counts[0] for (r, s), counts in burden_counts.items()
+                       for level in LEVELS}, "detection": {}}
+    for t, tol in TOLERANCES.items():
+        m = match(levels, reference, days, kept, tol)
+        labels = heldout.event_clusters(m.events)
+        for level in LEVELS:
+            g = grouped_pod(m.event_level, labels, level, BOOT)
+            look["detection"][f"{t}|{level}"] = {"hits": g["group_hits"], "of": g["groups"], "ci": g["group_pod_ci"]}
+    result = {"option": name, "declared": declared, "look": look, "events_outside_panel_days": int(outside),
+              "decision": decide(declared, look)}
+    text = json.dumps(jsonable(result), indent=2, allow_nan=False)
+    with open(heldout_path(name), "x", encoding="utf-8") as handle:
+        handle.write(text + "\n")
+    say(f"{name}: {'CONFIRMED' if result['decision']['confirmed'] else 'NOT confirmed'} {result['decision']['failed']}")
+    return result
+
+
+# ------------------------------------------------------------------------------------------- Task 4: report
+
+OPTION_TEXT = {
+    "A_detection_first": "Keep today's levels (detection first): the model card's thresholds, which caught about 90%, 75% "
+                         "and 50% of the development positives at Watch, Warning and Emergency.",
+    "B_balanced": "Balanced: in every region and season, Watch+ on at most 20%, Warning+ on at most 6% and Emergency on "
+                  "at most 2% of the cell-days (point level), never below today's thresholds.",
+    "C_rare_emergency": "Rare Emergency: Watch+ on at most 10%, Warning+ on at most 3% and Emergency on at most 1% of "
+                        "the cell-days (point level), never below today's thresholds.",
+}
+DISTRICT_KEEP = 0.90              # a coarser district rule must keep this share of the events "any cell" covers
+
+
+def _read(name: str) -> dict | None:
+    path = results_dir() / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+
+
+def choose_district_rule(measured: dict) -> dict:
+    """Pre-declared (spec section 4): the rule with the fewest Warning+ district-days among those that keep at least
+    DISTRICT_KEEP of the events the any-cell rule puts inside an alerted district, at every level, pooled over the
+    strata given; ties and no candidate go to `any_cell`."""
+    totals = {}
+    for rule in DISTRICT_RULES:
+        totals[rule] = {L: {"days": sum(e[LEVEL_NAMES[L]]["districts"][rule]["district_days"] for e in measured.values()),
+                            "events": sum(e[LEVEL_NAMES[L]]["districts"][rule]["events_in_alerted_district"]
+                                          for e in measured.values())} for L in LEVELS}
+    base = totals["any_cell"]
+    keeping = [r for r in DISTRICT_RULES
+               if all(totals[r][L]["events"] >= DISTRICT_KEEP * base[L]["events"] for L in LEVELS)]
+    chosen = min(keeping, key=lambda r: (totals[r][lv.WARNING]["days"], r != "any_cell")) if keeping else "any_cell"
+    return {"chosen": chosen, "totals": {r: {LEVEL_NAMES[L]: v for L, v in t.items()} for r, t in totals.items()},
+            "keep": DISTRICT_KEEP}
+
+
+def build_report() -> dict:
+    tradeoff_ = {w: _read(f"tradeoff_{w}.json") for w in WINDOW_SEASONS}
+    schemes_ = {w: _read(f"schemes_{w}.json") for w in WINDOW_SEASONS}
+    if schemes_["jun_dec"] is None or tradeoff_["jun_dec"] is None:
+        raise FileNotFoundError("run `tradeoff --window jun_dec` and `schemes --window jun_dec` first")
+    options = {}
+    for name in OPTIONS:
+        measured = {k: v for w in WINDOW_SEASONS if schemes_[w] for k, v in schemes_[w]["results"][name].items()}
+        rule = choose_district_rule(measured)
+        options[name] = {"text": OPTION_TEXT[name], "caps": OPTIONS[name],
+                         "thresholds": {k: v for w in WINDOW_SEASONS if schemes_[w]
+                                        for k, v in schemes_[w]["thresholds"][name].items()},
+                         "levels_file": f"data/processed/alerts/{RESULTS}/levels_{name}.json",
+                         "measured": measured, "district_rule": rule,
+                         "heldout_criterion": declared_criterion(name, schemes_),
+                         "heldout_command": f"python -m aetherguard.verify.operating_options heldout --option {name}"}
+    return {"created_utc": pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "windows_present": [w for w in WINDOW_SEASONS if schemes_[w] and tradeoff_[w]],
+            "panels": f"data/processed/alerts/{F.OUT_DIR}", "years": "2007-2017 (development, out of fold)",
+            "events": {w: (tradeoff_[w] or {}).get("events") for w in WINDOW_SEASONS},
+            "slides": {w: (tradeoff_[w] or {}).get("slides") for w in WINDOW_SEASONS},
+            "tradeoff": {w: t for w, t in tradeoff_.items() if t},
+            "schemes_meta": {w: {k: v for k, v in s.items() if k != "results"} for w, s in schemes_.items() if s},
+            "options": options, "district_rules": {k: v.to_dict() for k, v in DISTRICT_RULES.items()},
+            "boot": BOOT, "caveats": CAVEATS_OPTIONS}
+
+
+CAVEATS_OPTIONS = [
+    "Development data only (2007-2017, out of fold, every scored cell). No held-out number is in this report; each "
+    "option's realised detection and burden on 2018-2025 is confirmed by one look, after the choice.",
+    "The catalogues miss most landslides and record them where people and roads are, so an alert far from a recorded "
+    "event is not necessarily a false alarm, and detection counts what was recorded.",
+    "Tolerant matching (10 km, 1 day) has a high chance floor at high burden: the floor column is the detection an "
+    "event placed at random would get. Read tolerant detection against it; the cell-exact rows do not reward scattered "
+    "alerts.",
+    "The calibrated risk takes few distinct values in its upper tail (the monotone calibrator is a step function), so a "
+    "threshold can only sit between two steps; a cap is met as 'at most', and the realised share is often well below it.",
+    "The caps are met on the point level. The published level also raises to Watch where the ensemble's upper bound "
+    "reaches it (uncertain_high) and holds levels (hysteresis, rain-capped hold release), which raises the realised "
+    "share; the published columns measure it on the same panels.",
+    "The live run outside June-September has published far more alerts than these panels show "
+    "(reports/phase8_season_validity.md); thresholds set on development data do not remove that difference.",
+    "January-May panels start on 1 January without a warm-up (no hysteresis state carried over New Year).",
+    "District numbers use geoBoundaries district polygons (India ADM2, Nepal ADM2 = the 75 districts of 2006, Bhutan "
+    "ADM1 = the 20 dzongkhags); a few cells at coasts and borders take the nearest district of their country within 5 km.",
+    "The blind-escalation rule of the live run (raise to Watch when the rain sources disagree and confidence is not High) "
+    "needs the live IMD comparison and is not in the development chain.",
+]
+
+
+def _p(x, digits: int = 1) -> str:
+    return "" if x is None else f"{100.0 * x:.{digits}f}%"
+
+
+def _n(x) -> str:
+    return "" if x is None else f"{x:,.0f}"
+
+
+def _ci(ci) -> str:
+    return "" if not ci or ci[0] is None else f"[{100.0 * ci[0]:.0f}, {100.0 * ci[1]:.0f}]"
+
+
+def _det(entry: dict, events: int) -> str:
+    return f"{entry['hits']} / {events} ({_p(entry['detection'], 0)} {_ci(entry['ci'])})"
+
+
+def _ratio(x) -> str:
+    return "any" if x is None else f"{x:,.0f}"
+
+
+STRATUM_TEXT = {"himalaya": "Himalaya", "western_ghats": "Western Ghats", "monsoon": "monsoon (Jun-Sep)",
+                "post_monsoon": "post-monsoon (Oct-Dec)", "rest": "rest of year (Jan-May)"}
+
+
+def _stratum(key: str) -> str:
+    r, s = key.split("|")
+    return f"{STRATUM_TEXT[r]}, {STRATUM_TEXT[s]}"
+
+
+def markdown_report(result: dict) -> str:
+    out = []
+    opts = result["options"]
+    a = opts["A_detection_first"]["measured"]
+    out.append("# Operating point options: how much detection for how much less alerting (phase 8, development only)")
+    out.append("")
+    out.append("This document puts one decision in front of the user: how often AetherGuard may raise each alert level. "
+               "Nothing here changes the live run, and no held-out number is in it. Every number comes from "
+               f"`data/processed/alerts/{RESULTS}/` (development years 2007-2017, out of fold, every one of the 36,792 "
+               "scored cells).")
+    out.append("")
+    if "jan_may" not in result["windows_present"]:
+        out.append("**Incomplete:** the January-May panels are not all scored yet, so the rest-of-year rows are missing.")
+        out.append("")
+    out.append("## The three options at a glance (published levels, the whole live chain)")
+    out.append("")
+    out.append("Share of cell-days at each level or above, and how many development events (landslide cell-days in the "
+               "catalogues) the level caught: cell-exact = an alert on the event's own cell and day; tolerant = an alert "
+               "within 10 km and 1 day.")
+    for key in a:
+        out.append("")
+        out.append(f"**{_stratum(key)}** ({a[key]['events']} development events)")
+        out.append("")
+        out.append("| option | Watch+ share | Warning+ share | Emergency share | Warning+ caught (exact / tolerant) | "
+                   "Emergency caught (exact / tolerant) |")
+        out.append("|---|---|---|---|---|---|")
+        for name, o in opts.items():
+            e = o["measured"][key]
+            w, x = e["Warning+"], e["Emergency"]
+            out.append(f"| {name} | {_p(e['Watch+']['published_share'])} | {_p(w['published_share'])} | "
+                       f"{_p(x['published_share'], 2)} | {_p(w['cell_exact']['detection'], 0)} / "
+                       f"{_p(w['tolerant']['detection'], 0)} | {_p(x['cell_exact']['detection'], 0)} / "
+                       f"{_p(x['tolerant']['detection'], 0)} |")
+    out.append("")
+    out.append("## What a district officer would receive")
+    out.append("")
+    out.append("A district is at a level on a day under the district rule chosen for the option (section 4 of the "
+               "spec: the rule with the fewest Warning+ district-days that keeps at least "
+               f"{DISTRICT_KEEP:.0%} of the events the any-cell rule covers). Days per week at each level or above, for "
+               "the median district and the busiest tenth of districts (90th percentile):")
+    out.append("")
+    out.append("| option | district rule | region and season | Watch+ days/week (median, p90) | Warning+ | Emergency |")
+    out.append("|---|---|---|---|---|---|")
+    for name, o in opts.items():
+        rule = o["district_rule"]["chosen"]
+        for key, e in o["measured"].items():
+            cells = []
+            for L in LEVELS:
+                d = e[LEVEL_NAMES[L]]["districts"][rule]["days_per_week"]
+                cells.append(f"{d['median']:.1f}, {d['p90']:.1f}")
+            out.append(f"| {name} | {DISTRICT_RULES[rule].name} | {_stratum(key)} | " + " | ".join(cells) + " |")
+    out.append("")
+    out.append("## The options in full")
+    for name, o in opts.items():
+        out.append("")
+        out.append(f"### {name}")
+        out.append("")
+        out.append(o["text"])
+        out.append("")
+        out.append(f"Thresholds (calibrated risk, Watch / Warning / Emergency) are in `{o['levels_file']}`, in the "
+                   "card format (`alert_levels`, `risk_by_region`) once per season.")
+        out.append("")
+        out.append("| region and season | level | threshold | point share | with uncertain_high | published share | "
+                   "hold inflation | caught cell-exact | caught tolerant | cell-days per event caught (tolerant) |")
+        out.append("|---|---|---|---|---|---|---|---|---|---|")
+        for key, e in o["measured"].items():
+            thr = o["thresholds"][key]
+            for L in LEVELS:
+                x = e[LEVEL_NAMES[L]]
+                infl = "" if x["hold_inflation"] is None else f"x{x['hold_inflation']:.2f}"
+                out.append(f"| {_stratum(key)} | {LEVEL_NAMES[L]} | {thr[L - 1]:.3g} | {_p(x['point_share'], 2)} | "
+                           f"{_p(x['raw_share'], 2)} | {_p(x['published_share'], 2)} | {infl} | "
+                           f"{_det(x['cell_exact'], e['events'])} | {_det(x['tolerant'], e['events'])} | "
+                           f"{_n(x['tolerant']['cell_days_per_event'])} |")
+        out.append("")
+        out.append("Districts (each candidate rule): district-days at the level or above, events inside a district at "
+                   "the level on the event day (and within 1 day), district-days per event:")
+        out.append("")
+        out.append("| region and season | level | rule | district-days | events in alerted district | within 1 day | "
+                   "district-days per event | cell-days per event (tolerant, beside) |")
+        out.append("|---|---|---|---|---|---|---|---|")
+        for key, e in o["measured"].items():
+            for L in LEVELS:
+                x = e[LEVEL_NAMES[L]]
+                for rule, d in x["districts"].items():
+                    out.append(f"| {_stratum(key)} | {LEVEL_NAMES[L]} | {DISTRICT_RULES[rule].name} | "
+                               f"{_n(d['district_days'])} | {d['events_in_alerted_district']} / {e['events']} | "
+                               f"{d['events_in_alerted_district_within_1_day']} | {_n(d['district_days_per_event'])} | "
+                               f"{_n(x['tolerant']['cell_days_per_event'])} |")
+        out.append("")
+        out.append(f"Chosen district rule: **{DISTRICT_RULES[o['district_rule']['chosen']].name}**.")
+    out.append("")
+    out.append("## The trade-off curve (point level, no rules, no hysteresis)")
+    out.append("")
+    out.append("Each row caps the level at a share of the cell-days of the region and season. Cost ratio: the alert "
+               "cell-days the step saves per event it loses against the row above; the step is the better choice when one "
+               "missed event is worth FEWER false-alarm cell-days than that ('any': the step loses no event). Chance "
+               "floor: the share of all cell-days with an alert within 10 km and 1 day, i.e. the tolerant detection of an "
+               "event placed at random.")
+    for w, t in result["tradeoff"].items():
+        for key, e in t["strata"].items():
+            out.append("")
+            out.append(f"### {_stratum(key)}: {e['events']} events ({e['slides']} independent slides), "
+                       f"{_n(e['cell_days'])} cell-days")
+            out.append("")
+            out.append("| level | cap | realised share | alert cell-days | caught cell-exact [95% CI] | caught tolerant "
+                       "[95% CI] | chance floor | events per 1,000 alert cell-days (exact / tolerant) | cost ratio "
+                       "(exact / tolerant) |")
+            out.append("|---|---|---|---|---|---|---|---|---|")
+            for x in e["card"]:
+                out.append(f"| {x['level']} today | card | {_p(x['share'], 2)} | {_n(x['alert_cell_days'])} | "
+                           f"{_det(x['cell_exact'], e['events'])} | {_det(x['tolerant'], e['events'])} | "
+                           f"{_p(x['chance_floor_tolerant'])} | {x['cell_exact']['per_1000_alert_cell_days'] or 0:.2f} / "
+                           f"{x['tolerant']['per_1000_alert_cell_days'] or 0:.2f} | |")
+            for level_name in ("Watch+", "Warning+", "Emergency"):
+                for x in e[level_name]:
+                    out.append(f"| {level_name} | {_p(x['cap'])} | {_p(x['share'], 2)} | {_n(x['alert_cell_days'])} | "
+                               f"{_det(x['cell_exact'], e['events'])} | {_det(x['tolerant'], e['events'])} | "
+                               f"{_p(x['chance_floor_tolerant'])} | {x['cell_exact']['per_1000_alert_cell_days'] or 0:.2f}"
+                               f" / {x['tolerant']['per_1000_alert_cell_days'] or 0:.2f} | "
+                               f"{_ratio(x['cell_exact']['cost_ratio'])} / {_ratio(x['tolerant']['cost_ratio'])} |")
+    out.append("")
+    out.append("## The one held-out look per option (pre-declared; the lead's, after the user chooses)")
+    out.append("")
+    for name, o in opts.items():
+        c = o["heldout_criterion"]
+        out.append(f"- **{name}**: `{o['heldout_command']}`. {c['rule']}. Development values it is held to: "
+                   + "; ".join(f"{k} {_p(v['share'], 0)} (allowed shortfall {v['margin_slides']:.1f} slides)"
+                               for k, v in c["detection"].items()) + ".")
+    out.append("")
+    out.append("## Caveats")
+    out.append("")
+    out += [f"- {c}" for c in result["caveats"]]
+    out.append("")
+    return "\n".join(out)
+
+
+def write_report(say=print) -> dict:
+    result = build_report()
+    reports = PROJECT_ROOT / "reports"
+    dump_json(reports / f"{REPORT_STEM}.json", jsonable(result))
+    (reports / f"{REPORT_STEM}.md").write_text(markdown_report(result), encoding="utf-8")
+    say(f"wrote reports/{REPORT_STEM}.{{json,md}}")
+    return result
+
+
 # ------------------------------------------------------------------------------------------- CLI
 
 def main(argv=None) -> int:
@@ -680,12 +1049,19 @@ def main(argv=None) -> int:
     cmd.add_argument("--window", choices=sorted(WINDOW_SEASONS), required=True)
     cmd = sub.add_parser("schemes", help="Tasks 2 and 3 on one window")
     cmd.add_argument("--window", choices=sorted(WINDOW_SEASONS), required=True)
+    sub.add_parser("report", help="Task 4: reports/phase8_operating_point_options.{json,md}")
+    cmd = sub.add_parser("heldout", help="THE one held-out look of the chosen option (the lead's)")
+    cmd.add_argument("--option", choices=sorted(OPTIONS), required=True)
     args = parser.parse_args(argv)
     say = lambda m: print(m, flush=True)  # noqa: E731
     if args.command == "tradeoff":
         tradeoff(args.window, say)
     elif args.command == "schemes":
         schemes(args.window, say)
+    elif args.command == "report":
+        write_report(say)
+    elif args.command == "heldout":
+        heldout_look(args.option, say)
     return 0
 
 

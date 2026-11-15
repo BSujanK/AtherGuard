@@ -70,9 +70,30 @@ def test_the_held_out_look_refuses_a_second_time(tmp_path):
 
 def test_the_criterion_checks_burden_and_detection_against_the_declared_bounds():
     declared = {"burden": {"himalaya|monsoon|3": 0.01}, "burden_factor": 1.5,
-                "detection": {"tolerant|3": 0.40}, "detection_margin_slides": 2}
+                "detection": {"tolerant|3": {"share": 0.40, "margin_slides": 2.0}}}
     look = {"burden": {"himalaya|monsoon|3": 0.014}, "detection": {"tolerant|3": {"hits": 33, "of": 87}}}
     result = O.decide(declared, look)
     assert result["confirmed"]                                      # 0.014 <= 0.015; 33 >= 0.40 * 87 - 2 = 32.8
     look["burden"]["himalaya|monsoon|3"] = 0.016
     assert not O.decide(declared, look)["confirmed"]
+
+
+def _measured(days, events):
+    """One stratum; per rule (any_cell, 3_cells_or_10pct, 5_cells_or_25pct) the same district-days and events at all levels."""
+    rules = dict(zip(O.DISTRICT_RULES, zip(days, events)))
+    level = {"districts": {r: {"district_days": d, "events_in_alerted_district": e} for r, (d, e) in rules.items()}}
+    return {"himalaya|monsoon": {name: level for name in ("Watch+", "Warning+", "Emergency")}}
+
+
+def test_the_district_rule_is_the_sparsest_that_keeps_nine_tenths_of_the_events():
+    assert O.choose_district_rule(_measured((100, 60, 30), (50, 46, 40)))["chosen"] == "3_cells_or_10pct"
+    assert O.choose_district_rule(_measured((100, 60, 30), (50, 40, 30)))["chosen"] == "any_cell"
+
+
+def test_the_declared_criterion_pools_june_december_and_allows_two_binomial_sds():
+    entry = {"events": 10, **{name: {"published_share": 0.1, "tolerant": {"hits": 5}, "cell_exact": {"hits": 2}}
+                              for name in ("Watch+", "Warning+", "Emergency")}}
+    schemes = {"jun_dec": {"results": {"B": {"himalaya|monsoon": entry, "himalaya|post_monsoon": entry}}}}
+    c = O.declared_criterion("B", schemes)
+    assert c["burden"]["himalaya|post_monsoon|3"] == 0.1 and c["detection"]["tolerant|2"]["share"] == 0.5
+    assert abs(c["detection"]["tolerant|2"]["margin_slides"] - 2 * (87 * 0.25) ** 0.5) < 1e-9
