@@ -70,3 +70,10 @@ def test_save_load_round_trip_and_lookup(tmp_path):
     assert again.threshold_mm("heavy") == 64.5
     assert again.threshold_mm("p95", np.array([2]))[0] == pytest.approx(clim.p95[2])
     assert again.prob("heavy", date(2024, 7, 3)).shape == (3,)
+
+
+def test_percentile_thresholds_are_floored():
+    store = FakeStore(lambda i, d: 2.0 if i == 0 else 300.0)
+    clim = C.build(store, domain(), 2010, 2010, window_days=1, percentile_floor_mm=15.6)
+    assert clim.p95[0] == pytest.approx(15.6) and clim.p99[1] == pytest.approx(300.0)
+    assert np.allclose(clim.clim[P.THRESHOLDS.index("p95")][0], 0.0)      # 2 mm days do not exceed the floored threshold

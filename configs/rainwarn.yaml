@@ -10,6 +10,7 @@ climatology:
   last_year: 2022
   window_days: 15
   season_months: [6, 7, 8, 9]
+  percentile_floor_mm: 15.6      # spec section 11 amendment: IMD 'moderate' lower bound
 radii: [0, 1, 2, 3]
 ridge: 1.0e-6
 sets:

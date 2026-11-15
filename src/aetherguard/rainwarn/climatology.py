@@ -111,8 +111,11 @@ class Climatology:
 
 
 def build(store, domain: Domain, first_year: int, last_year: int, *, window_days: int = 15,
-          season_months: tuple[int, ...] = (6, 7, 8, 9), progress=None) -> Climatology:
-    """Two passes over the years: the June-September percentiles, then the exceedance counts per calendar slot."""
+          season_months: tuple[int, ...] = (6, 7, 8, 9), percentile_floor_mm: float = 0.0, progress=None) -> Climatology:
+    """Two passes over the years: the June-September percentiles, then the exceedance counts per calendar slot.
+
+    The percentile thresholds are floored at `percentile_floor_mm` (spec section 11: in the driest pixels the 95th
+    percentile is a few mm, and a warning for light rain is not a heavy-rain warning)."""
     rows, cols = domain.rows, domain.cols
     n = len(domain.pixels)
     season: list[np.ndarray] = []
@@ -127,6 +130,7 @@ def build(store, domain: Domain, first_year: int, last_year: int, *, window_days
         p95 = np.nanpercentile(stacked, 95.0, axis=1).astype(np.float32)
         p99 = np.nanpercentile(stacked, 99.0, axis=1).astype(np.float32)
     del stacked
+    p95, p99 = np.maximum(p95, percentile_floor_mm), np.maximum(p99, percentile_floor_mm)
     hits = np.zeros((len(P.THRESHOLDS), n, DOY), dtype=np.float64)
     valid = np.zeros((n, DOY), dtype=np.float64)
     limits = [P.FIXED_MM.get(name) for name in P.THRESHOLDS]

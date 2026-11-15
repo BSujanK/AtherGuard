@@ -38,7 +38,8 @@ def cmd_climatology(cfg: dict) -> int:
     c = cfg["climatology"]
     store = imerg.ImergStore(data_path(cfg["rain_dir"]), "late")
     clim = C.build(store, domain, int(c["first_year"]), int(c["last_year"]), window_days=int(c["window_days"]),
-                   season_months=tuple(c["season_months"]), progress=_progress)
+                   season_months=tuple(c["season_months"]),
+                   percentile_floor_mm=float(c["percentile_floor_mm"]), progress=_progress)
     path = clim.save(data_path(cfg["out_dir"]) / c["file"])
     _progress(f"wrote {path}")
     return 0

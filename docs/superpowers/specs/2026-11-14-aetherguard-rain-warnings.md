@@ -187,3 +187,10 @@ byte-identical before and after it runs.
   underestimates live skill at the same lead.
 - A longer archive (2025 and the non-monsoon months from the open buckets, section 2) would give a third monsoon season for
   testing, seasonal calibration, and enough extremely heavy events per region.
+
+## 11. Amendment (2026-11-15, after the climatology table was built and before any forecast or skill number)
+
+In the driest pixels the June-September 95th percentile is a few millimetres (512 domain pixels below 5 mm, 1,208 below
+15.6 mm, almost all in the Himalaya rain shadow), so "exceeds its own p95" would warn of light rain. Both percentile
+thresholds are floored at 15.6 mm, the lower bound of the IMD category "moderate": `p95 = max(p95, 15.6)`, likewise
+`p99`. The floor applies to the thresholds, `clim(t)` and the product alike. No other part of the spec changes.
