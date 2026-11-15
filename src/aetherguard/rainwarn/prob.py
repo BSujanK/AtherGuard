@@ -111,33 +111,41 @@ def _sigmoid(z: np.ndarray) -> np.ndarray:
     return 0.5 * (1.0 + np.tanh(0.5 * z))
 
 
-def fit_logistic(x: np.ndarray, y: np.ndarray, *, ridge: float = 1e-6, max_iter: int = 50, tol: float = 1e-9
-                 ) -> LogisticModel:
+def fit_logistic(x: np.ndarray, y: np.ndarray, *, ridge: float = 1e-6, max_iter: int = 50, tol: float = 1e-9,
+                 chunk: int = 250_000) -> LogisticModel:
     """Logistic regression by Newton iterations on standardised predictors, ridge `ridge` x n on the slopes (not the
-    intercept). Rows with a NaN predictor must be removed by the caller."""
+    intercept). The gradient and Hessian are summed over row chunks so a fit on millions of pixel-days stays small in
+    memory. Rows with a NaN predictor must be removed by the caller."""
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     n, k = x.shape
     mean, scale = x.mean(axis=0), x.std(axis=0)
     scale = np.where(scale > 1e-12, scale, 1.0)
-    design = np.column_stack([np.ones(n), (x - mean) / scale])
     base = np.clip(y.mean(), 1e-9, 1 - 1e-9)
     coef = np.zeros(k + 1)
     coef[0] = np.log(base / (1 - base))
     penalty = np.full(k + 1, ridge * n)
     penalty[0] = 0.0
+
+    def chunks():
+        for start in range(0, n, chunk):
+            block = np.column_stack([np.ones(min(chunk, n - start)), (x[start:start + chunk] - mean) / scale])
+            yield block, y[start:start + chunk]
     for _ in range(max_iter):
-        p = _sigmoid(design @ coef)
-        w = p * (1 - p)
-        gradient = design.T @ (y - p) - penalty * coef
-        hessian = (design * w[:, None]).T @ design + np.diag(penalty)
+        gradient, hessian = -penalty * coef, np.diag(penalty)
+        for block, target in chunks():
+            p = _sigmoid(block @ coef)
+            gradient += block.T @ (target - p)
+            hessian += (block.T * (p * (1 - p))) @ block
         step = np.linalg.solve(hessian, gradient)
         coef = coef + step
         if np.max(np.abs(step)) < tol:
             break
-    p = np.clip(_sigmoid(design @ coef), 1e-15, 1 - 1e-15)
-    log_loss = float(-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)))
-    return LogisticModel(coef=coef, mean=mean, scale=scale, n=int(n), n_events=int(y.sum()), log_loss=log_loss)
+    total = 0.0
+    for block, target in chunks():
+        p = np.clip(_sigmoid(block @ coef), 1e-15, 1 - 1e-15)
+        total += float(np.sum(target * np.log(p) + (1 - target) * np.log(1 - p)))
+    return LogisticModel(coef=coef, mean=mean, scale=scale, n=int(n), n_events=int(y.sum()), log_loss=-total / n)
 
 
 def predict_logistic(model: LogisticModel, x: np.ndarray) -> np.ndarray:

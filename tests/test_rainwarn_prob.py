@@ -101,3 +101,11 @@ def test_warning_levels_are_unavailable_where_a_probability_is_missing():
     out = P.warning_levels(probs)
     assert out[0] == 3 and out[1] == P.LEVEL_UNAVAILABLE
     assert P.LEVEL_NAMES[P.LEVEL_UNAVAILABLE] == "unavailable" and P.LEVEL_NAMES[3] == "red"
+
+
+def test_chunked_fit_equals_the_one_block_fit():
+    rng = np.random.default_rng(3)
+    x = rng.normal(size=(30_000, 3))
+    y = rng.random(30_000) < 1.0 / (1.0 + np.exp(-(x[:, 0] - 1.0)))
+    one, many = P.fit_logistic(x, y, chunk=10**9), P.fit_logistic(x, y, chunk=7_000)
+    assert np.allclose(one.coef, many.coef) and one.log_loss == pytest.approx(many.log_loss)
