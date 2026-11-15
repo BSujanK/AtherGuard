@@ -128,7 +128,7 @@ def test_agreement_metrics_and_criterion():
     a = [0.0, 10.0, 20.0, 0.5, float("nan")]
     b = [0.0, 10.0, 22.0, 3.0, 5.0]
     m = agreement(a, b, 3.0, 0.68)
-    assert m["n"] == 4 and m["wet_hit_rate"] == 1.0 and m["false_wet_share"] == 0.0
+    assert m["n"] == 4 and abs(m["wet_hit_rate"] - 2 / 3) < 1e-9 and m["false_wet_share"] == 0.0
     assert m["within_tolerance"] == 1.0 and abs(m["bias_mm"] - (-1.125)) < 1e-9
     assert not criterion_met(m)          # bias -1.125 mm is beyond 0.5 mm
     assert criterion_met(agreement([0.0, 10.0, 20.0], [0.0, 10.0, 20.0], 3.0, 0.68))
