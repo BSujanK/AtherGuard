@@ -93,7 +93,23 @@ def test_the_district_rule_is_the_sparsest_that_keeps_nine_tenths_of_the_events(
 def test_the_declared_criterion_pools_june_december_and_allows_two_binomial_sds():
     entry = {"events": 10, **{name: {"published_share": 0.1, "tolerant": {"hits": 5}, "cell_exact": {"hits": 2}}
                               for name in ("Watch+", "Warning+", "Emergency")}}
-    schemes = {"jun_dec": {"results": {"B": {"himalaya|monsoon": entry, "himalaya|post_monsoon": entry}}}}
-    c = O.declared_criterion("B", schemes)
-    assert c["burden"]["himalaya|post_monsoon|3"] == 0.1 and c["detection"]["tolerant|2"]["share"] == 0.5
-    assert abs(c["detection"]["tolerant|2"]["margin_slides"] - 2 * (87 * 0.25) ** 0.5) < 1e-9
+    better = {"events": 10, **{name: {"published_share": 0.2, "tolerant": {"hits": 7}, "cell_exact": {"hits": 3}}
+                               for name in ("Watch+", "Warning+", "Emergency")}}
+    schemes = {"jun_dec": {"results": {"A_detection_first": {"himalaya|monsoon": better, "himalaya|post_monsoon": better},
+                                       "B_balanced": {"himalaya|monsoon": entry, "himalaya|post_monsoon": entry}}}}
+    a = O.declared_criterion("A_detection_first", schemes)
+    assert a["detection"]["tolerant|2"]["share"] == 0.7 and "loss" not in a
+    assert abs(a["detection"]["tolerant|2"]["margin_slides"] - 2 * (87 * 0.21) ** 0.5) < 1e-9
+    b = O.declared_criterion("B_balanced", schemes)
+    assert b["burden"]["himalaya|post_monsoon|3"] == 0.1 and b["paired_with"] == "A_detection_first"
+    assert abs(b["loss"]["tolerant|2"]["share"] - 0.2) < 1e-12 and "detection" not in b
+
+
+def test_a_capped_option_is_held_to_the_detection_it_was_expected_to_lose():
+    declared = {"burden": {}, "burden_factor": 1.5, "paired_with": "A_detection_first",
+                "loss": {"tolerant|3": {"share": 0.10, "margin_slides": 5.0}}}
+    look = {"burden": {}, "detection": {"tolerant|3": {"hits": 60, "of": 87}},
+            "base_detection": {"tolerant|3": {"hits": 73, "of": 87}}}
+    assert O.decide(declared, look)["confirmed"]                     # lost 13 <= 8.7 + 5
+    look["detection"]["tolerant|3"]["hits"] = 59
+    assert not O.decide(declared, look)["confirmed"]

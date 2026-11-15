@@ -299,7 +299,13 @@ def decide(declared: dict, look: dict) -> dict:
         limit = expected * declared["burden_factor"]
         conditions.append({"condition": f"burden {key}", "development": expected, "heldout": got, "limit": limit,
                            "passed": bool(got <= limit)})
-    for key, entry in declared["detection"].items():
+    for key, entry in declared.get("loss", {}).items():
+        got, base = look["detection"][key], look["base_detection"][key]
+        lost = base["hits"] - got["hits"]
+        allowed = entry["share"] * got["of"] + entry["margin_slides"]
+        conditions.append({"condition": f"loss against {declared['paired_with']} {key}", "development_loss_share":
+                           entry["share"], "heldout_lost": lost, "allowed": allowed, "passed": bool(lost <= allowed)})
+    for key, entry in declared.get("detection", {}).items():
         got = look["detection"][key]
         need = entry["share"] * got["of"] - entry["margin_slides"]
         conditions.append({"condition": f"detection {key}", "development_share": entry["share"], "heldout_hits": got["hits"],
@@ -680,6 +686,7 @@ def write_document(name: str, window: str, thresholds: dict, measured: dict) -> 
 
 # ------------------------------------------------------------------------------------- the one held-out look
 
+BASE_OPTION = "A_detection_first"
 HELDOUT_SLIDES = 87               # independent slides of the W1 assembly, 2018-2025 (reports/phase7_heldout_expanded)
 BURDEN_FACTOR = 1.5               # the held-out published share may exceed the development one by at most this factor
 MARGIN_SD = 2.0                   # detection may fall short of development by at most this many binomial SDs at 87 slides
@@ -701,12 +708,29 @@ def declared_criterion(name: str, schemes_by_window: dict) -> dict:
             share = hits / events
             margin = MARGIN_SD * float(np.sqrt(HELDOUT_SLIDES * share * (1.0 - share)))
             detection[f"{t}|{level}"] = {"share": share, "margin_slides": margin}
-    return {"option": name, "burden": burden_keys, "burden_factor": BURDEN_FACTOR, "detection": detection,
-            "slides": HELDOUT_SLIDES,
-            "rule": f"confirmed when every held-out published share (region x season x level, June-December 2018-2025) "
-                    f"is at most {BURDEN_FACTOR} x its development value, and at every tolerance and level the "
-                    f"independent slides detected are at least the development detection share x the slides less "
-                    f"{MARGIN_SD} binomial standard deviations"}
+    declared = {"option": name, "burden": burden_keys, "burden_factor": BURDEN_FACTOR, "slides": HELDOUT_SLIDES}
+    if OPTIONS[name] is None:
+        declared["detection"] = detection
+        declared["rule"] = (f"confirmed when every held-out published share (region x season x level, June-December "
+                            f"2018-2025) is at most {BURDEN_FACTOR} x its development value, and at every tolerance and "
+                            f"level the independent slides detected are at least the development detection share x the "
+                            f"slides less {MARGIN_SD} binomial standard deviations")
+        return declared
+    base = schemes_by_window["jun_dec"]["results"][BASE_OPTION]
+    loss = {}
+    for t in TOLERANCES:
+        for level in LEVELS:
+            lost = sum(base[k][LEVEL_NAMES[level]][t]["hits"] - e[LEVEL_NAMES[level]][t]["hits"] for k, e in measured.items())
+            events = sum(e["events"] for e in measured.values())
+            q = max(lost / events, 0.0)
+            loss[f"{t}|{level}"] = {"share": q, "margin_slides": MARGIN_SD * float(np.sqrt(HELDOUT_SLIDES * q * (1.0 - q)))}
+    declared["paired_with"] = BASE_OPTION
+    declared["loss"] = loss
+    declared["rule"] = (f"confirmed when every held-out published share (region x season x level, June-December "
+                        f"2018-2025) is at most {BURDEN_FACTOR} x its development value, and at every tolerance and level "
+                        f"the independent slides it detects fewer than {BASE_OPTION} on the same held-out days are at most "
+                        f"the development share of events lost x the slides plus {MARGIN_SD} binomial standard deviations")
+    return declared
 
 
 def heldout_path(name: str) -> Path:
@@ -740,7 +764,9 @@ def heldout_look(name: str, say=print) -> dict:
     rules = pr.load_rules(live_run.project_path(cfg["post_rules"]))
     card = card_thresholds()
     reference = H.load_panel(H.alerts_dir(H.HELDOUT_DIR) / H.HELDOUT_FILE).cells["cell_id"].to_numpy()
-    days, scored, published = [], [], []
+    base_thresholds = {(r, s): tuple(float(v) for v in card[r].as_array()) for (r, s) in thresholds}
+    paired = "paired_with" in declared
+    days, scored, published, base_published = [], [], [], []
     burden_counts: dict = {}
     for year in bt.SEASON_YEARS:
         say(f"held-out season {year}")
@@ -748,6 +774,8 @@ def heldout_look(name: str, say=print) -> dict:
         heldout.check_cell_order(panel.cells["cell_id"].to_numpy(), reference, f"v4 season {year}")
         y = Year.from_panel(year, panel, panel.days.index(date(year, 6, 1)))
         _, _, levels = chain_levels(y, thresholds, card, config, rules)
+        if paired:
+            base_published.append(chain_levels(y, base_thresholds, card, config, rules)[2])
         for (r, s) in thresholds:
             block = np.ix_(*y.stratum_mask(r, s))
             sc = y.scored[block]
@@ -764,13 +792,17 @@ def heldout_look(name: str, say=print) -> dict:
     events = events[pd.to_datetime(events["date"]).dt.year.isin(bt.SEASON_YEARS)]
     kept, outside = heldout.events_on_days(events, days)
     look = {"burden": {f"{r}|{s}|{level}": counts[level] / counts[0] for (r, s), counts in burden_counts.items()
-                       for level in LEVELS}, "detection": {}}
-    for t, tol in TOLERANCES.items():
-        m = match(levels, reference, days, kept, tol)
-        labels = heldout.event_clusters(m.events)
-        for level in LEVELS:
-            g = grouped_pod(m.event_level, labels, level, BOOT)
-            look["detection"][f"{t}|{level}"] = {"hits": g["group_hits"], "of": g["groups"], "ci": g["group_pod_ci"]}
+                       for level in LEVELS}, "detection": {}, "base_detection": {}}
+    arms = {"detection": levels}
+    if paired:
+        arms["base_detection"] = np.concatenate(base_published, axis=1)
+    for arm, arm_levels in arms.items():
+        for t, tol in TOLERANCES.items():
+            m = match(arm_levels, reference, days, kept, tol)
+            labels = heldout.event_clusters(m.events)
+            for level in LEVELS:
+                g = grouped_pod(m.event_level, labels, level, BOOT)
+                look[arm][f"{t}|{level}"] = {"hits": g["group_hits"], "of": g["groups"], "ci": g["group_pod_ci"]}
     result = {"option": name, "declared": declared, "look": look, "events_outside_panel_days": int(outside),
               "decision": decide(declared, look)}
     text = json.dumps(jsonable(result), indent=2, allow_nan=False)
@@ -1112,9 +1144,13 @@ def markdown_report(result: dict) -> str:
     out.append("")
     for name, o in opts.items():
         c = o["heldout_criterion"]
-        out.append(f"- **{name}**: `{o['heldout_command']}`. {c['rule']}. Development values it is held to: "
-                   + "; ".join(f"{k} {_p(v['share'], 0)} (allowed shortfall {v['margin_slides']:.1f} slides)"
-                               for k, v in c["detection"].items()) + ".")
+        if "detection" in c:
+            held = "; ".join(f"{k} {_p(v['share'], 0)} (allowed shortfall {v['margin_slides']:.1f} slides)"
+                             for k, v in c["detection"].items())
+        else:
+            held = "; ".join(f"{k} lost {_p(v['share'], 1)} of the events (allowance {v['margin_slides']:.1f} slides)"
+                             for k, v in c["loss"].items())
+        out.append(f"- **{name}**: `{o['heldout_command']}`. {c['rule']}. Development values it is held to: {held}.")
     out.append("")
     out.append("## Caveats")
     out.append("")

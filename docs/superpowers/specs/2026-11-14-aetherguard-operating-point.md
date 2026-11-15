@@ -68,9 +68,13 @@ Pre-declared criterion. The values are written into `reports/phase8_operating_po
 
 1. Burden: in every region, season (monsoon, post-monsoon) and level, the held-out published share is at most 1.5 x the
    development published share of that option.
-2. Detection: at every tolerance (tolerant, cell-exact) and level, the held-out independent slides detected are at least
-   the pooled June-December development detection share x 87, less 2 binomial standard deviations
+2. Detection, option A: at every tolerance (tolerant, cell-exact) and level, the held-out independent slides detected
+   are at least the pooled June-December development detection share x 87, less 2 binomial standard deviations
    (2 x sqrt(87 p (1 - p))).
+   Detection, options B and C (paired with A on the same held-out days, so the regional mix of the held-out events and
+   the catalogue bias cancel): at every tolerance and level, the slides the option detects fewer than A are at most the
+   development share of events it lost against A x 87, plus 2 binomial standard deviations (2 x sqrt(87 q (1 - q))).
+   The look computes A's levels on those days for this comparison only. It is not a separate look at A.
 
 The option is confirmed only if every condition passes. A confirmed option can go to wiring, which is a separate,
 reviewed change of the published levels and so a model change. A failed look is reported and nothing is tuned after it.
