@@ -121,6 +121,7 @@ class ProductDay:
     cycle: datetime | None
     p90: np.ndarray | None = None
     mean: np.ndarray | None = None
+    quantiles: dict | None = None       # {"p10", "p50", "p90"}: (3, rows, cols) ensemble percentile fields, None without them
 
 
 def load_product_days(rain_dir: Path, issue_day: date) -> dict[str, ProductDay]:
@@ -141,7 +142,7 @@ def load_product_days(rain_dir: Path, issue_day: date) -> dict[str, ProductDay]:
                                            forecast.ens_p90, forecast.ens_mean)
         if forecast.ens_mean is not None:
             out["ecmwf_ens_mean"] = ProductDay(forecast.ens_mean, forecast.ens_valid, forecast.ens_cycle,
-                                               forecast.ens_p90, forecast.ens_mean)
+                                               forecast.ens_p90, forecast.ens_mean, ensemble_quantiles(forecast))
     return out
 
 
@@ -156,6 +157,7 @@ class LeadField:
     cycle: datetime | None
     days: np.ndarray                    # (k, rows, cols) the chosen field, bias-corrected when the config says so
     spread: np.ndarray | None           # (k, rows, cols) (p90 - mean)+ of the ECMWF ensemble, None without one
+    scenarios: dict | None = None       # {"p10", "p50", "p90"}: (k, rows, cols) the ensemble percentiles, mapped as `days` is
 
     @property
     def label(self) -> str:
@@ -177,12 +179,23 @@ def resolve_lead(products: dict[str, ProductDay], choice: ForecastChoice, maps, 
             days = product.days[:lead].astype(np.float32)
             if config.mapped:
                 days = np.stack([maps.apply(config.source, k + 1, days[k]) for k in range(lead)])
+            scenarios = None
+            if product.quantiles is not None and all(np.isfinite(q[:lead]).all() for q in product.quantiles.values()):
+                scenarios = {name: (np.stack([maps.apply(config.source, k + 1, q[k]) for k in range(lead)]) if config.mapped
+                                    else q[:lead].astype(np.float32)) for name, q in product.quantiles.items()}
             spread = None
             if is_ecmwf(config.source) and product.p90 is not None and product.mean is not None:
                 raw = np.maximum(product.p90[:lead] - product.mean[:lead], 0.0).astype(np.float32)
                 spread = raw if np.isfinite(raw).all() else None
-            return LeadField(lead, config, fallback and config != choice.leads[lead], product.cycle, days, spread)
+            return LeadField(lead, config, fallback and config != choice.leads[lead], product.cycle, days, spread, scenarios)
     return None
+
+
+def ensemble_quantiles(forecast) -> dict | None:
+    """The ensemble's stored percentile fields of an ECMWF day ({p10, p50, p90}), None when one is missing. The members
+    themselves are not kept by the ingest; the forecast leads' expected risk is taken over these three scenarios."""
+    fields = {"p10": forecast.ens_p10, "p50": forecast.ens_p50, "p90": forecast.ens_p90}
+    return None if any(v is None for v in fields.values()) else {k: np.asarray(v, dtype=np.float32) for k, v in fields.items()}
 
 
 def scenario_fields(lead: LeadField, hi_factor: float) -> dict[str, np.ndarray]:

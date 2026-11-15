@@ -589,9 +589,21 @@ def integrity_checks(run_dir: Path, day: date, risk_tables: dict[str, pd.DataFra
     return feature_founds
 
 
+def expected_scorer(model, scenarios: pd.DataFrame | None):
+    """The scorer of a lead published as an expectation over rain scenarios (`scenarios_D<k>.parquet`: one block of rows per
+    scenario with its `weight`): `run.ExpectedModel` over those blocks; `model` itself for a lead without scenarios."""
+    if scenarios is None:
+        return model
+    from .run import ExpectedModel
+    return ExpectedModel(model, {str(name): (float(part["weight"].iloc[0]), part.drop(columns=["scenario", "weight"]))
+                                 for name, part in scenarios.groupby("scenario", sort=False)})
+
+
 def rescore_checks(risk_tables: dict[str, pd.DataFrame], founds: dict[str, Findings], features: dict[int, pd.DataFrame],
-                   context: AuditContext, summary: dict, rules: pr.PostRules) -> dict:
-    """`reproducible` and the full-vector `shap` check, each lead with the model and thresholds that scored it; returns
+                   context: AuditContext, summary: dict, rules: pr.PostRules,
+                   scenarios: dict[int, pd.DataFrame] | None = None) -> dict:
+    """`reproducible` and the full-vector `shap` check, each lead with the model and thresholds that scored it (a lead with
+    rain scenarios re-scored as their weighted expectation, its explanation as the model's at the stored features); returns
     {"ran", "seconds", "factors", ...}."""
     start = time.monotonic()
     split = split_models(summary)
@@ -609,10 +621,11 @@ def rescore_checks(risk_tables: dict[str, pd.DataFrame], founds: dict[str, Findi
         table = risk_tables[name]
         model, thresholds = context.model_for(lead, split), run_thresholds(summary, lead)
         on_day_d = None if lead == 0 else scored_on_d.reindex(table["cell_id"].to_numpy()).fillna(False).to_numpy(dtype=bool)
-        done = audit_rescore.check_reproducible(model, table, features[lead], lead, on_day_d, founds[name])
+        scorer = expected_scorer(model, (scenarios or {}).get(lead))
+        done = audit_rescore.check_reproducible(scorer, table, features[lead], lead, on_day_d, founds[name])
         audit_rescore.check_contributions(model, table, features[lead], done["scorable"], founds[name])
         if context.alert_config is not None and "uncertain_high" in table.columns:
-            audit_rescore.check_uncertain(model, table, done["features"], done["raw"], done["scorable"], lead, thresholds,
+            audit_rescore.check_uncertain(scorer, table, done["features"], done["raw"], done["scorable"], lead, thresholds,
                                           context.alert_config, rules, done["factors"], founds[name])
         info["rows_scored"][name] = done["rows_scored"]
         if done["factors"] is not None:
@@ -657,7 +670,9 @@ def audit_day(run_dir: Path, rules: pr.PostRules, summary: dict | None = None, c
         risk_tables[f"risk_D{lead}"] = table
     check_day = date.fromisoformat(opinion["check_day"]) if opinion.get("check_day") else None
     feature_tables = integrity_checks(run_dir, day, risk_tables, tables, features, context, split_models(summary), check_day)
-    extra = {"rescore": rescore_checks(risk_tables, tables, features, context, summary, rules)} if context.rescore else {}
+    scenarios = {k: t for k in (1, 2, 3) if (t := _read(run_dir, f"scenarios_D{k}.parquet")) is not None}
+    extra = ({"rescore": rescore_checks(risk_tables, tables, features, context, summary, rules, scenarios)}
+             if context.rescore else {})
     everyone = {**tables, **feature_tables}
     totals = {name: sum(t.counts[name] for t in everyone.values()) for name in CHECKS}
     notes = {f"{name}.{key}": count for name, found in everyone.items() for key, count in found.note_counts.items() if count}

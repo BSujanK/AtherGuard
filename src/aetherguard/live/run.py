@@ -90,6 +90,7 @@ from ..ingest import imerg as imerg_grid
 from ..ingest import imerg_hh
 from ..manifest import sha256_file
 from . import adapter, audit, bulletin, forecast_choice, forecast_features, forecast_map, season
+from . import lead_intensity as li
 from . import postrules as pr
 from .sources import (PERSIST, SOURCE_NAMES, GfsData, GhcnData, ImergSource, LiveRainView, SourceStatus, default_sources,
                       fetch_all, freshness_record, imd_due_day, local_tz, make_context, project_path, resolve_day,
@@ -111,6 +112,8 @@ CAUSE_UNCALIBRATED = pr.CAUSE_UNCALIBRATED
 CAUSE_NOWCAST_TAIL = "nowcast_tail_persisted"
 INTENSITY_PREFIX = "iint_"
 LEAD0_KEY = "lead0_model_config"
+LEAD_KEY = "lead_model_config"         # W7: the model of the forecast leads (absent: the incumbent, `model_config`)
+EXPECTED_WEIGHTS = {"p10": 0.3, "p50": 0.4, "p90": 0.3}    # Swanson's rule: the mean from the 10th, 50th and 90th percentiles
 EXIT_RETRY = 3
 RISK_COLUMNS = ["risk", "risk_lo", "risk_hi", "risk_per_100k"]
 LEAD_COLUMNS = ["cell_id", "date", "lead", "lat", "lon", "region", *RISK_COLUMNS, "level", "level_name", "confidence",
@@ -149,6 +152,10 @@ class LiveDeps:
     intensity_root: Path | None = None                       # None: imerg_intensity.default_root()
     intensity_fetch: Callable | None = None                  # None: imerg_hh.fetch_complete_days
     static_table: pd.DataFrame | None = None                 # None: the W5 static table on disk
+    incumbent_model: hm.HazardModel | None = None            # None: `model_config`, the fallback of a lead model with intensity
+    incumbent_thresholds: lv.Thresholds | lv.RegionThresholds | None = None
+    lead_sources: Callable | None = None                     # (day, GfsData | None) -> lead_intensity.LeadSources; None: `lead_intensity`
+    expected_risk: bool | None = None                        # None: `lead_intensity.expected_risk` (False without the block)
 
 
 # ------------------------------------------------------------------------------------------------------ inputs
@@ -188,19 +195,145 @@ def split_configured(cfg: dict) -> bool:
     return lead0_key(cfg) == LEAD0_KEY and cfg[LEAD0_KEY] != cfg["model_config"]
 
 
+def lead_model_key(cfg: dict) -> str:
+    """The configuration key naming the forecast-lead model: `lead_model_config` when set, else `model_config`."""
+    return LEAD_KEY if cfg.get(LEAD_KEY) else "model_config"
+
+
+def reads_lead0_inputs(model) -> bool:
+    """True for a model with rain-intensity or static inputs (v4): a forecast lead needs `lead_intensity` to score it."""
+    return uses_intensity(model) or bool(set(model.columns) & set(static_w5.STATIC_COLUMNS))
+
+
+def lead_inputs_configured(cfg: dict, deps: LiveDeps) -> bool:
+    return deps.lead_sources is not None or bool(cfg.get("lead_intensity"))
+
+
 def load_forecast_model(cfg: dict, deps: LiveDeps, model: hm.HazardModel) -> hm.HazardModel:
-    """The model of the forecast leads: handed in, else the frozen model `model_config` names when lead 0 has a model of
-    its own, else `model`. It may not read rain intensity: no forecast lead has an observed intensity day."""
+    """The model of the forecast leads: handed in, else the frozen model `lead_model_config` (or `model_config`) names when
+    it is not lead 0's, else `model`. A model with rain-intensity or static inputs is a forecast-lead model only when
+    `lead_intensity` says where the leads' intensity comes from (W7, `live.lead_intensity`)."""
     if deps.forecast_model is not None:
         forecast = deps.forecast_model
-    elif deps.model is None and split_configured(cfg):
-        forecast = load_live_model(cfg)
+    elif deps.model is None and cfg[lead_model_key(cfg)] != cfg[lead0_key(cfg)]:
+        forecast = load_live_model({**cfg, "model_config": cfg[lead_model_key(cfg)]})
     else:
         forecast = model
-    if uses_intensity(forecast) or set(forecast.columns) & set(static_w5.STATIC_COLUMNS):
+    if reads_lead0_inputs(forecast) and not lead_inputs_configured(cfg, deps):
         raise LiveRunError("the forecast-lead model reads rain-intensity inputs, which no forecast lead has observed, or "
-                           "static inputs, which only lead 0 joins; `model_config` must name a model without them")
+                           "static inputs, which only lead 0 joins; `model_config` must name a model without them "
+                           "(or `lead_intensity` must say where the forecast leads' intensity comes from)")
     return forecast
+
+
+def load_incumbent(cfg: dict, deps: LiveDeps, forecast: hm.HazardModel) -> hm.HazardModel:
+    """The model the forecast leads (and lead 0) fall back to while an intensity day is missing: `forecast` itself when it
+    reads none, else handed in, else the frozen model `model_config` names, which must read neither intensity nor static
+    inputs."""
+    if not reads_lead0_inputs(forecast):
+        return forecast
+    if deps.incumbent_model is not None:
+        incumbent = deps.incumbent_model
+    elif deps.model is not None or deps.forecast_model is not None:
+        raise LiveRunError("a handed-in lead model with intensity inputs needs a handed-in incumbent model")
+    else:
+        incumbent = load_live_model(cfg)
+    if reads_lead0_inputs(incumbent):
+        raise LiveRunError("`model_config`, the incumbent the forecast leads fall back to, reads intensity or static inputs")
+    return incumbent
+
+
+class ExpectedModel:
+    """The expected scores of a forecast lead over scenarios of its rain (the ensemble's percentile fields, or members):
+    every score is the weighted mean of `base`'s scores of the same cells in each scenario frame. Scenarios are scored one
+    at a time, so memory holds one scenario's scores beside the sum whatever their number. Rows are matched by `cell_id`;
+    the explanation (`contributions`) stays the base model's on the rows it is given (the mean-rain features)."""
+
+    def __init__(self, base, scenarios: dict[str, tuple[float, pd.DataFrame]]) -> None:
+        self.base = base
+        self.scenarios = {name: (float(w), frame.set_index("cell_id", drop=False)) for name, (w, frame) in scenarios.items()}
+        total = sum(w for w, _ in self.scenarios.values())
+        if not np.isclose(total, 1.0):
+            raise ValueError(f"scenario weights sum to {total}, not 1")
+
+    def __getattr__(self, name):
+        if name == "base":
+            raise AttributeError(name)
+        return getattr(self.base, name)
+
+    @staticmethod
+    def _rows(frame: pd.DataFrame, rows: pd.DataFrame) -> pd.DataFrame:
+        return frame.loc[rows["cell_id"].to_numpy()].reset_index(drop=True)
+
+    def score(self, rows: pd.DataFrame) -> pd.DataFrame:
+        total = None
+        for weight, frame in self.scenarios.values():
+            part = self.base.score(self._rows(frame, rows)) * weight
+            total = part if total is None else total + part
+        return total.set_axis(rows.index)
+
+    def ensemble_percentile(self, rows: pd.DataFrame, percentile: float) -> np.ndarray:
+        return sum(w * np.asarray(self.base.ensemble_percentile(self._rows(f, rows), percentile))
+                   for w, f in self.scenarios.values())
+
+    def contributions(self, rows: pd.DataFrame, *args, **kwargs):
+        return self.base.contributions(rows, *args, **kwargs)
+
+
+def default_lead_sources(cfg: dict) -> Callable:
+    """(day, GfsData | None) -> `lead_intensity.LeadSources` from the `lead_intensity` block: the quantile maps file, the
+    Late and Early roots (default the intensity store) and the GFS cycle files the run kept (`<data>/raw/gfs/live/`). The
+    Early live window of day D is fetched when its day file is missing (never waiting out an outage)."""
+    from ..config import data_root
+    spec = cfg["lead_intensity"]
+    maps = forecast_map.ForecastMaps.load(project_path(spec["maps_file"]), forecast_map.pixel_regions_of(cfg))
+    late = project_path(spec["late_root"]) if spec.get("late_root") else ii.default_root()
+    early = project_path(spec["early_root"]) if spec.get("early_root") else ii.default_root()
+    raw_root = project_path(spec["gfs_raw_root"]) if spec.get("gfs_raw_root") else data_root()
+    bbox = load_config_file(PROJECT_ROOT / "configs" / "live.yaml")["domain_bbox"]
+
+    def make(day: date, gfs) -> li.LeadSources:
+        if ii.load_day(early, li.EARLY, day) is None:
+            try:
+                imerg_hh.fetch_live_window_days([day], early)
+            except Exception as exc:      # a failing source never stops the run: the window is then incomplete
+                log.warning("Early live window of %s not fetched: %s", day, exc)
+        cycle = gfs.forecast.cycle if gfs is not None and gfs.forecast is not None else None
+        stored = li.live_raw_day(raw_root, day, cycle, bbox) if cycle is not None else None
+        cache: dict = {}
+
+        def forecast_maps(target: date):
+            if stored is None:
+                return None
+            if target not in cache:
+                cache[target] = li.day_maps_on_grid(stored, target)
+            return cache[target]
+        return li.LeadSources(late, early, forecast_maps, maps)
+    return make
+
+
+def lead_inputs(day: date, cfg: dict, deps: LiveDeps, cells: pd.DataFrame, model, gfs) -> tuple[dict | None, dict]:
+    """({lead: the intensity and static inputs of that lead, in cells order}, status) for a lead model that reads them;
+    (None, status with the reason) when any day of any lead's window, or the static table, is missing."""
+    try:
+        sources = (deps.lead_sources or default_lead_sources(cfg))(day, gfs)
+    except (OSError, ValueError, KeyError) as exc:
+        return None, {"used": False, "reason": f"lead intensity sources unavailable ({type(exc).__name__}: {str(exc)[:160]})"}
+    ground, static = static_inputs(cells, model, deps)
+    if static is not None and not static["used"]:
+        return None, {"used": False, "reason": static["reason"]}
+    out, leads = {}, {}
+    cell_ids = cells["cell_id"].to_numpy(dtype=np.int64)
+    for lead in (1, 2, 3):
+        frame, status = li.lead_frame(day, lead, cell_ids, sources)
+        leads[str(lead)] = status
+        if frame is None:
+            return None, {"used": False, "reason": f"lead {lead}: {status['reason']}", "leads": leads}
+        parts = ([frame] if uses_intensity(model) else []) + ([ground.reset_index(drop=True)] if ground is not None else [])
+        out[lead] = pd.concat(parts, axis=1)
+    return out, {"used": True, "reason": None, "leads": leads,
+                 "rule": "lag 1: Late days before D as they are; the Early live window of D and the GFS 3-hour days after D "
+                         "mapped onto IMERG Late by the quantile maps of `lead_intensity.maps_file`"}
 
 
 def intensity_inputs(day: date, cells: pd.DataFrame, model: hm.HazardModel, deps: LiveDeps) -> tuple[pd.DataFrame | None, dict]:
@@ -712,11 +845,12 @@ def lead_scores(model, frame: pd.DataFrame, scorable: np.ndarray, thresholds, al
 
 def scenario_level(model, cells: pd.DataFrame, day: date, lead: int, view, clim: ClimTable, rain: np.ndarray,
                    base_scorable: np.ndarray, thresholds, alert_config: AlertConfig, rules: pr.PostRules,
-                   factor: tuple[float, float] | None) -> np.ndarray:
+                   factor: tuple[float, float] | None, extra: list | None = None) -> np.ndarray:
     """The published level of every cell of lead `lead` when the IMD-day rain after day D is `rain` ((lead, rows, cols) mm):
-    the same features, model, `uncertain_high` test and rain cap as the forecast row itself."""
+    the same features, model, `uncertain_high` test and rain cap as the forecast row itself (`extra`: the lead's
+    intensity and static inputs, which no rain scenario changes)."""
     features = forecast_features.lead_features(cells, day, lead, view, rain, clim)
-    frame = pd.concat([cells, features], axis=1)
+    frame = pd.concat([cells, features, *(extra or [])], axis=1)
     scorable = lead_scorable(frame, model.columns, base_scorable)
     _, level, _ = lead_scores(model, frame, scorable, thresholds, alert_config, rules, factor)
     ok = pr.rain_ok(frame, rules) | ~scorable
@@ -736,7 +870,8 @@ def forecast_products(gfs: GfsData | None, ecmwf_forecast) -> dict[str, forecast
         if ecmwf_forecast.ens_mean is not None:
             products["ecmwf_ens_mean"] = forecast_choice.ProductDay(ecmwf_forecast.ens_mean, ecmwf_forecast.ens_valid,
                                                                     ecmwf_forecast.ens_cycle, ecmwf_forecast.ens_p90,
-                                                                    ecmwf_forecast.ens_mean)
+                                                                    ecmwf_forecast.ens_mean,
+                                                                    forecast_choice.ensemble_quantiles(ecmwf_forecast))
     return products
 
 
@@ -767,8 +902,10 @@ def count_certainty(certainty) -> dict:
 def _forecast_leads(day: date, cfg: dict, deps: LiveDeps, model, thresholds, alert_config: AlertConfig,
                     cells: pd.DataFrame, view, clim: ClimTable, products: dict, choice: forecast_choice.ForecastChoice, maps,
                     statuses: dict[str, SourceStatus], base: pd.DataFrame, base_scorable: np.ndarray, run_dir: Path,
-                    rules: pr.PostRules) -> tuple[dict, dict]:
-    """Write risk_D1..3 and return ({lead: summary}, widening info)."""
+                    rules: pr.PostRules, extras: dict | None = None, expected: bool = False) -> tuple[dict, dict]:
+    """Write risk_D1..3 and return ({lead: summary}, widening info). `extras` ({lead: frame in cells order}) are the
+    intensity and static inputs of a lead model that reads them; with `expected` a lead whose rain is the ECMWF ensemble is
+    scored as the expectation over the ensemble's percentile scenarios (`ExpectedModel`, `scenarios_D<k>.parquet`)."""
     factors, why_absent = load_widening(cfg, deps)
     fallback_factors = load_fallback_widening(cfg, deps)
     widening = {"applied": factors is not None, "path": cfg["forecast_widening"], "reason": why_absent}
@@ -778,8 +915,10 @@ def _forecast_leads(day: date, cfg: dict, deps: LiveDeps, model, thresholds, ale
         target = day + timedelta(days=lead)
         path = run_dir / f"risk_D{lead}.parquet"
         features_path = run_dir / f"features_D{lead}.parquet"
+        scenarios_path = run_dir / f"scenarios_D{lead}.parquet"
         path.unlink(missing_ok=True)
         features_path.unlink(missing_ok=True)
+        scenarios_path.unlink(missing_ok=True)
         field = forecast_choice.resolve_lead(products, choice, maps, lead)
         if field is None:
             reasons = [f"{label} forecast day D+{lead} not available: {statuses[name].error or 'no valid forecast'}"
@@ -789,17 +928,30 @@ def _forecast_leads(day: date, cfg: dict, deps: LiveDeps, model, thresholds, ale
             continue
         lead_factors = fallback_factors if (field.fallback and fallback_factors) else factors
         factor = lead_factors[lead] if lead_factors else None
+        extra = [] if extras is None else [extras[lead]]
         features = forecast_features.lead_features(cells, day, lead, view, field.days, clim)
-        frame = pd.concat([cells, features], axis=1)
+        frame = pd.concat([cells, features, *extra], axis=1)
         scorable = lead_scorable(frame, model.columns, base_scorable)
-        scores, level, uncertain = lead_scores(model, frame, scorable, thresholds, alert_config, rules, factor)
+        scorer, expected_info, scene_frames = model, None, None
+        if expected and field.scenarios is not None:
+            scene_frames = {name: pd.concat([cells, forecast_features.lead_features(cells, day, lead, view, rain, clim), *extra],
+                                            axis=1) for name, rain in field.scenarios.items()}
+            for scene in scene_frames.values():
+                scorable &= lead_scorable(scene, model.columns, base_scorable)
+            scorer = ExpectedModel(model, {name: (EXPECTED_WEIGHTS[name], f) for name, f in scene_frames.items()})
+            expected_info = {"scenarios": list(scene_frames), "weights": [EXPECTED_WEIGHTS[n] for n in scene_frames],
+                             "file": scenarios_path.name,
+                             "rule": "risk, interval and ensemble columns are the weighted mean over the ensemble's stored "
+                                     "10th / 50th / 90th percentile rain (Swanson's rule); the explanation and the dry / wet "
+                                     "certainty use the model at the ensemble mean"}
+        scores, level, uncertain = lead_scores(scorer, frame, scorable, thresholds, alert_config, rules, factor)
         state = [base_confidence.get(int(cell), CONFIDENCE[2]) for cell in frame["cell_id"].to_numpy()]
         confidence, causes = pr.lead_confidence(state, scorable, lead_factors is not None)
         level, confidence, causes, rule_codes = pr.apply_lead_rules(frame, scores, level, confidence, causes, rules,
                                                                     thresholds, scorable)
         scenes = forecast_choice.scenario_fields(field, factor[1] if factor else 1.0)
         others = {name: scenario_level(model, cells, day, lead, view, clim, scenes[name], base_scorable, thresholds,
-                                       alert_config, rules, factor) for name in ("dry", "wet")}
+                                       alert_config, rules, factor, extra) for name in ("dry", "wet")}
         certainty = pr.scenario_certainty(level, others["dry"], others["wet"], scorable)
         ok = pr.rain_ok(frame, rules) | ~scorable
         annotations = [{"median": m, "agreement": a, "ok": o, "capped": bool(c)} for m, a, o, c in
@@ -816,6 +968,10 @@ def _forecast_leads(day: date, cfg: dict, deps: LiveDeps, model, thresholds, ale
                   .assign(**gfs_rain_columns(frame["cell_id"].to_numpy(), field.days, lead)))
         write_parquet_atomic(table, path, compression="zstd")
         write_parquet_atomic(detail, features_path)
+        if scene_frames is not None:
+            write_parquet_atomic(pd.concat([f[["cell_id"]].assign(date=pd.Timestamp(target), scenario=name,
+                                                                  weight=EXPECTED_WEIGHTS[name]).join(f[["region", *model.columns]])
+                                            for name, f in scene_frames.items()], ignore_index=True), scenarios_path)
 
         def contributions(top: pd.DataFrame, frame=frame) -> list[list[dict]]:
             return [_reason_texts(c) for c in model.contributions(frame.loc[top.index])]
@@ -826,7 +982,7 @@ def _forecast_leads(day: date, cfg: dict, deps: LiveDeps, model, thresholds, ale
             "forecast": {"source": field.config.source, "mapped": field.config.mapped, "label": field.label,
                          "fallback": field.fallback, "cycle": None if field.cycle is None else field.cycle.isoformat(),
                          "wet_bound": "ensemble_spread" if field.spread is not None else "high_factor"},
-            "certainty": count_certainty(table["certainty"]),
+            "certainty": count_certainty(table["certainty"]), "expected_risk": expected_info,
             "top_cells": top_cells(table, contributions, int(cfg["top_cells"]))}
     return summaries, widening
 
@@ -861,6 +1017,7 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
             return {**previous, "skipped": True}
     model = deps.model or load_live_model({**cfg, "model_config": cfg[lead0_key(cfg)]})
     forecast_model = load_forecast_model(cfg, deps, model)
+    incumbent = load_incumbent(cfg, deps, forecast_model)
     alert_config = deps.alert_config or load_alert_config(project_path(cfg["alert_config"]))
     rules = load_post_rules(cfg, deps)
     if deps.cells is not None:
@@ -872,8 +1029,11 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
     thresholds = deps.thresholds or card_thresholds(model, cells["region"])
     split = forecast_model is not model
     forecast_thresholds = (deps.forecast_thresholds or card_thresholds(forecast_model, cells["region"])) if split else thresholds
-    forecast_key = "model_config"
-    lead0 = {"key": lead0_key(cfg) if split else "model_config", "handed": deps.model is not None}
+    incumbent_thresholds = (forecast_thresholds if incumbent is forecast_model else
+                            deps.incumbent_thresholds or card_thresholds(incumbent, cells["region"]))
+    forecast_key = lead_model_key(cfg)
+    forecast_handed = deps.forecast_model is not None or deps.model is not None
+    lead0 = {"key": lead0_key(cfg), "handed": deps.model is not None}
     cells = cells.assign(date=pd.Timestamp(day))
 
     # ---- sources
@@ -907,14 +1067,37 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
     ground, static = static_inputs(cells, model, deps)
     if static is not None:
         extras.append(ground)
+    lead0_why = None
     if any(extra is None for extra in extras):       # an input lead 0's own model needs is missing: the leads' model scores it
-        why = next(s["reason"] for s in (intensity, static) if s and s.get("reason") and not s["used"])
-        log.warning("lead 0 scored with the forecast-lead model: %s", why)
-        model, thresholds, split = forecast_model, forecast_thresholds, False
-        lead0 = {"key": forecast_key, "handed": deps.forecast_model is not None or deps.model is not None}
-        intensity = {**intensity, "used": False, "fallback": "lead 0 scored with the forecast-lead model", "fallback_reason": why}
+        lead0_why = next(s["reason"] for s in (intensity, static) if s and s.get("reason") and not s["used"])
+        if reads_lead0_inputs(forecast_model):       # the leads' model needs the same days: both go to the incumbent
+            model, thresholds = incumbent, incumbent_thresholds
+            lead0 = {"key": "model_config", "handed": deps.incumbent_model is not None or forecast_handed}
+            label = "the incumbent model"
+        else:
+            model, thresholds = forecast_model, forecast_thresholds
+            lead0 = {"key": forecast_key, "handed": forecast_handed}
+            label = "the forecast-lead model"
+        log.warning("lead 0 scored with %s: %s", label, lead0_why)
+        intensity = {**intensity, "used": False, "fallback": f"lead 0 scored with {label}", "fallback_reason": lead0_why}
     else:
         irain = pd.concat([irain, *extras], axis=1)
+    lead_extras, lead_status = None, {"used": False, "reason": "the forecast-lead model reads no rain-intensity input"}
+    if reads_lead0_inputs(forecast_model):
+        if lead0_why is not None:
+            lead_status = {"used": False, "reason": f"lead 0's intensity or static inputs are missing ({lead0_why})"}
+        else:
+            lead_extras, lead_status = lead_inputs(day, cfg, deps, cells, forecast_model, gfs)
+        if lead_extras is None:
+            log.warning("forecast leads scored with the incumbent model: %s", lead_status["reason"])
+            forecast_model, forecast_thresholds, forecast_key = incumbent, incumbent_thresholds, "model_config"
+            forecast_handed = deps.incumbent_model is not None or forecast_handed
+            lead_status = {**lead_status, "fallback": "forecast leads scored with the incumbent model (`model_config`)"}
+    if forecast_model is model:
+        forecast_thresholds = thresholds
+    split = forecast_model is not model
+    expected = bool(deps.expected_risk if deps.expected_risk is not None
+                    else (cfg.get("lead_intensity") or {}).get("expected_risk", False))
     features = pd.concat([cells, irain], axis=1)
 
     # ---- integrity engine on the recent gauges
@@ -991,7 +1174,7 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
     choice, maps = load_choice_and_maps(cfg, deps)
     forecast_leads, widening = _forecast_leads(day, cfg, deps, forecast_model, forecast_thresholds, alert_config, cells, view, clim,
                                                forecast_products(gfs, ecmwf_forecast), choice, maps, statuses, alerts,
-                                               ~unscorable, run_dir, rules)
+                                               ~unscorable, run_dir, rules, lead_extras, expected and lead_extras is not None)
     leads.update(forecast_leads)
     validity = season.season_record(day, cfg)
     for key, info in leads.items():
@@ -1010,9 +1193,9 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
         "retry_reason": ("the rain of IMD day D could not be assembled (" + ", ".join(
             f"{k}: {v}" for k, v in inputs["D"].items() if k != "product") + ")") if retry else None,
         "model": model_record(cfg, lead0["handed"], lead0["key"], model, thresholds),
-        **({"forecast_model": model_record(cfg, deps.forecast_model is not None or deps.model is not None, forecast_key,
-                                           forecast_model, forecast_thresholds)} if split else {}),
-        "intensity": intensity,
+        **({"forecast_model": model_record(cfg, forecast_handed, forecast_key, forecast_model, forecast_thresholds)}
+           if split else {}),
+        "intensity": intensity, "lead_intensity": lead_status,
         **({"static": static} if static is not None else {}),
         "sources": {name: {**status.to_dict(), "state": states[name]} for name, status in statuses.items()},
         "failed_sources": [n for n in SOURCE_NAMES if states[n] == "failed"],
