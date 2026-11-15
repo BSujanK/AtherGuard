@@ -115,3 +115,10 @@ change and is merged by the lead only after the user's yes. The main tree is not
   look. The decision is section 5's 12 rows on the W1 assembly (`verify.heldout.load_event_table`, years 2021-2024);
   assembly v2 beside it (all records, without `bipad_nepal`, India only).
 * E1 years: 2022, 2023 and 2024 (2021 is the GFS fit season). The look is taken only by the lead.
+
+## 9. Amendment 2 (2026-11-16, before the full E1): tie-break of the choice
+
+Section 4's choice between (a) and (b): on equal lead-2 Warning+ recall, (a) is chosen (the simpler; (b) equals (a) on
+every issue day without the ECMWF ensemble). The burden test is on the Watch, Warning and Emergency shares. The choice is
+computed by `leads_v4_study.look_choice` from `reports/phase8_leads_v4_e1.json`, never by hand. Only a 23-issue-day smoke
+of E1 (2022, scratch, not reported) had been run when this was written.

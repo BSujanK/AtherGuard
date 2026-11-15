@@ -659,6 +659,41 @@ def _e1_md(e: dict) -> list[str]:
     return lines + [""]
 
 
+BURDEN_TOLERANCE = 0.20
+
+
+def look_choice(e1: dict) -> dict:
+    """Spec section 4: the candidate for the look is the one of a and b with the higher E1 Warning+ recall of the v4
+    reference at lead 2, provided its Watch / Warning / Emergency shares are within 20% of the reference's at every lead;
+    none when neither qualifies (then no look is taken)."""
+    verdicts = {}
+    for name in ("a", "b"):
+        problems = []
+        for lead in ("1", "2", "3"):
+            entry = e1["results"][lead][name]["vs_v4_reference"]
+            for level in ("watch", "warning", "emergency"):
+                f, r = entry["burden_forecast"][level], entry["burden_reference"][level]
+                if r and abs(f / r - 1) > BURDEN_TOLERANCE:
+                    problems.append(f"lead {lead} {level}: {f:.4f} against {r:.4f}")
+        verdicts[name] = {"warning_plus_recall_lead2": e1["results"]["2"][name]["vs_v4_reference"]["warning_plus_recall"],
+                          "burden_within_20pct": not problems, "burden_problems": problems}
+    eligible = [n for n in ("a", "b") if verdicts[n]["burden_within_20pct"]]
+    chosen = max(eligible, key=lambda n: (verdicts[n]["warning_plus_recall_lead2"], n == "a")) if eligible else None
+    return {"chosen": chosen, "candidates": verdicts,
+            "rule": "higher lead-2 Warning+ recall of the v4 reference among a and b (a on a tie: the simpler), burden by "
+                    "level within 20% of the reference at every lead; none qualifies: no look"}
+
+
+def _choice_md(choice: dict) -> list[str]:
+    lines = ["### Candidate for the held-out look (spec section 4)", "",
+             "| candidate | lead-2 Warning+ recall | burden within 20% | outside it |", "|---|---|---|---|"]
+    for name, v in choice["candidates"].items():
+        lines.append(f"| {name} | {_f(v['warning_plus_recall_lead2'], 3)} | {'yes' if v['burden_within_20pct'] else 'no'} | "
+                     f"{'; '.join(v['burden_problems']) or '-'} |")
+    lines += ["", f"Chosen: **{choice['chosen'] or 'none (no look)'}**. Rule: {choice['rule']}.", ""]
+    return lines
+
+
 def _e2_md(e: dict) -> list[str]:
     lines = ["## Part 2b: E2 live replays (archived live days, scratch live_dir)", "", f"Reference: {e['reference']}. {e['caveat']}.", "",
              "| set | days | audit violations | by check | leads with their own intensity (days) | leads scored as an expectation |",
@@ -683,8 +718,11 @@ def run_report(reports_dir: Path) -> int:
     if "measure" in parts:
         lines += _measure_md(parts["measure"])
     lines += _e1_md(parts["e1"]) if "e1" in parts else ["## Part 2a: E1 archive consistency", "", "Not computed yet.", ""]
+    choice = look_choice(parts["e1"]) if "e1" in parts else None
+    if choice is not None:
+        lines += _choice_md(choice)
     lines += _e2_md(parts["e2"]) if "e2" in parts else ["## Part 2b: E2 live replays", "", "Not computed yet.", ""]
-    dump_json(reports_dir / f"{REPORT_STEM}.json", {"parts": {k: PARTS[k] for k in parts},
+    dump_json(reports_dir / f"{REPORT_STEM}.json", {"parts": {k: PARTS[k] for k in parts}, "look_choice": choice,
                                                     "generated_utc": datetime.now(UTC).isoformat(timespec="seconds")})
     (reports_dir / f"{REPORT_STEM}.md").write_text("\n".join(lines), encoding="utf-8")
     print(f"wrote {reports_dir / (REPORT_STEM + '.md')}")
