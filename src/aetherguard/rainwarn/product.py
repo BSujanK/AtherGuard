@@ -22,13 +22,14 @@ import pandas as pd
 
 from ..config import data_root
 from ..features import imerg_features as F
-from ..ingest import ecmwf
+from ..ingest import ecmwf, imerg
 from . import climatology as C
 from . import engine as E
 from . import prob as P
 from .study import pixel_values
 
 PARQUET, BULLETIN = "rain_warnings.parquet", "rain_warnings.md"
+DEFAULT_CALIBRATION = "calibration_v2.json"      # spec section 12: the shipped calibration and the v2 levels
 PROB_COLUMNS = {name: f"p_{name}" for name in P.THRESHOLDS}
 REGIONS = ("himalaya", "western_ghats")
 
@@ -41,8 +42,10 @@ def _cycle(forecast) -> str | None:
     return forecast.ens_cycle.isoformat() if forecast is not None and forecast.ens_cycle is not None else None
 
 
-def build(day: date, features: pd.DataFrame, forecast, clim: C.Climatology, calibration: E.Calibration) -> pd.DataFrame:
-    """Rows of every cell and lead 0..3 from the lead-0 feature table, the ECMWF day (or None) and the tables."""
+def build(day: date, features: pd.DataFrame, forecast, clim: C.Climatology, calibration: E.Calibration,
+          state: np.ndarray | None = None) -> pd.DataFrame:
+    """Rows of every cell and lead 0..3 from the lead-0 feature table, the ECMWF day (or None) and the tables.
+    `state` is the season-state predictor per domain pixel (needed when the calibration uses it)."""
     domain = C.Domain(pixels=clim.pixels, regions=clim.regions)
     flat = F.cell_pixels(features["cell_id"].to_numpy())
     where = clim.position(flat)
@@ -60,6 +63,8 @@ def build(day: date, features: pd.DataFrame, forecast, clim: C.Climatology, cali
             fields = E.forecast_fields(grids, calibration.radii, domain.pixels) if grids is not None else None
             reason = None if fields is not None else "no valid ECMWF ensemble day for this lead"
             source, cycle = "ecmwf_ens", _cycle(forecast)
+        if fields is not None and state is not None:
+            fields[E.STATE] = state
         probs = {}
         for name in P.THRESHOLDS:
             values = np.full(len(features), np.nan)
@@ -67,7 +72,7 @@ def build(day: date, features: pd.DataFrame, forecast, clim: C.Climatology, cali
                 p = calibration.probability(fields, lead, name, clim.threshold_mm(name), clim.prob(name, target))
                 values[inside] = p[where[inside]]
             probs[name] = values
-        level = P.warning_levels(probs)
+        level = calibration.warning_levels(lead, probs)
         frame = pd.DataFrame({"cell_id": features["cell_id"].to_numpy(), "date": pd.Timestamp(day), "lead": np.int8(lead),
                               "target_date": pd.Timestamp(target), "lat": features["lat"].to_numpy(),
                               "lon": features["lon"].to_numpy(), "region": features["region"].to_numpy()})
@@ -84,13 +89,32 @@ def build(day: date, features: pd.DataFrame, forecast, clim: C.Climatology, cali
     return pd.concat(frames, ignore_index=True)
 
 
-def bulletin(table: pd.DataFrame, day: date, calibration_path: Path) -> str:
+def season_state_of(store, clim: C.Climatology, day: date) -> np.ndarray:
+    """Season-state predictor of issue day `day` from the IMERG Late store the live run keeps (spec section 12.2)."""
+    window = E.state_days(day)
+    domain = C.Domain(pixels=clim.pixels, regions=clim.regions)
+    observed = C.imd_days(store, domain.rows, domain.cols, window[0], window[-1])
+    expected = np.column_stack([clim.prob("heavy", d) for d in window])
+    return E.season_state(observed, expected, clim.regions)
+
+
+def level_text(calibration: E.Calibration) -> str:
+    if calibration.levels is None:
+        return ("Levels: red P(very heavy) >= 0.5 or P(extremely heavy) >= 0.25; orange P(heavy) >= 0.5 or "
+                "P(very heavy) >= 0.2 or P(p99) >= 0.4; yellow P(heavy) >= 0.2 or P(p95) >= 0.4.")
+    cut = "; ".join(f"D+{lead}: {c['red']:.3f} / {c['orange']:.3f} / {c['yellow']:.3f}"
+                    for lead, c in sorted(calibration.levels.items()))
+    return ("Levels (v2, set to fire on 0.3% / 1.5% / 6% of monsoon pixel-days): red P(very heavy), orange "
+            f"max(P(heavy), P(p99)), yellow max(P(heavy), P(p95)) at or above the cutoffs red / orange / yellow {cut}.")
+
+
+def bulletin(table: pd.DataFrame, day: date, calibration_path: Path, calibration: E.Calibration) -> str:
     lines = [f"## Heavy-rain warnings, issued {day.isoformat()} (research prototype)", "",
              "Probability that the IMD-day rain total (03 UTC to 03 UTC) of a cell exceeds the IMD categories heavy "
              "(64.5 mm), very heavy (115.6 mm), extremely heavy (204.5 mm), or the cell's own 95th / 99th monsoon "
-             "percentile. Levels: red P(very heavy) >= 0.5 or P(extremely heavy) >= 0.25; orange P(heavy) >= 0.5 or "
-             "P(very heavy) >= 0.2 or P(p99) >= 0.4; yellow P(heavy) >= 0.2 or P(p95) >= 0.4. Not validated for public "
-             "warnings; it does not change any landslide alert level. Verification: reports/phase8_rain_warnings.md. "
+             f"percentile. {level_text(calibration)} D+0 is mostly rain already observed, not a forecast. Not "
+             "validated for public warnings; it does not change any landslide alert level. Verification: "
+             "reports/phase8_rain_warnings.md and reports/phase8_rain_warnings_v2.md. "
              "Contains ECMWF open data (IFS), licensed CC BY 4.0.", "",
              "| lead | day | source | cells | yellow | orange | red | unavailable | max P(heavy) | max P(very heavy) |",
              "|---|---|---|---|---|---|---|---|---|---|"]
@@ -129,16 +153,18 @@ def run_day(cfg: dict, day: date, live_dir: Path, out_dir: Path | None = None, *
             raise ProductError(f"{run_json} is the run of {stated}, not {day}")
     root = data_root()
     rain_dir = Path(rain_dir) if rain_dir is not None else root / cfg["rain_dir"]
-    calibration = Path(calibration) if calibration is not None else root / cfg["out_dir"] / "calibration_shipped.json"
+    calibration = Path(calibration) if calibration is not None else root / cfg["out_dir"] / DEFAULT_CALIBRATION
     clim = C.Climatology.load(root / cfg["out_dir"] / cfg["climatology"]["file"])
     features = pd.read_parquet(features_path, columns=["cell_id", "lat", "lon", "region", "irain_acc_1"])
     forecast = ecmwf.load_day(rain_dir / ecmwf.day_file_name(day))
-    table = build(day, features, forecast, clim, E.Calibration.load(calibration))
+    shipped = E.Calibration.load(calibration)
+    state = season_state_of(imerg.ImergStore(rain_dir, "late"), clim, day) if shipped.uses_state() else None
+    table = build(day, features, forecast, clim, shipped, state)
     out_dir.mkdir(parents=True, exist_ok=True)
     tmp = out_dir / (PARQUET + ".tmp")
     table.to_parquet(tmp, index=False)
     tmp.replace(out_dir / PARQUET)
-    (out_dir / BULLETIN).write_text(bulletin(table, day, calibration), encoding="utf-8")
+    (out_dir / BULLETIN).write_text(bulletin(table, day, calibration, shipped), encoding="utf-8")
     counts = table.groupby(["lead", "level_name"]).size().to_dict()
     print(f"[rainwarn] {day}: wrote {out_dir / PARQUET} ({len(table)} rows) {counts}", flush=True)
     return 0

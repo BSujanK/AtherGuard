@@ -3,6 +3,8 @@
     python -m aetherguard.rainwarn climatology                 build data/processed/rainwarn/climatology.npz
     python -m aetherguard.rainwarn study [--resume]            fit, verify, write reports/phase8_rain_warnings.{json,md}
     python -m aetherguard.rainwarn report                      re-render the markdown from the JSON
+    python -m aetherguard.rainwarn v2-dev                      spec section 12 on 2023 + 2024: calibration_v2.json
+    python -m aetherguard.rainwarn v2-test2025                 the one test on June-September 2025
     python -m aetherguard.rainwarn run --date D --live-dir DIR [--out-dir DIR]
                                                                rain_warnings.parquet + rain_warnings.md of one run day
 """
@@ -53,6 +55,8 @@ def main(argv: list[str] | None = None) -> int:
     study = sub.add_parser("study")
     study.add_argument("--resume", action="store_true", help="reuse the cached per-set tallies in the out directory")
     sub.add_parser("report")
+    sub.add_parser("v2-dev", help="spec section 12: choose and fit the shipped calibration, derive the v2 levels")
+    sub.add_parser("v2-test2025", help="spec section 12.4: the one test on June-September 2025 (refuses a second run)")
     run = sub.add_parser("run")
     run.add_argument("--date", required=True, type=date.fromisoformat)
     run.add_argument("--live-dir", required=True, type=Path, help="the run directory of the day (features_D0.parquet)")
@@ -68,6 +72,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "report":
         from . import report as R
         return R.rerender(cfg)
+    if args.command == "v2-dev":
+        from . import v2
+        return v2.run_dev(cfg, progress=_progress)
+    if args.command == "v2-test2025":
+        from . import v2
+        return v2.run_test2025(cfg, progress=_progress)
     from . import product
     return product.run_day(cfg, args.date, args.live_dir, args.out_dir, calibration=args.calibration)
 

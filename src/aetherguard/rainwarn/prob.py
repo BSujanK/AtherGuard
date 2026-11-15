@@ -137,7 +137,10 @@ def fit_logistic(x: np.ndarray, y: np.ndarray, *, ridge: float = 1e-6, max_iter:
             p = _sigmoid(block @ coef)
             gradient += block.T @ (target - p)
             hessian += (block.T * (p * (1 - p))) @ block
-        step = np.linalg.solve(hessian, gradient)
+        try:
+            step = np.linalg.solve(hessian, gradient)
+        except np.linalg.LinAlgError:          # no event at all: the intercept runs off and its curvature underflows
+            step = np.linalg.lstsq(hessian, gradient, rcond=None)[0]
         coef = coef + step
         if np.max(np.abs(step)) < tol:
             break

@@ -46,7 +46,9 @@ def write_tables(root):
             coef[1] = 3.0                     # p = sigmoid(3 (log1p(first predictor) - log1p(t)))
             model = P.LogisticModel(coef=coef, mean=np.zeros(k), scale=np.ones(k), n=1, n_events=1, log_loss=0.1)
             entries[lead][name] = {"radius": 0, "model": model, "log_loss_by_radius": {"0": 0.1}}
-    E.Calibration(fit=[], radii=[0], entries=entries).save(root / "processed" / "rainwarn" / "calibration_shipped.json")
+    levels = {lead: {"red": 0.5, "orange": 0.3, "yellow": 0.1} for lead in E.LEADS}
+    E.Calibration(fit=[], radii=[0], entries=entries, levels=levels).save(
+        root / "processed" / "rainwarn" / product.DEFAULT_CALIBRATION)
     return pixels
 
 
@@ -128,3 +130,27 @@ def test_run_without_an_ensemble_day_publishes_lead_zero_only(setup, tmp_path):
     product.run_day(CFG, DAY, setup)
     table = pd.read_parquet(setup / product.PARQUET)
     assert table.groupby("lead")["published"].all().to_dict() == {0: True, 1: False, 2: False, 3: False}
+
+
+def test_a_state_calibration_reads_the_season_state(setup, tmp_path, monkeypatch):
+    root = tmp_path / "data"
+    path = root / "processed" / "rainwarn" / product.DEFAULT_CALIBRATION
+    cal = E.Calibration.load(path)
+    for lead in (1, 2, 3):
+        for entry in cal.entries[lead].values():
+            m = entry["model"]
+            entry["model"] = P.LogisticModel(coef=np.append(m.coef, 5.0), mean=np.append(m.mean, 0.0),
+                                             scale=np.append(m.scale, 1.0), n=1, n_events=1, log_loss=0.1)
+            entry["state"] = True
+    cal.save(path)
+    seen = []
+
+    def fake_state(store, clim, day):
+        seen.append(day)
+        return np.full(len(clim.pixels), -2.0)
+    monkeypatch.setattr(product, "season_state_of", fake_state)
+    product.run_day(CFG, DAY, setup)
+    dry_season = pd.read_parquet(setup / product.PARQUET)
+    assert seen == [DAY]
+    lead1 = dry_season[(dry_season["lead"] == 1) & (dry_season["region"] == "western_ghats")]
+    assert lead1["p_heavy"].iloc[0] < 1e-4          # a strongly negative state pulls the dry pixel further down

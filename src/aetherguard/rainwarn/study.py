@@ -147,7 +147,22 @@ class DayInputs:
         self.det = {k: np.asarray(v, dtype=np.float32) for k, v in self.det.items()}
 
 
-def day_inputs(ctx: Context, lead: int, day: date, live_lead0: bool) -> DayInputs:
+def state_of(ctx: Context, day: date) -> np.ndarray:
+    """Season-state predictor of issue day `day` at the domain pixels (spec section 12.2), from IMERG Late."""
+    window = E.state_days(day)
+    observed = np.column_stack([ctx.truth(d) for d in window])
+    clim = np.column_stack([ctx.clim.prob("heavy", d) for d in window])
+    return E.season_state(observed, clim, ctx.domain.regions)
+
+
+def day_inputs(ctx: Context, lead: int, day: date, live_lead0: bool, state: bool = False) -> DayInputs:
+    item = _day_inputs(ctx, lead, day, live_lead0)
+    if state and item.fields is not None:
+        item.fields[E.STATE] = state_of(ctx, day).astype(np.float32)
+    return item
+
+
+def _day_inputs(ctx: Context, lead: int, day: date, live_lead0: bool) -> DayInputs:
     pixels = ctx.domain.pixels
     if lead == 0:
         obs0 = ctx.live_obs0(day) if live_lead0 else ctx.early_utc(day - timedelta(days=1))
@@ -172,19 +187,23 @@ def thresholds_of(ctx: Context) -> dict[str, object]:
     return {name: ctx.clim.threshold_mm(name) for name in P.THRESHOLDS}
 
 
-def fit_lead(ctx: Context, lead: int, inputs: dict[date, DayInputs], fit_days: list[date], ridge: float) -> dict:
-    limits = thresholds_of(ctx)
-    entries = {}
-    for name in P.THRESHOLDS:
-        rows = []
-        for day in fit_days:
-            item = inputs.get(day)
-            if item is None or item.fields is None:
-                continue
-            target = day + timedelta(days=lead)
-            rows.append((item.fields, limits[name], ctx.clim.prob(name, target), ctx.truth(target)))
-        entries[name] = E.fit_threshold(rows, lead, name, ctx.radii, ridge)
-    return entries
+def rows_of(ctx: Context, lead: int, inputs: dict[date, DayInputs], days: list[date], name: str) -> list:
+    """(fields, threshold, clim, observed) of every day with inputs, as `engine.fit_threshold` takes them."""
+    limit = ctx.clim.threshold_mm(name)
+    rows = []
+    for day in days:
+        item = inputs.get(day)
+        if item is None or item.fields is None:
+            continue
+        target = day + timedelta(days=lead)
+        rows.append((item.fields, limit, ctx.clim.prob(name, target), ctx.truth(target)))
+    return rows
+
+
+def fit_lead(ctx: Context, lead: int, inputs: dict[date, DayInputs], fit_days: list[date], ridge: float,
+             state: bool = False) -> dict:
+    return {name: E.fit_threshold(rows_of(ctx, lead, inputs, fit_days, name), lead, name, ctx.radii, ridge, state)
+            for name in P.THRESHOLDS}
 
 
 def _new_tallies(kinds, n_days) -> dict:
@@ -192,7 +211,7 @@ def _new_tallies(kinds, n_days) -> dict:
 
 
 def evaluate(ctx: Context, lead: int, inputs: dict[date, DayInputs], entries: dict, test_days: list[date],
-             with_imd: bool) -> dict:
+             with_imd: bool, level_cutoffs: dict | None = None) -> dict:
     """Tallies of every kind, the IMD second opinion and the level table of one lead on one test set."""
     kinds = KINDS_OBS if lead == 0 else KINDS_ENS
     n_days = len(test_days)
@@ -202,7 +221,8 @@ def evaluate(ctx: Context, lead: int, inputs: dict[date, DayInputs], entries: di
     groups = {"domain": np.ones(ctx.n, dtype=bool), "himalaya": ctx.domain.regions == "himalaya",
               "western_ghats": ctx.domain.regions == "western_ghats"}
     limits = thresholds_of(ctx)
-    calibration = E.Calibration(fit=[], radii=ctx.radii, entries={lead: entries})
+    calibration = E.Calibration(fit=[], radii=ctx.radii, entries={lead: entries},
+                                levels=None if level_cutoffs is None else {lead: level_cutoffs})
     counts = {"issue_days": n_days, "no_inputs": 0, "no_truth": 0, "pairs_dropped": 0}
     for i, day in enumerate(test_days):
         item = inputs.get(day)
@@ -242,7 +262,7 @@ def evaluate(ctx: Context, lead: int, inputs: dict[date, DayInputs], entries: di
                 if imd_tallies is not None and name in P.FIXED_MM and imd_truth is not None:
                     ok = member & np.isfinite(imd_truth) & np.isfinite(forecast["calibrated"])
                     imd_tallies[name][region].add(i, forecast["calibrated"][ok], imd_truth[ok] > t)
-        level = P.warning_levels(probs)
+        level = calibration.warning_levels(lead, probs)
         category = obs_category(np.nan_to_num(truth, nan=-1.0))
         finite = np.isfinite(truth)
         for region, member in groups.items():

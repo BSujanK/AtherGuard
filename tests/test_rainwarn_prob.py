@@ -109,3 +109,9 @@ def test_chunked_fit_equals_the_one_block_fit():
     y = rng.random(30_000) < 1.0 / (1.0 + np.exp(-(x[:, 0] - 1.0)))
     one, many = P.fit_logistic(x, y, chunk=10**9), P.fit_logistic(x, y, chunk=7_000)
     assert np.allclose(one.coef, many.coef) and one.log_loss == pytest.approx(many.log_loss)
+
+
+def test_a_fit_without_any_event_gives_near_zero_probabilities():
+    x = np.random.default_rng(8).normal(size=(5000, 2))
+    model = P.fit_logistic(x, np.zeros(5000, dtype=bool))
+    assert np.all(P.predict_logistic(model, x) < 1e-6)
