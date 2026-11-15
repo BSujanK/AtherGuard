@@ -23,12 +23,15 @@ inputs). Two windows per year:
 
 The aspect / TWI contributions of the terrain diagnostic are not computed (`hardening.score_rows(explain=False)`): they
 are the costliest field and no step here reads them. One panel per year and window is written and kept; a rerun scores
-only the missing ones. Nothing here reads 2018-2025 or any held-out event.
+only the missing ones. The refitted fold models (about 3.5 minutes) are kept in `fold_models.pkl` next to the panels,
+tied to the hash of the v4 card, so that one year can be scored per process and the heavy-job lock released between
+years. Nothing here reads 2018-2025 or any held-out event.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import pickle
 import sys
 import time
 from datetime import date, timedelta
@@ -39,7 +42,9 @@ import numpy as np
 from ..config import PROJECT_ROOT, data_root
 from ..features import imerg_intensity as ii
 from ..features import static_w5 as sw
+from ..hazard import model as hm
 from ..hazard.jsonio import dump_json
+from ..manifest import sha256_file
 from . import backtest as bt
 from . import burden
 from . import hardening as H
@@ -47,6 +52,7 @@ from . import post_rules_v4 as P
 from . import run as live_run
 
 OUT_DIR = "oof_v4_full"              # under data/processed/alerts/
+FOLD_MODELS_FILE = "fold_models.pkl"
 WINDOWS = {"jun_dec": ((6, 1), (12, 31), bt.WARMUP_DAYS), "jan_may": ((1, 1), (5, 31), 0)}
 
 
@@ -69,6 +75,29 @@ def unexplained(model, rows):
     return H.score_rows(model, rows, explain=False)
 
 
+def card_sha(cfg: dict) -> str:
+    directory = hm.configured_model_dir(hm.hazard_config(live_run.project_path(P.V4_MODEL_CONFIG)))
+    return sha256_file(directory / hm.CARD_FILE)
+
+
+def cached_fold_models(directory: Path, sha: str, fit) -> tuple[dict, dict]:
+    """({year: model}, check) from `directory`/FOLD_MODELS_FILE when it was written for the card of hash `sha`, else
+    `fit()`, stored there for the next process. We write this file ourselves; it is never shared."""
+    path = Path(directory) / FOLD_MODELS_FILE
+    if path.is_file():
+        with open(path, "rb") as handle:
+            stored = pickle.load(handle)
+        if stored["card_sha256"] == sha:
+            return stored["models"], stored["check"]
+    models, check = fit()
+    Path(directory).mkdir(parents=True, exist_ok=True)
+    part = path.with_name(path.name + ".part")
+    with open(part, "wb") as handle:
+        pickle.dump({"card_sha256": sha, "models": models, "check": check}, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    part.replace(path)
+    return models, check
+
+
 def score(years, window: str, cfg: dict, directory: Path, say, root: Path | None = None) -> list[Path]:
     """Score the panels of `years` x `window` that do not exist yet (module doc); returns every panel's path."""
     from ..hazard import v4_int
@@ -89,9 +118,12 @@ def score(years, window: str, cfg: dict, directory: Path, say, root: Path | None
     study = v4_int.load_study(PROJECT_ROOT / P.V4_STUDY)
     cells, _, counts = burden.development_cells(burden.development_events(years), cfg)
     say(json.dumps(counts))
-    dev = v4_int.load_development(study, None, lag)
-    models, check = burden.fold_models(model, study["base"], progress=say, dev=dev)
-    del dev
+
+    def fit():
+        dev = v4_int.load_development(study, None, lag)
+        return burden.fold_models(model, study["base"], progress=say, dev=dev)
+
+    models, check = cached_fold_models(directory, card_sha(cfg), fit)
     say(json.dumps(check))
     if abs(check["oof_recall_at_watch"] - check["card_oof_recall_at_watch"]) > 1e-12:
         raise ValueError(f"the refitted v4 fold models do not reproduce the card's out-of-fold recall: {check}")

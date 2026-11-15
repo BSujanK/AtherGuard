@@ -20,3 +20,16 @@ def test_the_january_may_window_starts_cold_on_new_years_day():
 def test_scoring_refuses_held_out_years(tmp_path):
     with pytest.raises(ValueError):
         F.score([2018], "jun_dec", {}, tmp_path, print)
+
+
+def test_fold_models_are_fitted_once_per_card(tmp_path):
+    calls = []
+
+    def fit():
+        calls.append(1)
+        return {2007: "model"}, {"oof_recall_at_watch": 0.9}
+
+    assert F.cached_fold_models(tmp_path, "abc", fit) == ({2007: "model"}, {"oof_recall_at_watch": 0.9})
+    assert F.cached_fold_models(tmp_path, "abc", fit)[0] == {2007: "model"} and len(calls) == 1
+    F.cached_fold_models(tmp_path, "other card", fit)
+    assert len(calls) == 2
