@@ -1356,3 +1356,60 @@ def test_a_forecast_cell_carries_the_thresholds_of_its_region_in_the_run(client,
     write_run_model(tmp_path, RUN_DAY, thresholds=POOLED, thresholds_by_region=BY_REGION)
     body = forecast_cell(client, 2).json()
     assert (body["thresholds_region"], body["thresholds"]["emergency"]) == ("western_ghats", 2.56e-5)
+
+
+# ---- heavy-rain warnings -------------------------------------------------------------------------------------------
+
+def write_rain_warnings(live_dir, day, leads=(0, 1), unavailable_lead=None):
+    folder = live_dir / day
+    folder.mkdir(parents=True, exist_ok=True)
+    frames = []
+    for lead in leads:
+        missing = lead == unavailable_lead
+        frame = pd.DataFrame({"cell_id": [30_000_001, 10_000_003], "date": pd.Timestamp(day), "lead": np.int8(lead),
+                              "target_date": pd.Timestamp(day) + pd.Timedelta(days=lead),
+                              "level": np.int8([-1, -1] if missing else [3, 0]), "published": not missing,
+                              "source": "ecmwf_ens" if lead else "imerg_early+nowcast_tail",
+                              "cycle": "2026-11-13T18:00:00+00:00" if lead else None,
+                              "reason": "no valid ECMWF ensemble day for this lead" if missing else None})
+        for k, column in enumerate(dash_api.RAIN_WARNING_PROBS):
+            frame[column] = np.float32([np.nan, np.nan] if missing else [0.9 - 0.1 * k, 0.01])
+        frames.append(frame)
+    pd.concat(frames, ignore_index=True).to_parquet(folder / dash_api.RAIN_WARNINGS_FILE, index=False)
+
+
+def test_rain_warnings_serve_levels_and_probabilities_of_a_lead(client, tmp_path):
+    write_rain_warnings(tmp_path / "live", "2026-11-14")
+    body = client.get("/api/rain-warnings", params={"date": "2026-11-14", "lead": 1}).json()
+    assert body["lead"] == 1 and body["target_date"] == "2026-11-15" and body["published"] is True
+    assert decode(body["cells"], "<u4").tolist() == [10_000_003, 30_000_001]
+    assert decode(body["level"], "u1").tolist() == [0, 3]
+    assert decode(body["p_heavy"], "<f4").tolist() == pytest.approx([0.01, 0.9])
+    assert body["counts"]["red"] == 1 and body["counts"]["none"] == 1
+    assert "ECMWF" in body["attribution"] and "landslide" in body["note"]
+
+
+def test_rain_warnings_default_to_the_newest_day_and_mark_an_unavailable_lead(client, tmp_path):
+    write_rain_warnings(tmp_path / "live", "2026-11-13")
+    write_rain_warnings(tmp_path / "live", "2026-11-14", leads=(0, 1, 2), unavailable_lead=2)
+    body = client.get("/api/rain-warnings", params={"lead": 2}).json()
+    assert body["date"] == "2026-11-14" and body["dates"] == ["2026-11-13", "2026-11-14"]
+    assert body["published"] is False and "ensemble" in body["reason"]
+    assert decode(body["level"], "u1").tolist() == [255, 255] and np.isnan(decode(body["p_p99"], "<f4")).all()
+    lead0 = client.get("/api/rain-warnings", params={"lead": 0}).json()
+    assert lead0["attribution"] is None and lead0["cycle"] is None
+
+
+def test_rain_warnings_are_404_without_the_product(client, tmp_path):
+    assert client.get("/api/rain-warnings").status_code == 404
+    write_run(tmp_path / "live", "2026-11-14")
+    assert client.get("/api/rain-warnings", params={"date": "2026-11-14"}).status_code == 404
+    write_rain_warnings(tmp_path / "live", "2026-11-14", leads=(0,))
+    assert client.get("/api/rain-warnings", params={"date": "2026-11-14", "lead": 3}).status_code == 404
+
+
+def test_rain_warnings_do_not_change_the_landslide_grid(client, tmp_path):
+    write_run(tmp_path / "live", "2026-11-14")
+    before = client.get("/api/grid", params={"date": "2026-11-14", "lead": 0}).json()
+    write_rain_warnings(tmp_path / "live", "2026-11-14")
+    assert client.get("/api/grid", params={"date": "2026-11-14", "lead": 0}).json() == before

@@ -19,6 +19,11 @@
   GET /api/rain?date=&set=            1-day rain of the cells scored that day, averaged onto a 0.25 degree grid, and the
                                       rain source(s) the day's alert rows name
   GET /api/sources/status             freshness.json of the newest live run
+  GET /api/rain-warnings?date=&lead=  the heavy-rain warning product of a run day (`rain_warnings.parquet`, written by
+                                      python -m aetherguard.rainwarn run): per cell the level byte (0 none, 1 yellow,
+                                      2 orange, 3 red, 255 unavailable) and the five exceedance probabilities (float32);
+                                      the newest day holding the product when no date is given. Read-only; separate
+                                      from the landslide levels
   GET /api/cells/{id}/history?days=&date=&set=   per-day risk, level and 1-day rain by source of one cell, its place, and the
                                       D+1..D+3 forecasts of the live run of the window's last day
   GET /api/stream                     Server-Sent Events: run, sources, heartbeat
@@ -781,6 +786,58 @@ def rain(request: Request, date: str = Query(pattern=DATE_PATTERN), set: str | N
     return {"date": day, "set": name, "column": column, "unit": "mm/day", "n_cells": int(len(frame)),
             "rain_sources": _rain_sources(alert_path), "rows": RAIN_ROWS, "cols": RAIN_COLS, "lat0": tg.LAT0, "lon0": tg.LON0, "step": RAIN_STEP,
             "rain": _encode(field, "<f4")}
+
+
+# ---- heavy-rain warnings ----------------------------------------------------------------------------------------------
+
+RAIN_WARNINGS_FILE = "rain_warnings.parquet"
+RAIN_WARNING_PROBS = ("p_heavy", "p_very_heavy", "p_extremely_heavy", "p_p95", "p_p99")
+RAIN_WARNING_LEVELS = {0: "none", 1: "yellow", 2: "orange", 3: "red", 255: "unavailable"}
+RAIN_WARNING_NOTE = ("research prototype, not validated for public warnings; separate from the landslide alert levels; "
+                     "verification in reports/phase8_rain_warnings.md")
+
+
+def _text_or_none(value) -> str | None:
+    return value if isinstance(value, str) and value else None
+
+
+@router.get("/rain-warnings")
+def rain_warnings(request: Request, date: str | None = Query(None, pattern=DATE_PATTERN),
+                  lead: int = Query(0, ge=0, le=LEADS)) -> dict:
+    live_dir = _config(request).live_dir
+    dates = _run_dates(live_dir, RAIN_WARNINGS_FILE)
+    if date is None:
+        if not dates:
+            raise HTTPException(404, f"no heavy-rain warning product yet (no {RAIN_WARNINGS_FILE} under {display_path(live_dir)})")
+        day = dates[-1]
+    else:
+        day = _day(date)
+    path = live_dir / day / RAIN_WARNINGS_FILE
+    if not path.is_file():
+        raise HTTPException(404, f"live run {day} has no heavy-rain warning product ({RAIN_WARNINGS_FILE} not found)")
+    try:
+        frame = pd.read_parquet(path, filters=[("lead", "==", lead)])
+        frame = frame.sort_values("cell_id", kind="stable")
+        level = frame["level"].to_numpy().astype(np.int64)
+    except (KeyError, ValueError, OSError) as error:
+        raise HTTPException(500, scrub(f"{display_path(path)} cannot be read as a rain-warning table: {error}", path.parent)) from None
+    if frame.empty:
+        raise HTTPException(404, f"{RAIN_WARNINGS_FILE} of {day} has no lead {lead}")
+    if level.min() < -1 or level.max() > 3:
+        raise HTTPException(500, f"{display_path(path)} has rain-warning levels outside -1..3")
+    codes = np.where(level < 0, 255, level)
+    first = frame.iloc[0]
+    body = {"date": day, "lead": lead, "target_date": pd.Timestamp(first["target_date"]).date().isoformat(),
+            "published": bool(frame["published"].all()), "reason": _text_or_none(first["reason"]),
+            "source": str(first["source"]), "cycle": _text_or_none(first["cycle"]), "n": int(len(frame)),
+            "counts": {RAIN_WARNING_LEVELS[c]: int(np.sum(codes == c)) for c in RAIN_WARNING_LEVELS},
+            "dates": dates, "note": RAIN_WARNING_NOTE,
+            "attribution": ECMWF_ATTRIBUTION if lead > 0 else None,
+            "cells": _encode(frame["cell_id"], "<u4"), "level": _encode(codes, "u1"),
+            "lat0": GRID_LAT0, "lon0": GRID_LON0, "step": CELL_DEG}
+    for column in RAIN_WARNING_PROBS:
+        body[column] = _encode(frame[column], "<f4")
+    return body
 
 
 # ---- sources and stream ---------------------------------------------------------------------------------------------
