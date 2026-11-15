@@ -194,3 +194,60 @@ In the driest pixels the June-September 95th percentile is a few millimetres (51
 15.6 mm, almost all in the Himalaya rain shadow), so "exceeds its own p95" would warn of light rain. Both percentile
 thresholds are floored at 15.6 mm, the lower bound of the IMD category "moderate": `p95 = max(p95, 15.6)`, likewise
 `p99`. The floor applies to the thresholds, `clim(t)` and the product alike. No other part of the spec changes.
+
+## 12. Amendment v2 (2026-11-16): shipped calibration, re-derived levels and the one test on June-September 2025
+
+Written and committed before the June-September 2025 ECMWF days are fetched and before any 2025 number is computed. The
+lead's decisions of 2026-11-16: fetch JJAS 2025 from the open ECMWF buckets (no account), re-derive the warning levels so
+they fire at stated frequencies, and test the shipped product once on 2025.
+
+**12.1 Data.** The 12Z run of D-1 for every issue day 2025-06-01..2025-09-30, fetched with `ingest.ecmwf.fetch_archive`
+(`ecmwf_build --archive --start 2025-06-01 --end 2025-09-30`, a 2025 window added to `configs/live.yaml` on this branch),
+the same cycle and product as 2023 and 2024. Truth: IMERG Late, as in section 6. No GFS and no IMD grid exist locally for
+2025, so the 0/1 baselines and the IMD second opinion are not part of the 2025 test (they are shown where they exist).
+Lead 0 (observation, section "How much of the D skill is observation" of the report) is reported but not tested.
+
+**12.2 Shipped calibration.** Two candidates, both fitted on all of June-September 2023 + 2024 (the pooled fit):
+
+- A: the predictors of section 4, as shipped now;
+- B: A plus one season-state predictor `s`, the same column for every threshold. For issue day D and the pixel's group g
+  (`himalaya`, `western_ghats`, or all domain pixels for a pixel in neither), over the window W of IMD days D-31..D-2
+  (30 days that IMERG Late has observed by the run time): count = pixel-days of g x W whose IMERG Late IMD-day total
+  exceeds 64.5 mm, expected = the sum of `clim(heavy)` over the same pixel-days (missing pixel-days leave both),
+  `s = ln((count + 1) / (expected + 1))`. With fewer than 20 days of W in the store, `s = 0`. It says whether the recent
+  weeks were wetter or drier than usual, the season-to-season swing behind the "NOT reliable" rows.
+
+Choice, on development data only: the cross-season log loss (fit on 2023, score 2024; fit on 2024, score 2023), summed
+over leads 1-3 and the five thresholds and weighted by pixel-days. B is shipped if its sum is lower than A's, else A.
+Lead 0 keeps A in both cases. The neighbourhood radius is re-chosen per lead and threshold by the rule of section 4.
+
+**12.3 Warning levels v2.** Per lead (0 to 3 separately), from the shipped calibration's probabilities on the pooled
+2023 + 2024 days (in sample), first match wins:
+
+| level | rule |
+|---|---|
+| red | P_vh >= c_r |
+| orange | max(P_h, P_99) >= c_o |
+| yellow | max(P_h, P_95) >= c_y |
+| none | otherwise |
+
+The cutoffs are set so that, on the 2023 + 2024 domain pixel-days of that lead, red fires on 0.3%, orange or red on 1.5%,
+and yellow or above on 6.0% of pixel-days (c_r is the 99.7th percentile of P_vh; c_o and c_y are found by bisection on
+the cumulative share). These are the target frequencies; the 2023 + 2024 base rate of heavy rain is about 2% of
+pixel-days, so yellow or above is about three times the event frequency. The section 7 rules stay in the report for
+comparison only; the product uses v2.
+
+**12.4 The pass rule on June-September 2025, tested once.** Domain, shipped calibration, v2 levels. The product PASSES
+when all of these hold:
+
+1. at least 90 issue days of 2025 have an ECMWF day file and a truth for every tested lead;
+2. BSS against climatology with the lower bound of its 95% day-bootstrap interval above 0 for `heavy` at D+1, D+2 and D+3
+   and for `very_heavy` at D+1 and D+2;
+3. mean probability / base rate between 0.67 and 1.5 for the same five rows;
+4. the share of observed heavy pixel-days (IMERG Late above 64.5 mm) that fell under level `none`: at most 40% at D+1 and
+   at most 50% at D+2 and D+3.
+
+The enough-events rule of section 6 applies; a row without enough events counts as a failed row. Every other number
+(the other thresholds, regions, reliability tables, level frequencies against their targets) is reported beside the
+verdict and does not change it. The 2025 scoring writes a started marker before it computes anything and refuses a
+second run. If the product fails, it is reported as failed and nothing is re-tuned on 2025.
