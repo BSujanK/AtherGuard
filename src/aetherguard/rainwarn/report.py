@@ -193,6 +193,59 @@ def fits_table(payload: dict) -> list[str]:
     return lines
 
 
+def statement_summary(payload: dict, set_name: str) -> list[str]:
+    """One line per lead and threshold of the set: the verdict per region with the events it rests on."""
+    lines = []
+    for lead, data in payload["leads"].items():
+        block = data["sets"].get(set_name)
+        if block is None:
+            continue
+        for name in P.THRESHOLDS:
+            parts = []
+            for region in REGIONS:
+                e = block["thresholds"][name][region]
+                p = e["product"]
+                if not p.get("n"):
+                    continue
+                parts.append(f"{region}: {verdict(e['statements'])} ({p['events']} event pixel-days on {p['event_days']} days)")
+            lines.append(f"- {LEAD_NAMES[lead]}, {name}: " + "; ".join(parts))
+    return lines
+
+
+LIMITS = """## What this can and cannot conclude
+
+- The truth is IMERG Late, a satellite estimate. Skill against IMERG is not skill against rain gauges; the IMD grid is
+  shown as a second opinion at 0.25 degree, with the sample base rate as reference, and its day convention in the local
+  store is marked unconfirmed.
+- Lead 0 is fitted on IMERG Early against IMERG Late. The two runs share the algorithm and most of the microwave input,
+  so the lead-0 scores against Late are optimistic; the IMD second opinion is the independent check of lead 0.
+- Pixel-days are not independent: rain on one day covers many neighbouring pixels. The intervals resample whole days,
+  and a statement needs a minimum number of distinct event days, so a large pixel-day count alone does not make a
+  conclusion.
+- The ensemble archive is two monsoon seasons; the 2026 set is October-November, where heavy rain is rare. A threshold
+  marked "too few events" carries no conclusion, in either direction.
+- The ensemble is summarised by four stored statistics; the raw probability is rebuilt from them, not counted from
+  members.
+
+## What a longer archive would add
+
+The ECMWF open-data buckets hold every ensemble member from 2023 on, anonymously. Fetching June-September 2025 (an
+existing command, `ingest.ecmwf.fetch_archive`) would add a third monsoon season, so the calibration could be fitted on
+two seasons and tested on a third; adding the non-monsoon months would allow a seasonal calibration; storing the member
+fraction above each threshold in the day file would replace the rebuilt CDF with the real one. Extremely heavy days
+per region would then be numerous enough for a statement.
+
+## Wiring into the daily run (branch only; not done)
+
+`configs/live_run.yaml` carries `rain_warnings.enabled: false`. To switch it on, the live run would call
+`aetherguard.rainwarn.product.run_day` for day D after its landslide tables are written, with the run directory as
+both input and output and the shipped calibration, inside a guard that records a failure in `run.json` without failing
+the run. It reads only `features_D0.parquet` and the ECMWF day file that the run has already fetched, adds
+`rain_warnings.parquet` and `rain_warnings.md`, and changes no landslide table (a test checks the bytes);
+`GET /api/rain-warnings` then serves it. That switch is the lead's step after the user's yes.
+"""
+
+
 def render(payload: dict) -> str:
     sets = payload["sets"]
     out = ["# Probabilistic heavy-rain warnings: verification", "",
@@ -217,6 +270,7 @@ def render(payload: dict) -> str:
         out += [f"## Test set `{set_name}` ({s['role']}): test {test['first']}..{test['last']}, fitted on {fit}", ""]
         days = next(iter(payload["leads"].values()))["sets"][set_name]["test_days"]
         out += [f"Test issue days with an ECMWF file: {days[2]} ({days[0]}..{days[1]}).", ""]
+        out += ["### Statements (pre-declared tests)", ""] + statement_summary(payload, set_name) + [""]
         out += ["### Headline (product = calibrated probability)", ""] + headline(payload, set_name) + [""]
         out += ["### Against the deterministic baselines and the raw ensemble (domain)", ""] + baselines_table(payload, set_name) + [""]
         out += ["### Raw quantile probability (uncalibrated) beside the product (domain)", ""] + raw_table(payload, set_name) + [""]
@@ -227,4 +281,5 @@ def render(payload: dict) -> str:
     out += ["## Shipped calibration (fitted on June-September 2023 + 2024)", "",
             f"File: `data/{payload['shipped_calibration']}`. Expected level frequency = the in-sample share on its fitting days:", ""]
     out += levels_table(payload, None) + ["", "Chosen neighbourhood radius per lead and threshold:", ""] + fits_table(payload) + [""]
+    out += [LIMITS]
     return "\n".join(out) + "\n"
