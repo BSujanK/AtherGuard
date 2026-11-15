@@ -286,8 +286,10 @@ def imd_day_total(versions: dict[tuple[str, datetime], list[Report]], station: s
         if reasons != ["no_24h_amount"]:
             return None, reasons[0]
     intervals: dict[tuple[datetime, datetime], float] = {}
-    for (sid, time), reports in versions.items():
-        if sid != station or not (start < time <= end):
+    for hour in range(1, 25):                  # reports are on whole hours (AAXX YYGG)
+        time = start + timedelta(hours=hour)
+        reports = versions.get((station, time))
+        if not reports:
             continue
         for acc in reports[0].accumulations:
             hours = resolve_period(reports[0], acc, since_03utc_blocks)
