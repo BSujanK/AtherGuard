@@ -276,6 +276,9 @@ class ExpectedModel:
         return sum(w * np.asarray(self.base.ensemble_percentile(self._rows(f, rows), percentile))
                    for w, f in self.scenarios.values())
 
+    def raw_score(self, rows: pd.DataFrame) -> np.ndarray:
+        return sum(w * np.asarray(self.base.raw_score(self._rows(f, rows))) for w, f in self.scenarios.values())
+
     def contributions(self, rows: pd.DataFrame, *args, **kwargs):
         return self.base.contributions(rows, *args, **kwargs)
 

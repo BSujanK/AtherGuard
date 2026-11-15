@@ -309,6 +309,25 @@ class Identity:
         return np.asarray(field, dtype=np.float32)
 
 
+def climatology(cfg: dict, store, cell_ids):
+    """The train-range IMERG climatology of the cells' pixels: the live run's cache when it covers them, else computed here
+    and never written (a study never writes under data/live)."""
+    from ..features import imerg_build
+    from ..features import imerg_features as F
+    from . import run as live_run
+    from ..features.compute import ClimTable
+    pixels = np.unique(F.cell_pixels(np.asarray(cell_ids, dtype=np.int64)))
+    pixels = pixels[pixels >= 0]
+    cache = live_run.live_root(cfg) / "cache" / "imerg_climatology.npz"
+    train = imerg_build.build_config()["climatology"]
+    if cache.is_file():
+        with np.load(cache, allow_pickle=False) as data:
+            if (str(data["first_day"]), str(data["last_day"])) == (train["first_day"], train["last_day"]) \
+                    and np.isin(pixels, data["pix"]).all():
+                return ClimTable(data["pix"], data["values"])
+    return F.imerg_climatology(store, pixels, date.fromisoformat(train["first_day"]), date.fromisoformat(train["last_day"]))
+
+
 class E1Setup:
     def __init__(self, n_cells: int = E1_CELLS, seed: int = E1_SEED) -> None:
         from ..alerts.config import load_config_file as load_alert_config
@@ -329,7 +348,7 @@ class E1Setup:
             [c for c in self.v4.columns if c in static_w5.STATIC_COLUMNS]].reset_index(drop=True)
         self.rain_dir = project_path(cfg["imerg"]["processed_dir"])
         self.store = imerg.ImergStore(self.rain_dir, "late")
-        self.clim = live_run.load_climatology(cfg, self.store, F.cell_pixels(self.sample["cell_id"].to_numpy()))
+        self.clim = climatology(cfg, self.store, self.sample["cell_id"].to_numpy())
         self.alert_config = load_alert_config(project_path(cfg["alert_config"]))
         self.rules = pr.load_rules(project_path(cfg["post_rules"]))
         self.choice = fc.load_choice(project_path(cfg["forecast_selection"]))
