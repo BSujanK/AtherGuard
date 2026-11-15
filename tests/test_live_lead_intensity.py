@@ -160,3 +160,14 @@ def test_fit_and_apply_intensity_maps():
     np.testing.assert_allclose(np.median(curve.apply(fcst[:2000][fcst[:2000] > 0.1])),
                                np.median(obs[:2000][fcst[:2000] > 0.1]), rtol=0.05)
     assert ("gfs3h:max3h", 1, "rest") in maps.curves             # every pixel of a field has a curve
+
+
+def test_level_metrics_of_a_confusion_matrix():
+    from aetherguard.live import leads_v4_study as study
+    confusion = np.array([[50, 5, 0, 0], [5, 20, 5, 0], [0, 2, 6, 2], [0, 0, 1, 4]])     # reference rows, forecast columns
+    m = study.level_metrics(confusion)
+    assert m["pairs"] == 100 and m["agreement"] == 0.80 and m["within_one"] == 1.0
+    assert m["warning_plus_recall"] == 13 / 15 and m["warning_plus_precision"] == 13 / 18
+    assert m["emergency_recall"] == 4 / 5 and m["emergency_precision"] == 4 / 6
+    assert m["burden_reference"]["emergency"] == 0.05 and m["burden_forecast"]["warning"] == 0.12
+    assert study.level_metrics(np.zeros((4, 4))) == {"pairs": 0}

@@ -14,6 +14,12 @@ measure  Task 1 of docs/superpowers/specs/2026-11-14-aetherguard-leads-v4.md. Pa
          p99 of each side's own values) and their ratio, Pearson correlation, and the mean forecast where Late is at least
          10 mm (max3h). Pixels are those of the two scored regions. Writes `<out-dir>/phase8_leads_v4_measure.json` and the
          pairs of the fit seasons (`<out-dir>/lead_intensity_pairs.npz`, scratch; never committed).
+consistency  E1 of the spec (section 4): every June-September issue day of `--years` with a GFS 3-hour archive day and an
+         Early live window of D, a seeded random sample of 2,536 candidate cells (no event location used), each lead and
+         candidate (c incumbent, a, b, and the diagnostics a_oracle, a_raw) against the published v4 level of the target
+         day from observed features (and the incumbent against the v3 one): agreement, within one, Warning+ / Emergency
+         recall and precision, burden by level, calibration of lead risk against the later lead-0 risk, and day-bootstrap
+         standard errors of the differences from the incumbent. Writes `<out-dir>/phase8_leads_v4_e1.json`.
 fit      Quantile maps (`lead_intensity.fit_maps`) from the pairs of the fit seasons only: GFS on June-September 2021 (the first
          archive season; GFS has no archive in the development years), Early on June-September of the development years
          fetched (2016, 2017). The other seasons are never used by the fit.
@@ -27,6 +33,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 from ..config import PROJECT_ROOT, data_root, load_config_file
 from ..features import imerg_intensity as ii
@@ -245,6 +252,209 @@ def run_fit(pairs_path: Path, out: Path) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------------------------- E1: archive consistency
+
+E1_SEED = 20261115
+E1_CELLS = 2536
+E1_CANDIDATES = ("c", "a", "b", "a_oracle", "a_raw")
+LEVELS = 4
+
+
+def level_metrics(confusion: np.ndarray) -> dict:
+    """Agreement, within one, recall / precision of Warning+ and Emergency and the burden by level of both sides from a
+    (reference level x forecast level) count matrix."""
+    c = np.asarray(confusion, dtype=np.float64)
+    n = c.sum()
+    if not n:
+        return {"pairs": 0}
+    i, j = np.indices(c.shape)
+    out = {"pairs": int(n), "agreement": float(c[i == j].sum() / n), "within_one": float(c[np.abs(i - j) <= 1].sum() / n)}
+    for name, level in (("warning_plus", 2), ("emergency", 3)):
+        ref, fc_ = c[level:, :].sum(), c[:, level:].sum()
+        both = c[level:, level:].sum()
+        out[f"{name}_recall"] = float(both / ref) if ref else None
+        out[f"{name}_precision"] = float(both / fc_) if fc_ else None
+    out["burden_reference"] = {name: float(c[k, :].sum() / n) for k, name in enumerate(("normal", "watch", "warning", "emergency"))}
+    out["burden_forecast"] = {name: float(c[:, k].sum() / n) for k, name in enumerate(("normal", "watch", "warning", "emergency"))}
+    return out
+
+
+def calibration(forecast_risk: np.ndarray, reference_risk: np.ndarray, bins: int = 10) -> list[dict]:
+    """Mean lead risk and mean later lead-0 risk by decile of the lead risk."""
+    ok = np.isfinite(forecast_risk) & np.isfinite(reference_risk)
+    f, r = forecast_risk[ok], reference_risk[ok]
+    if not f.size:
+        return []
+    edges = np.quantile(f, np.linspace(0, 1, bins + 1))
+    which = np.clip(np.searchsorted(edges, f, side="right") - 1, 0, bins - 1)
+    return [{"decile": k + 1, "n": int((which == k).sum()), "mean_lead_risk": float(f[which == k].mean()),
+             "mean_lead0_risk": float(r[which == k].mean())} for k in range(bins) if (which == k).any()]
+
+
+def bootstrap_delta(per_day: dict, candidate: str, baseline: str, metric, n_boot: int = 1000, seed: int = E1_SEED):
+    """SE of metric(candidate) - metric(baseline) with issue days resampled (the same days for both)."""
+    a, b = np.stack(per_day[candidate]), np.stack(per_day[baseline])
+    rng = np.random.default_rng(seed)
+    draws = rng.integers(0, len(a), size=(n_boot, len(a)))
+    deltas = [metric(a[d].sum(axis=0)) - metric(b[d].sum(axis=0)) for d in draws]
+    deltas = [x for x in deltas if x is not None and np.isfinite(x)]
+    return float(np.std(deltas, ddof=1)) if len(deltas) > 1 else None
+
+
+class Identity:
+    def apply(self, source, offset, field):
+        return np.asarray(field, dtype=np.float32)
+
+
+class E1Setup:
+    def __init__(self, n_cells: int = E1_CELLS, seed: int = E1_SEED) -> None:
+        from ..alerts.config import load_config_file as load_alert_config
+        from ..features import imerg_features as F
+        from ..features import static_w5
+        from ..ingest import imerg
+        from . import forecast_choice as fc
+        from . import postrules as pr
+        from . import run as live_run
+        from .sources import project_path
+        self.cfg = cfg = live_run.load_run_config()
+        self.v3 = live_run.load_live_model(cfg)
+        self.v4 = live_run.load_live_model({**cfg, "model_config": cfg[live_run.LEAD0_KEY]})
+        cells, _ = live_run.load_candidate_cells(cfg)
+        rng = np.random.default_rng(seed)
+        self.sample = cells.iloc[np.sort(rng.choice(len(cells), size=min(n_cells, len(cells)), replace=False))].reset_index(drop=True)
+        self.static = static_w5.join_static(self.sample[["cell_id"]], static_w5.static_table())[
+            [c for c in self.v4.columns if c in static_w5.STATIC_COLUMNS]].reset_index(drop=True)
+        self.rain_dir = project_path(cfg["imerg"]["processed_dir"])
+        self.store = imerg.ImergStore(self.rain_dir, "late")
+        self.clim = live_run.load_climatology(cfg, self.store, F.cell_pixels(self.sample["cell_id"].to_numpy()))
+        self.alert_config = load_alert_config(project_path(cfg["alert_config"]))
+        self.rules = pr.load_rules(project_path(cfg["post_rules"]))
+        self.choice = fc.load_choice(project_path(cfg["forecast_selection"]))
+        regions = fm.pixel_regions_of(cfg)
+        self.maps = fm.ForecastMaps.load(project_path(self.choice.maps_file), regions)
+        self.intensity_maps = fm.ForecastMaps.load(data_root() / "processed" / "lead_intensity" / "intensity_maps.json", regions)
+        self.thresholds = {"v3": live_run.card_thresholds(self.v3, self.sample["region"]),
+                           "v4": live_run.card_thresholds(self.v4, self.sample["region"])}
+
+    def published(self, model, frame, thresholds):
+        from . import postrules as pr
+        from . import run as live_run
+        scorable = live_run.scorable_mask(frame, model.columns)
+        scores, level, _ = live_run.lead_scores(model, frame, scorable, thresholds, self.alert_config, self.rules, None)
+        ok = pr.rain_ok(frame, self.rules) | ~scorable
+        level = pr.capped_levels(level, ok, np.zeros(len(frame), dtype=bool), self.rules)[0]
+        return scores["risk"].to_numpy(dtype=np.float64), np.asarray(level), scorable
+
+    def sources(self, issue_day: date, stored, maps) -> li.LeadSources:
+        early_root = study_root() if ii.load_day(study_root(), li.EARLY, issue_day) is not None else ii.default_root()
+        cache: dict = {}
+
+        def forecast(target):
+            if target not in cache:
+                cache[target] = li.day_maps_on_grid(stored, target)
+            return cache[target]
+        return li.LeadSources(ii.default_root(), early_root, forecast, maps)
+
+
+def e1_day(setup: E1Setup, issue_day: date, lead: int, stored) -> dict | None:
+    """{candidate: (reference level, forecast level, reference risk, forecast risk, both scored)} of one issue day and lead,
+    plus the v3 reference for the incumbent; None when a candidate's inputs are missing."""
+    from . import forecast_choice as fc
+    from . import forecast_features as FF
+    from . import run as live_run
+    products = fc.load_product_days(setup.rain_dir, issue_day)
+    field = fc.resolve_lead(products, setup.choice, setup.maps, lead)
+    if field is None or not np.isfinite(field.days).all():
+        return None
+    cell_ids = setup.sample["cell_id"].to_numpy()
+    target = issue_day + timedelta(days=lead)
+    iint, _ = li.lead_frame(issue_day, lead, cell_ids, setup.sources(issue_day, stored, setup.intensity_maps))
+    raw, _ = li.lead_frame(issue_day, lead, cell_ids, setup.sources(issue_day, stored, Identity()))
+    observed_iint = ii.cell_features(target, cell_ids, ii.default_root(), li.LATE, 1)
+    if iint is None or raw is None or not np.isfinite(observed_iint.to_numpy()).all():
+        return None
+    base = setup.sample
+    forecast_rain = FF.lead_features(base, issue_day, lead, setup.store, field.days, setup.clim)
+    observed_rain = FF.lead_features(base, target, 0, setup.store, None, setup.clim)
+    frames = {"c": pd.concat([base, forecast_rain], axis=1),
+              "a": pd.concat([base, forecast_rain, iint, setup.static], axis=1),
+              "a_oracle": pd.concat([base, forecast_rain, observed_iint, setup.static], axis=1),
+              "a_raw": pd.concat([base, forecast_rain, raw, setup.static], axis=1)}
+    models = {"c": setup.v3, "a": setup.v4, "a_oracle": setup.v4, "a_raw": setup.v4, "b": setup.v4}
+    frames["b"] = frames["a"]
+    if field.scenarios is not None:
+        scenes = {name: pd.concat([base, FF.lead_features(base, issue_day, lead, setup.store, rain, setup.clim), iint, setup.static],
+                                  axis=1) for name, rain in field.scenarios.items()}
+        models["b"] = live_run.ExpectedModel(setup.v4, {n: (live_run.EXPECTED_WEIGHTS[n], f) for n, f in scenes.items()})
+    ref = {"v4": setup.published(setup.v4, pd.concat([base, observed_rain, observed_iint, setup.static], axis=1),
+                                 setup.thresholds["v4"]),
+           "v3": setup.published(setup.v3, pd.concat([base, observed_rain], axis=1), setup.thresholds["v3"])}
+    out = {"source": field.label, "expected": field.scenarios is not None}
+    for name, model in models.items():
+        risk, level, ok = setup.published(model, frames[name], setup.thresholds["v3" if name == "c" else "v4"])
+        out[name] = (risk, level, ok)
+    out["ref"] = ref
+    return out
+
+
+def run_consistency(years, out_dir: Path, progress=print) -> int:
+    setup = E1Setup()
+    store = li.default_store()
+    per_day: dict = {}
+    pairs: dict = {}
+    days_used: dict = {}
+    sources: dict = {}
+    for year in years:
+        for day in season_days(year):
+            stored = li.load_store_day(store, day)
+            if stored is None:
+                continue
+            for lead in (1, 2, 3):
+                got = e1_day(setup, day, lead, stored)
+                if got is None:
+                    continue
+                days_used.setdefault(lead, []).append(day.isoformat())
+                sources.setdefault(lead, {}).setdefault(got["source"], 0)
+                sources[lead][got["source"]] += 1
+                for name in E1_CANDIDATES:
+                    risk, level, ok = got[name]
+                    for ref_name in (("v4", "v3") if name == "c" else ("v4",)):
+                        ref_risk, ref_level, ref_ok = got["ref"][ref_name]
+                        both = ok & ref_ok
+                        confusion = np.zeros((LEVELS, LEVELS), dtype=np.int64)
+                        np.add.at(confusion, (ref_level[both].astype(int), level[both].astype(int)), 1)
+                        key = (lead, name, ref_name)
+                        per_day.setdefault(key, []).append(confusion)
+                        pairs.setdefault(key, []).append((risk[both].astype(np.float32), ref_risk[both].astype(np.float32)))
+            progress(f"{day}: leads done")
+    results: dict = {}
+    for (lead, name, ref_name), rows in sorted(per_day.items()):
+        total = np.sum(rows, axis=0)
+        f = np.concatenate([p[0] for p in pairs[(lead, name, ref_name)]])
+        r = np.concatenate([p[1] for p in pairs[(lead, name, ref_name)]])
+        entry = {**level_metrics(total), "days": len(rows), "calibration": calibration(f.astype(np.float64), r.astype(np.float64))}
+        if ref_name == "v4" and name != "c":
+            index = {"agreement": lambda m: level_metrics(m)["agreement"],
+                     "warning_plus_recall": lambda m: level_metrics(m)["warning_plus_recall"]}
+            per = {k: per_day[(lead, k, "v4")] for k in (name, "c")}
+            entry["delta_vs_incumbent_se"] = {k: bootstrap_delta(per, name, "c", fn) for k, fn in index.items()}
+        results.setdefault(str(lead), {}).setdefault(name, {})[f"vs_{ref_name}_reference"] = entry
+    payload = {"generated_utc": datetime.now(UTC).isoformat(timespec="seconds"), "years": list(years),
+               "months": list(SEASON), "cells": len(setup.sample), "seed": E1_SEED,
+               "candidates": {"c": "v3 on the selected forecast rain (incumbent)", "a": "v4, forecast intensity mapped",
+                              "b": "a with the expected risk over the ensemble percentiles (= a where the lead's rain is GFS)",
+                              "a_oracle": "v4 with the observed Late intensity of the window (diagnostic ceiling)",
+                              "a_raw": "v4 with unmapped forecast intensity (diagnostic)"},
+               "reference": "published level of the target day from observed features (lead 0 as the live run scores it): "
+                            "v4 with Late lag-1 intensity and static inputs; v3 for the incumbent's own consistency",
+               "issue_days": {str(k): len(v) for k, v in days_used.items()}, "forecast_sources": sources,
+               "results": results}
+    out_dir.mkdir(parents=True, exist_ok=True)
+    dump_json(out_dir / "phase8_leads_v4_e1.json", payload)
+    print(f"wrote {out_dir / 'phase8_leads_v4_e1.json'}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m aetherguard.live.leads_v4_study", description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -253,7 +463,12 @@ def main(argv=None) -> int:
     fit = sub.add_parser("fit")
     fit.add_argument("--pairs", type=Path, required=True)
     fit.add_argument("--out", type=Path, default=data_root() / "processed" / "lead_intensity" / "intensity_maps.json")
+    consistency = sub.add_parser("consistency")
+    consistency.add_argument("--years", type=lambda t: tuple(int(y) for y in t.split(",")), default=(2022, 2023, 2024))
+    consistency.add_argument("--out-dir", type=Path, default=PROJECT_ROOT / "reports")
     args = parser.parse_args(argv)
+    if args.command == "consistency":
+        return run_consistency(args.years, args.out_dir)
     if args.command == "measure":
         return run_measure(args.out_dir)
     return run_fit(args.pairs, args.out)
