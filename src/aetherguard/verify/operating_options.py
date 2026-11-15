@@ -1049,9 +1049,12 @@ def markdown_report(result: dict) -> str:
     a = opts["A_detection_first"]["measured"]
     out.append("# Operating point options: how much detection for how much less alerting (phase 8, development only)")
     out.append("")
+    looked = bool(result.get("heldout_looks"))
     out.append("This document puts one decision in front of the user: how often AetherGuard may raise each alert level. "
-               "Nothing here changes the live run, and no held-out number is in it. Every number comes from "
-               f"`data/processed/alerts/{RESULTS}/` (development years 2007-2017, out of fold, every one of the 36,792 "
+               "Nothing here changes the live run. "
+               + ("Held-out numbers appear only in the section of the one look taken; every other number comes from "
+                  if looked else "No held-out number is in it. Every number comes from ")
+               + f"`data/processed/alerts/{RESULTS}/` (development years 2007-2017, out of fold, every one of the 36,792 "
                "scored cells).")
     out.append("")
     if "jan_may" not in result["windows_present"]:
@@ -1062,7 +1065,7 @@ def markdown_report(result: dict) -> str:
         out.append(f"**Outcome:** {name} was chosen and taken to its one held-out look. "
                    + (f"It was confirmed (section \"The held-out look of {name}\")." if d["confirmed"] else
                       f"It was NOT confirmed (failed: {', '.join(d['failed'])}; section \"The held-out look of {name}\"), "
-                      "so today's levels (A) stay live and B is not re-tested or tuned on these events.")
+                      f"so today's levels (A) stay live and {name} is not re-tested or tuned on these events.")
                    + " The development analysis below is unchanged by the look; the held-out look shows the burden and "
                      "the detection loss of B on new years.")
         out.append("")

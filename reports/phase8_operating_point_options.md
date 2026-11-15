@@ -1,10 +1,10 @@
 # Operating point options: how much detection for how much less alerting (phase 8, development only)
 
-This document puts one decision in front of the user: how often AetherGuard may raise each alert level. Nothing here changes the live run, and no held-out number is in it. Every number comes from `data/processed/alerts/operating_options/` (development years 2007-2017, out of fold, every one of the 36,792 scored cells).
+This document puts one decision in front of the user: how often AetherGuard may raise each alert level. Nothing here changes the live run. Held-out numbers appear only in the section of the one look taken; every other number comes from `data/processed/alerts/operating_options/` (development years 2007-2017, out of fold, every one of the 36,792 scored cells).
 
 **Incomplete:** the January-May panels are not all scored yet, so the rest-of-year rows are missing.
 
-**Outcome:** B_balanced was chosen and taken to its one held-out look. It was NOT confirmed (failed: burden western_ghats|monsoon|3, loss against A_detection_first tolerant|1; section "The held-out look of B_balanced"), so today's levels (A) stay live and B is not re-tested or tuned on these events. The development analysis below is unchanged by the look; the held-out look shows the burden and the detection loss of B on new years.
+**Outcome:** B_balanced was chosen and taken to its one held-out look. It was NOT confirmed (failed: burden western_ghats|monsoon|3, loss against A_detection_first tolerant|1; section "The held-out look of B_balanced"), so today's levels (A) stay live and B_balanced is not re-tested or tuned on these events. The development analysis below is unchanged by the look; the held-out look shows the burden and the detection loss of B on new years.
 
 ## The three options at a glance (published levels, the whole live chain)
 
