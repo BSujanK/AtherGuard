@@ -236,11 +236,18 @@ def latest_versions(reports) -> dict[tuple[str, datetime], list[Report]]:
 
 
 def _amount_24h(report: Report, since_03utc_blocks) -> tuple[float | None, str]:
-    amounts = {acc.amount_mm for acc in report.accumulations
-               if acc.amount_mm is not None and resolve_period(report, acc, since_03utc_blocks) == 24}
+    """The report's 24-h amount. RRR has a resolution of 1 mm and R24 of 0.1 mm, so a `6RRR` group and the `7R24`
+    group of one report that differ by less than 1 mm are the same amount: the finer `7R24` is kept (found in V1:
+    for example 7.0 and 6.8 mm in one report). A larger difference gives no value."""
+    groups = [acc for acc in report.accumulations
+              if acc.amount_mm is not None and resolve_period(report, acc, since_03utc_blocks) == 24]
+    amounts = {acc.amount_mm for acc in groups}
     if len(amounts) == 1:
         return amounts.pop(), "24h_group"
     if len(amounts) > 1:
+        fine = {acc.amount_mm for acc in groups if acc.group == "7s3"}
+        if len(fine) == 1 and max(amounts) - min(amounts) < 1.0:
+            return fine.pop(), "24h_group"
         return None, "conflicting_24h_groups"
     if report.ir == "3":
         return 0.0, "ir3_zero"

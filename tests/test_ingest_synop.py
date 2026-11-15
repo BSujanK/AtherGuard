@@ -132,3 +132,9 @@ def test_agreement_metrics_and_criterion():
     assert m["within_tolerance"] == 1.0 and abs(m["bias_mm"] - (-1.125)) < 1e-9
     assert not criterion_met(m)          # bias -1.125 mm is beyond 0.5 mm
     assert criterion_met(agreement([0.0, 10.0, 20.0], [0.0, 10.0, 20.0], 3.0, 0.68))
+
+
+def test_rrr_and_r24_within_rounding_keep_the_tenths():
+    end = datetime(2024, 7, 1, 3, tzinfo=UTC)
+    rep = _report("43198", end, ir="2", accs=[S.Accumulation(7.0, None, "6s3"), S.Accumulation(6.8, 24, "7s3")])
+    assert S.imd_day_total(S.latest_versions([rep]), "43198", date(2024, 7, 1)) == (6.8, "24h_group")
