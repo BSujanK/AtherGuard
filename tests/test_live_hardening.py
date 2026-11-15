@@ -129,3 +129,17 @@ def test_panels_round_trip_through_their_file(tmp_path):
     loaded = H.load_panel(tmp_path / "season.npz")
     assert loaded.days == panel.days and loaded.n_members == 4
     assert np.array_equal(loaded["risk"], panel["risk"]) and loaded.cells.equals(panel.cells)
+
+
+def test_score_panel_uses_the_scorer_it_is_given():
+    cells = pd.DataFrame({"cell_id": [1, 2], "region": "himalaya", "in_universe": True})
+    features = pd.DataFrame({"irain_acc_3": [5.0, np.nan]})
+
+    class _Model:
+        members = [None, None]
+
+    def score(model, rows):
+        return {"risk": np.full(len(rows), 3e-5)}
+
+    panel = H.score_panel(DAYS[:2], cells, lambda day: _Model(), lambda day: features, score=score)
+    assert panel["risk"][:, 0].tolist()[0] == 3e-5 and np.isnan(panel["risk"][1]).all()

@@ -85,10 +85,11 @@ def new_panel(cells: pd.DataFrame, days: list[date], n_members: int) -> Panel:
     return Panel(cells[["cell_id", "region", "in_universe"]].reset_index(drop=True), list(days), n_members, values)
 
 
-def score_rows(model: hm.HazardModel, rows: pd.DataFrame) -> dict[str, np.ndarray]:
+def score_rows(model: hm.HazardModel, rows: pd.DataFrame, explain: bool = True) -> dict[str, np.ndarray]:
     """Per row of `rows` (every rain input known) the panel fields: the point and the members of `model`, the old and the
     re-centred interval, member counts per alert level, the rain and, where the point reaches Watch or the cell-day is
-    dry, the aspect / TWI contributions of the point model (log-odds of the raw score)."""
+    dry, the aspect / TWI contributions of the point model (log-odds of the raw score). Without `explain` the
+    contribution fields stay NaN (they cost the most to compute and only the terrain diagnostic reads them)."""
     point_raw = model.raw_score(rows)
     member_raw = model.member_raw_scores(rows)
     stacked = np.column_stack([point_raw,
@@ -107,7 +108,7 @@ def score_rows(model: hm.HazardModel, rows: pd.DataFrame) -> dict[str, np.ndarra
            **{name: (member_level >= level).sum(axis=1) for level, name in enumerate(COUNT_FIELDS, start=1)},
            **{f"acc_{w}": rows[f"irain_acc_{w}"].to_numpy(dtype=np.float64) for w in RAIN_WINDOWS}}
     point_level = (calibrated[:, :1] >= thresholds).sum(axis=1)
-    explain = (point_level >= 1) | (out["acc_3"] < DRY_ACC3_MM)
+    explain = ((point_level >= 1) | (out["acc_3"] < DRY_ACC3_MM)) & explain
     for name in ("c_aspect_sin", "c_aspect_cos", "c_twi", "c_positive", "margin"):
         out[name] = np.full(len(rows), np.nan)
     out["top3_terrain"] = np.zeros(len(rows), dtype=bool)
@@ -126,9 +127,10 @@ def score_rows(model: hm.HazardModel, rows: pd.DataFrame) -> dict[str, np.ndarra
     return out
 
 
-def score_panel(days: list[date], cells: pd.DataFrame, model_of, features_of, progress=None) -> Panel:
+def score_panel(days: list[date], cells: pd.DataFrame, model_of, features_of, progress=None, score=None) -> Panel:
     """A panel of `cells` over `days`: `features_of(day)` gives the rain inputs of the cells (same index), `model_of(day)`
-    the model scoring that day. A cell-day without its 3-day rain stays unscored (the backtest's rule)."""
+    the model scoring that day. A cell-day without its 3-day rain stays unscored (the backtest's rule). `score(model,
+    rows)` replaces `score_rows` (for example one without the contributions)."""
     first = model_of(days[0])
     panel = new_panel(cells, days, len(first.members))
     started = time.perf_counter()
@@ -136,7 +138,7 @@ def score_panel(days: list[date], cells: pd.DataFrame, model_of, features_of, pr
         frame = pd.concat([cells.reset_index(drop=True), features_of(day).reset_index(drop=True)], axis=1)
         scorable = np.isfinite(frame[live_run.CORE_COLUMN].to_numpy(dtype=np.float64))
         if scorable.any():
-            for name, values in score_rows(model_of(day), frame[scorable]).items():
+            for name, values in (score or score_rows)(model_of(day), frame[scorable]).items():
                 panel.values[name][scorable, j] = values
         if progress and (j % 20 == 0 or j == len(days) - 1):
             progress(f"  {day} ({j + 1}/{len(days)}) {time.perf_counter() - started:.0f}s")
