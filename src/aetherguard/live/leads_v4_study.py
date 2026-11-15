@@ -400,8 +400,52 @@ def e1_day(setup: E1Setup, issue_day: date, lead: int, stored) -> dict | None:
     return out
 
 
-def run_consistency(years, out_dir: Path, progress=print) -> int:
-    setup = E1Setup()
+def e1_cached(setup_factory, cache: Path, day: date, lead: int, stored) -> dict | None:
+    """`e1_day` reduced to what the study keeps (per candidate and reference: the level confusion and the paired risks),
+    read from `<cache>/<day>_L<lead>.npz` when an earlier run wrote it, so an interrupted study resumes where it stopped."""
+    path = cache / f"{day.isoformat()}_L{lead}.npz"
+    if path.is_file():
+        with np.load(path, allow_pickle=False) as data:
+            if bool(data["missing"]):
+                return None
+            out = {"source": str(data["source"])}
+            for key in data.files:
+                if key.endswith("|conf"):
+                    name, ref = key.split("|")[:2]
+                    out[(name, ref)] = (data[key], data[f"{name}|{ref}|f"], data[f"{name}|{ref}|r"])
+            return out
+    got = e1_day(setup_factory(), day, lead, stored)
+    if got is None:                   # inputs missing now (a fetch still running): nothing is cached, a rerun tries again
+        return None
+    arrays = {"missing": np.array(False), "source": np.array(got["source"])}
+    out = None
+    if got is not None:
+        out = {"source": got["source"]}
+        for name in E1_CANDIDATES:
+            risk, level, ok = got[name]
+            for ref_name in (("v4", "v3") if name == "c" else ("v4",)):
+                ref_risk, ref_level, ref_ok = got["ref"][ref_name]
+                both = ok & ref_ok
+                confusion = np.zeros((LEVELS, LEVELS), dtype=np.int64)
+                np.add.at(confusion, (ref_level[both].astype(int), level[both].astype(int)), 1)
+                entry = (confusion, risk[both].astype(np.float32), ref_risk[both].astype(np.float32))
+                out[(name, ref_name)] = entry
+                arrays[f"{name}|{ref_name}|conf"], arrays[f"{name}|{ref_name}|f"], arrays[f"{name}|{ref_name}|r"] = entry
+    cache.mkdir(parents=True, exist_ok=True)
+    part = path.with_name(path.name + ".part.npz")
+    np.savez_compressed(part, **arrays)
+    part.replace(path)
+    return out
+
+
+def run_consistency(years, out_dir: Path, progress=print, cache: Path | None = None) -> int:
+    holder: dict = {}
+
+    def setup_factory():
+        if "setup" not in holder:
+            holder["setup"] = E1Setup()
+        return holder["setup"]
+    cache = Path(cache) if cache is not None else data_root() / "processed" / "lead_intensity" / "e1_cache"
     store = li.default_store()
     per_day: dict = {}
     pairs: dict = {}
@@ -413,22 +457,16 @@ def run_consistency(years, out_dir: Path, progress=print) -> int:
             if stored is None:
                 continue
             for lead in (1, 2, 3):
-                got = e1_day(setup, day, lead, stored)
+                got = e1_cached(setup_factory, cache, day, lead, stored)
                 if got is None:
                     continue
                 days_used.setdefault(lead, []).append(day.isoformat())
                 sources.setdefault(lead, {}).setdefault(got["source"], 0)
                 sources[lead][got["source"]] += 1
-                for name in E1_CANDIDATES:
-                    risk, level, ok = got[name]
-                    for ref_name in (("v4", "v3") if name == "c" else ("v4",)):
-                        ref_risk, ref_level, ref_ok = got["ref"][ref_name]
-                        both = ok & ref_ok
-                        confusion = np.zeros((LEVELS, LEVELS), dtype=np.int64)
-                        np.add.at(confusion, (ref_level[both].astype(int), level[both].astype(int)), 1)
-                        key = (lead, name, ref_name)
-                        per_day.setdefault(key, []).append(confusion)
-                        pairs.setdefault(key, []).append((risk[both].astype(np.float32), ref_risk[both].astype(np.float32)))
+                for (name, ref_name), (confusion, f, r) in ((k, v) for k, v in got.items() if k != "source"):
+                    key = (lead, name, ref_name)
+                    per_day.setdefault(key, []).append(confusion)
+                    pairs.setdefault(key, []).append((f, r))
             progress(f"{day}: leads done")
     results: dict = {}
     for (lead, name, ref_name), rows in sorted(per_day.items()):
@@ -443,7 +481,7 @@ def run_consistency(years, out_dir: Path, progress=print) -> int:
             entry["delta_vs_incumbent_se"] = {k: bootstrap_delta(per, name, "c", fn) for k, fn in index.items()}
         results.setdefault(str(lead), {}).setdefault(name, {})[f"vs_{ref_name}_reference"] = entry
     payload = {"generated_utc": datetime.now(UTC).isoformat(timespec="seconds"), "years": list(years),
-               "months": list(SEASON), "cells": len(setup.sample), "seed": E1_SEED,
+               "months": list(SEASON), "cells": E1_CELLS, "seed": E1_SEED,
                "candidates": {"c": "v3 on the selected forecast rain (incumbent)", "a": "v4, forecast intensity mapped",
                               "b": "a with the expected risk over the ensemble percentiles (= a where the lead's rain is GFS)",
                               "a_oracle": "v4 with the observed Late intensity of the window (diagnostic ceiling)",
@@ -645,6 +683,7 @@ def main(argv=None) -> int:
     consistency = sub.add_parser("consistency")
     consistency.add_argument("--years", type=lambda t: tuple(int(y) for y in t.split(",")), default=(2022, 2023, 2024))
     consistency.add_argument("--out-dir", type=Path, default=PROJECT_ROOT / "reports")
+    consistency.add_argument("--cache", type=Path, default=None, help="per issue-day results (resume); default data/processed/lead_intensity/e1_cache")
     replays = sub.add_parser("replays")
     replays.add_argument("--replay-dir", type=Path, required=True)
     replays.add_argument("--out-dir", type=Path, default=PROJECT_ROOT / "reports")
@@ -656,7 +695,7 @@ def main(argv=None) -> int:
     if args.command == "replays":
         return run_replays(args.replay_dir, args.out_dir)
     if args.command == "consistency":
-        return run_consistency(args.years, args.out_dir)
+        return run_consistency(args.years, args.out_dir, cache=args.cache)
     if args.command == "measure":
         return run_measure(args.out_dir)
     return run_fit(args.pairs, args.out)

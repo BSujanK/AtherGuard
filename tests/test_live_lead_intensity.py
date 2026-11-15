@@ -171,3 +171,25 @@ def test_level_metrics_of_a_confusion_matrix():
     assert m["emergency_recall"] == 4 / 5 and m["emergency_precision"] == 4 / 6
     assert m["burden_reference"]["emergency"] == 0.05 and m["burden_forecast"]["warning"] == 0.12
     assert study.level_metrics(np.zeros((4, 4))) == {"pairs": 0}
+
+
+def test_e1_results_are_cached_per_issue_day_and_a_missing_day_is_not(tmp_path, monkeypatch):
+    from aetherguard.live import leads_v4_study as study
+    calls = []
+    level, ok = np.array([0, 2, 3]), np.array([True, True, False])
+    day_result = {name: (np.array([0.1, 0.5, 0.9]), level, ok) for name in study.E1_CANDIDATES}
+    day_result.update(source="NOAA GFS", ref={"v4": (np.array([0.2, 0.4, 0.8]), level, ok),
+                                              "v3": (np.array([0.2, 0.4, 0.8]), level, ok)})
+
+    def fake(setup, day, lead, stored):
+        calls.append((day, lead))
+        return None if day.day == 2 else day_result
+    monkeypatch.setattr(study, "e1_day", fake)
+    first = study.e1_cached(lambda: None, tmp_path, date(2022, 7, 1), 1, None)
+    again = study.e1_cached(lambda: None, tmp_path, date(2022, 7, 1), 1, None)
+    assert calls == [(date(2022, 7, 1), 1)]                       # the second read comes from the cache
+    np.testing.assert_array_equal(first[("a", "v4")][0], again[("a", "v4")][0])
+    assert again[("c", "v3")][0][2, 2] == 1 and again[("a", "v4")][0].sum() == 2
+    assert study.e1_cached(lambda: None, tmp_path, date(2022, 7, 2), 1, None) is None
+    assert study.e1_cached(lambda: None, tmp_path, date(2022, 7, 2), 1, None) is None
+    assert calls.count((date(2022, 7, 2), 1)) == 2                # not cached: a later run tries the day again
