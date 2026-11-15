@@ -124,6 +124,64 @@ def v1(ogimet_dir: Path, start: str, end: str, alert_config: Path, isd_presence:
             "per_station": per_station}
 
 
+def v2(start: str, end: str, alert_config: Path, ghcn_rows: Path, imd_glob: str) -> dict:
+    """V2 of the spec (descriptive): the stored SYNOP totals (no cut-off) of `start`..`end` against GHCN-Daily 2026
+    (access-service rows with attributes, split by the flag-H zeros) and against the IMD real-time grid at the
+    station's nearest 0.25 degree point (the engine's own live `imd` reference)."""
+    import glob
+
+    from ..alerts.config import load_config_file
+    from ..integrity.stations import select_station_meta
+    from ..live.sources import is_h_zero, parse_imd_grid
+    from .imd import ImdGrid
+    from .synop_store import load_store, station_day_totals, to_reports
+    cfg = load_config_file(alert_config)
+    wmo = station_wmo()
+    meta = select_station_meta().set_index("id")
+    days = pd.date_range(start, end, freq="D")
+    frame = load_store()
+    first = pd.Timestamp(days[0]).tz_localize("UTC") - pd.Timedelta(hours=21)
+    frame = frame[(frame["time"] > first) & (frame["time"] <= pd.Timestamp(days[-1]).tz_localize("UTC") + pd.Timedelta(hours=3))]
+    synop, how = station_day_totals(to_reports(frame), wmo, days)
+    ghcn_all = pd.DataFrame(np.nan, index=days, columns=synop.columns)
+    ghcn_measured = ghcn_all.copy()
+    for row in json.loads(Path(ghcn_rows).read_text(encoding="utf-8")):
+        stamp = pd.Timestamp(row["DATE"])
+        if row.get("PRCP") is None or stamp not in ghcn_all.index or row["STATION"] not in ghcn_all.columns:
+            continue
+        ghcn_all.at[stamp, row["STATION"]] = float(row["PRCP"])
+        if not is_h_zero(row):
+            ghcn_measured.at[stamp, row["STATION"]] = float(row["PRCP"])
+    imd = pd.DataFrame(np.nan, index=days, columns=synop.columns)
+    points = {sid: ImdGrid.nearest_index(meta.at[sid, "lat"], meta.at[sid, "lon"]) for sid in synop.columns}
+    seen = {}
+    for path in glob.glob(imd_glob):
+        stamp = pd.Timestamp(Path(path).stem)
+        if stamp in imd.index and stamp not in seen:
+            seen[stamp] = parse_imd_grid(Path(path).read_bytes())
+    for stamp, grid in seen.items():
+        imd.loc[stamp] = [np.nan if points[s] is None else grid[points[s]] for s in synop.columns]
+    a = synop.to_numpy().ravel()
+    m = lambda ref: agreement(a, ref.to_numpy().ravel(), cfg.agree_abs_mm, cfg.agree_rel)  # noqa: E731
+    h_zero = ghcn_all.notna() & ghcn_measured.isna()
+    monsoon = synop.index.month.isin([6, 7, 8, 9])
+    return {"check": "V2", "period": [start, end], "stations": len(wmo),
+            "synop_station_days": int(synop.notna().to_numpy().sum()), "station_days": int(synop.size),
+            "how": {str(k): int(v) for k, v in pd.Series(how.to_numpy().ravel()).value_counts().items()},
+            "ghcn_station_days": int(ghcn_all.notna().to_numpy().sum()),
+            "ghcn_h_zero_station_days": int(h_zero.to_numpy().sum()),
+            "ghcn_h_zero_where_synop_wet": int((h_zero & (synop >= WET_MM)).to_numpy().sum()),
+            "imd_days": len(seen),
+            "metrics": {"GHCN-Daily 2026, all values": m(ghcn_all),
+                        "GHCN-Daily 2026, flag-H zeros removed": m(ghcn_measured),
+                        "IMD real-time grid, nearest point": m(imd)},
+            "synop_wet_share_jun_sep": float((synop[monsoon] >= WET_MM).to_numpy().sum()
+                                             / max(synop[monsoon].notna().to_numpy().sum(), 1)),
+            "note": ("GHCN-Daily 2026 is source flag 2 (Synoptic Summary of the Day v2); its flag-H zeros are not measured "
+                     "zeros. The IMD real-time grid is gridded and includes these stations among its inputs: agreement "
+                     "with it is not independent evidence.")}
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m aetherguard.ingest.synop_eval")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -134,7 +192,20 @@ def main(argv=None) -> int:
     p1.add_argument("--alert-config", type=Path, required=True)
     p1.add_argument("--out", type=Path, required=True)
     p1.add_argument("--isd-presence", type=Path, default=None)
+    p2 = sub.add_parser("v2")
+    p2.add_argument("--start", default="2026-07-15")
+    p2.add_argument("--end", default="2026-11-15")
+    p2.add_argument("--alert-config", type=Path, required=True)
+    p2.add_argument("--ghcn-rows", type=Path, required=True)
+    p2.add_argument("--imd-glob", required=True)
+    p2.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
+    if args.cmd == "v2":
+        result = v2(args.start, args.end, args.alert_config, args.ghcn_rows, args.imd_glob)
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(json.dumps(result, indent=1, allow_nan=False) + chr(10), encoding="utf-8")
+        print(json.dumps({k: result[k] for k in ("metrics", "ghcn_h_zero_station_days", "ghcn_h_zero_where_synop_wet", "synop_station_days", "how")}, indent=1))
+        return 0
     presence = json.loads(args.isd_presence.read_text())["present"] if args.isd_presence else None
     result = v1(args.ogimet_dir, args.start, args.end, args.alert_config, presence)
     args.out.parent.mkdir(parents=True, exist_ok=True)
