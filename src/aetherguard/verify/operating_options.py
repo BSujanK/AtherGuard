@@ -896,6 +896,7 @@ def build_report() -> dict:
             "tradeoff": {w: t for w, t in tradeoff_.items() if t},
             "schemes_meta": {w: {k: v for k, v in s.items() if k != "results"} for w, s in schemes_.items() if s},
             "options": options, "option_steps": option_steps(options),
+            "heldout_looks": {n: _read(heldout_path(n).name) for n in OPTIONS if heldout_path(n).is_file()},
             "district_rules": {k: v.to_dict() for k, v in DISTRICT_RULES.items()},
             "boot": BOOT, "caveats": CAVEATS_OPTIONS}
 
@@ -1001,6 +1002,47 @@ def recommendation(result: dict) -> list[str]:
     ]
 
 
+def heldout_section(name: str, look: dict) -> list[str]:
+    """The one held-out look of `name`, rendered from its result file."""
+    d = look["decision"]
+    verdict = "CONFIRMED" if d["confirmed"] else "NOT confirmed"
+    out = [f"## The held-out look of {name}: {verdict}", "",
+           f"Taken once by the lead, after the choice, on the v4 held-out season panels (June-December 2018-2025) and the "
+           f"W1 event assembly ({look['events_outside_panel_days']} event dated outside the panel days). Result file: "
+           f"`data/processed/alerts/{RESULTS}/{heldout_path(name).name}`. The criterion is the one declared above, "
+           "unchanged.", ""]
+    if d["confirmed"]:
+        out.append(f"Every condition passed. {name} may go to a reviewed wiring step, which changes published levels "
+                   "(a model change) and needs the user's yes.")
+    else:
+        out.append(f"Failed: {', '.join(d['failed'])}. {name} is not adopted; today's levels (A) stay live. It is not "
+                   "re-tested or tuned on these events.")
+    out += ["", "| condition | development | held-out | limit | result |", "|---|---|---|---|---|"]
+    for c in d["conditions"]:
+        if c["condition"].startswith("burden"):
+            out.append(f"| {c['condition'].replace('|', ' / ')} | {_p(c['development'], 2)} | {_p(c['heldout'], 2)} | "
+                       f"at most {_p(c['limit'], 2)} | {'pass' if c['passed'] else 'FAIL'} |")
+        elif c["condition"].startswith("loss"):
+            key = c["condition"].split()[-1]
+            base, got = look["look"]["base_detection"][key], look["look"]["detection"][key]
+            out.append(f"| {c['condition'].replace('|', ' / ')} | lost {_p(c['development_loss_share'], 1)} of events | "
+                       f"{base['hits']} -> {got['hits']} of {got['of']} slides, lost {c['heldout_lost']} | "
+                       f"at most {c['allowed']:.1f} | {'pass' if c['passed'] else 'FAIL'} |")
+        else:
+            out.append(f"| {c['condition'].replace('|', ' / ')} | {_p(c['development_share'], 0)} | {c['heldout_hits']} of {c['slides']} | "
+                       f"at least {c['need']:.1f} | {'pass' if c['passed'] else 'FAIL'} |")
+    out += ["", "Independent slides detected on the same held-out days (95% interval over slides):", "",
+            "| tolerance | level | A (today) | " + name + " |", "|---|---|---|---|"]
+    for key, got in look["look"]["detection"].items():
+        t, level = key.split("|")
+        base = look["look"].get("base_detection", {}).get(key)
+        a_text = "" if base is None else f"{base['hits']} / {base['of']} {_ci(base['ci'])}"
+        out.append(f"| {t} | {LEVEL_NAMES[int(level)]} | {a_text} | {got['hits']} / {got['of']} {_ci(got['ci'])} |")
+    out += ["", "Ground truth after 2018 is very incomplete and records slides where people and roads are, so these counts "
+                "compare the two level schemes on the same events; they are not absolute detection rates.", ""]
+    return out
+
+
 def markdown_report(result: dict) -> str:
     out = []
     opts = result["options"]
@@ -1014,6 +1056,15 @@ def markdown_report(result: dict) -> str:
     out.append("")
     if "jan_may" not in result["windows_present"]:
         out.append("**Incomplete:** the January-May panels are not all scored yet, so the rest-of-year rows are missing.")
+        out.append("")
+    for name, look in result.get("heldout_looks", {}).items():
+        d = look["decision"]
+        out.append(f"**Outcome:** {name} was chosen and taken to its one held-out look. "
+                   + (f"It was confirmed (section \"The held-out look of {name}\")." if d["confirmed"] else
+                      f"It was NOT confirmed (failed: {', '.join(d['failed'])}; section \"The held-out look of {name}\"), "
+                      "so today's levels (A) stay live and B is not re-tested or tuned on these events.")
+                   + " The development analysis below is unchanged by the look; the held-out look shows the burden and "
+                     "the detection loss of B on new years.")
         out.append("")
     out.append("## The three options at a glance (published levels, the whole live chain)")
     out.append("")
@@ -1155,6 +1206,8 @@ def markdown_report(result: dict) -> str:
                              for k, v in c["loss"].items())
         out.append(f"- **{name}**: `{o['heldout_command']}`. {c['rule']}. Development values it is held to: {held}.")
     out.append("")
+    for name, look in result.get("heldout_looks", {}).items():
+        out += heldout_section(name, look)
     out.append("## Caveats")
     out.append("")
     out += [f"- {c}" for c in result["caveats"]]

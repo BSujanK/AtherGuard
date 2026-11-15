@@ -4,6 +4,8 @@ This document puts one decision in front of the user: how often AetherGuard may 
 
 **Incomplete:** the January-May panels are not all scored yet, so the rest-of-year rows are missing.
 
+**Outcome:** B_balanced was chosen and taken to its one held-out look. It was NOT confirmed (failed: burden western_ghats|monsoon|3, loss against A_detection_first tolerant|1; section "The held-out look of B_balanced"), so today's levels (A) stay live and B is not re-tested or tuned on these events. The development analysis below is unchanged by the look; the held-out look shows the burden and the detection loss of B on new years.
+
 ## The three options at a glance (published levels, the whole live chain)
 
 Share of cell-days at each level or above, and how many development events (landslide cell-days in the catalogues) the level caught: cell-exact = an alert on the event's own cell and day; tolerant = an alert within 10 km and 1 day.
@@ -421,6 +423,46 @@ Each row caps the level at a share of the cell-days of the region and season. Co
 - **A_detection_first**: `python -m aetherguard.verify.operating_options heldout --option A_detection_first`. confirmed when every held-out published share (region x season x level, June-December 2018-2025) is at most 1.5 x its development value, and at every tolerance and level the independent slides detected are at least the development detection share x the slides less 2.0 binomial standard deviations. Development values it is held to: tolerant|1 99% (allowed shortfall 1.7 slides); tolerant|2 96% (allowed shortfall 3.7 slides); tolerant|3 86% (allowed shortfall 6.4 slides); cell_exact|1 96% (allowed shortfall 3.4 slides); cell_exact|2 82% (allowed shortfall 7.1 slides); cell_exact|3 59% (allowed shortfall 9.2 slides).
 - **B_balanced**: `python -m aetherguard.verify.operating_options heldout --option B_balanced`. confirmed when every held-out published share (region x season x level, June-December 2018-2025) is at most 1.5 x its development value, and at every tolerance and level the independent slides it detects fewer than A_detection_first on the same held-out days are at most the development share of events lost x the slides plus 2.0 binomial standard deviations. Development values it is held to: tolerant|1 lost 0.9% of the events (allowance 1.7 slides); tolerant|2 lost 4.6% of the events (allowance 3.9 slides); tolerant|3 lost 9.4% of the events (allowance 5.4 slides); cell_exact|1 lost 5.7% of the events (allowance 4.3 slides); cell_exact|2 lost 15.4% of the events (allowance 6.7 slides); cell_exact|3 lost 13.7% of the events (allowance 6.4 slides).
 - **C_rare_emergency**: `python -m aetherguard.verify.operating_options heldout --option C_rare_emergency`. confirmed when every held-out published share (region x season x level, June-December 2018-2025) is at most 1.5 x its development value, and at every tolerance and level the independent slides it detects fewer than A_detection_first on the same held-out days are at most the development share of events lost x the slides plus 2.0 binomial standard deviations. Development values it is held to: tolerant|1 lost 1.9% of the events (allowance 2.6 slides); tolerant|2 lost 9.7% of the events (allowance 5.5 slides); tolerant|3 lost 18.1% of the events (allowance 7.2 slides); cell_exact|1 lost 12.2% of the events (allowance 6.1 slides); cell_exact|2 lost 25.3% of the events (allowance 8.1 slides); cell_exact|3 lost 23.4% of the events (allowance 7.9 slides).
+
+## The held-out look of B_balanced: NOT confirmed
+
+Taken once by the lead, after the choice, on the v4 held-out season panels (June-December 2018-2025) and the W1 event assembly (1 event dated outside the panel days). Result file: `data/processed/alerts/operating_options/heldout_B_balanced.json`. The criterion is the one declared above, unchanged.
+
+Failed: burden western_ghats|monsoon|3, loss against A_detection_first tolerant|1. B_balanced is not adopted; today's levels (A) stay live. It is not re-tested or tuned on these events.
+
+| condition | development | held-out | limit | result |
+|---|---|---|---|---|
+| burden himalaya / monsoon / 1 | 30.57% | 29.05% | at most 45.86% | pass |
+| burden himalaya / monsoon / 2 | 8.82% | 8.68% | at most 13.23% | pass |
+| burden himalaya / monsoon / 3 | 2.81% | 2.90% | at most 4.21% | pass |
+| burden himalaya / post_monsoon / 1 | 11.43% | 13.23% | at most 17.14% | pass |
+| burden himalaya / post_monsoon / 2 | 2.50% | 3.03% | at most 3.75% | pass |
+| burden himalaya / post_monsoon / 3 | 0.57% | 0.77% | at most 0.86% | pass |
+| burden western_ghats / monsoon / 1 | 30.69% | 32.40% | at most 46.04% | pass |
+| burden western_ghats / monsoon / 2 | 4.86% | 6.72% | at most 7.29% | pass |
+| burden western_ghats / monsoon / 3 | 2.20% | 3.38% | at most 3.30% | FAIL |
+| burden western_ghats / post_monsoon / 1 | 18.00% | 21.45% | at most 27.01% | pass |
+| burden western_ghats / post_monsoon / 2 | 3.00% | 3.76% | at most 4.49% | pass |
+| burden western_ghats / post_monsoon / 3 | 0.76% | 0.82% | at most 1.14% | pass |
+| loss against A_detection_first tolerant / 1 | lost 0.9% of events | 87 -> 83 of 87 slides, lost 4 | at most 2.5 | FAIL |
+| loss against A_detection_first tolerant / 2 | lost 4.6% of events | 79 -> 77 of 87 slides, lost 2 | at most 7.9 | pass |
+| loss against A_detection_first tolerant / 3 | lost 9.4% of events | 67 -> 63 of 87 slides, lost 4 | at most 13.6 | pass |
+| loss against A_detection_first cell_exact / 1 | lost 5.7% of events | 81 -> 77 of 87 slides, lost 4 | at most 9.3 | pass |
+| loss against A_detection_first cell_exact / 2 | lost 15.4% of events | 61 -> 49 of 87 slides, lost 12 | at most 20.2 | pass |
+| loss against A_detection_first cell_exact / 3 | lost 13.7% of events | 40 -> 38 of 87 slides, lost 2 | at most 18.3 | pass |
+
+Independent slides detected on the same held-out days (95% interval over slides):
+
+| tolerance | level | A (today) | B_balanced |
+|---|---|---|---|
+| tolerant | Watch+ | 87 / 87 [100, 100] | 83 / 87 [91, 99] |
+| tolerant | Warning+ | 79 / 87 [85, 97] | 77 / 87 [82, 94] |
+| tolerant | Emergency | 67 / 87 [69, 85] | 63 / 87 [63, 82] |
+| cell_exact | Watch+ | 81 / 87 [87, 98] | 77 / 87 [82, 94] |
+| cell_exact | Warning+ | 61 / 87 [60, 79] | 49 / 87 [45, 67] |
+| cell_exact | Emergency | 40 / 87 [36, 56] | 38 / 87 [33, 54] |
+
+Ground truth after 2018 is very incomplete and records slides where people and roads are, so these counts compare the two level schemes on the same events; they are not absolute detection rates.
 
 ## Caveats
 

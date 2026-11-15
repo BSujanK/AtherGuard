@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-11-15T18:37:00Z",
+  "created_utc": "2026-11-15T22:55:47Z",
   "windows_present": [
     "jun_dec"
   ],
@@ -6775,6 +6775,310 @@
             "cost_ratio": null
           }
         }
+      }
+    }
+  },
+  "heldout_looks": {
+    "B_balanced": {
+      "option": "B_balanced",
+      "declared": {
+        "option": "B_balanced",
+        "burden": {
+          "himalaya|monsoon|1": 0.3057142645307588,
+          "himalaya|monsoon|2": 0.08819161845167557,
+          "himalaya|monsoon|3": 0.028050615267391513,
+          "himalaya|post_monsoon|1": 0.11426096554675373,
+          "himalaya|post_monsoon|2": 0.02497726970206671,
+          "himalaya|post_monsoon|3": 0.005748853996957193,
+          "western_ghats|monsoon|1": 0.30691114120048707,
+          "western_ghats|monsoon|2": 0.048569055117876944,
+          "western_ghats|monsoon|3": 0.02196711682216685,
+          "western_ghats|post_monsoon|1": 0.18004964285433644,
+          "western_ghats|post_monsoon|2": 0.029954045489906413,
+          "western_ghats|post_monsoon|3": 0.0076253202131087
+        },
+        "burden_factor": 1.5,
+        "slides": 87,
+        "paired_with": "A_detection_first",
+        "loss": {
+          "tolerant|1": {
+            "share": 0.008823529411764706,
+            "margin_slides": 1.744561494957567
+          },
+          "tolerant|2": {
+            "share": 0.045588235294117645,
+            "margin_slides": 3.8912031478343896
+          },
+          "tolerant|3": {
+            "share": 0.09411764705882353,
+            "margin_slides": 5.447046118648632
+          },
+          "cell_exact|1": {
+            "share": 0.057352941176470586,
+            "margin_slides": 4.3375253656408574
+          },
+          "cell_exact|2": {
+            "share": 0.15441176470588236,
+            "margin_slides": 6.740766464279233
+          },
+          "cell_exact|3": {
+            "share": 0.13676470588235295,
+            "margin_slides": 6.40975211262719
+          }
+        },
+        "rule": "confirmed when every held-out published share (region x season x level, June-December 2018-2025) is at most 1.5 x its development value, and at every tolerance and level the independent slides it detects fewer than A_detection_first on the same held-out days are at most the development share of events lost x the slides plus 2.0 binomial standard deviations"
+      },
+      "look": {
+        "burden": {
+          "himalaya|monsoon|1": 0.29045947721662796,
+          "himalaya|monsoon|2": 0.08678942405086393,
+          "himalaya|monsoon|3": 0.02899543112062161,
+          "western_ghats|monsoon|1": 0.32402001922888896,
+          "western_ghats|monsoon|2": 0.06719187946093928,
+          "western_ghats|monsoon|3": 0.03376780811035427,
+          "himalaya|post_monsoon|1": 0.13234912352218686,
+          "himalaya|post_monsoon|2": 0.03027205488631276,
+          "himalaya|post_monsoon|3": 0.007732615653626012,
+          "western_ghats|post_monsoon|1": 0.21448550544558734,
+          "western_ghats|post_monsoon|2": 0.037613989973204254,
+          "western_ghats|post_monsoon|3": 0.008160615113665831
+        },
+        "detection": {
+          "tolerant|1": {
+            "hits": 83,
+            "of": 87,
+            "ci": [
+              0.9080459770114943,
+              0.9885057471264368
+            ]
+          },
+          "tolerant|2": {
+            "hits": 77,
+            "of": 87,
+            "ci": [
+              0.8160919540229885,
+              0.9425287356321839
+            ]
+          },
+          "tolerant|3": {
+            "hits": 63,
+            "of": 87,
+            "ci": [
+              0.632183908045977,
+              0.8160919540229885
+            ]
+          },
+          "cell_exact|1": {
+            "hits": 77,
+            "of": 87,
+            "ci": [
+              0.8160919540229885,
+              0.9425287356321839
+            ]
+          },
+          "cell_exact|2": {
+            "hits": 49,
+            "of": 87,
+            "ci": [
+              0.4482758620689655,
+              0.6666666666666666
+            ]
+          },
+          "cell_exact|3": {
+            "hits": 38,
+            "of": 87,
+            "ci": [
+              0.3333333333333333,
+              0.5402298850574713
+            ]
+          }
+        },
+        "base_detection": {
+          "tolerant|1": {
+            "hits": 87,
+            "of": 87,
+            "ci": [
+              1.0,
+              1.0
+            ]
+          },
+          "tolerant|2": {
+            "hits": 79,
+            "of": 87,
+            "ci": [
+              0.8505747126436781,
+              0.9655172413793104
+            ]
+          },
+          "tolerant|3": {
+            "hits": 67,
+            "of": 87,
+            "ci": [
+              0.6893678160919545,
+              0.8505747126436781
+            ]
+          },
+          "cell_exact|1": {
+            "hits": 81,
+            "of": 87,
+            "ci": [
+              0.8735632183908046,
+              0.9770114942528736
+            ]
+          },
+          "cell_exact|2": {
+            "hits": 61,
+            "of": 87,
+            "ci": [
+              0.5977011494252874,
+              0.7931034482758621
+            ]
+          },
+          "cell_exact|3": {
+            "hits": 40,
+            "of": 87,
+            "ci": [
+              0.3563218390804598,
+              0.5632183908045977
+            ]
+          }
+        }
+      },
+      "events_outside_panel_days": 1,
+      "decision": {
+        "confirmed": false,
+        "conditions": [
+          {
+            "condition": "burden himalaya|monsoon|1",
+            "development": 0.3057142645307588,
+            "heldout": 0.29045947721662796,
+            "limit": 0.4585713967961382,
+            "passed": true
+          },
+          {
+            "condition": "burden himalaya|monsoon|2",
+            "development": 0.08819161845167557,
+            "heldout": 0.08678942405086393,
+            "limit": 0.13228742767751336,
+            "passed": true
+          },
+          {
+            "condition": "burden himalaya|monsoon|3",
+            "development": 0.028050615267391513,
+            "heldout": 0.02899543112062161,
+            "limit": 0.04207592290108727,
+            "passed": true
+          },
+          {
+            "condition": "burden himalaya|post_monsoon|1",
+            "development": 0.11426096554675373,
+            "heldout": 0.13234912352218686,
+            "limit": 0.1713914483201306,
+            "passed": true
+          },
+          {
+            "condition": "burden himalaya|post_monsoon|2",
+            "development": 0.02497726970206671,
+            "heldout": 0.03027205488631276,
+            "limit": 0.03746590455310007,
+            "passed": true
+          },
+          {
+            "condition": "burden himalaya|post_monsoon|3",
+            "development": 0.005748853996957193,
+            "heldout": 0.007732615653626012,
+            "limit": 0.00862328099543579,
+            "passed": true
+          },
+          {
+            "condition": "burden western_ghats|monsoon|1",
+            "development": 0.30691114120048707,
+            "heldout": 0.32402001922888896,
+            "limit": 0.46036671180073063,
+            "passed": true
+          },
+          {
+            "condition": "burden western_ghats|monsoon|2",
+            "development": 0.048569055117876944,
+            "heldout": 0.06719187946093928,
+            "limit": 0.07285358267681541,
+            "passed": true
+          },
+          {
+            "condition": "burden western_ghats|monsoon|3",
+            "development": 0.02196711682216685,
+            "heldout": 0.03376780811035427,
+            "limit": 0.03295067523325028,
+            "passed": false
+          },
+          {
+            "condition": "burden western_ghats|post_monsoon|1",
+            "development": 0.18004964285433644,
+            "heldout": 0.21448550544558734,
+            "limit": 0.27007446428150467,
+            "passed": true
+          },
+          {
+            "condition": "burden western_ghats|post_monsoon|2",
+            "development": 0.029954045489906413,
+            "heldout": 0.037613989973204254,
+            "limit": 0.04493106823485962,
+            "passed": true
+          },
+          {
+            "condition": "burden western_ghats|post_monsoon|3",
+            "development": 0.0076253202131087,
+            "heldout": 0.008160615113665831,
+            "limit": 0.01143798031966305,
+            "passed": true
+          },
+          {
+            "condition": "loss against A_detection_first tolerant|1",
+            "development_loss_share": 0.008823529411764706,
+            "heldout_lost": 4,
+            "allowed": 2.5122085537810963,
+            "passed": false
+          },
+          {
+            "condition": "loss against A_detection_first tolerant|2",
+            "development_loss_share": 0.045588235294117645,
+            "heldout_lost": 2,
+            "allowed": 7.857379618422625,
+            "passed": true
+          },
+          {
+            "condition": "loss against A_detection_first tolerant|3",
+            "development_loss_share": 0.09411764705882353,
+            "heldout_lost": 4,
+            "allowed": 13.635281412766279,
+            "passed": true
+          },
+          {
+            "condition": "loss against A_detection_first cell_exact|1",
+            "development_loss_share": 0.057352941176470586,
+            "heldout_lost": 4,
+            "allowed": 9.327231247993797,
+            "passed": true
+          },
+          {
+            "condition": "loss against A_detection_first cell_exact|2",
+            "development_loss_share": 0.15441176470588236,
+            "heldout_lost": 12,
+            "allowed": 20.174589993690997,
+            "passed": true
+          },
+          {
+            "condition": "loss against A_detection_first cell_exact|3",
+            "development_loss_share": 0.13676470588235295,
+            "heldout_lost": 2,
+            "allowed": 18.308281524391898,
+            "passed": true
+          }
+        ],
+        "failed": [
+          "burden western_ghats|monsoon|3",
+          "loss against A_detection_first tolerant|1"
+        ]
       }
     }
   },

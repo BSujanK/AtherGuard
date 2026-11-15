@@ -1,6 +1,10 @@
 # AetherGuard operating point: options for the user (round 2, workstream `burden`)
 
-Date: 2026-11-14 (written 2026-11-15/16). Status: options for the user's choice. Nothing is wired into the live run.
+Date: 2026-11-14 (written 2026-11-15/16). Status: the user left the choice to the lead. B_balanced went to its one
+held-out look (2026-11-16) and was NOT confirmed: Western Ghats monsoon Emergency burden 3.38% against a limit of
+3.30%, and tolerant Watch+ lost 4 slides against A where 2.5 were allowed
+(`data/processed/alerts/operating_options/heldout_B_balanced.json`). Today's levels (A) stay live. B is not re-tested or
+tuned on these events. Nothing is wired into the live run.
 Branch `sota-operating-point`. Results: `reports/phase8_operating_point_options.{json,md}`, rendered from
 `data/processed/alerts/operating_options/` by `python -m aetherguard.verify.operating_options report`.
 
