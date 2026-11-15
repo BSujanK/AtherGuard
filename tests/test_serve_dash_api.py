@@ -857,7 +857,7 @@ def test_without_a_built_dashboard_the_root_is_not_found(client):
 
 def test_the_dashboard_api_is_read_only(client):
     paths = {p: set(ops) for p, ops in client.get("/openapi.json").json()["paths"].items() if p.startswith("/api")}
-    assert len(paths) == 9 and all(ops == {"get"} for ops in paths.values())
+    assert len(paths) == 10 and all(ops == {"get"} for ops in paths.values())
     assert client.post("/api/mode").status_code == 405
 
 
