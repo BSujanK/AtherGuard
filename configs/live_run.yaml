@@ -80,3 +80,7 @@ ghcn:
 integrity:
   enabled: true
   engine_dir: data/processed/integrity/model
+
+rain_warnings:                       # heavy-rain warning product (python -m aetherguard.rainwarn run; spec 2026-11-14); off until
+  enabled: false                     # the user says yes. When on, it runs after the landslide tables are written and writes
+  calibration: data/processed/rainwarn/calibration_shipped.json   # rain_warnings.{parquet,md} into the run directory only
