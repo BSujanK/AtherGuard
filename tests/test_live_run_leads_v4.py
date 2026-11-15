@@ -150,3 +150,22 @@ def test_expected_risk_is_the_weighted_mean_over_the_ensemble_scenarios(tmp_path
     point = deps.forecast_model.score(pd.read_parquet(run_dir / "features_D2.parquet"))["risk"].to_numpy()
     assert not np.allclose(np.sort(point), np.sort(risk.to_numpy()))            # not the model at the mean
     assert summary["audit"]["total_violations"] == 0, summary["audit"]
+
+
+def test_the_live_window_fetch_writes_the_early_day_only_with_its_44_half_hours(tmp_path, monkeypatch):
+    from aetherguard.manifest import Manifest
+    from test_live_run_intensity import NoFetchers, listing
+    root, short, enough = tmp_path / "store", date(2026, 8, 11), date(2026, 8, 12)
+    listed = {short: listing(43), enough: listing(44)}
+    slots = []
+    monkeypatch.setattr(imerg_hh, "_Fetchers", NoFetchers)
+    monkeypatch.setattr(imerg_hh, "_half_hour_listing", lambda run, day: listed[day])
+
+    def reduce(run, day, found, fetchers, n):
+        slots.append((run, n, sorted(found)))
+        return {name: np.ones(SHAPE, np.float32) for name in (*ii.FIELDS, "n_halfhours")}
+    monkeypatch.setattr(imerg_hh, "_reduce_within_deadline", reduce)
+    problems = imerg_hh.fetch_live_window_days([short, enough], root, manifest=Manifest(tmp_path / "m.jsonl", tmp_path))
+    assert problems == {short: "CMR lists 43 of 44 half-hours"}
+    assert slots == [("early", 44, list(range(44)))]
+    assert imerg_hh._day_path(root, li.EARLY, enough).is_file() and not imerg_hh._day_path(root, li.EARLY, short).exists()

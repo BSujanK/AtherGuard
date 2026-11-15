@@ -508,11 +508,24 @@ def fetch_complete_days(run: str, days, root, workers: int = 2, manifest: Manife
     """For the daily live run: write the day file of each of `days` that has none, without the outage and login waits of
     `build` (the run must not hang), and only when CMR lists all 48 half-hours (a day still filling is not written, so the
     next run fetches it whole instead of keeping a partial day for good). Returns {day: why it is still missing}."""
+    return _fetch_days(run, days, root, HALF_HOURS, False, workers, manifest)
+
+
+def fetch_live_window_days(days, root, workers: int = 2, manifest: Manifest | None = None) -> dict[date, str]:
+    """For the forecast leads of the daily run (W7): the Early live window (the first `LIVE_HALF_HOURS` half-hours) of each
+    of `days` without a day file in `<root>/early_live/`, as `build --live-window` writes it, with the same no-wait rules as
+    `fetch_complete_days`; a day is written only when CMR lists every half-hour of the window."""
+    return _fetch_days("early", days, root, LIVE_HALF_HOURS, True, workers, manifest)
+
+
+def _fetch_days(run: str, days, root, n_slots: int, live_window: bool, workers: int, manifest: Manifest | None
+                ) -> dict[date, str]:
     _check_run(run)
     root = Path(root)
+    store = store_name(run, live_window)
     manifest = manifest if manifest is not None else Manifest(imerg.MANIFEST_PATH, data_root())
     problems: dict[date, str] = {}
-    pending = [d for d in sorted(set(days)) if not _day_path(root, run, d).exists()]
+    pending = [d for d in sorted(set(days)) if not _day_path(root, store, d).exists()]
     if not pending:
         return problems
     fetchers = _Fetchers(workers)
@@ -520,21 +533,23 @@ def fetch_complete_days(run: str, days, root, workers: int = 2, manifest: Manife
         for day in pending:
             try:
                 listing = _half_hour_listing(run, day)
-                if len(listing) < HALF_HOURS:
-                    problems[day] = f"CMR lists {len(listing)} of {HALF_HOURS} half-hours"
+                listed = sum(slot in listing for slot in range(n_slots))
+                if listed < n_slots:
+                    problems[day] = f"CMR lists {listed} of {n_slots} half-hours"
                     continue
-                maps = _reduce_within_deadline(run, day, listing, fetchers, HALF_HOURS)
+                maps = _reduce_within_deadline(run, day, {k: v for k, v in listing.items() if k < n_slots}, fetchers,
+                                               n_slots)
             except (DownloadError, requests.RequestException, OSError, ValueError, KeyError) as exc:
                 problems[day] = f"{type(exc).__name__}: {str(exc)[:160]}"
                 continue
-            path = _day_path(root, run, day)
+            path = _day_path(root, store, day)
             _write_day(path, maps)
             try:
-                _record(manifest, path, run)
+                _record(manifest, path, run, live_window)
             except Exception:
                 path.unlink(missing_ok=True)      # never leave a data file without a manifest entry
                 raise
-            log.info("%s %s: written for the live run", run, day)
+            log.info("%s %s: written for the live run", store, day)
     finally:
         fetchers.close()
     return problems
