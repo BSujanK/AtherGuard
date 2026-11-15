@@ -20,6 +20,8 @@ consistency  E1 of the spec (section 4): every June-September issue day of `--ye
          day from observed features (and the incumbent against the v3 one): agreement, within one, Warning+ / Emergency
          recall and precision, burden by level, calibration of lead risk against the later lead-0 risk, and day-bootstrap
          standard errors of the differences from the incumbent. Writes `<out-dir>/phase8_leads_v4_e1.json`.
+replays  E2 of the spec: the replayed sets c, a, b (tools/leads_v4_replays.sh) compared lead by lead with the same set's
+         replayed lead 0 of the target day, plus the audit totals. Writes `<out-dir>/phase8_leads_v4_e2.json`.
 fit      Quantile maps (`lead_intensity.fit_maps`) from the pairs of the fit seasons only: GFS on June-September 2021 (the first
          archive season; GFS has no archive in the development years), Early on June-September of the development years
          fetched (2016, 2017). The other seasons are never used by the fit.
@@ -455,6 +457,54 @@ def run_consistency(years, out_dir: Path, progress=print) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------------------------- E2: live replays
+
+E2_SETS = ("c", "a", "b")
+
+
+def run_replays(replay_dir: Path, out_dir: Path) -> int:
+    """E2 of the spec: each set's forecast lead L issued on D against the same set's lead 0 of D + L (both replayed)."""
+    results: dict = {}
+    audits: dict = {}
+    for name in E2_SETS:
+        live = replay_dir / name / "live"
+        summary_path = replay_dir / name / "replay_summary.json"
+        if not summary_path.is_file():
+            continue
+        done = json.loads(summary_path.read_text(encoding="utf-8"))
+        audits[name] = {"days": len(done), "violations": int(sum(v["audit"] for v in done.values())),
+                        "by_check": {}, "lead_intensity_used": sum(bool((v.get("lead_intensity") or {}).get("used"))
+                                                                   for v in done.values()),
+                        "expected_risk_leads": sum(sum(v.get("expected_risk", {}).values()) for v in done.values())}
+        for v in done.values():
+            for check, count in v.get("audit_violations", {}).items():
+                audits[name]["by_check"][check] = audits[name]["by_check"].get(check, 0) + count
+        days = sorted(date.fromisoformat(d) for d in done)
+        for lead in (1, 2, 3):
+            confusion = np.zeros((LEVELS, LEVELS), dtype=np.int64)
+            used = []
+            for day in days:
+                target = day + timedelta(days=lead)
+                lead_path, ref_path = live / day.isoformat() / f"risk_D{lead}.parquet", live / target.isoformat() / "alerts.parquet"
+                if target.isoformat() not in done or not lead_path.is_file() or not ref_path.is_file():
+                    continue
+                fc_ = pd.read_parquet(lead_path, columns=["cell_id", "level", "risk"])
+                ref = pd.read_parquet(ref_path, columns=["cell_id", "level", "risk"])
+                both = fc_.merge(ref, on="cell_id", suffixes=("_lead", "_ref"))
+                both = both[np.isfinite(both["risk_lead"]) & np.isfinite(both["risk_ref"])]
+                np.add.at(confusion, (both["level_ref"].to_numpy(dtype=int), both["level_lead"].to_numpy(dtype=int)), 1)
+                used.append(day.isoformat())
+            results.setdefault(str(lead), {})[name] = {**level_metrics(confusion), "issue_days": len(used)}
+    payload = {"generated_utc": datetime.now(UTC).isoformat(timespec="seconds"), "replay_dir": str(replay_dir),
+               "reference": "the same set's published lead 0 of the target day (replayed, backtest mode)",
+               "audit": audits, "results": results,
+               "caveat": "October-November 2026: outside the validated season (June-September)"}
+    out_dir.mkdir(parents=True, exist_ok=True)
+    dump_json(out_dir / "phase8_leads_v4_e2.json", payload)
+    print(f"wrote {out_dir / 'phase8_leads_v4_e2.json'}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m aetherguard.live.leads_v4_study", description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -466,7 +516,12 @@ def main(argv=None) -> int:
     consistency = sub.add_parser("consistency")
     consistency.add_argument("--years", type=lambda t: tuple(int(y) for y in t.split(",")), default=(2022, 2023, 2024))
     consistency.add_argument("--out-dir", type=Path, default=PROJECT_ROOT / "reports")
+    replays = sub.add_parser("replays")
+    replays.add_argument("--replay-dir", type=Path, required=True)
+    replays.add_argument("--out-dir", type=Path, default=PROJECT_ROOT / "reports")
     args = parser.parse_args(argv)
+    if args.command == "replays":
+        return run_replays(args.replay_dir, args.out_dir)
     if args.command == "consistency":
         return run_consistency(args.years, args.out_dir)
     if args.command == "measure":
