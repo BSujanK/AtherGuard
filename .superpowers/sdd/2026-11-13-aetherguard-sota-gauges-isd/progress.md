@@ -1,3 +1,11 @@
 # SOTA round 2, workstream gauges-isd (same-day rain gauges for the integrity engine)
 
 2026-11-15 10:10 IST: worktree C:\Users\sujan\AtherGuard-wt-isd on branch sota-gauges-isd from c92bd89; scratch C:\Users\sujan\AtherGuard-backups\scratch\gauges-isd. Next: read the integrity engine + ghcn live source, then Task 1 (source probe).
+2026-11-15 15:50 IST (probe findings so far, evidence in C:\Users\sujan\AtherGuard-backups\scratch\gauges-isd, to be written into reports/phase8_gauge_sources_probe.*):
+- All 140 project GHCN stations carry a WMO id; 2020-2025 GHCN PRCP for them is 100% source S (GSOD, i.e. SYNOP-derived): same sensors as the SYNOP reports.
+- NOAA ISD / Global Hourly / GSOD END in Aug 2025 (isd-history.csv last-modified 2025-08-30; buckets noaa-isd-pds and noaa-global-hourly-pds have no 2026 prefix; Dehradun last record 2025-08-24). GSOD successor SSOD v2 (GHCN source flag 2) from GHCNh.
+- GHCN-Daily monsoon 2026 for the 140 stations (access service): 3,861 station-days, 99.8% are 0.0 with mflag H ("could not be calculated, precipitation noted"), wet share >=1 mm 0.1% vs 63% in monsoon 2024. The live gauge source is fake zeros in 2026.
+- GHCNh 2026 (Dehradun): 24-h groups on 11 rows all year; by-year file last-modified 2026-11-12 03:51 UTC with data to 11-10 15 UTC.
+- NWS tgftp raw SYNOP ring (SL.us008001/DF.an/DC.sflnd/DS.synop, 5-min files, ~25 h kept, ~10 MB/day): India 03 UTC AAXX bulletins arrive 03:20-04:45 UTC, before the 05:30 UTC run. Candidate same-day source.
+- OGIMET: informational use only, "no mission-critical use", getsynop max 200000 synops per request, "don't abuse"; no stated rate limit.
+- Meteostat bulk 42111: newest files last-modified 2026-03 (stale).
