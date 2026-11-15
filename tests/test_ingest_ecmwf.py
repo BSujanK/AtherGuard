@@ -360,9 +360,9 @@ def test_archive_days_from_windows():
     assert ecmwf.archive_days(windows) == [date(2023, 9, 29), date(2023, 9, 30), date(2023, 10, 1), date(2024, 6, 1)]
 
 
-def test_config_windows_cover_june_to_september_of_2023_and_2024():
-    days = ecmwf.archive_days(CFG["ecmwf"]["archive"]["windows"])
-    assert len(days) == 244 and {d.month for d in days} == {6, 7, 8, 9} and {d.year for d in days} == {2023, 2024}
+def test_config_windows_cover_june_to_september_of_2023_to_2025():
+    days = ecmwf.archive_days(CFG["ecmwf"]["archive"]["windows"])     # 2025: the rain-warning test season
+    assert len(days) == 366 and {d.month for d in days} == {6, 7, 8, 9} and {d.year for d in days} == {2023, 2024, 2025}
 
 
 # ------------------------------------------------------------------------------------------ publication time
