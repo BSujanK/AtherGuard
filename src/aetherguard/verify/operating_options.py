@@ -815,6 +815,31 @@ def choose_district_rule(measured: dict) -> dict:
             "keep": DISTRICT_KEEP}
 
 
+def option_steps(options: dict) -> dict:
+    """Between consecutive options (A -> B -> C), per stratum and level: the published alert cell-days saved, the
+    events lost (tolerant and cell-exact) and the implied cost ratio (cell-days saved per event lost; None when no event
+    is lost)."""
+    names = list(options)
+    out = {}
+    for before, after in zip(names, names[1:]):
+        step = {}
+        for key, e in options[before]["measured"].items():
+            f = options[after]["measured"][key]
+            rows = {}
+            for L in LEVELS:
+                x, z = e[LEVEL_NAMES[L]], f[LEVEL_NAMES[L]]
+                saved = x["published_cell_days"] - z["published_cell_days"]
+                row = {"saved_cell_days": int(saved),
+                       "saved_share": saved / x["published_cell_days"] if x["published_cell_days"] else None}
+                for t in TOLERANCES:
+                    lost = x[t]["hits"] - z[t]["hits"]
+                    row[t] = {"lost": int(lost), "cost_ratio": float(saved / lost) if lost > 0 else None}
+                rows[LEVEL_NAMES[L]] = row
+            step[key] = rows
+        out[f"{before}->{after}"] = step
+    return out
+
+
 def build_report() -> dict:
     tradeoff_ = {w: _read(f"tradeoff_{w}.json") for w in WINDOW_SEASONS}
     schemes_ = {w: _read(f"schemes_{w}.json") for w in WINDOW_SEASONS}
@@ -838,7 +863,8 @@ def build_report() -> dict:
             "slides": {w: (tradeoff_[w] or {}).get("slides") for w in WINDOW_SEASONS},
             "tradeoff": {w: t for w, t in tradeoff_.items() if t},
             "schemes_meta": {w: {k: v for k, v in s.items() if k != "results"} for w, s in schemes_.items() if s},
-            "options": options, "district_rules": {k: v.to_dict() for k, v in DISTRICT_RULES.items()},
+            "options": options, "option_steps": option_steps(options),
+            "district_rules": {k: v.to_dict() for k, v in DISTRICT_RULES.items()},
             "boot": BOOT, "caveats": CAVEATS_OPTIONS}
 
 
@@ -860,6 +886,9 @@ CAVEATS_OPTIONS = [
     "January-May panels start on 1 January without a warm-up (no hysteresis state carried over New Year).",
     "District numbers use geoBoundaries district polygons (India ADM2, Nepal ADM2 = the 75 districts of 2006, Bhutan "
     "ADM1 = the 20 dzongkhags); a few cells at coasts and borders take the nearest district of their country within 5 km.",
+    "A cost ratio counts every alert cell-day as a false alarm and every catalogue event as the only landslide; the "
+    "catalogues hold a small fraction of the slides that happened, so the real number of misses behind each lost event "
+    "is larger than one.",
     "The blind-escalation rule of the live run (raise to Watch when the rain sources disagree and confidence is not High) "
     "needs the live IMD comparison and is not in the development chain.",
 ]
@@ -892,6 +921,51 @@ STRATUM_TEXT = {"himalaya": "Himalaya", "western_ghats": "Western Ghats", "monso
 def _stratum(key: str) -> str:
     r, s = key.split("|")
     return f"{STRATUM_TEXT[r]}, {STRATUM_TEXT[s]}"
+
+
+def recommendation(result: dict) -> list[str]:
+    """The recommendation, with its numbers read from the result."""
+    opts, steps = result["options"], result["option_steps"]
+    key = "himalaya|monsoon"
+    a, b, c = (opts[n]["measured"][key] for n in ("A_detection_first", "B_balanced", "C_rare_emergency"))
+    ab, bc = steps["A_detection_first->B_balanced"][key], steps["B_balanced->C_rare_emergency"][key]
+    em, wa = "Emergency", "Warning+"
+    floor_b = next(x for x in result["tradeoff"]["jun_dec"]["strata"][key]["Emergency"] if x["cap"] == 0.02)
+    rule_b = opts["B_balanced"]["district_rule"]["chosen"]
+    db = b[em]["districts"][rule_b]["days_per_week"]
+    da = a[em]["districts"][opts["A_detection_first"]["district_rule"]["chosen"]]["days_per_week"]
+    return [
+        "## Recommendation",
+        "",
+        "Take **B_balanced** to its one confirming held-out look, and keep A (today) live until that look has passed and "
+        "the wiring has been reviewed.",
+        "",
+        f"- Most alerts are raised in the Himalayan monsoon. There B cuts the published Emergency cell-days by "
+        f"{_p(ab[em]['saved_share'], 0)} (share {_p(a[em]['published_share'], 2)} -> {_p(b[em]['published_share'], 2)}) and "
+        f"Warning+ by {_p(ab[wa]['saved_share'], 0)} ({_p(a[wa]['published_share'], 1)} -> {_p(b[wa]['published_share'], 1)}). "
+        f"Emergency still catches {_p(b[em]['tolerant']['detection'], 0)} of the development events within 10 km and a day "
+        f"({_p(b[em]['cell_exact']['detection'], 0)} on the exact cell), against {_p(a[em]['tolerant']['detection'], 0)} "
+        f"({_p(a[em]['cell_exact']['detection'], 0)}) today. At B's 2% point cap the tolerant chance floor is "
+        f"{_p(floor_b['chance_floor_tolerant'], 0)}, so this detection is far above what scattered alerts would get.",
+        f"- The price: A -> B is worth it when one missed Emergency event is worth fewer than "
+        f"{_ratio(ab[em]['tolerant']['cost_ratio'])} false-alarm Emergency cell-days (tolerant; "
+        f"{_ratio(ab[em]['cell_exact']['cost_ratio'])} on the exact cell). Going on to C is worth it only below "
+        f"{_ratio(bc[em]['tolerant']['cost_ratio'])} ({_ratio(bc[em]['cell_exact']['cost_ratio'])}). C leaves Emergency "
+        f"catching {_p(c[em]['tolerant']['detection'], 0)} tolerant and {_p(c[em]['cell_exact']['detection'], 0)} exact. "
+        "That is about one landslide in three on its own cell, too few for a level whose name promises the most danger. "
+        "The ratio is the user's to set (roadmap section 5). If a missed landslide is worth more than the A -> B ratio, "
+        "keep A.",
+        f"- At the district level the burden stays high under every option. Under B the median Himalayan district would be "
+        f"at Emergency {db['median']:.1f} days a week in the monsoon, and the busiest tenth {db['p90']:.1f} days (today: "
+        f"{da['median']:.1f} and {da['p90']:.1f}). A district holds many cells, so one cell at a level is enough on most "
+        "days. Before districts are used for messages, a district-level frequency cap is needed (a share-of-cells rule "
+        "chosen the way the cell caps were). That is the next piece of work, and it does not depend on this choice.",
+        "- Outside the monsoon the caps change little: on development data today's levels already fire below them. The "
+        "high live burden outside June-September (phase8_season_validity) is not explained by the thresholds. It needs "
+        "its own study and stays flagged outside the validated season.",
+        "- Any option changes published levels, so wiring it is a model change: it needs the look, a reviewed wiring "
+        "step and the user's yes.",
+    ]
 
 
 def markdown_report(result: dict) -> str:
@@ -927,6 +1001,24 @@ def markdown_report(result: dict) -> str:
                        f"{_p(x['published_share'], 2)} | {_p(w['cell_exact']['detection'], 0)} / "
                        f"{_p(w['tolerant']['detection'], 0)} | {_p(x['cell_exact']['detection'], 0)} / "
                        f"{_p(x['tolerant']['detection'], 0)} |")
+    out.append("")
+    out.append("## The price of each step, as a cost ratio")
+    out.append("")
+    out.append("Moving from one option to the next saves published alert cell-days and loses some development events. "
+               "The cost ratio is cell-days saved per event lost: the step is worth taking when one missed landslide is "
+               "worth FEWER false-alarm cell-days than this number ('any': no event is lost).")
+    out.append("")
+    out.append("| step | region and season | level | alert cell-days saved | events lost (exact / tolerant) | "
+               "cost ratio (exact / tolerant) |")
+    out.append("|---|---|---|---|---|---|")
+    for step, strata in result["option_steps"].items():
+        for key, rows in strata.items():
+            for level_name, row in rows.items():
+                out.append(f"| {step} | {_stratum(key)} | {level_name} | {_n(row['saved_cell_days'])} "
+                           f"({_p(row['saved_share'], 0)}) | {row['cell_exact']['lost']} / {row['tolerant']['lost']} | "
+                           f"{_ratio(row['cell_exact']['cost_ratio'])} / {_ratio(row['tolerant']['cost_ratio'])} |")
+    out.append("")
+    out += recommendation(result)
     out.append("")
     out.append("## What a district officer would receive")
     out.append("")
