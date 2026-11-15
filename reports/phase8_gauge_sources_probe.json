@@ -1,0 +1,4084 @@
+{
+  "report": "phase8_gauge_sources_probe",
+  "measure": {
+    "measured_utc": "2026-11-15T18:33:01+00:00",
+    "isd": {
+      "isd_history": {
+        "url": "https://www.ncei.noaa.gov/pub/data/noaa/isd-history.csv",
+        "status": 200,
+        "last_modified": "Sat, 30 Aug 2025 00:02:02 GMT",
+        "bytes": "2914601",
+        "location": null
+      },
+      "noaa_isd_pds_newest_year": "data/2025/",
+      "noaa_global_hourly_pds_newest_year": "2025/",
+      "last_record": {
+        "42111": "\"42111099999\",\"2025-08-24T21:00:00\",\"4\",\"30.3166666\",\"78.0333333\",\"682.0\",\"DEHRADUN, IN\",\"FM-12\",\"99999\",\"V020\",\"050,1,N",
+        "43371": "\"43371099999\",\"2025-08-24T21:00:00\",\"4\",\"8.4833333\",\"76.95\",\"64.0\",\"THIRUVANANTHAPURAM, IN\",\"FM-12\",\"99999\",\"V020\",\"999,",
+        "42182": "\"42182099999\",\"2025-08-24T21:00:00\",\"4\",\"28.584511\",\"77.205783\",\"214.88\",\"SAFDARJUNG, IN\",\"FM-12\",\"99999\",\"V020\",\"050,1,"
+      }
+    },
+    "gsod": {
+      "files_2026": {
+        "42111": {
+          "url": "https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/2026/42111099999.csv",
+          "status": 404,
+          "last_modified": null,
+          "bytes": null,
+          "location": null
+        },
+        "43371": {
+          "url": "https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/2026/43371099999.csv",
+          "status": 404,
+          "last_modified": null,
+          "bytes": null,
+          "location": null
+        },
+        "42182": {
+          "url": "https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/2026/42182099999.csv",
+          "status": 404,
+          "last_modified": null,
+          "bytes": null,
+          "location": null
+        }
+      },
+      "last_record_2025": {
+        "42111": "\"42111099999\",\"2025-08-24\",\"30.3166666\",\"78.0333333\",\"682.0\",\"DEHRADUN, IN\",\"  80.8\",\" 7\",\"  75.0\",\" 7\",\" 999.9\",\" 7\",\"9",
+        "43371": "\"43371099999\",\"2025-08-24\",\"8.4833333\",\"76.95\",\"64.0\",\"THIRUVANANTHAPURAM, IN\",\"  81.9\",\" 7\",\"  75.1\",\" 7\",\"1010.4\",\" 7\"",
+        "42182": "\"42182099999\",\"2025-08-24\",\"28.584511\",\"77.205783\",\"214.88\",\"SAFDARJUNG, IN\",\"  82.6\",\" 7\",\"  79.6\",\" 7\",\" 999.4\",\" 7\",\""
+      }
+    },
+    "ghcnh": {
+      "42111": {
+        "url": "https://www.ncei.noaa.gov/oa/global-historical-climatology-network/hourly/access/by-year/2026/psv/GHCNh_INM00042111_2026.psv",
+        "status": 200,
+        "last_modified": "Thu, 12 Nov 2026 03:51:27 GMT",
+        "bytes": "1885519",
+        "location": null
+      },
+      "43371": {
+        "url": "https://www.ncei.noaa.gov/oa/global-historical-climatology-network/hourly/access/by-year/2026/psv/GHCNh_INM00043371_2026.psv",
+        "status": 404,
+        "last_modified": null,
+        "bytes": "262",
+        "location": null
+      },
+      "42182": {
+        "url": "https://www.ncei.noaa.gov/oa/global-historical-climatology-network/hourly/access/by-year/2026/psv/GHCNh_INM00042182_2026.psv",
+        "status": 404,
+        "last_modified": null,
+        "bytes": "262",
+        "location": null
+      }
+    },
+    "meteostat": {
+      "42111": {
+        "url": "https://bulk.meteostat.net/v2/hourly/2026/42111.csv.gz",
+        "status": 200,
+        "last_modified": "Tue, 10 Mar 2026 07:45:18 GMT",
+        "bytes": "20073",
+        "location": null
+      },
+      "43371": {
+        "url": "https://bulk.meteostat.net/v2/hourly/2026/43371.csv.gz",
+        "status": 200,
+        "last_modified": "Fri, 20 Mar 2026 00:42:37 GMT",
+        "bytes": "21429",
+        "location": null
+      },
+      "42182": {
+        "url": "https://bulk.meteostat.net/v2/hourly/2026/42182.csv.gz",
+        "status": 200,
+        "last_modified": "Fri, 20 Mar 2026 00:42:12 GMT",
+        "bytes": "24195",
+        "location": null
+      }
+    },
+    "nws_ring": {
+      "listing": {
+        "url": "https://tgftp.nws.noaa.gov/SL.us008001/DF.an/DC.sflnd/DS.synop/ls-l",
+        "status": 200,
+        "last_modified": "Sun, 15 Nov 2026 18:30:16 GMT",
+        "bytes": "21070",
+        "location": null
+      },
+      "files": 301,
+      "bytes": 10151858,
+      "oldest": "Nov 14 17:15",
+      "newest": "Nov 15 18:30"
+    }
+  },
+  "ghcn_2026": {
+    "rows_2026_jun_nov": 4309,
+    "monsoon_2026": {
+      "station_days": 3861,
+      "stations": 69,
+      "wet_share_ge1mm": 0.001036001036001036,
+      "zero_share": 0.9984459984459985,
+      "mflag": {
+        "H": 3856,
+        "G": 5
+      },
+      "sflag": {
+        "2": 3861
+      },
+      "zero_with_H_share": 0.9984459984459985,
+      "mean_mm": 0.007407407407407407
+    },
+    "by_month_2026": {
+      "2026-06": {
+        "station_days": 504,
+        "wet_share_ge1mm": 0.001984126984126984,
+        "zero_H_share": 0.996031746031746
+      },
+      "2026-07": {
+        "station_days": 1115,
+        "wet_share_ge1mm": 0.0008968609865470852,
+        "zero_H_share": 0.9982062780269059
+      },
+      "2026-08": {
+        "station_days": 798,
+        "wet_share_ge1mm": 0.0,
+        "zero_H_share": 1.0
+      },
+      "2026-09": {
+        "station_days": 1444,
+        "wet_share_ge1mm": 0.0013850415512465374,
+        "zero_H_share": 0.9986149584487535
+      },
+      "2026-10": {
+        "station_days": 374,
+        "wet_share_ge1mm": 0.0,
+        "zero_H_share": 0.9973262032085561
+      },
+      "2026-11": {
+        "station_days": 74,
+        "wet_share_ge1mm": 0.0,
+        "zero_H_share": 1.0
+      }
+    },
+    "monsoon_2024_local": {
+      "station_days": 10234,
+      "wet_share_ge1mm": 0.6327926519444987,
+      "zero_share": 0.26812585499316005,
+      "mean_mm": 13.78740406036377
+    },
+    "newest_date_counts": {
+      "2026-11-04": 5,
+      "2026-10-30": 6,
+      "2026-11-06": 6,
+      "2026-10-09": 1,
+      "2026-11-07": 18,
+      "2026-10-17": 1,
+      "2026-10-16": 1,
+      "2026-11-03": 5,
+      "2026-08-25": 1,
+      "2026-11-05": 3,
+      "2026-10-22": 1,
+      "2026-10-18": 1,
+      "2026-10-19": 10,
+      "2026-11-02": 2,
+      "2026-11-01": 1,
+      "2026-08-30": 1,
+      "2026-10-31": 1,
+      "2026-10-23": 1,
+      "2026-10-29": 1,
+      "2026-10-28": 1,
+      "2026-10-06": 1,
+      "2026-10-26": 1
+    }
+  },
+  "nws_latency": {
+    "rows": 8095,
+    "reports": 3466,
+    "first_time": "2026-11-14 09:00:00+00:00",
+    "last_time": "2026-11-15 15:00:00+00:00",
+    "by_hour": {
+      "0": {
+        "reports": 113,
+        "stations": 113,
+        "days": [
+          "2026-11-15"
+        ],
+        "lag_h_median": 0.3333333333333333,
+        "lag_h_p90": 0.8333333333333334,
+        "lag_h_max": 3.8333333333333335,
+        "lag_h_min": 0.08333333333333333
+      },
+      "3": {
+        "reports": 137,
+        "stations": 137,
+        "days": [
+          "2026-11-15"
+        ],
+        "lag_h_median": 0.3333333333333333,
+        "lag_h_p90": 0.5,
+        "lag_h_max": 1.75,
+        "lag_h_min": 0.08333333333333333
+      },
+      "6": {
+        "reports": 133,
+        "stations": 133,
+        "days": [
+          "2026-11-15"
+        ],
+        "lag_h_median": 0.16666666666666666,
+        "lag_h_p90": 0.4166666666666667,
+        "lag_h_max": 0.6666666666666666,
+        "lag_h_min": 0.08333333333333333
+      },
+      "9": {
+        "reports": 130,
+        "stations": 130,
+        "days": [
+          "2026-11-15"
+        ],
+        "lag_h_median": 0.2833333333333333,
+        "lag_h_p90": 0.5,
+        "lag_h_max": 0.5833333333333334,
+        "lag_h_min": 0.08333333333333333
+      },
+      "12": {
+        "reports": 274,
+        "stations": 139,
+        "days": [
+          "2026-11-14",
+          "2026-11-15"
+        ],
+        "lag_h_median": 0.25,
+        "lag_h_p90": 0.5,
+        "lag_h_max": 1.5833333333333333,
+        "lag_h_min": 0.0
+      },
+      "15": {
+        "reports": 213,
+        "stations": 108,
+        "days": [
+          "2026-11-14",
+          "2026-11-15"
+        ],
+        "lag_h_median": 0.16666666666666666,
+        "lag_h_p90": 0.5,
+        "lag_h_max": 1.4166666666666667,
+        "lag_h_min": 0.08333333333333333
+      },
+      "18": {
+        "reports": 100,
+        "stations": 100,
+        "days": [
+          "2026-11-14"
+        ],
+        "lag_h_median": 0.16666666666666666,
+        "lag_h_p90": 0.3333333333333333,
+        "lag_h_max": 2.1666666666666665,
+        "lag_h_min": 0.0
+      },
+      "21": {
+        "reports": 99,
+        "stations": 99,
+        "days": [
+          "2026-11-14"
+        ],
+        "lag_h_median": 0.25,
+        "lag_h_p90": 0.5833333333333334,
+        "lag_h_max": 4.0,
+        "lag_h_min": 0.08333333333333333
+      }
+    },
+    "03utc": {
+      "2026-11-15 03:00:00+00:00": {
+        "stations_reported": 137,
+        "by_0530utc": 137,
+        "lag_h_p95": 0.5333333333333314,
+        "lag_h_max": 1.75
+      }
+    },
+    "wmo_stations": 140
+  },
+  "near_scored_cells": {
+    "scored_cells": 36792,
+    "stations_within_100km": 365,
+    "by_country": {
+      "PK": 13,
+      "BG": 21,
+      "BD": 1,
+      "IN": 303,
+      "BT": 1,
+      "NP": 15,
+      "BM": 7,
+      "CH": 4
+    },
+    "in_ghcn_140": 107,
+    "reported_in_ring_14_15_nov": 301,
+    "with_imd_day_total_15nov": 277,
+    "with_total_not_in_ghcn_140": 172,
+    "how_15nov": {
+      "no_03utc_report": 88,
+      "24h_group": 53,
+      "ir3_zero": 224
+    },
+    "by_country_with_total": {
+      "BG": 17,
+      "BD": 1,
+      "IN": 239,
+      "NP": 15,
+      "BM": 5
+    },
+    "ghcn_140_within_100km": 107,
+    "ghcn_140_total": 140,
+    "station_list_source": "isd-history.csv (last modified 2025-08-30), WMO-format ids, END >= 2024",
+    "stations": [
+      {
+        "wmo": "41517",
+        "name": "SKARDU",
+        "ctry": "PK",
+        "dist_km": 84.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41519",
+        "name": "CHILLAS",
+        "ctry": "PK",
+        "dist_km": 79.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41520",
+        "name": "ASTORE",
+        "ctry": "PK",
+        "dist_km": 74.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41525",
+        "name": "MALAM JABBA",
+        "ctry": "PK",
+        "dist_km": 91.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41532",
+        "name": "MUZAFFAR ABAD",
+        "ctry": "PK",
+        "dist_km": 29.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41535",
+        "name": "KAKUL",
+        "ctry": "PK",
+        "dist_km": 52.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41536",
+        "name": "BALAKOT",
+        "ctry": "PK",
+        "dist_km": 41.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41571",
+        "name": "CHAKLALA",
+        "ctry": "PK",
+        "dist_km": 83.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41573",
+        "name": "MURREE",
+        "ctry": "PK",
+        "dist_km": 51.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41577",
+        "name": "ISLAMABAD CITY",
+        "ctry": "PK",
+        "dist_km": 83.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41598",
+        "name": "JHELUM",
+        "ctry": "PK",
+        "dist_km": 39.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41599",
+        "name": "SIALKOT",
+        "ctry": "PK",
+        "dist_km": 40.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41600",
+        "name": "SIALKOT CITY",
+        "ctry": "PK",
+        "dist_km": 40.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41850",
+        "name": "TETULIA  PANCHAGOR",
+        "ctry": "BG",
+        "dist_km": 53.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41858",
+        "name": "SAIDPUR",
+        "ctry": "BG",
+        "dist_km": 96.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41859",
+        "name": "RANGPUR",
+        "ctry": "BG",
+        "dist_km": 67.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41883",
+        "name": "BOGRA",
+        "ctry": "BG",
+        "dist_km": 73.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41886",
+        "name": "MYMENSINGH",
+        "ctry": "BG",
+        "dist_km": 53.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41891",
+        "name": "OSMANI INTL",
+        "ctry": "BD",
+        "dist_km": 26.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41895",
+        "name": "SHAH MOKHDUM",
+        "ctry": "BG",
+        "dist_km": 94.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41915",
+        "name": "SRIMANGAL",
+        "ctry": "BG",
+        "dist_km": 11.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41922",
+        "name": "HAZRAT SHAHJALAL INTL",
+        "ctry": "BG",
+        "dist_km": 86.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41923",
+        "name": "TEJGAON",
+        "ctry": "BG",
+        "dist_km": 85.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41933",
+        "name": "COMILLA",
+        "ctry": "BG",
+        "dist_km": 12.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41941",
+        "name": "CHANDPUR",
+        "ctry": "BG",
+        "dist_km": 63.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41943",
+        "name": "FENI",
+        "ctry": "BG",
+        "dist_km": 19.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41953",
+        "name": "MAIJDICOURT",
+        "ctry": "BG",
+        "dist_km": 53.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41963",
+        "name": "HATIA",
+        "ctry": "BG",
+        "dist_km": 81.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41964",
+        "name": "SANDWIP",
+        "ctry": "BG",
+        "dist_km": 60.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41965",
+        "name": "SITAKUNDU",
+        "ctry": "BG",
+        "dist_km": 47.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41966",
+        "name": "RANGAMATI",
+        "ctry": "BG",
+        "dist_km": 31.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41977",
+        "name": "CHITTAGONG (AMBAGAN)",
+        "ctry": "BG",
+        "dist_km": 72.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41978",
+        "name": "SHAH AMANAT INTL",
+        "ctry": "BG",
+        "dist_km": 75.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "41989",
+        "name": "KUTUBDIA",
+        "ctry": "BG",
+        "dist_km": 80.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "41992",
+        "name": "COXS BAZAR",
+        "ctry": "BG",
+        "dist_km": 89.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42026",
+        "name": "GULMARG",
+        "ctry": "IN",
+        "dist_km": 5.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.6,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42027",
+        "name": "SRINAGAR",
+        "ctry": "IN",
+        "dist_km": 6.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42042",
+        "name": "SRINAGAR",
+        "ctry": "IN",
+        "dist_km": 7.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42044",
+        "name": "QAZI GUND",
+        "ctry": "IN",
+        "dist_km": 2.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.2,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42045",
+        "name": "BANIHAL",
+        "ctry": "IN",
+        "dist_km": 3.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.2,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42056",
+        "name": "JAMMU",
+        "ctry": "IN",
+        "dist_km": 7.3,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42062",
+        "name": "DHARMSALA",
+        "ctry": "IN",
+        "dist_km": 4.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42065",
+        "name": "MANALI",
+        "ctry": "IN",
+        "dist_km": 4.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42071",
+        "name": "AMRITSAR",
+        "ctry": "IN",
+        "dist_km": 95.4,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42075",
+        "name": "JULLUNDUR",
+        "ctry": "IN",
+        "dist_km": 39.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42077",
+        "name": "UNA",
+        "ctry": "IN",
+        "dist_km": 4.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42078",
+        "name": "MANDI",
+        "ctry": "IN",
+        "dist_km": 3.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42079",
+        "name": "SUNDERNAGAR",
+        "ctry": "IN",
+        "dist_km": 3.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42081",
+        "name": "BHUNTAR",
+        "ctry": "IN",
+        "dist_km": 4.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42083",
+        "name": "SHIMLA",
+        "ctry": "IN",
+        "dist_km": 3.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.2,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42099",
+        "name": "LUDHIANA",
+        "ctry": "IN",
+        "dist_km": 44.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42101",
+        "name": "PATIALA",
+        "ctry": "IN",
+        "dist_km": 58.2,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42103",
+        "name": "AMBALA",
+        "ctry": "IN",
+        "dist_km": 37.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.1,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42104",
+        "name": "NAHAN",
+        "ctry": "IN",
+        "dist_km": 35.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42105",
+        "name": "CHANDIGARH(IAFB)",
+        "ctry": "IN",
+        "dist_km": 4.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42111",
+        "name": "DEHRADUN",
+        "ctry": "IN",
+        "dist_km": 3.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42114",
+        "name": "TEHRI",
+        "ctry": "IN",
+        "dist_km": 1.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42131",
+        "name": "HISAR",
+        "ctry": "IN",
+        "dist_km": 77.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42137",
+        "name": "KARNAL",
+        "ctry": "IN",
+        "dist_km": 80.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42139",
+        "name": "MEERUT",
+        "ctry": "IN",
+        "dist_km": 85.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.2,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42143",
+        "name": "NAJIBABAD",
+        "ctry": "IN",
+        "dist_km": 14.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42147",
+        "name": "MUKTESHWAR KUMAON",
+        "ctry": "IN",
+        "dist_km": 6.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42148",
+        "name": "PANTNAGAR",
+        "ctry": "IN",
+        "dist_km": 22.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42170",
+        "name": "CHURU",
+        "ctry": "IN",
+        "dist_km": 71.8,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 1.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42174",
+        "name": "PILANI",
+        "ctry": "IN",
+        "dist_km": 33.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42176",
+        "name": "ROHTAK",
+        "ctry": "IN",
+        "dist_km": 45.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42177",
+        "name": "NARNAUL",
+        "ctry": "IN",
+        "dist_km": 1.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42181",
+        "name": "INDIRA GANDHI INTL",
+        "ctry": "IN",
+        "dist_km": 20.8,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42182",
+        "name": "SAFDARJUNG",
+        "ctry": "IN",
+        "dist_km": 20.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42183",
+        "name": "BULANDSHAHR",
+        "ctry": "IN",
+        "dist_km": 65.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42187",
+        "name": "MORADABAD",
+        "ctry": "IN",
+        "dist_km": 64.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.4,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42189",
+        "name": "BAREILLY",
+        "ctry": "IN",
+        "dist_km": 79.2,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42220",
+        "name": "PASIGHAT",
+        "ctry": "IN",
+        "dist_km": 8.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42237",
+        "name": "PHALODI",
+        "ctry": "IN",
+        "dist_km": 74.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42249",
+        "name": "SIKAR",
+        "ctry": "IN",
+        "dist_km": 14.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "42255",
+        "name": "ALWAR",
+        "ctry": "IN",
+        "dist_km": 1.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42257",
+        "name": "MATHURA",
+        "ctry": "IN",
+        "dist_km": 47.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42258",
+        "name": "BHARATPUR",
+        "ctry": "IN",
+        "dist_km": 38.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42260",
+        "name": "AGRA",
+        "ctry": "IN",
+        "dist_km": 67.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42261",
+        "name": "AGRA",
+        "ctry": "IN",
+        "dist_km": 71.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42262",
+        "name": "ALIGARH",
+        "ctry": "IN",
+        "dist_km": 95.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42270",
+        "name": "KHERI",
+        "ctry": "IN",
+        "dist_km": 80.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42273",
+        "name": "BAHRAICH",
+        "ctry": "IN",
+        "dist_km": 47.4,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42282",
+        "name": "NAUTANWA",
+        "ctry": "IN",
+        "dist_km": 29.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42295",
+        "name": "DARJEELING",
+        "ctry": "IN",
+        "dist_km": 6.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42296",
+        "name": "KALIMPONG",
+        "ctry": "IN",
+        "dist_km": 4.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42299",
+        "name": "GANGTOK",
+        "ctry": "IN",
+        "dist_km": 4.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42305",
+        "name": "BOMDILA",
+        "ctry": "IN",
+        "dist_km": 5.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42309",
+        "name": "LILABARI",
+        "ctry": "IN",
+        "dist_km": 9.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42314",
+        "name": "DIBRUGARH",
+        "ctry": "IN",
+        "dist_km": 26.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42339",
+        "name": "JODHPUR",
+        "ctry": "IN",
+        "dist_km": 7.3,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42343",
+        "name": "AJMER",
+        "ctry": "IN",
+        "dist_km": 5.8,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42348",
+        "name": "JAIPUR",
+        "ctry": "IN",
+        "dist_km": 8.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42354",
+        "name": "DHOLPUR",
+        "ctry": "IN",
+        "dist_km": 15.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42361",
+        "name": "GWALIOR",
+        "ctry": "IN",
+        "dist_km": 10.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42364",
+        "name": "ETAWAH",
+        "ctry": "IN",
+        "dist_km": 92.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42379",
+        "name": "GORAKHPUR",
+        "ctry": "IN",
+        "dist_km": 91.3,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42382",
+        "name": "RAXAUL",
+        "ctry": "IN",
+        "dist_km": 35.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42383",
+        "name": "MOTIHARI",
+        "ctry": "IN",
+        "dist_km": 65.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42391",
+        "name": "DARBHANGA",
+        "ctry": "IN",
+        "dist_km": 83.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42393",
+        "name": "SUPAUL",
+        "ctry": "IN",
+        "dist_km": 63.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42395",
+        "name": "FORBESGANJ",
+        "ctry": "IN",
+        "dist_km": 50.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42398",
+        "name": "BAGDOGRA",
+        "ctry": "IN",
+        "dist_km": 13.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42399",
+        "name": "JALPAIGURI",
+        "ctry": "IN",
+        "dist_km": 41.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42403",
+        "name": "COOCH BEHAR",
+        "ctry": "IN",
+        "dist_km": 40.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42404",
+        "name": "DHUBRI",
+        "ctry": "IN",
+        "dist_km": 17.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42407",
+        "name": "GOALPARA",
+        "ctry": "IN",
+        "dist_km": 3.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42408",
+        "name": "RANGIA",
+        "ctry": "IN",
+        "dist_km": 16.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42410",
+        "name": "GUWAHATI INTL / LOKPRIYA GOPINATH BORDOLOI INTL",
+        "ctry": "IN",
+        "dist_km": 1.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42413",
+        "name": "MAJBAT",
+        "ctry": "IN",
+        "dist_km": 17.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42414",
+        "name": "CHAPARMUKH",
+        "ctry": "IN",
+        "dist_km": 11.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42415",
+        "name": "TEZPUR",
+        "ctry": "IN",
+        "dist_km": 21.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42420",
+        "name": "GOLAGHAT",
+        "ctry": "IN",
+        "dist_km": 21.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42423",
+        "name": "JORHAT",
+        "ctry": "IN",
+        "dist_km": 15.2,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42435",
+        "name": "BARMER",
+        "ctry": "IN",
+        "dist_km": 72.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42441",
+        "name": "ERINPURA /JAWAI DAM SITE",
+        "ctry": "IN",
+        "dist_km": 9.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42447",
+        "name": "BHILWARA",
+        "ctry": "IN",
+        "dist_km": 18.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42452",
+        "name": "KOTA",
+        "ctry": "IN",
+        "dist_km": 16.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42456",
+        "name": "SHEOPUR",
+        "ctry": "IN",
+        "dist_km": 31.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42459",
+        "name": "SHIVPURI",
+        "ctry": "IN",
+        "dist_km": 6.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42460",
+        "name": "DATIA",
+        "ctry": "IN",
+        "dist_km": 42.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42463",
+        "name": "JHANSI",
+        "ctry": "IN",
+        "dist_km": 21.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42467",
+        "name": "NOWGONG",
+        "ctry": "IN",
+        "dist_km": 15.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42468",
+        "name": "ORAI",
+        "ctry": "IN",
+        "dist_km": 78.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42469",
+        "name": "HAMIRPUR",
+        "ctry": "IN",
+        "dist_km": 100.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42471",
+        "name": "FATEHPUR",
+        "ctry": "IN",
+        "dist_km": 81.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42473",
+        "name": "BANDA",
+        "ctry": "IN",
+        "dist_km": 42.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42475",
+        "name": "ALLAHABAD ARPT",
+        "ctry": "IN",
+        "dist_km": 49.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42479",
+        "name": "LAL BAHADUR SHASTRI VARANASI INTL",
+        "ctry": "IN",
+        "dist_km": 50.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42482",
+        "name": "GHAZIPUR",
+        "ctry": "IN",
+        "dist_km": 44.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42483",
+        "name": "VARANASI",
+        "ctry": "IN",
+        "dist_km": 33.4,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42484",
+        "name": "BALLIA",
+        "ctry": "IN",
+        "dist_km": 94.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42488",
+        "name": "CHAPRA",
+        "ctry": "IN",
+        "dist_km": 94.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42492",
+        "name": "JAI PRAKASH NARAYAN INTL PATNA",
+        "ctry": "IN",
+        "dist_km": 65.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42498",
+        "name": "BHAGALPUR",
+        "ctry": "IN",
+        "dist_km": 30.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42499",
+        "name": "SABAUR",
+        "ctry": "IN",
+        "dist_km": 36.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42500",
+        "name": "PURNEA",
+        "ctry": "IN",
+        "dist_km": 8.2,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42503",
+        "name": "MALDA",
+        "ctry": "IN",
+        "dist_km": 36.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42512",
+        "name": "SHILLONG ARPT / UMROI ARPT / BARAPANI",
+        "ctry": "IN",
+        "dist_km": 1.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42515",
+        "name": "CHERRAPUNJI",
+        "ctry": "IN",
+        "dist_km": 6.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42516",
+        "name": "SHILLONG",
+        "ctry": "IN",
+        "dist_km": 4.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42522",
+        "name": "HAFLONG",
+        "ctry": "IN",
+        "dist_km": 4.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42523",
+        "name": "LUMDING",
+        "ctry": "IN",
+        "dist_km": 5.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42527",
+        "name": "KOHIMA",
+        "ctry": "IN",
+        "dist_km": 4.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42539",
+        "name": "DEESA",
+        "ctry": "IN",
+        "dist_km": 30.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42540",
+        "name": "MOUNT ABU",
+        "ctry": "IN",
+        "dist_km": 1.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42542",
+        "name": "UDAIPUR / MAHARANA PRATAP",
+        "ctry": "IN",
+        "dist_km": 9.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42546",
+        "name": "CHITTORGARH",
+        "ctry": "IN",
+        "dist_km": 7.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42557",
+        "name": "RAJGARH",
+        "ctry": "IN",
+        "dist_km": 1.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42559",
+        "name": "GUNA",
+        "ctry": "IN",
+        "dist_km": 5.8,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42562",
+        "name": "TIKAMGARH",
+        "ctry": "IN",
+        "dist_km": 16.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42567",
+        "name": "KHAJURAHO",
+        "ctry": "IN",
+        "dist_km": 20.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42570",
+        "name": "PANNA",
+        "ctry": "IN",
+        "dist_km": 3.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42571",
+        "name": "SATNA",
+        "ctry": "IN",
+        "dist_km": 10.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42574",
+        "name": "REWA",
+        "ctry": "IN",
+        "dist_km": 14.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42577",
+        "name": "SIDHI",
+        "ctry": "IN",
+        "dist_km": 3.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42587",
+        "name": "DALTONGANJ",
+        "ctry": "IN",
+        "dist_km": 6.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42588",
+        "name": "DEHRI",
+        "ctry": "IN",
+        "dist_km": 8.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42591",
+        "name": "GAYA",
+        "ctry": "IN",
+        "dist_km": 25.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42599",
+        "name": "DUMKA",
+        "ctry": "IN",
+        "dist_km": 6.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42603",
+        "name": "BERHAMPORE",
+        "ctry": "IN",
+        "dist_km": 68.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42618",
+        "name": "KAILASHAHAR",
+        "ctry": "IN",
+        "dist_km": 10.3,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42619",
+        "name": "SILCHAR",
+        "ctry": "IN",
+        "dist_km": 11.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42623",
+        "name": "IMPHAL",
+        "ctry": "IN",
+        "dist_km": 4.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42647",
+        "name": "AHMEDABAD / SARDAR VALLABHBHAI PATEL INTL",
+        "ctry": "IN",
+        "dist_km": 75.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42654",
+        "name": "GANDHINAGAR",
+        "ctry": "IN",
+        "dist_km": 56.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42661",
+        "name": "RATLAM",
+        "ctry": "IN",
+        "dist_km": 15.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42662",
+        "name": "UJJAIN",
+        "ctry": "IN",
+        "dist_km": 45.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42667",
+        "name": "BHOPAL / RAJA BHOJ",
+        "ctry": "IN",
+        "dist_km": 11.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42671",
+        "name": "SAGAR",
+        "ctry": "IN",
+        "dist_km": 7.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42672",
+        "name": "RAISEN",
+        "ctry": "IN",
+        "dist_km": 3.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42674",
+        "name": "DAMOH",
+        "ctry": "IN",
+        "dist_km": 6.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42675",
+        "name": "JABALPUR",
+        "ctry": "IN",
+        "dist_km": 5.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42679",
+        "name": "UMARIA",
+        "ctry": "IN",
+        "dist_km": 4.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42693",
+        "name": "AMBIKAPUR",
+        "ctry": "IN",
+        "dist_km": 6.3,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42701",
+        "name": "BIRSA MUNDA",
+        "ctry": "IN",
+        "dist_km": 12.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42705",
+        "name": "PURULIA",
+        "ctry": "IN",
+        "dist_km": 22.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42706",
+        "name": "BANKURA",
+        "ctry": "IN",
+        "dist_km": 8.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42708",
+        "name": "SHANTI NIKETAN",
+        "ctry": "IN",
+        "dist_km": 51.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42709",
+        "name": "BURDWAN",
+        "ctry": "IN",
+        "dist_km": 84.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42715",
+        "name": "MALANJKHAND",
+        "ctry": "IN",
+        "dist_km": 0.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42724",
+        "name": "AGARTALA",
+        "ctry": "IN",
+        "dist_km": 11.4,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42726",
+        "name": "LENGPUI",
+        "ctry": "IN",
+        "dist_km": 5.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42727",
+        "name": "AIJAL",
+        "ctry": "IN",
+        "dist_km": 4.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42744",
+        "name": "VALLABH VIDYANAGAR",
+        "ctry": "IN",
+        "dist_km": 58.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42748",
+        "name": "BARODA AERODROME",
+        "ctry": "IN",
+        "dist_km": 30.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42751",
+        "name": "DOHAD",
+        "ctry": "IN",
+        "dist_km": 15.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42752",
+        "name": "DHAR",
+        "ctry": "IN",
+        "dist_km": 11.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42754",
+        "name": "DEVI AHILYABAI HOLKAR",
+        "ctry": "IN",
+        "dist_km": 24.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42763",
+        "name": "HOSHANGABAD",
+        "ctry": "IN",
+        "dist_km": 5.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42767",
+        "name": "PACHMARHI",
+        "ctry": "IN",
+        "dist_km": 5.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42768",
+        "name": "CHHINDWARA",
+        "ctry": "IN",
+        "dist_km": 0.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42770",
+        "name": "NARSINGHPUR",
+        "ctry": "IN",
+        "dist_km": 10.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42771",
+        "name": "SEONI",
+        "ctry": "IN",
+        "dist_km": 5.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42776",
+        "name": "MANDLA",
+        "ctry": "IN",
+        "dist_km": 3.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42779",
+        "name": "PENDRA ROAD",
+        "ctry": "IN",
+        "dist_km": 10.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42782",
+        "name": "BILASPUR",
+        "ctry": "IN",
+        "dist_km": 30.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42790",
+        "name": "JASHPURNAGAR",
+        "ctry": "IN",
+        "dist_km": 3.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42792",
+        "name": "SUNDARGARH",
+        "ctry": "IN",
+        "dist_km": 7.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42793",
+        "name": "ROURKELA",
+        "ctry": "IN",
+        "dist_km": 2.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42795",
+        "name": "CHAIBASA",
+        "ctry": "IN",
+        "dist_km": 13.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42798",
+        "name": "JAMSHEDPUR",
+        "ctry": "IN",
+        "dist_km": 3.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42799",
+        "name": "JAMSHEDPUR",
+        "ctry": "IN",
+        "dist_km": 2.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42803",
+        "name": "MIDNAPORE",
+        "ctry": "IN",
+        "dist_km": 66.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42840",
+        "name": "SURAT",
+        "ctry": "IN",
+        "dist_km": 44.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42841",
+        "name": "BROACH",
+        "ctry": "IN",
+        "dist_km": 42.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42846",
+        "name": "NANDURBAR",
+        "ctry": "IN",
+        "dist_km": 6.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42849",
+        "name": "KHARGONE",
+        "ctry": "IN",
+        "dist_km": 23.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42851",
+        "name": "JALGAON",
+        "ctry": "IN",
+        "dist_km": 17.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42855",
+        "name": "KHANDWA",
+        "ctry": "IN",
+        "dist_km": 37.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42860",
+        "name": "BETUL",
+        "ctry": "IN",
+        "dist_km": 15.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42866",
+        "name": "NAGPUR (MAYO HOSPITAL)",
+        "ctry": "IN",
+        "dist_km": 64.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42867",
+        "name": "DR BABA SAHEB AMBEDKAR INTL",
+        "ctry": "IN",
+        "dist_km": 56.8,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42871",
+        "name": "GONDIA ARPT/BIRSI",
+        "ctry": "IN",
+        "dist_km": 52.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42872",
+        "name": "MANA",
+        "ctry": "IN",
+        "dist_km": 97.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42874",
+        "name": "PBO RAIPUR",
+        "ctry": "IN",
+        "dist_km": 97.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42876",
+        "name": "DURG",
+        "ctry": "IN",
+        "dist_km": 91.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42883",
+        "name": "SAMBALPUR",
+        "ctry": "IN",
+        "dist_km": 61.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42886",
+        "name": "JHARSUGUDA / VEER SURENDRA SAI",
+        "ctry": "IN",
+        "dist_km": 21.3,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42891",
+        "name": "KEONGJHARGARH",
+        "ctry": "IN",
+        "dist_km": 42.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42894",
+        "name": "BARIPADA",
+        "ctry": "IN",
+        "dist_km": 18.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42895",
+        "name": "BALASORE",
+        "ctry": "IN",
+        "dist_km": 63.8,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42915",
+        "name": "BULSAR",
+        "ctry": "IN",
+        "dist_km": 27.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42916",
+        "name": "DAMAN",
+        "ctry": "IN",
+        "dist_km": 14.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42920",
+        "name": "OZAR AIR FORCE STATION /NASHIK ARPT",
+        "ctry": "IN",
+        "dist_km": 12.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42921",
+        "name": "NASIK CITY",
+        "ctry": "IN",
+        "dist_km": 11.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42925",
+        "name": "MALEGAON",
+        "ctry": "IN",
+        "dist_km": 17.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42931",
+        "name": "BULDANA",
+        "ctry": "IN",
+        "dist_km": 5.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42933",
+        "name": "AKOLA",
+        "ctry": "IN",
+        "dist_km": 33.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42934",
+        "name": "AKOLA",
+        "ctry": "IN",
+        "dist_km": 33.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "42935",
+        "name": "WASHIM",
+        "ctry": "IN",
+        "dist_km": 20.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42937",
+        "name": "AMRAOTI",
+        "ctry": "IN",
+        "dist_km": 4.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42939",
+        "name": "WARDHA",
+        "ctry": "IN",
+        "dist_km": 24.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "42943",
+        "name": "YEOTMAL",
+        "ctry": "IN",
+        "dist_km": 5.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43001",
+        "name": "DAHANU",
+        "ctry": "IN",
+        "dist_km": 9.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43003",
+        "name": "CHHATRAPATI SHIVAJI MAHARAJ INTL",
+        "ctry": "IN",
+        "dist_km": 3.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43005",
+        "name": "T B I A",
+        "ctry": "IN",
+        "dist_km": 88.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43009",
+        "name": "AHMADNAGAR",
+        "ctry": "IN",
+        "dist_km": 1.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43011",
+        "name": "BIR",
+        "ctry": "IN",
+        "dist_km": 1.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43014",
+        "name": "AURANGABAD",
+        "ctry": "IN",
+        "dist_km": 4.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43017",
+        "name": "PARBHANI",
+        "ctry": "IN",
+        "dist_km": 26.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43021",
+        "name": "NANDED",
+        "ctry": "IN",
+        "dist_km": 9.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43025",
+        "name": "ADILABAD",
+        "ctry": "IN",
+        "dist_km": 15.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43029",
+        "name": "CHANDRAPUR",
+        "ctry": "IN",
+        "dist_km": 84.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43057",
+        "name": "BOMBAY / COLABA",
+        "ctry": "IN",
+        "dist_km": 14.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43058",
+        "name": "ALIBAG",
+        "ctry": "IN",
+        "dist_km": 5.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43060",
+        "name": "MATHERAN",
+        "ctry": "IN",
+        "dist_km": 2.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43063",
+        "name": "PUNE",
+        "ctry": "IN",
+        "dist_km": 6.4,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43067",
+        "name": "PASHAN CTI",
+        "ctry": "IN",
+        "dist_km": 6.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43069",
+        "name": "BARAMATI",
+        "ctry": "IN",
+        "dist_km": 27.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43071",
+        "name": "JEUR",
+        "ctry": "IN",
+        "dist_km": 53.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43076",
+        "name": "UDGIR",
+        "ctry": "IN",
+        "dist_km": 32.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43081",
+        "name": "NIZAMABAD",
+        "ctry": "IN",
+        "dist_km": 7.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43083",
+        "name": "MEDAK",
+        "ctry": "IN",
+        "dist_km": 6.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43109",
+        "name": "HARNAI",
+        "ctry": "IN",
+        "dist_km": 1.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43110",
+        "name": "RATNAGIRI",
+        "ctry": "IN",
+        "dist_km": 4.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43111",
+        "name": "MAHABALESHWAR",
+        "ctry": "IN",
+        "dist_km": 5.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43113",
+        "name": "SATARA",
+        "ctry": "IN",
+        "dist_km": 5.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43117",
+        "name": "SOLAPUR",
+        "ctry": "IN",
+        "dist_km": 43.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43121",
+        "name": "GULBARGA",
+        "ctry": "IN",
+        "dist_km": 27.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43125",
+        "name": "BIDAR",
+        "ctry": "IN",
+        "dist_km": 21.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43128",
+        "name": "BEGUMPET AIRPORT / HYDERABAD INTL",
+        "ctry": "IN",
+        "dist_km": 8.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43133",
+        "name": "NALGONDA",
+        "ctry": "IN",
+        "dist_km": 80.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43157",
+        "name": "KOLHAPUR",
+        "ctry": "IN",
+        "dist_km": 7.3,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43158",
+        "name": "SANGLI",
+        "ctry": "IN",
+        "dist_km": 12.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43161",
+        "name": "BIJAPUR",
+        "ctry": "IN",
+        "dist_km": 31.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43168",
+        "name": "MAHABUBNAGAR",
+        "ctry": "IN",
+        "dist_km": 5.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43169",
+        "name": "RAICHUR",
+        "ctry": "IN",
+        "dist_km": 37.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43192",
+        "name": "GOA/PANJIM",
+        "ctry": "IN",
+        "dist_km": 9.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43193",
+        "name": "VENGURLA",
+        "ctry": "IN",
+        "dist_km": 5.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43194",
+        "name": "GOA INTL",
+        "ctry": "IN",
+        "dist_km": 7.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43196",
+        "name": "MORMUGAO",
+        "ctry": "IN",
+        "dist_km": 12.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43197",
+        "name": "BELGAUM",
+        "ctry": "IN",
+        "dist_km": 6.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43198",
+        "name": "BELGAUM",
+        "ctry": "IN",
+        "dist_km": 4.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43200",
+        "name": "DHARWAD",
+        "ctry": "IN",
+        "dist_km": 9.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43201",
+        "name": "GADAG",
+        "ctry": "IN",
+        "dist_km": 4.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43212",
+        "name": "NANDYAL",
+        "ctry": "IN",
+        "dist_km": 20.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43213",
+        "name": "KURNOOL",
+        "ctry": "IN",
+        "dist_km": 13.2,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43225",
+        "name": "KARWAR",
+        "ctry": "IN",
+        "dist_km": 7.4,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43226",
+        "name": "HONAVAR",
+        "ctry": "IN",
+        "dist_km": 5.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43227",
+        "name": "HAVERI",
+        "ctry": "IN",
+        "dist_km": 14.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43229",
+        "name": "SHIRALI",
+        "ctry": "IN",
+        "dist_km": 5.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43230",
+        "name": "DAVANGERE",
+        "ctry": "IN",
+        "dist_km": 14.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43233",
+        "name": "CHITRADURGA",
+        "ctry": "IN",
+        "dist_km": 5.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43237",
+        "name": "PBO ANANTAPUR",
+        "ctry": "IN",
+        "dist_km": 7.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43241",
+        "name": "CUDDAPAH",
+        "ctry": "IN",
+        "dist_km": 37.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43258",
+        "name": "SHIVAMOGGA",
+        "ctry": "IN",
+        "dist_km": 6.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43260",
+        "name": "CHICKMAGALUR",
+        "ctry": "IN",
+        "dist_km": 7.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43263",
+        "name": "HASSAN",
+        "ctry": "IN",
+        "dist_km": 8.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43271",
+        "name": "AROGYAVARAM",
+        "ctry": "IN",
+        "dist_km": 3.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43272",
+        "name": "CHINTAMANI",
+        "ctry": "IN",
+        "dist_km": 3.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43284",
+        "name": "MANGALORE",
+        "ctry": "IN",
+        "dist_km": 4.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43285",
+        "name": "MANGALORE/PANAMBUR",
+        "ctry": "IN",
+        "dist_km": 9.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43287",
+        "name": "MADIKERI",
+        "ctry": "IN",
+        "dist_km": 4.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43289",
+        "name": "MANDYA",
+        "ctry": "IN",
+        "dist_km": 3.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43291",
+        "name": "MYSORE",
+        "ctry": "IN",
+        "dist_km": 0.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43295",
+        "name": "BANGALORE",
+        "ctry": "IN",
+        "dist_km": 9.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43296",
+        "name": "BANGALORE/HINDUSTAN AIRPORT",
+        "ctry": "IN",
+        "dist_km": 15.4,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43301",
+        "name": "DHARMAPURI",
+        "ctry": "IN",
+        "dist_km": 5.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43302",
+        "name": "TIRUPPATTUR",
+        "ctry": "IN",
+        "dist_km": 7.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43303",
+        "name": "VELLORE",
+        "ctry": "IN",
+        "dist_km": 71.7,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43314",
+        "name": "KOZHIKODE",
+        "ctry": "IN",
+        "dist_km": 5.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43315",
+        "name": "CANNUR",
+        "ctry": "IN",
+        "dist_km": 10.4,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43316",
+        "name": "NILAMBUR",
+        "ctry": "IN",
+        "dist_km": 4.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43317",
+        "name": "UDHAGAMANDALAM",
+        "ctry": "IN",
+        "dist_km": 3.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43318",
+        "name": "COONOOR",
+        "ctry": "IN",
+        "dist_km": 5.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43320",
+        "name": "M.O. KARIPUR AIRPORT",
+        "ctry": "IN",
+        "dist_km": 6.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43321",
+        "name": "COIMBATORE",
+        "ctry": "IN",
+        "dist_km": 16.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43322",
+        "name": "CHAMARAJNAGAR",
+        "ctry": "IN",
+        "dist_km": 5.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43324",
+        "name": "ARIYALUR",
+        "ctry": "IN",
+        "dist_km": 56.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43325",
+        "name": "SALEM",
+        "ctry": "IN",
+        "dist_km": 6.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43326",
+        "name": "KALLAKKURICHCHI",
+        "ctry": "IN",
+        "dist_km": 51.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43327",
+        "name": "KARAIKUDI",
+        "ctry": "IN",
+        "dist_km": 46.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43330",
+        "name": "THANJAVUR",
+        "ctry": "IN",
+        "dist_km": 80.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43335",
+        "name": "PALAKKAD",
+        "ctry": "IN",
+        "dist_km": 6.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43338",
+        "name": "ERODE",
+        "ctry": "IN",
+        "dist_km": 4.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43339",
+        "name": "KODAIKANAL",
+        "ctry": "IN",
+        "dist_km": 5.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43340",
+        "name": "YERCAUD",
+        "ctry": "IN",
+        "dist_km": 6.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43341",
+        "name": "VALPARAI",
+        "ctry": "IN",
+        "dist_km": 1.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43342",
+        "name": "K. PARAMATHY",
+        "ctry": "IN",
+        "dist_km": 27.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43343",
+        "name": "TIRUCHIRAPALLI TOWN",
+        "ctry": "IN",
+        "dist_km": 35.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43344",
+        "name": "TIRUCHIRAPPALLI",
+        "ctry": "IN",
+        "dist_km": 34.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43345",
+        "name": "KUDIMIAMALAI",
+        "ctry": "IN",
+        "dist_km": 29.2,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43351",
+        "name": "FORT COCHIN",
+        "ctry": "IN",
+        "dist_km": 18.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43352",
+        "name": "ALAPUZHA",
+        "ctry": "IN",
+        "dist_km": 10.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43353",
+        "name": "COCHIN",
+        "ctry": "IN",
+        "dist_km": 14.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43354",
+        "name": "PUNALUR",
+        "ctry": "IN",
+        "dist_km": 1.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43355",
+        "name": "KOTTAYAM",
+        "ctry": "IN",
+        "dist_km": 3.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43356",
+        "name": "PERIAKULAM",
+        "ctry": "IN",
+        "dist_km": 3.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43357",
+        "name": "THRISSUR",
+        "ctry": "IN",
+        "dist_km": 9.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43359",
+        "name": "MADURAI",
+        "ctry": "IN",
+        "dist_km": 13.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43360",
+        "name": "MADURAI",
+        "ctry": "IN",
+        "dist_km": 12.5,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43361",
+        "name": "TONDI",
+        "ctry": "IN",
+        "dist_km": 86.6,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43371",
+        "name": "THIRUVANANTHAPURAM",
+        "ctry": "IN",
+        "dist_km": 5.8,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43372",
+        "name": "THIRUVANANTHAPURAM INTL",
+        "ctry": "IN",
+        "dist_km": 3.0,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43376",
+        "name": "PALAYANKOTTAI",
+        "ctry": "IN",
+        "dist_km": 16.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "43377",
+        "name": "KANNIYAKUMARI",
+        "ctry": "IN",
+        "dist_km": 1.9,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 2.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "43379",
+        "name": "TUTICORIN NEW PORT",
+        "ctry": "IN",
+        "dist_km": 31.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "43399",
+        "name": "PARO",
+        "ctry": "BT",
+        "dist_km": 2.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "44404",
+        "name": "DADELDHURA",
+        "ctry": "NP",
+        "dist_km": 1.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44406",
+        "name": "DIPAYAL",
+        "ctry": "NP",
+        "dist_km": 7.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44409",
+        "name": "DHANGADHI (ATARIYA)",
+        "ctry": "NP",
+        "dist_km": 12.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44416",
+        "name": "SURKHET",
+        "ctry": "NP",
+        "dist_km": 1.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44418",
+        "name": "NEPALGUNJ AIRPORT",
+        "ctry": "NP",
+        "dist_km": 17.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44424",
+        "name": "JUMLA",
+        "ctry": "NP",
+        "dist_km": 3.7,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44429",
+        "name": "DANG",
+        "ctry": "NP",
+        "dist_km": 5.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44434",
+        "name": "POKHARA",
+        "ctry": "NP",
+        "dist_km": 1.9,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44438",
+        "name": "BHAIRAHAWA / GAUTAM BUDDHA",
+        "ctry": "NP",
+        "dist_km": 21.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44449",
+        "name": "SIMARA",
+        "ctry": "NP",
+        "dist_km": 15.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44454",
+        "name": "TRIBHUVAN INTL",
+        "ctry": "NP",
+        "dist_km": 4.1,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44462",
+        "name": "OKHALDHUNGA",
+        "ctry": "NP",
+        "dist_km": 0.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44474",
+        "name": "TAPLEJUNG",
+        "ctry": "NP",
+        "dist_km": 6.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44477",
+        "name": "DHANKUTA",
+        "ctry": "NP",
+        "dist_km": 5.3,
+        "in_ghcn_140": true,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "44478",
+        "name": "BIRATNAGAR",
+        "ctry": "NP",
+        "dist_km": 33.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "24h_group"
+      },
+      {
+        "wmo": "48001",
+        "name": "PUTAO",
+        "ctry": "BM",
+        "dist_km": 34.6,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "48004",
+        "name": "HKAMTI",
+        "ctry": "BM",
+        "dist_km": 60.0,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "48010",
+        "name": "HOMALIN",
+        "ctry": "BM",
+        "dist_km": 26.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "48020",
+        "name": "MAWLAIK",
+        "ctry": "BM",
+        "dist_km": 43.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "48025",
+        "name": "KALEWA",
+        "ctry": "BM",
+        "dist_km": 80.5,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": 0.0,
+        "how": "ir3_zero"
+      },
+      {
+        "wmo": "48030",
+        "name": "HAKHA",
+        "ctry": "BM",
+        "dist_km": 51.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": true,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "48031",
+        "name": "FALAM",
+        "ctry": "BM",
+        "dist_km": 40.3,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "55228",
+        "name": "SHIQUANHE",
+        "ctry": "CH",
+        "dist_km": 82.8,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "55664",
+        "name": "TINGRI",
+        "ctry": "CH",
+        "dist_km": 70.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "55773",
+        "name": "PAGRI",
+        "ctry": "CH",
+        "dist_km": 12.1,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      },
+      {
+        "wmo": "56312",
+        "name": "NYINGCHI",
+        "ctry": "CH",
+        "dist_km": 32.4,
+        "in_ghcn_140": false,
+        "reported_in_ring": false,
+        "imd_day_15nov": null,
+        "how": "no_03utc_report"
+      }
+    ]
+  },
+  "ghcnh_content": {
+    "stations_of_140_in_ghcnh_list": 74,
+    "coverage": "74 of 140 stations listed",
+    "files": {
+      "42111": {
+        "rows": 2447,
+        "last_record": "2026-11-10T15:00:00",
+        "jun_sep_rows": 976,
+        "jun_sep_nonempty": {
+          "precipitation": 262,
+          "precipitation_3_hour": 0,
+          "precipitation_6_hour": 0,
+          "precipitation_9_hour": 0,
+          "precipitation_12_hour": 0,
+          "precipitation_15_hour": 0,
+          "precipitation_18_hour": 0,
+          "precipitation_21_hour": 0,
+          "precipitation_24_hour": 0
+        },
+        "jun_sep_positive": {
+          "precipitation": 0,
+          "precipitation_3_hour": 0,
+          "precipitation_6_hour": 0,
+          "precipitation_9_hour": 0,
+          "precipitation_12_hour": 0,
+          "precipitation_15_hour": 0,
+          "precipitation_18_hour": 0,
+          "precipitation_21_hour": 0,
+          "precipitation_24_hour": 0
+        }
+      },
+      "42083": {
+        "rows": 2104,
+        "last_record": "2026-11-10T15:00:00",
+        "jun_sep_rows": 976,
+        "jun_sep_nonempty": {
+          "precipitation": 107,
+          "precipitation_3_hour": 0,
+          "precipitation_6_hour": 0,
+          "precipitation_9_hour": 0,
+          "precipitation_12_hour": 0,
+          "precipitation_15_hour": 0,
+          "precipitation_18_hour": 0,
+          "precipitation_21_hour": 0,
+          "precipitation_24_hour": 0
+        },
+        "jun_sep_positive": {
+          "precipitation": 0,
+          "precipitation_3_hour": 0,
+          "precipitation_6_hour": 0,
+          "precipitation_9_hour": 0,
+          "precipitation_12_hour": 0,
+          "precipitation_15_hour": 0,
+          "precipitation_18_hour": 0,
+          "precipitation_21_hour": 0,
+          "precipitation_24_hour": 0
+        }
+      }
+    },
+    "summary": "42111: Jun-Sep 2026 24-h groups 0, positive hourly values 0; 42083: Jun-Sep 2026 24-h groups 0, positive hourly values 0"
+  },
+  "ogimet": {
+    "requests": 21,
+    "note": "1 test request (42111, 1-3 Jul 2024), then one request per block and period, >= 30 s apart; one block-43 month request returned 0 bytes and was split in two halves",
+    "files": {
+      "2024-07_b42.txt": 4968783,
+      "2024-07_b43.txt": 0,
+      "2024-07_b44.txt": 1785826,
+      "2024-07a_b43.txt": 1875276,
+      "2024-07b_b43.txt": 2014433,
+      "b42_20260715_20260813.txt": 4778861,
+      "b42_20260814_20260912.txt": 4734568,
+      "b42_20260913_20261012.txt": 4533473,
+      "b42_20261013_20261111.txt": 4416094,
+      "b42_20261112_20261115.txt": 569323,
+      "b43_20260715_20260813.txt": 3519382,
+      "b43_20260814_20260912.txt": 3516526,
+      "b43_20260913_20261012.txt": 3605142,
+      "b43_20261013_20261111.txt": 3578444,
+      "b43_20261112_20261115.txt": 450352,
+      "b44_20260715_20260813.txt": 2979354,
+      "b44_20260814_20260912.txt": 3370586,
+      "b44_20260913_20261012.txt": 3532146,
+      "b44_20261013_20261111.txt": 3646303,
+      "b44_20261112_20261115.txt": 467180
+    },
+    "total_bytes": 58342052,
+    "terms_checked_before_requests": true
+  },
+  "licences": {
+    "noaa_ncei": "NOAA NCEI open data (public domain); ISD, GSOD, GHCN-Daily, GHCNh",
+    "nws": "weather.gov disclaimer: information on NWS Web servers 'is in the public domain, unless specifically noted otherwise' and 'may be used freely by the public' (the page does not name the tgftp server); coded SYNOP reports are WMO essential data (Resolution 40)",
+    "ogimet": "ogimet.com footer/licence: text tables may be used 'siempre que se incluya el enlace al sitio de origen Ogimet'; 'Estas paginas deben utilizarse a titulo informativo'; 'Los productos de este sitio no deben utilizarse en ninguna mision critica'; coded reports are copyright of each national service, WMO Resolution 40. getsynop help: 'No more than 200000 synops in a petition', 'please, don't abuse'",
+    "meteostat": "dev.meteostat.net/license: Creative Commons Attribution 4.0 International (CC BY 4.0); credit Meteostat and its data providers"
+  },
+  "decisions_for_user": [
+    "Live use of OGIMET (terms: informational use only, not mission-critical). Used here only for validation and scratch replays.",
+    "India-WRIS and the IMD AWS/ARG portals need registration: not signed up, not probed.",
+    "Wiring synop.enabled and/or ghcn.h_zero_as_missing into the live run (levels can change: a model change).",
+    "More stations than the 140 (SYNOP stations near the scored cells that the engine has no climatology for): needs an engine retraining and evaluation."
+  ]
+}
