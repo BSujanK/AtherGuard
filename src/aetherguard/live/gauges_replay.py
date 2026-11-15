@@ -173,7 +173,11 @@ def render(result: dict) -> str:
                   "| reference | n | bias mm | r | wet hit | false wet | within tolerance |", "|---|---|---|---|---|---|---|"]
         for key, m in v2["metrics"].items():
             lines.append(_metrics_row(key, m))
-        lines += ["", v2.get("note", ""), ""]
+        lines += ["", f"Period {v2['period'][0]} to {v2['period'][1]}, {v2['stations']} stations: SYNOP totals on "
+                  f"{v2['synop_station_days']} of {v2['station_days']} station-days ({v2['how']}). GHCN-Daily has "
+                  f"{v2['ghcn_h_zero_station_days']} flag-H zeros in the period, {v2['ghcn_h_zero_where_synop_wet']} of them "
+                  f"on station-days where the station's own SYNOP has >= 1 mm. IMD real-time days compared: {v2['imd_days']}.",
+                  "", v2.get("note", ""), ""]
     lines += ["## Replayed days", "", "| day | set | stations on D | SYNOP how on D | flagged on D | mean trust | "
               "High / Degraded / Insufficient | Normal / Watch / Warning / Emergency | blind-escalated | audit |",
               "|---|---|---|---|---|---|---|---|---|---|"]
@@ -233,7 +237,13 @@ def main(argv=None) -> int:
     if args.cmd == "run":
         run_sets(args.root, args.days, args.sets)
         return 0
-    load = (lambda path: json.loads(path.read_text(encoding="utf-8")) if path else None)
+    def load(path):
+        if not path:
+            return None
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(payload.get("tolerance"), dict):       # keep local paths out of the public report
+            payload["tolerance"]["source"] = f"data/processed/alerts/{Path(payload['tolerance']['source']).name}"
+        return payload
     result = build(args.root, load(args.v1), load(args.v1_first), load(args.v2))
     args.out.mkdir(parents=True, exist_ok=True)
     dump_json(args.out / f"{REPORT_STEM}.json", result)

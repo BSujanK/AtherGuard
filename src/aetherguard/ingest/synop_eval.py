@@ -119,7 +119,7 @@ def v1(ogimet_dir: Path, start: str, end: str, alert_config: Path, isd_presence:
             "ghcn_station_days": int(np.isfinite(b).sum()), "synop_station_days": int(np.isfinite(a).sum()),
             "coverage_of_ghcn_days": float((np.isfinite(a) & np.isfinite(b)).sum() / max(np.isfinite(b).sum(), 1)),
             "how": dict(hows), "tolerance": {"agree_abs_mm": cfg.agree_abs_mm, "agree_rel": cfg.agree_rel,
-                                             "source": str(alert_config)},
+                                             "source": f"data/processed/alerts/{Path(alert_config).name}"},
             "metrics": metrics, "criterion": CRITERION, "criterion_met": criterion_met(metrics),
             "per_station": per_station}
 
