@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-11-15T18:18:06Z",
+  "created_utc": "2026-11-15T18:37:00Z",
   "windows_present": [
     "jun_dec"
   ],
@@ -6808,7 +6808,7 @@
     "The caps are met on the point level. The published level also raises to Watch where the ensemble's upper bound reaches it (uncertain_high) and holds levels (hysteresis, rain-capped hold release), which raises the realised share; the published columns measure it on the same panels.",
     "The live run outside June-September has published far more alerts than these panels show (reports/phase8_season_validity.md); thresholds set on development data do not remove that difference.",
     "January-May panels start on 1 January without a warm-up (no hysteresis state carried over New Year).",
-    "District numbers use geoBoundaries district polygons (India ADM2, Nepal ADM2 = the 75 districts of 2006, Bhutan ADM1 = the 20 dzongkhags); a few cells at coasts and borders take the nearest district of their country within 5 km.",
+    "District numbers use geoBoundaries district polygons (India ADM2, Nepal ADM2 = the 75 districts of 2006, Bhutan ADM1 = the 20 dzongkhags); a few cells at coasts and borders take the nearest district of their country within 5 km. District data: ODbL 1.0; contains information from geoBoundaries (gbOpen) and OpenStreetMap contributors.",
     "A cost ratio counts every alert cell-day as a false alarm and every catalogue event as the only landslide; the catalogues hold a small fraction of the slides that happened, so the real number of misses behind each lost event is larger than one.",
     "The blind-escalation rule of the live run (raise to Watch when the rain sources disagree and confidence is not High) needs the live IMD comparison and is not in the development chain."
   ]

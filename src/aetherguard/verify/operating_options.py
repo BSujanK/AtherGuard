@@ -917,7 +917,8 @@ CAVEATS_OPTIONS = [
     "(reports/phase8_season_validity.md); thresholds set on development data do not remove that difference.",
     "January-May panels start on 1 January without a warm-up (no hysteresis state carried over New Year).",
     "District numbers use geoBoundaries district polygons (India ADM2, Nepal ADM2 = the 75 districts of 2006, Bhutan "
-    "ADM1 = the 20 dzongkhags); a few cells at coasts and borders take the nearest district of their country within 5 km.",
+    "ADM1 = the 20 dzongkhags); a few cells at coasts and borders take the nearest district of their country within 5 km. "
+    f"District data: {DI.ATTRIBUTION}.",
     "A cost ratio counts every alert cell-day as a false alarm and every catalogue event as the only landslide; the "
     "catalogues hold a small fraction of the slides that happened, so the real number of misses behind each lost event "
     "is larger than one.",
@@ -1058,6 +1059,8 @@ def markdown_report(result: dict) -> str:
                "spec: the rule with the fewest Warning+ district-days that keeps at least "
                f"{DISTRICT_KEEP:.0%} of the events the any-cell rule covers). Days per week at each level or above, for "
                "the median district and the busiest tenth of districts (90th percentile):")
+    out.append("")
+    out.append(f"District boundaries: {DI.ATTRIBUTION}.")
     out.append("")
     out.append("| option | district rule | region and season | Watch+ days/week (median, p90) | Warning+ | Emergency |")
     out.append("|---|---|---|---|---|---|")

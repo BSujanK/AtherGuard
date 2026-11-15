@@ -52,6 +52,7 @@ from ..manifest import Manifest, sha256_file
 API = "https://www.geoboundaries.org/api/current/gbOpen/{iso}/{level}/"
 SOURCES = {"India": ("IND", "ADM2"), "Nepal": ("NPL", "ADM2"), "Bhutan": ("BTN", "ADM1")}
 MAX_NEAREST_KM = 5.0
+ATTRIBUTION = "ODbL 1.0; contains information from geoBoundaries (gbOpen) and OpenStreetMap contributors"
 KM_PER_DEG = 111.2
 
 
@@ -223,6 +224,8 @@ def build(raw: Path, out: Path, skip_download: bool, say=print) -> dict:
               "rule": f"centre inside the polygon (own country first where two overlap), else the nearest district of "
                       f"the own country within {MAX_NEAREST_KM} km, else none",
               "sources": sources, "counts": counts,
+              "licence_notes": ATTRIBUTION + " (the user accepted ODbL 1.0 for the India districts, 2026-11-16; any "
+                               "published district table carries this line)",
               "note": "boundary files and this table stay under data/ (not committed); the India part is a derived "
                       "database of an ODbL 1.0 source"}
     (out / "districts.json").write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")

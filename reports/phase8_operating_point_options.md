@@ -85,6 +85,8 @@ Take **B_balanced** to its one confirming held-out look, and keep A (today) live
 
 A district is at a level on a day under the district rule chosen for the option (section 4 of the spec: the rule with the fewest Warning+ district-days that keeps at least 90% of the events the any-cell rule covers). Days per week at each level or above, for the median district and the busiest tenth of districts (90th percentile):
 
+District boundaries: ODbL 1.0; contains information from geoBoundaries (gbOpen) and OpenStreetMap contributors.
+
 | option | district rule | region and season | Watch+ days/week (median, p90) | Warning+ | Emergency |
 |---|---|---|---|---|---|
 | A_detection_first | 3 cells or 10% of cells | Himalaya, monsoon (Jun-Sep) | 6.8, 7.0 | 4.0, 6.8 | 0.9, 5.2 |
@@ -429,6 +431,6 @@ Each row caps the level at a share of the cell-days of the region and season. Co
 - The caps are met on the point level. The published level also raises to Watch where the ensemble's upper bound reaches it (uncertain_high) and holds levels (hysteresis, rain-capped hold release), which raises the realised share; the published columns measure it on the same panels.
 - The live run outside June-September has published far more alerts than these panels show (reports/phase8_season_validity.md); thresholds set on development data do not remove that difference.
 - January-May panels start on 1 January without a warm-up (no hysteresis state carried over New Year).
-- District numbers use geoBoundaries district polygons (India ADM2, Nepal ADM2 = the 75 districts of 2006, Bhutan ADM1 = the 20 dzongkhags); a few cells at coasts and borders take the nearest district of their country within 5 km.
+- District numbers use geoBoundaries district polygons (India ADM2, Nepal ADM2 = the 75 districts of 2006, Bhutan ADM1 = the 20 dzongkhags); a few cells at coasts and borders take the nearest district of their country within 5 km. District data: ODbL 1.0; contains information from geoBoundaries (gbOpen) and OpenStreetMap contributors.
 - A cost ratio counts every alert cell-day as a false alarm and every catalogue event as the only landslide; the catalogues hold a small fraction of the slides that happened, so the real number of misses behind each lost event is larger than one.
 - The blind-escalation rule of the live run (raise to Watch when the rain sources disagree and confidence is not High) needs the live IMD comparison and is not in the development chain.
