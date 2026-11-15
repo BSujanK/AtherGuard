@@ -1,0 +1,1803 @@
+{
+  "generated_utc": "2026-11-15T13:08:59+00:00",
+  "inventory": {
+    "gfs_archive": {
+      "cycles": 493,
+      "first": "2021060100",
+      "last": "2026101300",
+      "hours_kept": [
+        "f003_apcp0h.grib2",
+        "f027_apcp0h.grib2",
+        "f051_apcp0h.grib2",
+        "f075_apcp0h.grib2"
+      ],
+      "note": "the archive fetch keeps only the IMD-day boundary hours: no sub-daily rain"
+    },
+    "gfs_live_raw": {
+      "cycles": 34,
+      "first": "2026101400",
+      "last": "2026111500",
+      "hours_kept_newest": 32,
+      "note": "3-hourly cumulative APCP f003..f096 per cycle (NOMADS grib filter, domain crop)"
+    },
+    "ecmwf_day_files": {
+      "days": 230,
+      "by_year": {
+        "2023": 80,
+        "2024": 122,
+        "2026": 28
+      },
+      "keys": [
+        "ens_cycle",
+        "ens_mean",
+        "ens_p10",
+        "ens_p50",
+        "ens_p90",
+        "ens_valid",
+        "failures",
+        "hres",
+        "hres_cycle",
+        "hres_valid",
+        "issued_utc",
+        "lats",
+        "lead_days",
+        "lons",
+        "n_members",
+        "urls"
+      ],
+      "members_kept": false,
+      "note": "IMD-day totals only: HRES and the ensemble mean / p10 / p50 / p90; members and sub-daily steps not kept"
+    },
+    "imerg_halfhourly": {
+      "intensity_store": {
+        "early_live": {
+          "2024": {
+            "days": 214,
+            "first": "20240601",
+            "last": "20241231"
+          }
+        },
+        "late": {
+          "2007": {
+            "days": 365,
+            "first": "20070101",
+            "last": "20071231"
+          },
+          "2008": {
+            "days": 366,
+            "first": "20080101",
+            "last": "20081231"
+          },
+          "2009": {
+            "days": 365,
+            "first": "20090101",
+            "last": "20091231"
+          },
+          "2010": {
+            "days": 365,
+            "first": "20100101",
+            "last": "20101231"
+          },
+          "2011": {
+            "days": 365,
+            "first": "20110101",
+            "last": "20111231"
+          },
+          "2012": {
+            "days": 366,
+            "first": "20120101",
+            "last": "20121231"
+          },
+          "2013": {
+            "days": 365,
+            "first": "20130101",
+            "last": "20131231"
+          },
+          "2014": {
+            "days": 365,
+            "first": "20140101",
+            "last": "20141231"
+          },
+          "2015": {
+            "days": 365,
+            "first": "20150101",
+            "last": "20151231"
+          },
+          "2016": {
+            "days": 366,
+            "first": "20160101",
+            "last": "20161231"
+          },
+          "2017": {
+            "days": 365,
+            "first": "20170101",
+            "last": "20171231"
+          },
+          "2018": {
+            "days": 224,
+            "first": "20180522",
+            "last": "20181231"
+          },
+          "2019": {
+            "days": 224,
+            "first": "20190522",
+            "last": "20191231"
+          },
+          "2020": {
+            "days": 224,
+            "first": "20200522",
+            "last": "20201231"
+          },
+          "2021": {
+            "days": 224,
+            "first": "20210522",
+            "last": "20211231"
+          },
+          "2022": {
+            "days": 224,
+            "first": "20220522",
+            "last": "20221231"
+          },
+          "2023": {
+            "days": 224,
+            "first": "20230522",
+            "last": "20231231"
+          },
+          "2024": {
+            "days": 224,
+            "first": "20240522",
+            "last": "20241231"
+          },
+          "2025": {
+            "days": 224,
+            "first": "20250522",
+            "last": "20251231"
+          },
+          "2026": {
+            "days": 6,
+            "first": "20261109",
+            "last": "20261114"
+          }
+        }
+      },
+      "study_store": {
+        "early_live": {
+          "2016": {
+            "days": 77,
+            "first": "20160601",
+            "last": "20160817"
+          },
+          "2026": {
+            "days": 32,
+            "first": "20261014",
+            "last": "20261114"
+          }
+        },
+        "late": {
+          "2026": {
+            "days": 38,
+            "first": "20261008",
+            "last": "20261114"
+          }
+        }
+      }
+    },
+    "gfs3h_store": {
+      "by_year": {
+        "2021": 122,
+        "2022": 64
+      },
+      "note": "this study's 3-hourly archive fetch (00Z, hours 3..51)"
+    },
+    "live_days": [
+      "2026-10-09",
+      "2026-10-10",
+      "2026-10-11",
+      "2026-10-12",
+      "2026-10-13",
+      "2026-10-14",
+      "2026-10-15",
+      "2026-10-16",
+      "2026-10-17",
+      "2026-10-18",
+      "2026-10-19",
+      "2026-10-20",
+      "2026-10-21",
+      "2026-10-22",
+      "2026-10-23",
+      "2026-10-24",
+      "2026-10-25",
+      "2026-10-26",
+      "2026-10-28",
+      "2026-10-31",
+      "2026-11-01",
+      "2026-11-02",
+      "2026-11-03",
+      "2026-11-04",
+      "2026-11-05",
+      "2026-11-06",
+      "2026-11-07",
+      "2026-11-08",
+      "2026-11-09",
+      "2026-11-10",
+      "2026-11-11",
+      "2026-11-12",
+      "2026-11-13",
+      "2026-11-14",
+      "2026-11-15"
+    ]
+  },
+  "regions": [
+    "himalaya",
+    "western_ghats"
+  ],
+  "heavy_mm": 10.0,
+  "quantiles": [
+    50,
+    90,
+    99
+  ],
+  "definitions": {
+    "forecast_maps": "GFS 3-hour blocks regridded bilinearly to 0.1 degree, then max3h, max6h (two consecutive blocks), wet_hours (3 h per block of at least 0.3 mm); max1h is the 3-hour maximum (no sub-3-hour step)",
+    "late_maps": "complete IMERG Late half-hourly days reduced by imerg_hh.reduce_day (rolling 1/3/6 h windows)",
+    "early_maps": "the first 44 IMERG Early half-hours of the day (what the 11:00 IST run has)",
+    "quantiles": "each side's own percentile over the pairs (frequency matched, not paired)"
+  },
+  "results": {
+    "early_live": {
+      "0": {
+        "2016": {
+          "days": 76,
+          "first": "2016-06-01",
+          "last": "2016-08-16",
+          "max1h": {
+            "himalaya": {
+              "pairs": 1327492,
+              "mean_late": 2.6156609993128455,
+              "mean_forecast": 2.979524306242758,
+              "ratio_of_means": 1.1391095050258815,
+              "correlation": 0.8898021109202557,
+              "p50_late": 0.8650000095367432,
+              "p50_forecast": 1.2200000286102295,
+              "p50_ratio": 1.4104046418029625,
+              "p90_late": 7.299999713897705,
+              "p90_forecast": 8.024999618530273,
+              "p90_ratio": 1.0993150593214842,
+              "p99_late": 20.564998626708984,
+              "p99_forecast": 22.14499855041504,
+              "p99_ratio": 1.0768295662151912,
+              "late_at_least_10mm": {
+                "pairs": 79920,
+                "mean_late": 15.98295653877077,
+                "mean_forecast": 15.415278497733944
+              }
+            },
+            "western_ghats": {
+              "pairs": 416632,
+              "mean_late": 1.849696416250253,
+              "mean_forecast": 2.1071889939349275,
+              "ratio_of_means": 1.13920802106903,
+              "correlation": 0.899464836153917,
+              "p50_late": 0.6699999570846558,
+              "p50_forecast": 0.9799999594688416,
+              "p50_ratio": 1.4626866003590158,
+              "p90_late": 5.09499979019165,
+              "p90_forecast": 5.414999961853027,
+              "p90_ratio": 1.0628067094874876,
+              "p99_late": 13.489999771118164,
+              "p99_forecast": 15.133449535369884,
+              "p99_ratio": 1.1218272640575069,
+              "late_at_least_10mm": {
+                "pairs": 8894,
+                "mean_late": 15.483478959823207,
+                "mean_forecast": 15.345267812286242
+              }
+            }
+          },
+          "max3h": {
+            "himalaya": {
+              "pairs": 1327492,
+              "mean_late": 5.367567089646834,
+              "mean_forecast": 5.4797964630849885,
+              "ratio_of_means": 1.0209087975173383,
+              "correlation": 0.9148013910387662,
+              "p50_late": 1.4800000190734863,
+              "p50_forecast": 1.850000023841858,
+              "p50_ratio": 1.25,
+              "p90_late": 15.604999542236328,
+              "p90_forecast": 15.395000457763672,
+              "p90_ratio": 0.9865428330257701,
+              "p99_late": 44.9099963760376,
+              "p99_forecast": 43.04499816894531,
+              "p99_ratio": 0.9584725371278947,
+              "late_at_least_10mm": {
+                "pairs": 230602,
+                "mean_late": 21.422189341347334,
+                "mean_forecast": 20.002793245160152
+              }
+            },
+            "western_ghats": {
+              "pairs": 416632,
+              "mean_late": 3.631072891248296,
+              "mean_forecast": 3.7614656200241208,
+              "ratio_of_means": 1.0359102482051794,
+              "correlation": 0.9340704337578981,
+              "p50_late": 0.9675000011920929,
+              "p50_forecast": 1.3399999141693115,
+              "p50_ratio": 1.385012829476225,
+              "p90_late": 10.885000228881836,
+              "p90_forecast": 10.619999885559082,
+              "p90_ratio": 0.9756545394808893,
+              "p99_late": 27.6299991607666,
+              "p99_forecast": 27.87189933776858,
+              "p99_ratio": 1.0087549831469218,
+              "late_at_least_10mm": {
+                "pairs": 47747,
+                "mean_late": 17.15675208560933,
+                "mean_forecast": 16.156891275456182
+              }
+            }
+          },
+          "max6h": {
+            "himalaya": {
+              "pairs": 1327492,
+              "mean_late": 7.07883325979609,
+              "mean_forecast": 6.99005041490107,
+              "ratio_of_means": 0.9874579833093036,
+              "correlation": 0.923706702717631,
+              "p50_late": 1.7200000286102295,
+              "p50_forecast": 2.179999828338623,
+              "p50_ratio": 1.2674417395795488,
+              "p90_late": 20.989999771118164,
+              "p90_forecast": 20.05000114440918,
+              "p90_ratio": 0.9552168348280592,
+              "p99_late": 61.95500183105469,
+              "p99_forecast": 56.545448265076104,
+              "p99_ratio": 0.9126857653764596,
+              "late_at_least_10mm": {
+                "pairs": 289287,
+                "mean_late": 25.4695946222565,
+                "mean_forecast": 23.26798687214834
+              }
+            },
+            "western_ghats": {
+              "pairs": 416632,
+              "mean_late": 4.903470482423251,
+              "mean_forecast": 4.953978424731626,
+              "ratio_of_means": 1.0103004479152926,
+              "correlation": 0.9437538743721073,
+              "p50_late": 1.0850000381469727,
+              "p50_forecast": 1.5499999523162842,
+              "p50_ratio": 1.428571334396878,
+              "p90_late": 15.054999256134034,
+              "p90_forecast": 14.369998931884766,
+              "p90_ratio": 0.9545001422719984,
+              "p99_late": 39.649996528625486,
+              "p99_forecast": 38.29844890594484,
+              "p99_ratio": 0.965913045623979,
+              "late_at_least_10mm": {
+                "pairs": 68860,
+                "mean_late": 20.542040566071293,
+                "mean_forecast": 18.938403513288787
+              }
+            }
+          },
+          "wet_hours": {
+            "himalaya": {
+              "pairs": 1327492,
+              "mean_late": 5.008921334365857,
+              "mean_forecast": 4.622545747921644,
+              "ratio_of_means": 0.9228625165675258,
+              "correlation": 0.9605919247842513,
+              "p50_late": 3.5,
+              "p50_forecast": 3.5,
+              "p50_ratio": 1.0,
+              "p90_late": 13.0,
+              "p90_forecast": 11.5,
+              "p90_ratio": 0.8846153846153846,
+              "p99_late": 21.5,
+              "p99_forecast": 18.5,
+              "p99_ratio": 0.8604651162790697
+            },
+            "western_ghats": {
+              "pairs": 416632,
+              "mean_late": 4.482424537721538,
+              "mean_forecast": 4.290748190249428,
+              "ratio_of_means": 0.9572382433080422,
+              "correlation": 0.9604241949967287,
+              "p50_late": 2.5,
+              "p50_forecast": 2.5,
+              "p50_ratio": 1.0,
+              "p90_late": 12.5,
+              "p90_forecast": 11.0,
+              "p90_ratio": 0.88,
+              "p99_late": 22.0,
+              "p99_forecast": 19.5,
+              "p99_ratio": 0.8863636363636364
+            }
+          }
+        },
+        "2024": {
+          "days": 122,
+          "first": "2024-06-01",
+          "last": "2024-09-30",
+          "max1h": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 2.290049061723794,
+              "mean_forecast": 2.3184682933974314,
+              "ratio_of_means": 1.0124098789622635,
+              "correlation": 0.8741801424294202,
+              "p50_late": 0.6749999523162842,
+              "p50_forecast": 0.7099999785423279,
+              "p50_ratio": 1.0518518943681996,
+              "p90_late": 6.434999465942383,
+              "p90_forecast": 6.465000152587891,
+              "p90_ratio": 1.0046621117537442,
+              "p99_late": 19.459999084472656,
+              "p99_forecast": 19.395000457763672,
+              "p99_ratio": 0.9966598854179367,
+              "late_at_least_10mm": {
+                "pairs": 100367,
+                "mean_late": 16.14637842814685,
+                "mean_forecast": 14.167485361179832
+              }
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 2.60784649247253,
+              "mean_forecast": 2.5634333317252707,
+              "ratio_of_means": 0.9829694113992304,
+              "correlation": 0.8951606079606134,
+              "p50_late": 0.9649999737739563,
+              "p50_forecast": 0.9249999523162842,
+              "p50_ratio": 0.9585491994354791,
+              "p90_late": 6.994999885559082,
+              "p90_forecast": 6.869999885559082,
+              "p90_ratio": 0.9821300926311581,
+              "p99_late": 21.554850273132185,
+              "p99_forecast": 21.804850273132185,
+              "p99_ratio": 1.0115983176330212,
+              "late_at_least_10mm": {
+                "pairs": 36701,
+                "mean_late": 17.11515574726674,
+                "mean_forecast": 15.347379155974588
+              }
+            }
+          },
+          "max3h": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 4.5844285604198305,
+              "mean_forecast": 4.4782303258194585,
+              "ratio_of_means": 0.9768350115612563,
+              "correlation": 0.899637931724537,
+              "p50_late": 1.059999942779541,
+              "p50_forecast": 1.1299999952316284,
+              "p50_ratio": 1.0660377888969812,
+              "p90_late": 13.34000015258789,
+              "p90_forecast": 12.924999237060547,
+              "p90_ratio": 0.9688904864482453,
+              "p99_late": 41.69134788513193,
+              "p99_forecast": 39.48999786376953,
+              "p99_ratio": 0.9471988761930278,
+              "late_at_least_10mm": {
+                "pairs": 307255,
+                "mean_late": 20.887838666316572,
+                "mean_forecast": 18.818844697138623
+              }
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 5.140232433192399,
+              "mean_forecast": 4.969357675647875,
+              "ratio_of_means": 0.9667573869926344,
+              "correlation": 0.9284271618545283,
+              "p50_late": 1.4049999713897705,
+              "p50_forecast": 1.3849999904632568,
+              "p50_ratio": 0.9857651378407286,
+              "p90_late": 14.369998931884766,
+              "p90_forecast": 13.864999771118164,
+              "p90_ratio": 0.9648573974736986,
+              "p99_late": 45.01484935760484,
+              "p99_forecast": 43.6548488616942,
+              "p99_ratio": 0.9697877363732446,
+              "late_at_least_10mm": {
+                "pairs": 104147,
+                "mean_late": 22.034799645325624,
+                "mean_forecast": 20.221864470321833
+              }
+            }
+          },
+          "max6h": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 6.115141313523692,
+              "mean_forecast": 5.886543995900236,
+              "ratio_of_means": 0.9626178192942311,
+              "correlation": 0.9095842569971636,
+              "p50_late": 1.209999918937683,
+              "p50_forecast": 1.2999999523162842,
+              "p50_ratio": 1.074380197857878,
+              "p90_late": 17.959999084472656,
+              "p90_forecast": 17.174999237060547,
+              "p90_ratio": 0.9562917657333968,
+              "p99_late": 58.469994621276854,
+              "p99_forecast": 53.94499588012695,
+              "p99_ratio": 0.922609899821963,
+              "late_at_least_10mm": {
+                "pairs": 398254,
+                "mean_late": 24.896492872625757,
+                "mean_forecast": 22.391334245099625
+              }
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 7.046326359325515,
+              "mean_forecast": 6.7878893035099575,
+              "ratio_of_means": 0.9633231498746113,
+              "correlation": 0.9375099185744759,
+              "p50_late": 1.6200000047683716,
+              "p50_forecast": 1.6299999952316284,
+              "p50_ratio": 1.006172833601125,
+              "p90_late": 19.979999542236328,
+              "p90_forecast": 19.31999969482422,
+              "p90_ratio": 0.9669669738471758,
+              "p99_late": 64.51984672546372,
+              "p99_forecast": 61.92983905792222,
+              "p99_ratio": 0.9598571943519618,
+              "late_at_least_10mm": {
+                "pairs": 139137,
+                "mean_late": 26.39405006015068,
+                "mean_forecast": 24.338488922601627
+              }
+            }
+          },
+          "wet_hours": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 4.351769894893134,
+              "mean_forecast": 3.977077852662679,
+              "ratio_of_means": 0.9138989304856947,
+              "correlation": 0.939773360887481,
+              "p50_late": 2.5,
+              "p50_forecast": 2.5,
+              "p50_ratio": 1.0,
+              "p90_late": 12.0,
+              "p90_forecast": 11.0,
+              "p90_ratio": 0.9166666666666666,
+              "p99_late": 20.5,
+              "p99_forecast": 18.5,
+              "p99_ratio": 0.9024390243902439
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 5.121664942195322,
+              "mean_forecast": 4.76457228126626,
+              "ratio_of_means": 0.9302780121387637,
+              "correlation": 0.9503846380912677,
+              "p50_late": 3.0,
+              "p50_forecast": 3.0,
+              "p50_ratio": 1.0,
+              "p90_late": 14.0,
+              "p90_forecast": 13.0,
+              "p90_ratio": 0.9285714285714286,
+              "p99_late": 23.5,
+              "p99_forecast": 21.5,
+              "p99_ratio": 0.9148936170212766
+            }
+          }
+        },
+        "2026": {
+          "days": 32,
+          "first": "2026-10-14",
+          "last": "2026-11-14",
+          "max1h": {
+            "himalaya": {
+              "pairs": 558944,
+              "mean_late": 0.384639946201337,
+              "mean_forecast": 0.45612699879172247,
+              "ratio_of_means": 1.1858544680457241,
+              "correlation": 0.8805210499801875,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 0.5099999904632568,
+              "p90_forecast": 0.6299999952316284,
+              "p90_ratio": 1.2352941313966888,
+              "p99_late": 9.010000228881836,
+              "p99_forecast": 10.577849874496204,
+              "p99_ratio": 1.1740121649041226,
+              "late_at_least_10mm": {
+                "pairs": 4558,
+                "mean_late": 14.738163339615705,
+                "mean_forecast": 14.665720381874129
+              }
+            },
+            "western_ghats": {
+              "pairs": 175424,
+              "mean_late": 0.7164122195065822,
+              "mean_forecast": 0.8117836884224613,
+              "ratio_of_means": 1.1331237328441504,
+              "correlation": 0.9489878492481354,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 1.8499999046325684,
+              "p90_forecast": 2.0949997901916504,
+              "p90_ratio": 1.132432377399361,
+              "p99_late": 11.478849735259958,
+              "p99_forecast": 13.273849811553903,
+              "p99_ratio": 1.1563745599683377,
+              "late_at_least_10mm": {
+                "pairs": 2294,
+                "mean_late": 17.477643484433216,
+                "mean_forecast": 18.509448149927618
+              }
+            }
+          },
+          "max3h": {
+            "himalaya": {
+              "pairs": 558944,
+              "mean_late": 0.6745809357609749,
+              "mean_forecast": 0.7136782860667842,
+              "ratio_of_means": 1.057957982850056,
+              "correlation": 0.8929089584077455,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 0.7299999594688416,
+              "p90_forecast": 0.8349999785423279,
+              "p90_ratio": 1.143835650552482,
+              "p99_late": 16.23499870300293,
+              "p99_forecast": 16.9728488349912,
+              "p99_ratio": 1.0454481177046102,
+              "late_at_least_10mm": {
+                "pairs": 11392,
+                "mean_late": 19.20946630852276,
+                "mean_forecast": 18.055833070645544
+              }
+            },
+            "western_ghats": {
+              "pairs": 175424,
+              "mean_late": 1.3617566275592219,
+              "mean_forecast": 1.431883689033342,
+              "ratio_of_means": 1.0514974996668929,
+              "correlation": 0.95712338839169,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 3.1500000953674316,
+              "p90_forecast": 3.315000057220459,
+              "p90_ratio": 1.0523809386849499,
+              "p99_late": 23.041548309326014,
+              "p99_forecast": 24.550399761199742,
+              "p99_ratio": 1.0654839436837247,
+              "late_at_least_10mm": {
+                "pairs": 6456,
+                "mean_late": 21.905135824186946,
+                "mean_forecast": 22.11039293619263
+              }
+            }
+          },
+          "max6h": {
+            "himalaya": {
+              "pairs": 558944,
+              "mean_late": 0.8490097471395702,
+              "mean_forecast": 0.8831412163785995,
+              "ratio_of_means": 1.0402015045810993,
+              "correlation": 0.9030054721633766,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 0.7899999618530273,
+              "p90_forecast": 0.9149999618530273,
+              "p90_ratio": 1.158227855741663,
+              "p99_late": 21.350001468658448,
+              "p99_forecast": 21.51284893035863,
+              "p99_ratio": 1.0076275152458063,
+              "late_at_least_10mm": {
+                "pairs": 14943,
+                "mean_late": 21.745553947552885,
+                "mean_forecast": 20.68308192531494
+              }
+            },
+            "western_ghats": {
+              "pairs": 175424,
+              "mean_late": 1.7232692693638711,
+              "mean_forecast": 1.792618588246138,
+              "ratio_of_means": 1.0402428802713266,
+              "correlation": 0.9585211051012476,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 3.734999895095825,
+              "p90_forecast": 3.9699997901916504,
+              "p90_ratio": 1.0629183137071536,
+              "p99_late": 30.619249210357403,
+              "p99_forecast": 31.30269981384267,
+              "p99_ratio": 1.0223209458465128,
+              "late_at_least_10mm": {
+                "pairs": 8501,
+                "mean_late": 24.469735968100323,
+                "mean_forecast": 24.472219223457845
+              }
+            }
+          },
+          "wet_hours": {
+            "himalaya": {
+              "pairs": 558944,
+              "mean_late": 0.6952628528081525,
+              "mean_forecast": 0.6324318715291692,
+              "ratio_of_means": 0.9096298888611549,
+              "correlation": 0.9718818140912223,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 1.5,
+              "p90_forecast": 1.5,
+              "p90_ratio": 1.0,
+              "p99_late": 15.5,
+              "p99_forecast": 13.5,
+              "p99_ratio": 0.8709677419354839
+            },
+            "western_ghats": {
+              "pairs": 175424,
+              "mean_late": 1.3155212513681138,
+              "mean_forecast": 1.2902082953301715,
+              "ratio_of_means": 0.9807582309965593,
+              "correlation": 0.9670206648954939,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 5.0,
+              "p90_forecast": 5.0,
+              "p90_ratio": 1.0,
+              "p99_late": 14.0,
+              "p99_forecast": 12.5,
+              "p99_ratio": 0.8928571428571429
+            }
+          }
+        }
+      }
+    },
+    "gfs3h_archive": {
+      "1": {
+        "2021": {
+          "days": 122,
+          "first": "2021-06-02",
+          "last": "2021-10-01",
+          "max1h": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 2.3157946193890098,
+              "mean_forecast": 2.9096351116784858,
+              "ratio_of_means": 1.2564305518794894,
+              "correlation": 0.30587559472571235,
+              "p50_late": 0.7099999785423279,
+              "p50_forecast": 1.5674999952316284,
+              "p50_ratio": 2.207746538879901,
+              "p90_late": 6.449999809265137,
+              "p90_forecast": 6.394999980926514,
+              "p90_ratio": 0.9914728945790636,
+              "p99_late": 19.420000076293945,
+              "p99_forecast": 25.149999618530273,
+              "p99_ratio": 1.295056617905525,
+              "late_at_least_10mm": {
+                "pairs": 102788,
+                "mean_late": 16.04054800355444,
+                "mean_forecast": 7.334451128001102
+              }
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 2.010392520538388,
+              "mean_forecast": 2.509875434380121,
+              "ratio_of_means": 1.2484504437511388,
+              "correlation": 0.3668096961991784,
+              "p50_late": 0.6949999332427979,
+              "p50_forecast": 1.0750000476837158,
+              "p50_ratio": 1.5467628071097457,
+              "p90_late": 5.599999904632568,
+              "p90_forecast": 5.820000171661377,
+              "p90_ratio": 1.0392857626384626,
+              "p99_late": 15.3149995803833,
+              "p99_forecast": 23.107500076293945,
+              "p99_ratio": 1.5088149336870968,
+              "late_at_least_10mm": {
+                "pairs": 20129,
+                "mean_late": 15.59807928820541,
+                "mean_forecast": 8.499506312844161
+              }
+            }
+          },
+          "max3h": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 4.6388134176201365,
+              "mean_forecast": 2.9096351116784858,
+              "ratio_of_means": 0.6272369353392153,
+              "correlation": 0.3180466105309565,
+              "p50_late": 1.1549999713897705,
+              "p50_forecast": 1.5674999952316284,
+              "p50_ratio": 1.3571428866318596,
+              "p90_late": 13.524998664855957,
+              "p90_forecast": 6.394999980926514,
+              "p90_ratio": 0.47282814138411755,
+              "p99_late": 40.91635017395029,
+              "p99_forecast": 25.149999618530273,
+              "p99_ratio": 0.614668696293987,
+              "late_at_least_10mm": {
+                "pairs": 312808,
+                "mean_late": 20.663179244797803,
+                "mean_forecast": 6.30816176340358
+              }
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 4.05055382292726,
+              "mean_forecast": 2.509875434380121,
+              "ratio_of_means": 0.6196375962648684,
+              "correlation": 0.3950211512422808,
+              "p50_late": 1.0099999904632568,
+              "p50_forecast": 1.0750000476837158,
+              "p50_ratio": 1.0643564929051588,
+              "p90_late": 12.100000381469727,
+              "p90_forecast": 5.820000171661377,
+              "p90_ratio": 0.4809917345601315,
+              "p99_late": 32.73500049591065,
+              "p99_forecast": 23.107500076293945,
+              "p99_ratio": 0.7058958217880767,
+              "late_at_least_10mm": {
+                "pairs": 87452,
+                "mean_late": 18.65379630002961,
+                "mean_forecast": 6.749733797224547
+              }
+            }
+          },
+          "max6h": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 6.075164861000893,
+              "mean_forecast": 4.513096806523307,
+              "ratio_of_means": 0.7428764337729868,
+              "correlation": 0.344802293444819,
+              "p50_late": 1.3250000476837158,
+              "p50_forecast": 2.3475000858306885,
+              "p50_ratio": 1.7716981142260673,
+              "p90_late": 17.949996948242188,
+              "p90_forecast": 10.307499885559082,
+              "p90_ratio": 0.5742340745394098,
+              "p99_late": 55.864995079040526,
+              "p99_forecast": 37.43000030517578,
+              "p99_ratio": 0.6700081196144023,
+              "late_at_least_10mm": {
+                "pairs": 399489,
+                "mean_late": 24.33126769596026,
+                "mean_forecast": 9.368509324752116
+              }
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 5.545745487730232,
+              "mean_forecast": 3.982186604941508,
+              "ratio_of_means": 0.7180615507422684,
+              "correlation": 0.4249606607336942,
+              "p50_late": 1.125,
+              "p50_forecast": 1.6325000524520874,
+              "p50_ratio": 1.4511111577351887,
+              "p90_late": 16.94499969482422,
+              "p90_forecast": 9.617500305175781,
+              "p90_ratio": 0.5675715832626074,
+              "p99_late": 48.154998779296875,
+              "p99_forecast": 35.21500015258789,
+              "p99_ratio": 0.7312844158502557,
+              "late_at_least_10mm": {
+                "pairs": 120774,
+                "mean_late": 22.65477733598479,
+                "mean_forecast": 9.967351687081084
+              }
+            }
+          },
+          "wet_hours": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 4.605947562006857,
+              "mean_forecast": 9.708737882301708,
+              "ratio_of_means": 2.107869825176975,
+              "correlation": 0.5114815660531766,
+              "p50_late": 3.0,
+              "p50_forecast": 9.0,
+              "p50_ratio": 3.0,
+              "p90_late": 12.5,
+              "p90_forecast": 24.0,
+              "p90_ratio": 1.92,
+              "p99_late": 20.5,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.170731707317073
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 4.5744209065735255,
+              "mean_forecast": 8.429734271924211,
+              "ratio_of_means": 1.8427981255092925,
+              "correlation": 0.5584536427363703,
+              "p50_late": 2.5,
+              "p50_forecast": 6.0,
+              "p50_ratio": 2.4,
+              "p90_late": 13.0,
+              "p90_forecast": 21.0,
+              "p90_ratio": 1.6153846153846154,
+              "p99_late": 22.5,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.0666666666666667
+            }
+          }
+        },
+        "2022": {
+          "days": 64,
+          "first": "2022-06-02",
+          "last": "2022-08-04",
+          "max1h": {
+            "himalaya": {
+              "pairs": 1117888,
+              "mean_late": 2.4937064418670176,
+              "mean_forecast": 2.6442926640467705,
+              "ratio_of_means": 1.0603865072694805,
+              "correlation": 0.3159699368878554,
+              "p50_late": 0.7099999785423279,
+              "p50_forecast": 1.2374999523162842,
+              "p50_ratio": 1.7429577319945067,
+              "p90_late": 7.109999656677246,
+              "p90_forecast": 6.135000228881836,
+              "p90_ratio": 0.862869272169408,
+              "p99_late": 20.744998931884766,
+              "p99_forecast": 23.322500228881836,
+              "p99_ratio": 1.1242468753775392,
+              "late_at_least_10mm": {
+                "pairs": 64358,
+                "mean_late": 16.092134108229693,
+                "mean_forecast": 6.542650874472407
+              }
+            },
+            "western_ghats": {
+              "pairs": 350848,
+              "mean_late": 2.413065489311407,
+              "mean_forecast": 3.2278793805545014,
+              "ratio_of_means": 1.3376675414953656,
+              "correlation": 0.35334825865674624,
+              "p50_late": 1.159999966621399,
+              "p50_forecast": 1.5549999475479126,
+              "p50_ratio": 1.3405172347349161,
+              "p90_late": 6.304999828338623,
+              "p90_forecast": 7.485000133514404,
+              "p90_ratio": 1.1871531066300938,
+              "p99_late": 16.094999313354492,
+              "p99_forecast": 27.0,
+              "p99_ratio": 1.6775396801413536,
+              "late_at_least_10mm": {
+                "pairs": 13064,
+                "mean_late": 15.000281739439325,
+                "mean_forecast": 9.07785899877794
+              }
+            }
+          },
+          "max3h": {
+            "himalaya": {
+              "pairs": 1117888,
+              "mean_late": 4.909198602070259,
+              "mean_forecast": 2.6442926640467705,
+              "ratio_of_means": 0.5386403929414559,
+              "correlation": 0.3317245928304961,
+              "p50_late": 1.125,
+              "p50_forecast": 1.2374999523162842,
+              "p50_ratio": 1.0999999576144748,
+              "p90_late": 14.421500205993885,
+              "p90_forecast": 6.135000228881836,
+              "p90_ratio": 0.42540652090633385,
+              "p99_late": 43.23499729156494,
+              "p99_forecast": 23.322500228881836,
+              "p99_ratio": 0.5394356815059177,
+              "late_at_least_10mm": {
+                "pairs": 175972,
+                "mean_late": 21.1919653555177,
+                "mean_forecast": 5.843305767405859
+              }
+            },
+            "western_ghats": {
+              "pairs": 350848,
+              "mean_late": 4.871638833717231,
+              "mean_forecast": 3.2278793805545014,
+              "ratio_of_means": 0.6625859368338101,
+              "correlation": 0.38654267721056534,
+              "p50_late": 1.869999885559082,
+              "p50_forecast": 1.5549999475479126,
+              "p50_ratio": 0.8315508249793329,
+              "p90_late": 13.780000686645508,
+              "p90_forecast": 7.485000133514404,
+              "p90_ratio": 0.5431785022164968,
+              "p99_late": 33.23764915466293,
+              "p99_forecast": 27.0,
+              "p99_ratio": 0.8123318190875166,
+              "late_at_least_10mm": {
+                "pairs": 57034,
+                "mean_late": 18.223026036789797,
+                "mean_forecast": 7.51227478321288
+              }
+            }
+          },
+          "max6h": {
+            "himalaya": {
+              "pairs": 1117888,
+              "mean_late": 6.3250512133782175,
+              "mean_forecast": 4.061709355331383,
+              "ratio_of_means": 0.6421622874357755,
+              "correlation": 0.36589417543570674,
+              "p50_late": 1.274999976158142,
+              "p50_forecast": 1.8199999332427979,
+              "p50_ratio": 1.4274509547261809,
+              "p90_late": 18.725000381469727,
+              "p90_forecast": 9.925000190734863,
+              "p90_ratio": 0.530040052792557,
+              "p99_late": 58.1100011062622,
+              "p99_forecast": 33.64282665252658,
+              "p99_ratio": 0.578950714370251,
+              "late_at_least_10mm": {
+                "pairs": 219323,
+                "mean_late": 24.747051149278548,
+                "mean_forecast": 8.661959702593487
+              }
+            },
+            "western_ghats": {
+              "pairs": 350848,
+              "mean_late": 6.734500190212747,
+              "mean_forecast": 5.094060119383776,
+              "ratio_of_means": 0.7564124991468523,
+              "correlation": 0.4316876650369179,
+              "p50_late": 2.1700000762939453,
+              "p50_forecast": 2.3575000762939453,
+              "p50_ratio": 1.0864055269160284,
+              "p90_late": 19.86499786376953,
+              "p90_forecast": 12.324999809265137,
+              "p90_ratio": 0.6204380133231173,
+              "p99_late": 47.77030029296845,
+              "p99_forecast": 40.92764980316147,
+              "p99_ratio": 0.8567593159799713,
+              "late_at_least_10mm": {
+                "pairs": 80028,
+                "mean_late": 22.18466238320818,
+                "mean_forecast": 10.999595577699404
+              }
+            }
+          },
+          "wet_hours": {
+            "himalaya": {
+              "pairs": 1117888,
+              "mean_late": 4.323024757399668,
+              "mean_forecast": 9.021353659758402,
+              "ratio_of_means": 2.086815173638935,
+              "correlation": 0.5742010622570777,
+              "p50_late": 2.5,
+              "p50_forecast": 9.0,
+              "p50_ratio": 3.6,
+              "p90_late": 11.5,
+              "p90_forecast": 21.0,
+              "p90_ratio": 1.826086956521739,
+              "p99_late": 19.5,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.2307692307692308
+            },
+            "western_ghats": {
+              "pairs": 350848,
+              "mean_late": 5.7448538968442175,
+              "mean_forecast": 9.8137626550529,
+              "ratio_of_means": 1.7082701895071393,
+              "correlation": 0.61952412298925,
+              "p50_late": 3.5,
+              "p50_forecast": 9.0,
+              "p50_ratio": 2.5714285714285716,
+              "p90_late": 15.5,
+              "p90_forecast": 24.0,
+              "p90_ratio": 1.5483870967741935,
+              "p99_late": 24.0,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.0
+            }
+          }
+        }
+      },
+      "2": {
+        "2021": {
+          "days": 122,
+          "first": "2021-06-03",
+          "last": "2021-10-02",
+          "max1h": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 2.310718506434459,
+              "mean_forecast": 2.9042084828907346,
+              "ratio_of_means": 1.2568421790900257,
+              "correlation": 0.2694938431724785,
+              "p50_late": 0.7049999833106995,
+              "p50_forecast": 1.5800000429153442,
+              "p50_ratio": 2.2411348656997414,
+              "p90_late": 6.444999694824219,
+              "p90_forecast": 6.46750020980835,
+              "p90_ratio": 1.0034911584250656,
+              "p99_late": 19.404998779296875,
+              "p99_forecast": 23.927499771118164,
+              "p99_ratio": 1.2330585558524398,
+              "late_at_least_10mm": {
+                "pairs": 102606,
+                "mean_late": 16.038779099364053,
+                "mean_forecast": 6.4833058511041095
+              }
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 2.034105020225437,
+              "mean_forecast": 2.3516514555418278,
+              "ratio_of_means": 1.1561111310178063,
+              "correlation": 0.35405220467734594,
+              "p50_late": 0.7099999785423279,
+              "p50_forecast": 0.8149999976158142,
+              "p50_ratio": 1.1478873552771898,
+              "p90_late": 5.664999961853027,
+              "p90_forecast": 5.605000019073486,
+              "p90_ratio": 0.9894086596322033,
+              "p99_late": 15.420000076293945,
+              "p99_forecast": 23.709924125671318,
+              "p99_ratio": 1.5376085608535082,
+              "late_at_least_10mm": {
+                "pairs": 20583,
+                "mean_late": 15.554249033140023,
+                "mean_forecast": 8.34370621362826
+              }
+            }
+          },
+          "max3h": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 4.62886404253863,
+              "mean_forecast": 2.9042084828907346,
+              "ratio_of_means": 0.6274127855563384,
+              "correlation": 0.2780589833071042,
+              "p50_late": 1.1449999809265137,
+              "p50_forecast": 1.5800000429153442,
+              "p50_ratio": 1.3799127242227867,
+              "p90_late": 13.50999927520752,
+              "p90_forecast": 6.46750020980835,
+              "p90_ratio": 0.4787195082739193,
+              "p99_late": 40.869998931884766,
+              "p99_forecast": 23.927499771118164,
+              "p99_ratio": 0.5854538878505109,
+              "late_at_least_10mm": {
+                "pairs": 312152,
+                "mean_late": 20.66643096437129,
+                "mean_forecast": 5.83757756731034
+              }
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 4.100271474351159,
+              "mean_forecast": 2.3516514555418278,
+              "ratio_of_means": 0.5735355500854883,
+              "correlation": 0.3710623815223606,
+              "p50_late": 1.034999966621399,
+              "p50_forecast": 0.8149999976158142,
+              "p50_ratio": 0.7874396366178239,
+              "p90_late": 12.244999885559082,
+              "p90_forecast": 5.605000019073486,
+              "p90_ratio": 0.4577378580202064,
+              "p99_late": 32.869998931884766,
+              "p99_forecast": 23.709924125671318,
+              "p99_ratio": 0.7213241526050694,
+              "late_at_least_10mm": {
+                "pairs": 88886,
+                "mean_late": 18.670830426732092,
+                "mean_forecast": 6.161968645330316
+              }
+            }
+          },
+          "max6h": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 6.064756242949157,
+              "mean_forecast": 4.50451603807998,
+              "ratio_of_means": 0.7427365350943657,
+              "correlation": 0.2972016273758644,
+              "p50_late": 1.3149999380111694,
+              "p50_forecast": 2.377500057220459,
+              "p50_ratio": 1.8079849196162203,
+              "p90_late": 17.939998626708984,
+              "p90_forecast": 10.4375,
+              "p90_ratio": 0.5818004904671898,
+              "p99_late": 55.804996490478516,
+              "p99_forecast": 35.557498931884766,
+              "p99_ratio": 0.6371741092744555,
+              "late_at_least_10mm": {
+                "pairs": 398734,
+                "mean_late": 24.342787575110528,
+                "mean_forecast": 8.73176261565199
+              }
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 5.611014017881593,
+              "mean_forecast": 3.719674747687806,
+              "ratio_of_means": 0.662923802334778,
+              "correlation": 0.3909565077426861,
+              "p50_late": 1.1549999713897705,
+              "p50_forecast": 1.2324999570846558,
+              "p50_ratio": 1.0670995563762935,
+              "p90_late": 17.145000457763672,
+              "p90_forecast": 9.297500610351562,
+              "p90_ratio": 0.54228640198965,
+              "p99_late": 48.29984561920152,
+              "p99_forecast": 36.00742473602288,
+              "p99_ratio": 0.7454977189763147,
+              "late_at_least_10mm": {
+                "pairs": 122424,
+                "mean_late": 22.674566727989227,
+                "mean_forecast": 9.060679338435934
+              }
+            }
+          },
+          "wet_hours": {
+            "himalaya": {
+              "pairs": 2130974,
+              "mean_late": 4.604370818226783,
+              "mean_forecast": 9.878449009701667,
+              "ratio_of_means": 2.1454503556918154,
+              "correlation": 0.47377790810680265,
+              "p50_late": 3.0,
+              "p50_forecast": 9.0,
+              "p50_ratio": 3.0,
+              "p90_late": 12.5,
+              "p90_forecast": 24.0,
+              "p90_ratio": 1.92,
+              "p99_late": 20.635000000009313,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.1630724497208222
+            },
+            "western_ghats": {
+              "pairs": 668804,
+              "mean_late": 4.602787214191303,
+              "mean_forecast": 7.77582520439471,
+              "ratio_of_means": 1.6893731651161938,
+              "correlation": 0.5079066328561763,
+              "p50_late": 2.5,
+              "p50_forecast": 6.0,
+              "p50_ratio": 2.4,
+              "p90_late": 13.0,
+              "p90_forecast": 21.0,
+              "p90_ratio": 1.6153846153846154,
+              "p99_late": 22.5,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.0666666666666667
+            }
+          }
+        },
+        "2022": {
+          "days": 64,
+          "first": "2022-06-03",
+          "last": "2022-08-05",
+          "max1h": {
+            "himalaya": {
+              "pairs": 1117888,
+              "mean_late": 2.524591283802425,
+              "mean_forecast": 2.9854881145628975,
+              "ratio_of_means": 1.1825629493841436,
+              "correlation": 0.2898030071887627,
+              "p50_late": 0.75,
+              "p50_forecast": 1.3700000047683716,
+              "p50_ratio": 1.8266666730244954,
+              "p90_late": 7.159999847412109,
+              "p90_forecast": 6.809999942779541,
+              "p90_ratio": 0.9511173307134816,
+              "p99_late": 20.770000457763672,
+              "p99_forecast": 27.75,
+              "p99_ratio": 1.3360615979007961,
+              "late_at_least_10mm": {
+                "pairs": 64918,
+                "mean_late": 16.074612230017497,
+                "mean_forecast": 7.023447002404514
+              }
+            },
+            "western_ghats": {
+              "pairs": 350848,
+              "mean_late": 2.485821966270881,
+              "mean_forecast": 2.8383469264365946,
+              "ratio_of_means": 1.141814242914007,
+              "correlation": 0.31549049127110196,
+              "p50_late": 1.2349998950958252,
+              "p50_forecast": 1.184999942779541,
+              "p50_ratio": 0.9595142052118113,
+              "p90_late": 6.444999694824219,
+              "p90_forecast": 6.537499904632568,
+              "p90_ratio": 1.0143522442495434,
+              "p99_late": 16.357649097442476,
+              "p99_forecast": 26.373824748992845,
+              "p99_ratio": 1.612323665331371,
+              "late_at_least_10mm": {
+                "pairs": 13614,
+                "mean_late": 15.026557988561477,
+                "mean_forecast": 7.932075066052295
+              }
+            }
+          },
+          "max3h": {
+            "himalaya": {
+              "pairs": 1117888,
+              "mean_late": 4.9639554235343315,
+              "mean_forecast": 2.9854881145628975,
+              "ratio_of_means": 0.6014333046603454,
+              "correlation": 0.3028257302617264,
+              "p50_late": 1.1949999332427979,
+              "p50_forecast": 1.3700000047683716,
+              "p50_ratio": 1.1464435826792783,
+              "p90_late": 14.514999389648438,
+              "p90_forecast": 6.809999942779541,
+              "p90_ratio": 0.4691698401059653,
+              "p99_late": 43.25565071105901,
+              "p99_forecast": 27.75,
+              "p99_ratio": 0.641534679142054,
+              "late_at_least_10mm": {
+                "pairs": 177933,
+                "mean_late": 21.140026874348965,
+                "mean_forecast": 6.190668214883122
+              }
+            },
+            "western_ghats": {
+              "pairs": 350848,
+              "mean_late": 5.037453427954108,
+              "mean_forecast": 2.8383469264365946,
+              "ratio_of_means": 0.5634487677217792,
+              "correlation": 0.34228377922353054,
+              "p50_late": 2.0250000953674316,
+              "p50_forecast": 1.184999942779541,
+              "p50_ratio": 0.5851851293688584,
+              "p90_late": 14.140000343322754,
+              "p90_forecast": 6.537499904632568,
+              "p90_ratio": 0.46234085897457083,
+              "p99_late": 33.792649459838714,
+              "p99_forecast": 26.373824748992845,
+              "p99_ratio": 0.7804604010211492,
+              "late_at_least_10mm": {
+                "pairs": 59427,
+                "mean_late": 18.268027344438774,
+                "mean_forecast": 6.483271028936497
+              }
+            }
+          },
+          "max6h": {
+            "himalaya": {
+              "pairs": 1117888,
+              "mean_late": 6.393502393968026,
+              "mean_forecast": 4.541758107811822,
+              "ratio_of_means": 0.710370909080563,
+              "correlation": 0.3336048665577169,
+              "p50_late": 1.3650000095367432,
+              "p50_forecast": 2.047499895095825,
+              "p50_ratio": 1.4999999126671877,
+              "p90_late": 18.845001220703125,
+              "p90_forecast": 10.885000228881836,
+              "p90_ratio": 0.5776067669830433,
+              "p99_late": 58.1150016784668,
+              "p99_forecast": 39.14499713897705,
+              "p99_ratio": 0.6735781813369772,
+              "late_at_least_10mm": {
+                "pairs": 222080,
+                "mean_late": 24.66085042852146,
+                "mean_forecast": 9.124797245846715
+              }
+            },
+            "western_ghats": {
+              "pairs": 350848,
+              "mean_late": 6.9789587538169915,
+              "mean_forecast": 4.476885481694025,
+              "ratio_of_means": 0.641483298528665,
+              "correlation": 0.3854533991369029,
+              "p50_late": 2.3650002479553223,
+              "p50_forecast": 1.7825000286102295,
+              "p50_ratio": 0.7536997216601996,
+              "p90_late": 20.475000381469727,
+              "p90_forecast": 10.837499904632569,
+              "p90_ratio": 0.5293040147848161,
+              "p99_late": 48.51059642791687,
+              "p99_forecast": 38.62249755859375,
+              "p99_ratio": 0.7961662070262092,
+              "late_at_least_10mm": {
+                "pairs": 83189,
+                "mean_late": 22.276223413424557,
+                "mean_forecast": 9.367437190834584
+              }
+            }
+          },
+          "wet_hours": {
+            "himalaya": {
+              "pairs": 1117888,
+              "mean_late": 4.38487934390565,
+              "mean_forecast": 9.366278196026794,
+              "ratio_of_means": 2.13604011910717,
+              "correlation": 0.5523486494750465,
+              "p50_late": 3.0,
+              "p50_forecast": 9.0,
+              "p50_ratio": 3.0,
+              "p90_late": 11.5,
+              "p90_forecast": 24.0,
+              "p90_ratio": 2.0869565217391304,
+              "p99_late": 19.5,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.2307692307692308
+            },
+            "western_ghats": {
+              "pairs": 350848,
+              "mean_late": 5.904333215523532,
+              "mean_forecast": 8.866591800437796,
+              "ratio_of_means": 1.5017092492554391,
+              "correlation": 0.5346281749675634,
+              "p50_late": 4.0,
+              "p50_forecast": 6.0,
+              "p50_ratio": 1.5,
+              "p90_late": 16.0,
+              "p90_forecast": 24.0,
+              "p90_ratio": 1.5,
+              "p99_late": 24.0,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.0
+            }
+          }
+        }
+      }
+    },
+    "gfs3h_live": {
+      "1": {
+        "2026": {
+          "days": 27,
+          "first": "2026-10-15",
+          "last": "2026-11-14",
+          "max1h": {
+            "himalaya": {
+              "pairs": 471609,
+              "mean_late": 0.2966450000386369,
+              "mean_forecast": 0.2373719861011451,
+              "ratio_of_means": 0.8001887308743726,
+              "correlation": 0.3823920439692997,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 0.25999999046325684,
+              "p90_forecast": 0.512499988079071,
+              "p90_ratio": 1.9711538726056126,
+              "p99_late": 7.384999752044678,
+              "p99_forecast": 4.592300205230672,
+              "p99_ratio": 0.6218416194203943,
+              "late_at_least_10mm": {
+                "pairs": 2761,
+                "mean_late": 15.075052188816644,
+                "mean_forecast": 2.075309672637794
+              }
+            },
+            "western_ghats": {
+              "pairs": 148014,
+              "mean_late": 0.7160819760251954,
+              "mean_forecast": 0.9635411345479876,
+              "ratio_of_means": 1.345573784577543,
+              "correlation": 0.3808610584236587,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 1.9700000286102295,
+              "p90_forecast": 3.375,
+              "p90_ratio": 1.7131979446624435,
+              "p99_late": 10.754999990463256,
+              "p99_forecast": 9.49434987068174,
+              "p99_ratio": 0.8827847400372507,
+              "late_at_least_10mm": {
+                "pairs": 1719,
+                "mean_late": 17.264429523474675,
+                "mean_forecast": 4.552223675817667
+              }
+            }
+          },
+          "max3h": {
+            "himalaya": {
+              "pairs": 471609,
+              "mean_late": 0.5131533637060041,
+              "mean_forecast": 0.2373719861011451,
+              "ratio_of_means": 0.4625751342383099,
+              "correlation": 0.3930300509654855,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 0.3399999737739563,
+              "p90_forecast": 0.512499988079071,
+              "p90_ratio": 1.5073530223852274,
+              "p99_late": 12.880000038146973,
+              "p99_forecast": 4.592300205230672,
+              "p99_ratio": 0.3565450459339719,
+              "late_at_least_10mm": {
+                "pairs": 6706,
+                "mean_late": 19.306960524141772,
+                "mean_forecast": 2.7250659845112786
+              }
+            },
+            "western_ghats": {
+              "pairs": 148014,
+              "mean_late": 1.3453949322777385,
+              "mean_forecast": 0.9635411345479876,
+              "ratio_of_means": 0.7161771695666516,
+              "correlation": 0.3615490066108868,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 3.369999885559082,
+              "p90_forecast": 3.375,
+              "p90_ratio": 1.0014837135343369,
+              "p99_late": 21.174999237060547,
+              "p99_forecast": 9.49434987068174,
+              "p99_ratio": 0.44837545278701596,
+              "late_at_least_10mm": {
+                "pairs": 5335,
+                "mean_late": 20.802841148447968,
+                "mean_forecast": 4.606747418587753
+              }
+            }
+          },
+          "max6h": {
+            "himalaya": {
+              "pairs": 471609,
+              "mean_late": 0.6308317444916027,
+              "mean_forecast": 0.3657087439205878,
+              "ratio_of_means": 0.5797247001501458,
+              "correlation": 0.4377764749113218,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 0.35499998927116394,
+              "p90_forecast": 0.7524999976158142,
+              "p90_ratio": 2.1197183672054227,
+              "p99_late": 16.4145990753173,
+              "p99_forecast": 7.287299900054891,
+              "p99_ratio": 0.44395235403664735,
+              "late_at_least_10mm": {
+                "pairs": 9020,
+                "mean_late": 20.996901965828535,
+                "mean_forecast": 5.08255959274335
+              }
+            },
+            "western_ghats": {
+              "pairs": 148014,
+              "mean_late": 1.6768075277080459,
+              "mean_forecast": 1.538646918198612,
+              "ratio_of_means": 0.9176049682349176,
+              "correlation": 0.37406146554830455,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 4.014999866485596,
+              "p90_forecast": 5.425000190734863,
+              "p90_ratio": 1.3511831559495087,
+              "p99_late": 27.81434707641599,
+              "p99_forecast": 15.873699970245315,
+              "p99_ratio": 0.5707018729087749,
+              "late_at_least_10mm": {
+                "pairs": 7109,
+                "mean_late": 22.839374226580727,
+                "mean_forecast": 7.693577496953391
+              }
+            }
+          },
+          "wet_hours": {
+            "himalaya": {
+              "pairs": 471609,
+              "mean_late": 0.5162263654849675,
+              "mean_forecast": 1.0820531414794883,
+              "ratio_of_means": 2.0960826757907967,
+              "correlation": 0.6638743396602098,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 1.0,
+              "p90_forecast": 3.0,
+              "p90_ratio": 3.0,
+              "p99_late": 11.5,
+              "p99_forecast": 18.0,
+              "p99_ratio": 1.565217391304348
+            },
+            "western_ghats": {
+              "pairs": 148014,
+              "mean_late": 1.3421061521207454,
+              "mean_forecast": 3.6633021200697233,
+              "ratio_of_means": 2.72951741878324,
+              "correlation": 0.705348097921222,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 5.0,
+              "p90_forecast": 15.0,
+              "p90_ratio": 3.0,
+              "p99_late": 14.0,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.7142857142857142
+            }
+          }
+        }
+      },
+      "2": {
+        "2026": {
+          "days": 26,
+          "first": "2026-10-16",
+          "last": "2026-11-14",
+          "max1h": {
+            "himalaya": {
+              "pairs": 454142,
+              "mean_late": 0.29357794912369684,
+              "mean_forecast": 0.21632526282788053,
+              "ratio_of_means": 0.7368580081494251,
+              "correlation": 0.4270225673710751,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 0.23999999463558197,
+              "p90_forecast": 0.4650000035762787,
+              "p90_ratio": 1.9375000582076622,
+              "p99_late": 7.630000114440918,
+              "p99_forecast": 3.987499952316284,
+              "p99_ratio": 0.5226081117311313,
+              "late_at_least_10mm": {
+                "pairs": 2871,
+                "mean_late": 14.533475820713448,
+                "mean_forecast": 2.4488427396931822
+              }
+            },
+            "western_ghats": {
+              "pairs": 142532,
+              "mean_late": 0.7750455514779017,
+              "mean_forecast": 1.0919363197561038,
+              "ratio_of_means": 1.4088672822828756,
+              "correlation": 0.39786733037208216,
+              "p50_late": 0.0,
+              "p50_forecast": 0.012500000186264515,
+              "p50_ratio": null,
+              "p90_late": 2.0399999618530273,
+              "p90_forecast": 3.3499999046325684,
+              "p90_ratio": 1.642156846703863,
+              "p99_late": 12.135000228881836,
+              "p99_forecast": 12.960174713134784,
+              "p99_ratio": 1.067999544185339,
+              "late_at_least_10mm": {
+                "pairs": 2092,
+                "mean_late": 17.769182227081824,
+                "mean_forecast": 6.744725144454892
+              }
+            }
+          },
+          "max3h": {
+            "himalaya": {
+              "pairs": 454142,
+              "mean_late": 0.5138232639008993,
+              "mean_forecast": 0.21632526282788053,
+              "ratio_of_means": 0.42101103244247623,
+              "correlation": 0.4367830382083064,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 0.3050000071525574,
+              "p90_forecast": 0.4650000035762787,
+              "p90_ratio": 1.524590139906755,
+              "p99_late": 13.785000019073486,
+              "p99_forecast": 3.987499952316284,
+              "p99_ratio": 0.2892636885599577,
+              "late_at_least_10mm": {
+                "pairs": 6971,
+                "mean_late": 19.297913066079843,
+                "mean_forecast": 3.002485296862854
+              }
+            },
+            "western_ghats": {
+              "pairs": 142532,
+              "mean_late": 1.4778004256811024,
+              "mean_forecast": 1.0919363197561038,
+              "ratio_of_means": 0.7388929525127469,
+              "correlation": 0.38600676453242055,
+              "p50_late": 0.0,
+              "p50_forecast": 0.012500000186264515,
+              "p50_ratio": null,
+              "p90_late": 3.505000114440918,
+              "p90_forecast": 3.3499999046325684,
+              "p90_ratio": 0.9557774023545007,
+              "p99_late": 24.334999084472656,
+              "p99_forecast": 12.960174713134784,
+              "p99_ratio": 0.532573462121239,
+              "late_at_least_10mm": {
+                "pairs": 5696,
+                "mean_late": 22.37656815048684,
+                "mean_forecast": 5.7238079408656874
+              }
+            }
+          },
+          "max6h": {
+            "himalaya": {
+              "pairs": 454142,
+              "mean_late": 0.6389364523917765,
+              "mean_forecast": 0.3309944632015321,
+              "ratio_of_means": 0.5180397236102227,
+              "correlation": 0.47257871913730726,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 0.3199999928474426,
+              "p90_forecast": 0.6875,
+              "p90_ratio": 2.148437548021321,
+              "p99_late": 17.56999891281128,
+              "p99_forecast": 6.171475110053935,
+              "p99_ratio": 0.3512507394382343,
+              "late_at_least_10mm": {
+                "pairs": 8843,
+                "mean_late": 22.050805789076552,
+                "mean_forecast": 5.031904897763255
+              }
+            },
+            "western_ghats": {
+              "pairs": 142532,
+              "mean_late": 1.8739235685554303,
+              "mean_forecast": 1.7293533913584433,
+              "ratio_of_means": 0.9228516148561848,
+              "correlation": 0.41273943775388117,
+              "p50_late": 0.0,
+              "p50_forecast": 0.014999999664723873,
+              "p50_ratio": null,
+              "p90_late": 4.199999809265137,
+              "p90_forecast": 5.400000095367432,
+              "p90_ratio": 1.2857143668090443,
+              "p99_late": 32.58844982147218,
+              "p99_forecast": 20.537500381469727,
+              "p99_ratio": 0.6302079569288929,
+              "late_at_least_10mm": {
+                "pairs": 7491,
+                "mean_late": 24.977744078289252,
+                "mean_forecast": 9.192272734274983
+              }
+            }
+          },
+          "wet_hours": {
+            "himalaya": {
+              "pairs": 454142,
+              "mean_late": 0.5069251467602645,
+              "mean_forecast": 0.9979940194917009,
+              "ratio_of_means": 1.96872067970949,
+              "correlation": 0.6423980050496068,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 1.0,
+              "p90_forecast": 3.0,
+              "p90_ratio": 3.0,
+              "p99_late": 11.0,
+              "p99_forecast": 18.0,
+              "p99_ratio": 1.6363636363636365
+            },
+            "western_ghats": {
+              "pairs": 142532,
+              "mean_late": 1.4035970869699437,
+              "mean_forecast": 3.8414110515533353,
+              "ratio_of_means": 2.736833160466366,
+              "correlation": 0.6969277518270649,
+              "p50_late": 0.0,
+              "p50_forecast": 0.0,
+              "p50_ratio": null,
+              "p90_late": 5.5,
+              "p90_forecast": 15.0,
+              "p90_ratio": 2.727272727272727,
+              "p99_late": 14.5,
+              "p99_forecast": 24.0,
+              "p99_ratio": 1.6551724137931034
+            }
+          }
+        }
+      }
+    }
+  }
+}
