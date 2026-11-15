@@ -1,0 +1,26 @@
+# Heavy-rain warnings (spec docs/superpowers/specs/2026-11-14-aetherguard-rain-warnings.md).
+# Data paths are relative to the data root (AETHERGUARD_DATA_DIR or <project>/data); report paths to the project root.
+cells_from: live/2026-11-14/features_D0.parquet     # the assessed cells of the live run (the same 36,792 every day)
+rain_dir: processed/rain
+live_dir: live
+out_dir: processed/rainwarn
+climatology:
+  file: climatology.npz
+  first_year: 2007
+  last_year: 2022
+  window_days: 15
+  season_months: [6, 7, 8, 9]
+radii: [0, 1, 2, 3]
+ridge: 1.0e-6
+sets:
+  test_2024: {test: {first: "2024-06-01", last: "2024-09-30"}, fit: [{first: "2023-06-01", last: "2023-09-30"}], role: primary}
+  test_2023: {test: {first: "2023-06-01", last: "2023-09-30"}, fit: [{first: "2024-06-01", last: "2024-09-30"}], role: secondary}
+  test_2026: {test: {first: "2026-10-01", last: "2026-11-30"}, fit: [{first: "2023-06-01", last: "2023-09-30"}, {first: "2024-06-01", last: "2024-09-30"}], role: out_of_season, live_lead0: true}
+shipped_fit: [{first: "2023-06-01", last: "2023-09-30"}, {first: "2024-06-01", last: "2024-09-30"}]
+statements:
+  min_event_pixel_days: 100
+  min_event_days: 10
+  rel_over_unc_max: 0.10
+  calibration_in_the_large: [0.8, 1.25]
+bootstrap: {n: 1000, seed: 20261114}
+report: reports/phase8_rain_warnings
