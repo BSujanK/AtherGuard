@@ -22,6 +22,7 @@ consistency  E1 of the spec (section 4): every June-September issue day of `--ye
          standard errors of the differences from the incumbent. Writes `<out-dir>/phase8_leads_v4_e1.json`.
 replays  E2 of the spec: the replayed sets c, a, b (tools/leads_v4_replays.sh) compared lead by lead with the same set's
          replayed lead 0 of the target day, plus the audit totals. Writes `<out-dir>/phase8_leads_v4_e2.json`.
+report   `reports/phase8_leads_v4.{json,md}` rendered from the three result files above (numbers never typed by hand).
 fit      Quantile maps (`lead_intensity.fit_maps`) from the pairs of the fit seasons only: GFS on June-September 2021 (the first
          archive season; GFS has no archive in the development years), Early on June-September of the development years
          fetched (2016, 2017). The other seasons are never used by the fit.
@@ -505,6 +506,134 @@ def run_replays(replay_dir: Path, out_dir: Path) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------------------------- the report
+
+REPORT_STEM = "phase8_leads_v4"
+PARTS = {"measure": "phase8_leads_v4_measure.json", "e1": "phase8_leads_v4_e1.json", "e2": "phase8_leads_v4_e2.json"}
+
+
+def _f(value, digits: int = 2) -> str:
+    return "-" if value is None else f"{value:.{digits}f}"
+
+
+def _pct(value) -> str:
+    return "-" if value is None else f"{100 * value:.1f}%"
+
+
+def _measure_md(m: dict) -> list[str]:
+    inv = m["inventory"]
+    lines = ["## Part 1: what a forecast can supply (Task 1)", "",
+             "### History on disk", "",
+             f"- GFS archive folders: {inv['gfs_archive']['cycles']} cycles {inv['gfs_archive']['first']}..{inv['gfs_archive']['last']}, files kept "
+             f"{', '.join(inv['gfs_archive']['hours_kept'])}: IMD-day boundary hours only, no sub-daily rain.",
+             f"- GFS live raw files: {inv['gfs_live_raw']['cycles']} cycles {inv['gfs_live_raw']['first']}..{inv['gfs_live_raw']['last']}, "
+             f"{inv['gfs_live_raw']['hours_kept_newest']} 3-hourly cumulative files each (f003..f096).",
+             f"- ECMWF day files: {inv['ecmwf_day_files']['days']} issue days ({', '.join(f'{y}: {n}' for y, n in inv['ecmwf_day_files']['by_year'].items())}); "
+             f"members kept: {'yes' if inv['ecmwf_day_files']['members_kept'] else 'no'}; stored keys {', '.join(inv['ecmwf_day_files']['keys'])}.",
+             f"- This study's 3-hourly GFS archive (00Z, hours 3..51, public AWS copy, no account): "
+             f"{', '.join(f'{y}: {n} days' for y, n in inv['gfs3h_store']['by_year'].items())}.",
+             f"- Live days on disk: {len(inv['live_days'])} ({inv['live_days'][0]}..{inv['live_days'][-1]}).", "",
+             "### Which of v4's six intensity inputs a forecast lead can form", "",
+             "| lead | days read (lag 1) | source of each day | inputs formed |", "|---|---|---|---|",
+             "| 1 | D-2, D-1, D | Late, Late, Early live window (44 half-hours) | all six, as observed |",
+             "| 2 | D-1, D, D+1 | Late, Early, GFS 3-hour | max3h, max6h, wet hours from 3-hour blocks; max1h only as the 3-hour maximum mapped onto IMERG's 1-hour maximum |",
+             "| 3 | D, D+1, D+2 | Early, GFS, GFS | as lead 2 |", "",
+             "### Forecast and Early intensities against IMERG Late (same IMD day)", "",
+             "Pixels of the two scored regions. `ratio` = mean forecast / mean Late; p90 / p99 are each side's own percentiles; "
+             "`Late>=10` = mean of each side where Late's value is at least 10 mm (paired).", "",
+             "| source | day offset | year | days | field | region | ratio | p90 fcst / Late | p99 fcst / Late | r | Late>=10: fcst / Late |",
+             "|---|---|---|---|---|---|---|---|---|---|---|"]
+    for source, by_offset in m["results"].items():
+        for offset, by_year in by_offset.items():
+            for year, entry in by_year.items():
+                for field in ii.FIELDS:
+                    for region in fm.REGIONS:
+                        s = entry[field][region]
+                        if not s.get("pairs"):
+                            continue
+                        heavy = s.get("late_at_least_10mm") or {}
+                        heavy_text = (f"{_f(heavy.get('mean_forecast'), 1)} / {_f(heavy.get('mean_late'), 1)}"
+                                      if heavy.get("pairs") else "-")
+                        lines.append(f"| {source} | {offset} | {year} | {entry['days']} | {field} | {region} | "
+                                     f"{_f(s['ratio_of_means'])} | {_f(s['p90_forecast'], 1)} / {_f(s['p90_late'], 1)} | "
+                                     f"{_f(s['p99_forecast'], 1)} / {_f(s['p99_late'], 1)} | {_f(s['correlation'])} | {heavy_text} |")
+    return lines + [""]
+
+
+def _metrics_rows(entry: dict) -> str:
+    b, r = entry.get("burden_forecast", {}), entry.get("burden_reference", {})
+    return (f"{entry.get('pairs', 0)} | {_f(entry.get('agreement'), 3)} | {_f(entry.get('within_one'), 3)} | "
+            f"{_f(entry.get('warning_plus_recall'), 3)} | {_f(entry.get('warning_plus_precision'), 3)} | "
+            f"{_f(entry.get('emergency_recall'), 3)} | {_f(entry.get('emergency_precision'), 3)} | "
+            f"{_pct(b.get('warning'))} / {_pct(r.get('warning'))} | {_pct(b.get('emergency'))} / {_pct(r.get('emergency'))}")
+
+
+HEADER = ("| lead | candidate | reference | pairs | agreement | within one | Warning+ recall | Warning+ precision | "
+          "Emergency recall | Emergency precision | Warning share lead / ref | Emergency share lead / ref |")
+
+
+def _e1_md(e: dict) -> list[str]:
+    lines = ["## Part 2a: E1 archive consistency (development and archive data, no event read)", "",
+             f"Years {', '.join(map(str, e['years']))}, months {e['months']}, {e['cells']} cells (seed {e['seed']}), "
+             f"issue days per lead {e['issue_days']}; forecast rain used per lead {e['forecast_sources']}. Reference: {e['reference']}.", "",
+             HEADER, "|" + "---|" * 12]
+    for lead, by in e["results"].items():
+        for name, refs in by.items():
+            for ref, entry in refs.items():
+                lines.append(f"| {lead} | {name} | {ref.split('_')[1]} | {_metrics_rows(entry)} |")
+    lines += ["", "Differences from the incumbent (v4 reference; standard errors resample issue days):", "",
+              "| lead | candidate | agreement delta (SE) | Warning+ recall delta (SE) |", "|---|---|---|---|"]
+    for lead, by in e["results"].items():
+        base = by["c"]["vs_v4_reference"]
+        for name, refs in by.items():
+            entry = refs["vs_v4_reference"]
+            se = entry.get("delta_vs_incumbent_se")
+            if se is None:
+                continue
+            da = entry["agreement"] - base["agreement"]
+            dw = (entry["warning_plus_recall"] - base["warning_plus_recall"]
+                  if entry.get("warning_plus_recall") is not None and base.get("warning_plus_recall") is not None else None)
+            lines.append(f"| {lead} | {name} | {_f(da, 4)} ({_f(se.get('agreement'), 4)}) | {_f(dw, 4)} ({_f(se.get('warning_plus_recall'), 4)}) |")
+    lines += ["", "Calibration of lead risk against the later lead-0 risk (v4 reference), by decile of lead risk, lead 2:", "",
+              "| candidate | decile | n | mean lead risk | mean lead-0 risk |", "|---|---|---|---|---|"]
+    for name, refs in e["results"].get("2", {}).items():
+        for row in refs["vs_v4_reference"].get("calibration", []):
+            lines.append(f"| {name} | {row['decile']} | {row['n']} | {row['mean_lead_risk']:.3g} | {row['mean_lead0_risk']:.3g} |")
+    return lines + [""]
+
+
+def _e2_md(e: dict) -> list[str]:
+    lines = ["## Part 2b: E2 live replays (archived live days, scratch live_dir)", "", f"Reference: {e['reference']}. {e['caveat']}.", "",
+             "| set | days | audit violations | by check | leads with their own intensity (days) | leads scored as an expectation |",
+             "|---|---|---|---|---|---|"]
+    for name, a in e["audit"].items():
+        lines.append(f"| {name} | {a['days']} | {a['violations']} | {a['by_check'] or '-'} | {a['lead_intensity_used']} | {a['expected_risk_leads']} |")
+    lines += ["", HEADER.replace("| reference ", ""), "|" + "---|" * 11]
+    for lead, by in e["results"].items():
+        for name, entry in by.items():
+            lines.append(f"| {lead} | {name} | {_metrics_rows(entry)} |")
+    return lines + [""]
+
+
+def run_report(reports_dir: Path) -> int:
+    parts = {k: json.loads((reports_dir / f).read_text(encoding="utf-8")) for k, f in PARTS.items() if (reports_dir / f).is_file()}
+    lines = ["# Forecast leads on v4 (W7): development and archive evidence", "",
+             "Spec: docs/superpowers/specs/2026-11-14-aetherguard-leads-v4.md (written before any lead-skill number). Research "
+             "prototype, not validated for issuing real public warnings. No held-out event was read for this report.", "",
+             "Caveats: ground truth after 2018 is very incomplete; E1 and E2 measure consistency with the model's own later "
+             "view of the day, not landslides; E2 days are post-monsoon (outside the validated season); ECMWF has no archive "
+             "before 2023, so 2022 issue days use the GFS fallback at every lead (candidate b equals a there).", ""]
+    if "measure" in parts:
+        lines += _measure_md(parts["measure"])
+    lines += _e1_md(parts["e1"]) if "e1" in parts else ["## Part 2a: E1 archive consistency", "", "Not computed yet.", ""]
+    lines += _e2_md(parts["e2"]) if "e2" in parts else ["## Part 2b: E2 live replays", "", "Not computed yet.", ""]
+    dump_json(reports_dir / f"{REPORT_STEM}.json", {"parts": {k: PARTS[k] for k in parts},
+                                                    "generated_utc": datetime.now(UTC).isoformat(timespec="seconds")})
+    (reports_dir / f"{REPORT_STEM}.md").write_text("\n".join(lines), encoding="utf-8")
+    print(f"wrote {reports_dir / (REPORT_STEM + '.md')}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m aetherguard.live.leads_v4_study", description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -519,7 +648,11 @@ def main(argv=None) -> int:
     replays = sub.add_parser("replays")
     replays.add_argument("--replay-dir", type=Path, required=True)
     replays.add_argument("--out-dir", type=Path, default=PROJECT_ROOT / "reports")
+    report = sub.add_parser("report")
+    report.add_argument("--reports-dir", type=Path, default=PROJECT_ROOT / "reports")
     args = parser.parse_args(argv)
+    if args.command == "report":
+        return run_report(args.reports_dir)
     if args.command == "replays":
         return run_replays(args.replay_dir, args.out_dir)
     if args.command == "consistency":
