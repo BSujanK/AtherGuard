@@ -11,7 +11,7 @@ from pathlib import Path
 from ..config import PROJECT_ROOT
 from . import prob as P
 
-LEAD_NAMES = {"0": "D (today)", "1": "D+1", "2": "D+2", "3": "D+3"}
+LEAD_NAMES = {"0": "D (today, mostly observed)", "1": "D+1", "2": "D+2", "3": "D+3"}
 REGIONS = ("domain", "himalaya", "western_ghats")
 
 
@@ -212,6 +212,87 @@ def statement_summary(payload: dict, set_name: str) -> list[str]:
     return lines
 
 
+def _bss_of(entry: dict, kind: str):
+    """BSS of a 0/1 baseline against the same climatology as the product."""
+    clim_bs = entry["climatology"].get("bs")
+    base = entry["baselines"].get(kind, {})
+    return None if not clim_bs or base.get("bs") is None else 1 - base["bs"] / clim_bs
+
+
+def lead0_decomposition(payload: dict) -> list[str]:
+    """How much of the lead-0 skill is the observed rain itself: the BSS of the observed total thresholded (no
+    probability, no forecast), of the product, the product at D+1, and the IMD second opinion of lead 0."""
+    lines = ["## How much of the D (today) skill is observation, not forecast", "",
+             "At the run time (05:30 UTC of D) IMD day D has ended. 21 of its 24 hours are already observed by IMERG Early "
+             "(UTC day D-1); only 00-03 UTC of D comes from a forecast, the GFS 00Z 0-3 h tail (in the archive the tail is "
+             "persistence of D-1, so the study's lead 0 contains no forecast at all). Lead 0 is therefore a calibrated "
+             "observation of rain that has already fallen, not a forecast. Its truth, IMERG Late, is the same satellite "
+             "algorithm as Early run later with more input, so the two agree far better than either agrees with rain "
+             "gauges. The table separates the parts: `observed 0/1` is the Early total thresholded (no calibration); the "
+             "product adds the logistic map from Early to Late; `D+1` is the first real forecast; `IMD` scores the lead-0 "
+             "product against the IMD gauge grid instead (sample-climatology reference).", "",
+             "| test set | threshold | lead-0 days scored | BSS observed 0/1 | BSS lead-0 product | BSS D+1 product | lead-0 BSS vs IMD (CI) | lead-0 ROC area vs IMD |",
+             "|---|---|---|---|---|---|---|---|"]
+    lead0, lead1 = payload["leads"]["0"], payload["leads"]["1"]
+    for set_name in payload["sets"]:
+        block0, block1 = lead0["sets"][set_name], lead1["sets"][set_name]
+        counts = block0["counts"]
+        scored = counts["issue_days"] - counts["no_inputs"] - counts["no_truth"]
+        for name in P.THRESHOLDS:
+            e0, e1 = block0["thresholds"][name]["domain"], block1["thresholds"][name]["domain"]
+            if not e0["product"].get("events"):
+                continue
+            imd = e0.get("imd") or {}
+            lines.append(f"| {set_name} | {name} | {scored} of {counts['issue_days']} | {f(_bss_of(e0, 'observed'))} | "
+                         f"{f(e0['product'].get('bss'))} | {f(e1['product'].get('bss'))} | {f(imd.get('bss'))} {ci(imd.get('bss_ci'))} | "
+                         f"{f(imd.get('auc'))} |")
+    lines += ["", "Reading: for heavy, very heavy and the two percentiles in the monsoon sets, most of the lead-0 Brier skill "
+              "is already in the observed total thresholded; for the rarer rows the calibration, which learns how Early totals "
+              "map onto Late totals, adds most of it. None of it is forecast skill, and against the independent IMD grid the lead-0 skill is much smaller "
+              "and in some rows below zero. Lead-0 days without IMERG Early in the local store (16 August to 30 September "
+              "of 2023 and 2024 are not in it) are not scored; the column gives the count.", ""]
+    return lines
+
+
+def unreliable_rows(payload: dict) -> list[str]:
+    """The leads 1-3 rows of the heavier thresholds: base rate of the fitting season against the test season, mean
+    probability / base rate, REL/UNC and the fitting events behind each calibration."""
+    lines = ["## The rows marked NOT reliable at D+1..D+3", "",
+             "`mean p / base rate` below 1 means the probabilities are too low on average (the event happens more often "
+             "than forecast), above 1 too high. Each calibration is fitted on one season and tested on the other, so the "
+             "two monsoon test sets swap roles:", "",
+             "| lead | threshold | test set | fitting base rate | test base rate | mean p / base rate | REL/UNC | fitting events (pixel-days) | BSS (CI) |",
+             "|---|---|---|---|---|---|---|---|---|"]
+    for lead in ("1", "2", "3"):
+        data = payload["leads"][lead]
+        for name in ("very_heavy", "extremely_heavy", "heavy"):
+            for set_name in ("test_2024", "test_2023"):
+                if set_name not in data["sets"]:
+                    continue
+                p = data["sets"][set_name]["thresholds"][name]["domain"]["product"]
+                fit = data["fits"][set_name][name]
+                fit_rate = fit["n_events"] / fit["n"] if fit["n"] else None
+                lines.append(f"| {LEAD_NAMES[lead]} | {name} | {set_name} | {pct(fit_rate, 3)} | {pct(p.get('base_rate'), 3)} | "
+                             f"{f(p.get('calibration_in_the_large'), 2)} | {f(p.get('rel_over_unc'))} | {fit['n_events']} | "
+                             f"{f(p.get('bss'))} {ci(p.get('bss_ci'))} |")
+    lines += ["", "What it means in practice: the shape of the calibration holds (REL/UNC stays small and the ROC area high, "
+              "so higher probabilities do mark wetter pixels), but its level is set by how often very heavy and extremely "
+              "heavy rain happened in the one fitting season. The two monsoon seasons differ by several times in that "
+              "frequency, so a map fitted on the drier season under-warns in the wetter one (orange and red issued too "
+              "rarely) and the reverse. For extremely heavy rain the fitting season can hold only tens of event pixel-days "
+              "on a handful of days, so that calibration is barely constrained.", "",
+              "Is a recalibration on more training days the fix? Partly. Fitting on both seasons (the shipped calibration) "
+              "averages the two base rates and gives the extremely heavy fit several times more events, which removes the "
+              "worst of the under- and over-forecasting seen here; that is expected, not shown, because no third monsoon "
+              "season is left to test it on. It cannot remove the season-to-season swing itself: no fixed map knows in "
+              "advance whether a monsoon will be wet. That needs either more seasons (so the average is a good one and the "
+              "swing is measured) or a predictor that carries the season's state (for example the observed rain of the past "
+              "weeks), and a third season (June-September 2025 from the open ECMWF buckets) to test it. Until then the "
+              "very heavy and extremely heavy probabilities at D+1..D+3 should be read as a ranking of where the risk is "
+              "highest, not as calibrated frequencies.", ""]
+    return lines
+
+
 LIMITS = """## What this can and cannot conclude
 
 - The truth is IMERG Late, a satellite estimate. Skill against IMERG is not skill against rain gauges; the IMD grid is
@@ -281,5 +362,6 @@ def render(payload: dict) -> str:
     out += ["## Shipped calibration (fitted on June-September 2023 + 2024)", "",
             f"File: `data/{payload['shipped_calibration']}`. Expected level frequency = the in-sample share on its fitting days:", ""]
     out += levels_table(payload, None) + ["", "Chosen neighbourhood radius per lead and threshold:", ""] + fits_table(payload) + [""]
+    out += lead0_decomposition(payload) + unreliable_rows(payload)
     out += [LIMITS]
     return "\n".join(out) + "\n"

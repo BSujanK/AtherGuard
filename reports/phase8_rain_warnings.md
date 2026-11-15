@@ -12,11 +12,11 @@ Test issue days with an ECMWF file: 122 (2024-06-01..2024-09-30).
 
 ### Statements (pre-declared tests)
 
-- D (today), heavy: domain: skilful; beats every baseline; reliable; discriminates (28919 event pixel-days on 76 days); himalaya: skilful; beats every baseline; reliable; discriminates (12291 event pixel-days on 76 days); western_ghats: skilful; beats every baseline; reliable; discriminates (14542 event pixel-days on 68 days)
-- D (today), very_heavy: domain: skilful; beats every baseline; reliable; discriminates (7598 event pixel-days on 72 days); himalaya: skilful; beats every baseline; reliable; discriminates (3238 event pixel-days on 63 days); western_ghats: skilful; beats every baseline; reliable; discriminates (3823 event pixel-days on 51 days)
-- D (today), extremely_heavy: domain: skilful; beats every baseline; reliable; discriminates (678 event pixel-days on 34 days); himalaya: skilful; beats every baseline; reliable; discriminates (332 event pixel-days on 18 days); western_ghats: skilful; beats every baseline; reliable; discriminates (281 event pixel-days on 21 days)
-- D (today), p95: domain: skilful; beats every baseline; reliable; discriminates (59950 event pixel-days on 76 days); himalaya: skilful; beats every baseline; reliable; discriminates (30394 event pixel-days on 76 days); western_ghats: skilful; beats every baseline; reliable; discriminates (23011 event pixel-days on 73 days)
-- D (today), p99: domain: skilful; beats every baseline; reliable; discriminates (17948 event pixel-days on 76 days); himalaya: skilful; beats every baseline; reliable; discriminates (8498 event pixel-days on 74 days); western_ghats: skilful; beats every baseline; reliable; discriminates (7659 event pixel-days on 62 days)
+- D (today, mostly observed), heavy: domain: skilful; beats every baseline; reliable; discriminates (28919 event pixel-days on 76 days); himalaya: skilful; beats every baseline; reliable; discriminates (12291 event pixel-days on 76 days); western_ghats: skilful; beats every baseline; reliable; discriminates (14542 event pixel-days on 68 days)
+- D (today, mostly observed), very_heavy: domain: skilful; beats every baseline; reliable; discriminates (7598 event pixel-days on 72 days); himalaya: skilful; beats every baseline; reliable; discriminates (3238 event pixel-days on 63 days); western_ghats: skilful; beats every baseline; reliable; discriminates (3823 event pixel-days on 51 days)
+- D (today, mostly observed), extremely_heavy: domain: skilful; beats every baseline; reliable; discriminates (678 event pixel-days on 34 days); himalaya: skilful; beats every baseline; reliable; discriminates (332 event pixel-days on 18 days); western_ghats: skilful; beats every baseline; reliable; discriminates (281 event pixel-days on 21 days)
+- D (today, mostly observed), p95: domain: skilful; beats every baseline; reliable; discriminates (59950 event pixel-days on 76 days); himalaya: skilful; beats every baseline; reliable; discriminates (30394 event pixel-days on 76 days); western_ghats: skilful; beats every baseline; reliable; discriminates (23011 event pixel-days on 73 days)
+- D (today, mostly observed), p99: domain: skilful; beats every baseline; reliable; discriminates (17948 event pixel-days on 76 days); himalaya: skilful; beats every baseline; reliable; discriminates (8498 event pixel-days on 74 days); western_ghats: skilful; beats every baseline; reliable; discriminates (7659 event pixel-days on 62 days)
 - D+1, heavy: domain: skilful; beats every baseline; reliable; discriminates (36894 event pixel-days on 122 days); himalaya: skilful; beats every baseline; reliable; discriminates (17349 event pixel-days on 120 days); western_ghats: skilful; beats every baseline; NOT reliable; discriminates (16677 event pixel-days on 91 days)
 - D+1, very_heavy: domain: skilful; beats every baseline; NOT reliable; discriminates (8655 event pixel-days on 107 days); himalaya: skilful; beats every baseline; reliable; discriminates (3948 event pixel-days on 91 days); western_ghats: skilful; beats every baseline; NOT reliable; discriminates (4087 event pixel-days on 65 days)
 - D+1, extremely_heavy: domain: skilful; beats every baseline; NOT reliable; discriminates (777 event pixel-days on 38 days); himalaya: skilful; beats every baseline; NOT reliable; discriminates (428 event pixel-days on 22 days); western_ghats: skilful; does not beat gfs; NOT reliable; discriminates (282 event pixel-days on 22 days)
@@ -37,21 +37,21 @@ Test issue days with an ECMWF file: 122 (2024-06-01..2024-09-30).
 
 | lead | threshold | region | event pixel-days | event days | BSS (95% CI) | ROC area (CI) | REL/UNC | mean p / base rate | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| D (today) | heavy | domain | 28919 | 76 | 0.680 [+0.643, +0.709] | 0.989 [+0.982, +0.993] | 0.005 | 1.00 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | heavy | himalaya | 12291 | 76 | 0.610 [+0.536, +0.665] | 0.983 [+0.967, +0.992] | 0.011 | 1.01 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | heavy | western_ghats | 14542 | 68 | 0.748 [+0.715, +0.778] | 0.991 [+0.989, +0.993] | 0.002 | 0.99 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | very_heavy | domain | 7598 | 72 | 0.595 [+0.543, +0.641] | 0.992 [+0.984, +0.997] | 0.004 | 0.94 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | very_heavy | himalaya | 3238 | 63 | 0.571 [+0.474, +0.636] | 0.988 [+0.966, +0.997] | 0.006 | 0.90 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | very_heavy | western_ghats | 3823 | 51 | 0.612 [+0.541, +0.673] | 0.993 [+0.991, +0.995] | 0.004 | 0.97 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | extremely_heavy | domain | 678 | 34 | 0.442 [+0.310, +0.530] | 0.997 [+0.991, +0.999] | 0.006 | 0.94 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | extremely_heavy | himalaya | 332 | 18 | 0.405 [+0.175, +0.535] | 0.995 [+0.974, +1.000] | 0.019 | 0.83 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | extremely_heavy | western_ghats | 281 | 21 | 0.452 [+0.240, +0.575] | 0.998 [+0.997, +0.999] | 0.005 | 1.12 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p95 | domain | 59950 | 76 | 0.671 [+0.641, +0.698] | 0.980 [+0.973, +0.985] | 0.003 | 1.00 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p95 | himalaya | 30394 | 76 | 0.623 [+0.577, +0.662] | 0.975 [+0.962, +0.984] | 0.006 | 1.00 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p95 | western_ghats | 23011 | 73 | 0.738 [+0.704, +0.772] | 0.983 [+0.979, +0.986] | 0.001 | 0.98 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p99 | domain | 17948 | 76 | 0.610 [+0.561, +0.653] | 0.988 [+0.981, +0.992] | 0.008 | 1.04 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p99 | himalaya | 8498 | 74 | 0.561 [+0.489, +0.619] | 0.985 [+0.970, +0.993] | 0.011 | 1.02 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p99 | western_ghats | 7659 | 62 | 0.663 [+0.596, +0.719] | 0.988 [+0.983, +0.992] | 0.006 | 1.05 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | heavy | domain | 28919 | 76 | 0.680 [+0.643, +0.709] | 0.989 [+0.982, +0.993] | 0.005 | 1.00 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | heavy | himalaya | 12291 | 76 | 0.610 [+0.536, +0.665] | 0.983 [+0.967, +0.992] | 0.011 | 1.01 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | heavy | western_ghats | 14542 | 68 | 0.748 [+0.715, +0.778] | 0.991 [+0.989, +0.993] | 0.002 | 0.99 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | very_heavy | domain | 7598 | 72 | 0.595 [+0.543, +0.641] | 0.992 [+0.984, +0.997] | 0.004 | 0.94 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | very_heavy | himalaya | 3238 | 63 | 0.571 [+0.474, +0.636] | 0.988 [+0.966, +0.997] | 0.006 | 0.90 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | very_heavy | western_ghats | 3823 | 51 | 0.612 [+0.541, +0.673] | 0.993 [+0.991, +0.995] | 0.004 | 0.97 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | extremely_heavy | domain | 678 | 34 | 0.442 [+0.310, +0.530] | 0.997 [+0.991, +0.999] | 0.006 | 0.94 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | extremely_heavy | himalaya | 332 | 18 | 0.405 [+0.175, +0.535] | 0.995 [+0.974, +1.000] | 0.019 | 0.83 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | extremely_heavy | western_ghats | 281 | 21 | 0.452 [+0.240, +0.575] | 0.998 [+0.997, +0.999] | 0.005 | 1.12 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p95 | domain | 59950 | 76 | 0.671 [+0.641, +0.698] | 0.980 [+0.973, +0.985] | 0.003 | 1.00 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p95 | himalaya | 30394 | 76 | 0.623 [+0.577, +0.662] | 0.975 [+0.962, +0.984] | 0.006 | 1.00 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p95 | western_ghats | 23011 | 73 | 0.738 [+0.704, +0.772] | 0.983 [+0.979, +0.986] | 0.001 | 0.98 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p99 | domain | 17948 | 76 | 0.610 [+0.561, +0.653] | 0.988 [+0.981, +0.992] | 0.008 | 1.04 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p99 | himalaya | 8498 | 74 | 0.561 [+0.489, +0.619] | 0.985 [+0.970, +0.993] | 0.011 | 1.02 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p99 | western_ghats | 7659 | 62 | 0.663 [+0.596, +0.719] | 0.988 [+0.983, +0.992] | 0.006 | 1.05 | skilful; beats every baseline; reliable; discriminates |
 | D+1 | heavy | domain | 36894 | 122 | 0.180 [+0.135, +0.224] | 0.900 [+0.878, +0.918] | 0.003 | 0.94 | skilful; beats every baseline; reliable; discriminates |
 | D+1 | heavy | himalaya | 17349 | 120 | 0.141 [+0.075, +0.201] | 0.899 [+0.877, +0.917] | 0.005 | 1.10 | skilful; beats every baseline; reliable; discriminates |
 | D+1 | heavy | western_ghats | 16677 | 91 | 0.234 [+0.163, +0.292] | 0.892 [+0.852, +0.923] | 0.011 | 0.75 | skilful; beats every baseline; NOT reliable; discriminates |
@@ -102,11 +102,11 @@ Test issue days with an ECMWF file: 122 (2024-06-01..2024-09-30).
 
 | lead | threshold | BS product | BS climatology | BS raw ensemble | baseline: BS, diff (95% CI), hit rate, FAR |
 |---|---|---|---|---|---|
-| D (today) | heavy | 0.00976 | 0.03052 | - | observed: 0.01416, -0.00441 [-0.00508, -0.00377], 0.816, 0.226 |
-| D (today) | very_heavy | 0.00348 | 0.00860 | - | observed: 0.00513, -0.00165 [-0.00206, -0.00128], 0.756, 0.309 |
-| D (today) | extremely_heavy | 0.00044 | 0.00078 | - | observed: 0.00074, -0.00030 [-0.00046, -0.00017], 0.671, 0.476 |
-| D (today) | p95 | 0.02095 | 0.06360 | - | observed: 0.03033, -0.00938 [-0.01065, -0.00824], 0.823, 0.240 |
-| D (today) | p99 | 0.00795 | 0.02037 | - | observed: 0.01181, -0.00385 [-0.00456, -0.00323], 0.795, 0.313 |
+| D (today, mostly observed) | heavy | 0.00976 | 0.03052 | - | observed: 0.01416, -0.00441 [-0.00508, -0.00377], 0.816, 0.226 |
+| D (today, mostly observed) | very_heavy | 0.00348 | 0.00860 | - | observed: 0.00513, -0.00165 [-0.00206, -0.00128], 0.756, 0.309 |
+| D (today, mostly observed) | extremely_heavy | 0.00044 | 0.00078 | - | observed: 0.00074, -0.00030 [-0.00046, -0.00017], 0.671, 0.476 |
+| D (today, mostly observed) | p95 | 0.02095 | 0.06360 | - | observed: 0.03033, -0.00938 [-0.01065, -0.00824], 0.823, 0.240 |
+| D (today, mostly observed) | p99 | 0.00795 | 0.02037 | - | observed: 0.01181, -0.00385 [-0.00456, -0.00323], 0.795, 0.313 |
 | D+1 | heavy | 0.02020 | 0.02464 | 0.02314 | gfs: 0.03051, -0.01031 [-0.01210, -0.00843], 0.186, 0.640; ens_mean: 0.02732, -0.00712 [-0.00861, -0.00558], 0.181, 0.533; hres: 0.03034, -0.01015 [-0.01195, -0.00839], 0.193, 0.633 |
 | D+1 | very_heavy | 0.00551 | 0.00612 | 0.00600 | gfs: 0.00828, -0.00277 [-0.00346, -0.00214], 0.063, 0.860; ens_mean: 0.00637, -0.00086 [-0.00122, -0.00054], 0.066, 0.564; hres: 0.00723, -0.00172 [-0.00226, -0.00121], 0.085, 0.740 |
 | D+1 | extremely_heavy | 0.00056 | 0.00056 | 0.00057 | gfs: 0.00076, -0.00020 [-0.00034, -0.00010], 0.019, 0.951; ens_mean: 0.00057, -0.00001 [-0.00002, -0.00000], 0.001, 0.923; hres: 0.00071, -0.00015 [-0.00024, -0.00008], 0.036, 0.892 |
@@ -188,7 +188,7 @@ Lead D+1, p95, domain:
 | 0.80-0.90 | 320 | 0.8309 | 0.7344 |
 | 0.90-1.00 | 1 | 0.9038 | 0.0000 |
 
-Lead D (today), heavy, domain:
+Lead D (today, mostly observed), heavy, domain:
 
 | probability bin | pixel-days | mean probability | observed frequency |
 |---|---|---|---|
@@ -208,15 +208,15 @@ Lead D (today), heavy, domain:
 
 | lead | threshold | region | pixel-days | events | BSS vs sample climatology (CI) | ROC area | mean p / IMD base rate |
 |---|---|---|---|---|---|---|---|
-| D (today) | heavy | domain | 753844 | 21531 | -0.110 [-0.238, -0.002] | 0.869 | 1.24 |
-| D (today) | heavy | himalaya | 476672 | 9883 | -0.205 [-0.349, -0.069] | 0.813 | 1.02 |
-| D (today) | heavy | western_ghats | 168264 | 9606 | -0.042 [-0.282, +0.125] | 0.914 | 1.50 |
-| D (today) | very_heavy | domain | 753844 | 5082 | -0.428 [-0.693, -0.246] | 0.859 | 1.33 |
-| D (today) | very_heavy | himalaya | 476672 | 2196 | -0.519 [-0.773, -0.326] | 0.780 | 1.16 |
-| D (today) | very_heavy | western_ghats | 168264 | 2427 | -0.384 [-0.875, -0.091] | 0.920 | 1.52 |
-| D (today) | extremely_heavy | domain | 753844 | 634 | -0.263 [-0.610, -0.093] | 0.830 | 0.95 |
-| D (today) | extremely_heavy | himalaya | 476672 | 338 | -0.202 [-0.522, -0.055] | 0.756 | 0.72 |
-| D (today) | extremely_heavy | western_ghats | 168264 | 260 | -0.321 [-1.231, -0.027] | 0.918 | 1.21 |
+| D (today, mostly observed) | heavy | domain | 753844 | 21531 | -0.110 [-0.238, -0.002] | 0.869 | 1.24 |
+| D (today, mostly observed) | heavy | himalaya | 476672 | 9883 | -0.205 [-0.349, -0.069] | 0.813 | 1.02 |
+| D (today, mostly observed) | heavy | western_ghats | 168264 | 9606 | -0.042 [-0.282, +0.125] | 0.914 | 1.50 |
+| D (today, mostly observed) | very_heavy | domain | 753844 | 5082 | -0.428 [-0.693, -0.246] | 0.859 | 1.33 |
+| D (today, mostly observed) | very_heavy | himalaya | 476672 | 2196 | -0.519 [-0.773, -0.326] | 0.780 | 1.16 |
+| D (today, mostly observed) | very_heavy | western_ghats | 168264 | 2427 | -0.384 [-0.875, -0.091] | 0.920 | 1.52 |
+| D (today, mostly observed) | extremely_heavy | domain | 753844 | 634 | -0.263 [-0.610, -0.093] | 0.830 | 0.95 |
+| D (today, mostly observed) | extremely_heavy | himalaya | 476672 | 338 | -0.202 [-0.522, -0.055] | 0.756 | 0.72 |
+| D (today, mostly observed) | extremely_heavy | western_ghats | 168264 | 260 | -0.321 [-1.231, -0.027] | 0.918 | 1.21 |
 | D+1 | heavy | domain | 1210118 | 28977 | 0.200 [+0.157, +0.236] | 0.915 | 1.05 |
 | D+1 | heavy | himalaya | 765184 | 14183 | 0.125 [+0.077, +0.171] | 0.894 | 1.06 |
 | D+1 | heavy | western_ghats | 270108 | 11576 | 0.295 [+0.228, +0.349] | 0.936 | 1.08 |
@@ -249,10 +249,10 @@ Lead D (today), heavy, domain:
 
 | lead | level | share of pixel-days | pixel-days | observed >= heavy | observed >= very heavy | share of heavy events | share of very heavy events |
 |---|---|---|---|---|---|---|---|
-| D (today) | none | 92.297% | 796434 | 0.2% | 0.0% | 6.7% | 0.8% |
-| D (today) | yellow | 3.886% | 33534 | 10.0% | 0.2% | 11.5% | 1.0% |
-| D (today) | orange | 3.071% | 26500 | 65.2% | 9.2% | 59.8% | 32.0% |
-| D (today) | red | 0.746% | 6436 | 98.6% | 78.2% | 22.0% | 66.2% |
+| D (today, mostly observed) | none | 92.297% | 796434 | 0.2% | 0.0% | 6.7% | 0.8% |
+| D (today, mostly observed) | yellow | 3.886% | 33534 | 10.0% | 0.2% | 11.5% | 1.0% |
+| D (today, mostly observed) | orange | 3.071% | 26500 | 65.2% | 9.2% | 59.8% | 32.0% |
+| D (today, mostly observed) | red | 0.746% | 6436 | 98.6% | 78.2% | 22.0% | 66.2% |
 | D+1 | none | 96.276% | 1333598 | 1.5% | 0.2% | 52.5% | 33.6% |
 | D+1 | yellow | 3.077% | 42620 | 27.0% | 6.9% | 31.2% | 34.2% |
 | D+1 | orange | 0.646% | 8944 | 67.3% | 31.1% | 16.3% | 32.1% |
@@ -272,11 +272,11 @@ Test issue days with an ECMWF file: 80 (2023-07-13..2023-09-30).
 
 ### Statements (pre-declared tests)
 
-- D (today), heavy: domain: skilful; beats every baseline; reliable; discriminates (9234 event pixel-days on 35 days); himalaya: skilful; beats every baseline; reliable; discriminates (4580 event pixel-days on 35 days); western_ghats: skilful; beats every baseline; reliable; discriminates (3886 event pixel-days on 15 days)
-- D (today), very_heavy: domain: skilful; beats every baseline; reliable; discriminates (901 event pixel-days on 30 days); himalaya: skilful; beats every baseline; reliable; discriminates (458 event pixel-days on 30 days); western_ghats: skilful; beats every baseline; NOT reliable; discriminates (380 event pixel-days on 12 days)
-- D (today), extremely_heavy: domain: too few events to conclude (13 event pixel-days on 5 days); himalaya: too few events to conclude (12 event pixel-days on 4 days); western_ghats: too few events to conclude (0 event pixel-days on 0 days)
-- D (today), p95: domain: skilful; beats every baseline; reliable; discriminates (24643 event pixel-days on 35 days); himalaya: skilful; beats every baseline; reliable; discriminates (14945 event pixel-days on 35 days); western_ghats: skilful; does not beat observed; reliable; discriminates (6479 event pixel-days on 24 days)
-- D (today), p99: domain: skilful; beats every baseline; reliable; discriminates (5401 event pixel-days on 34 days); himalaya: skilful; beats every baseline; reliable; discriminates (3440 event pixel-days on 34 days); western_ghats: skilful; does not beat observed; NOT reliable; discriminates (1282 event pixel-days on 18 days)
+- D (today, mostly observed), heavy: domain: skilful; beats every baseline; reliable; discriminates (9234 event pixel-days on 35 days); himalaya: skilful; beats every baseline; reliable; discriminates (4580 event pixel-days on 35 days); western_ghats: skilful; beats every baseline; reliable; discriminates (3886 event pixel-days on 15 days)
+- D (today, mostly observed), very_heavy: domain: skilful; beats every baseline; reliable; discriminates (901 event pixel-days on 30 days); himalaya: skilful; beats every baseline; reliable; discriminates (458 event pixel-days on 30 days); western_ghats: skilful; beats every baseline; NOT reliable; discriminates (380 event pixel-days on 12 days)
+- D (today, mostly observed), extremely_heavy: domain: too few events to conclude (13 event pixel-days on 5 days); himalaya: too few events to conclude (12 event pixel-days on 4 days); western_ghats: too few events to conclude (0 event pixel-days on 0 days)
+- D (today, mostly observed), p95: domain: skilful; beats every baseline; reliable; discriminates (24643 event pixel-days on 35 days); himalaya: skilful; beats every baseline; reliable; discriminates (14945 event pixel-days on 35 days); western_ghats: skilful; does not beat observed; reliable; discriminates (6479 event pixel-days on 24 days)
+- D (today, mostly observed), p99: domain: skilful; beats every baseline; reliable; discriminates (5401 event pixel-days on 34 days); himalaya: skilful; beats every baseline; reliable; discriminates (3440 event pixel-days on 34 days); western_ghats: skilful; does not beat observed; NOT reliable; discriminates (1282 event pixel-days on 18 days)
 - D+1, heavy: domain: skilful; beats every baseline; reliable; discriminates (14632 event pixel-days on 80 days); himalaya: skilful; beats every baseline; NOT reliable; discriminates (8582 event pixel-days on 79 days); western_ghats: skilful; beats every baseline; reliable; discriminates (4789 event pixel-days on 36 days)
 - D+1, very_heavy: domain: NOT skilful; does not beat ens_mean; NOT reliable; discriminates (1757 event pixel-days on 61 days); himalaya: NOT skilful; does not beat ens_mean; NOT reliable; discriminates (1139 event pixel-days on 55 days); western_ghats: NOT skilful; does not beat ens_mean, hres; NOT reliable; discriminates (488 event pixel-days on 20 days)
 - D+1, extremely_heavy: domain: too few events to conclude (30 event pixel-days on 7 days); himalaya: too few events to conclude (30 event pixel-days on 7 days); western_ghats: too few events to conclude (0 event pixel-days on 0 days)
@@ -297,21 +297,21 @@ Test issue days with an ECMWF file: 80 (2023-07-13..2023-09-30).
 
 | lead | threshold | region | event pixel-days | event days | BSS (95% CI) | ROC area (CI) | REL/UNC | mean p / base rate | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| D (today) | heavy | domain | 9234 | 35 | 0.676 [+0.644, +0.706] | 0.996 [+0.995, +0.997] | 0.018 | 0.99 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | heavy | himalaya | 4580 | 35 | 0.608 [+0.559, +0.650] | 0.995 [+0.993, +0.996] | 0.010 | 1.09 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | heavy | western_ghats | 3886 | 15 | 0.769 [+0.720, +0.809] | 0.998 [+0.996, +0.999] | 0.034 | 0.89 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | very_heavy | domain | 901 | 30 | 0.466 [+0.385, +0.528] | 0.998 [+0.996, +0.999] | 0.023 | 1.22 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | very_heavy | himalaya | 458 | 30 | 0.442 [+0.335, +0.538] | 0.997 [+0.994, +0.999] | 0.008 | 1.18 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | very_heavy | western_ghats | 380 | 12 | 0.502 [+0.375, +0.577] | 0.998 [+0.997, +0.999] | 0.064 | 1.27 | skilful; beats every baseline; NOT reliable; discriminates |
-| D (today) | extremely_heavy | domain | 13 | 5 | 0.414 [+0.156, +0.501] | 1.000 [+0.999, +1.000] | 0.174 | 1.20 | too few events to conclude |
-| D (today) | extremely_heavy | himalaya | 12 | 4 | 0.435 [+0.148, +0.509] | 1.000 [+0.999, +1.000] | 0.189 | 0.95 | too few events to conclude |
-| D (today) | extremely_heavy | western_ghats | 0 | 0 | 0.544 [+0.012, +0.953] | - - | - | - | too few events to conclude |
-| D (today) | p95 | domain | 24643 | 35 | 0.685 [+0.667, +0.704] | 0.991 [+0.989, +0.992] | 0.012 | 1.01 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p95 | himalaya | 14945 | 35 | 0.656 [+0.629, +0.683] | 0.989 [+0.987, +0.991] | 0.009 | 1.12 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p95 | western_ghats | 6479 | 24 | 0.739 [+0.713, +0.762] | 0.995 [+0.992, +0.997] | 0.052 | 0.82 | skilful; does not beat observed; reliable; discriminates |
-| D (today) | p99 | domain | 5401 | 34 | 0.561 [+0.511, +0.612] | 0.995 [+0.993, +0.996] | 0.019 | 0.95 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p99 | himalaya | 3440 | 34 | 0.578 [+0.523, +0.629] | 0.995 [+0.993, +0.996] | 0.008 | 1.04 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p99 | western_ghats | 1282 | 18 | 0.510 [+0.420, +0.607] | 0.994 [+0.990, +0.998] | 0.069 | 0.78 | skilful; does not beat observed; NOT reliable; discriminates |
+| D (today, mostly observed) | heavy | domain | 9234 | 35 | 0.676 [+0.644, +0.706] | 0.996 [+0.995, +0.997] | 0.018 | 0.99 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | heavy | himalaya | 4580 | 35 | 0.608 [+0.559, +0.650] | 0.995 [+0.993, +0.996] | 0.010 | 1.09 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | heavy | western_ghats | 3886 | 15 | 0.769 [+0.720, +0.809] | 0.998 [+0.996, +0.999] | 0.034 | 0.89 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | very_heavy | domain | 901 | 30 | 0.466 [+0.385, +0.528] | 0.998 [+0.996, +0.999] | 0.023 | 1.22 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | very_heavy | himalaya | 458 | 30 | 0.442 [+0.335, +0.538] | 0.997 [+0.994, +0.999] | 0.008 | 1.18 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | very_heavy | western_ghats | 380 | 12 | 0.502 [+0.375, +0.577] | 0.998 [+0.997, +0.999] | 0.064 | 1.27 | skilful; beats every baseline; NOT reliable; discriminates |
+| D (today, mostly observed) | extremely_heavy | domain | 13 | 5 | 0.414 [+0.156, +0.501] | 1.000 [+0.999, +1.000] | 0.174 | 1.20 | too few events to conclude |
+| D (today, mostly observed) | extremely_heavy | himalaya | 12 | 4 | 0.435 [+0.148, +0.509] | 1.000 [+0.999, +1.000] | 0.189 | 0.95 | too few events to conclude |
+| D (today, mostly observed) | extremely_heavy | western_ghats | 0 | 0 | 0.544 [+0.012, +0.953] | - - | - | - | too few events to conclude |
+| D (today, mostly observed) | p95 | domain | 24643 | 35 | 0.685 [+0.667, +0.704] | 0.991 [+0.989, +0.992] | 0.012 | 1.01 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p95 | himalaya | 14945 | 35 | 0.656 [+0.629, +0.683] | 0.989 [+0.987, +0.991] | 0.009 | 1.12 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p95 | western_ghats | 6479 | 24 | 0.739 [+0.713, +0.762] | 0.995 [+0.992, +0.997] | 0.052 | 0.82 | skilful; does not beat observed; reliable; discriminates |
+| D (today, mostly observed) | p99 | domain | 5401 | 34 | 0.561 [+0.511, +0.612] | 0.995 [+0.993, +0.996] | 0.019 | 0.95 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p99 | himalaya | 3440 | 34 | 0.578 [+0.523, +0.629] | 0.995 [+0.993, +0.996] | 0.008 | 1.04 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p99 | western_ghats | 1282 | 18 | 0.510 [+0.420, +0.607] | 0.994 [+0.990, +0.998] | 0.069 | 0.78 | skilful; does not beat observed; NOT reliable; discriminates |
 | D+1 | heavy | domain | 14632 | 80 | 0.130 [+0.086, +0.174] | 0.915 [+0.901, +0.928] | 0.006 | 1.18 | skilful; beats every baseline; reliable; discriminates |
 | D+1 | heavy | himalaya | 8582 | 79 | 0.077 [+0.026, +0.130] | 0.880 [+0.859, +0.901] | 0.010 | 1.25 | skilful; beats every baseline; NOT reliable; discriminates |
 | D+1 | heavy | western_ghats | 4789 | 36 | 0.228 [+0.174, +0.273] | 0.964 [+0.953, +0.974] | 0.021 | 1.01 | skilful; beats every baseline; reliable; discriminates |
@@ -362,11 +362,11 @@ Test issue days with an ECMWF file: 80 (2023-07-13..2023-09-30).
 
 | lead | threshold | BS product | BS climatology | BS raw ensemble | baseline: BS, diff (95% CI), hit rate, FAR |
 |---|---|---|---|---|---|
-| D (today) | heavy | 0.00697 | 0.02153 | - | observed: 0.00957, -0.00260 [-0.00347, -0.00173], 0.822, 0.221 |
-| D (today) | very_heavy | 0.00121 | 0.00226 | - | observed: 0.00163, -0.00042 [-0.00063, -0.00024], 0.658, 0.364 |
-| D (today) | extremely_heavy | 0.00002 | 0.00003 | - | observed: 0.00002, -0.00000 [-0.00001, +0.00001], 0.538, 0.222 |
-| D (today) | p95 | 0.01818 | 0.05772 | - | observed: 0.02431, -0.00613 [-0.00754, -0.00473], 0.857, 0.225 |
-| D (today) | p99 | 0.00589 | 0.01341 | - | observed: 0.00784, -0.00195 [-0.00275, -0.00120], 0.762, 0.308 |
+| D (today, mostly observed) | heavy | 0.00697 | 0.02153 | - | observed: 0.00957, -0.00260 [-0.00347, -0.00173], 0.822, 0.221 |
+| D (today, mostly observed) | very_heavy | 0.00121 | 0.00226 | - | observed: 0.00163, -0.00042 [-0.00063, -0.00024], 0.658, 0.364 |
+| D (today, mostly observed) | extremely_heavy | 0.00002 | 0.00003 | - | observed: 0.00002, -0.00000 [-0.00001, +0.00001], 0.538, 0.222 |
+| D (today, mostly observed) | p95 | 0.01818 | 0.05772 | - | observed: 0.02431, -0.00613 [-0.00754, -0.00473], 0.857, 0.225 |
+| D (today, mostly observed) | p99 | 0.00589 | 0.01341 | - | observed: 0.00784, -0.00195 [-0.00275, -0.00120], 0.762, 0.308 |
 | D+1 | heavy | 0.01326 | 0.01525 | 0.01521 | gfs: 0.02302, -0.00976 [-0.01251, -0.00742], 0.171, 0.778; ens_mean: 0.01704, -0.00378 [-0.00516, -0.00248], 0.099, 0.613; hres: 0.01856, -0.00530 [-0.00685, -0.00386], 0.101, 0.715 |
 | D+1 | very_heavy | 0.00189 | 0.00192 | 0.00202 | gfs: 0.00418, -0.00228 [-0.00338, -0.00143], 0.088, 0.934; ens_mean: 0.00198, -0.00009 [-0.00026, +0.00003], 0.052, 0.601; hres: 0.00247, -0.00058 [-0.00112, -0.00021], 0.059, 0.852 |
 | D+1 | extremely_heavy | 0.00004 | 0.00003 | 0.00005 | gfs: 0.00027, -0.00023 [-0.00039, -0.00010], 0.000, 1.000; ens_mean: 0.00004, -0.00000 [-0.00001, +0.00000], 0.000, 1.000; hres: 0.00015, -0.00011 [-0.00032, +0.00000], 0.033, 0.990 |
@@ -446,7 +446,7 @@ Lead D+1, p95, domain:
 | 0.70-0.80 | 538 | 0.7381 | 0.9238 |
 | 0.80-0.90 | 104 | 0.8386 | 1.0000 |
 
-Lead D (today), heavy, domain:
+Lead D (today, mostly observed), heavy, domain:
 
 | probability bin | pixel-days | mean probability | observed frequency |
 |---|---|---|---|
@@ -466,15 +466,15 @@ Lead D (today), heavy, domain:
 
 | lead | threshold | region | pixel-days | events | BSS vs sample climatology (CI) | ROC area | mean p / IMD base rate |
 |---|---|---|---|---|---|---|---|
-| D (today) | heavy | domain | 347165 | 9267 | 0.181 [+0.073, +0.261] | 0.917 | 0.87 |
-| D (today) | heavy | himalaya | 219520 | 4140 | -0.065 [-0.288, +0.102] | 0.863 | 0.95 |
-| D (today) | heavy | western_ghats | 77490 | 4184 | 0.410 [+0.334, +0.476] | 0.961 | 0.82 |
-| D (today) | very_heavy | domain | 347165 | 2142 | 0.057 [-0.033, +0.115] | 0.928 | 0.46 |
-| D (today) | very_heavy | himalaya | 219520 | 666 | -0.151 [-0.389, -0.035] | 0.839 | 0.65 |
-| D (today) | very_heavy | western_ghats | 77490 | 1266 | 0.164 [+0.085, +0.230] | 0.966 | 0.38 |
-| D (today) | extremely_heavy | domain | 347165 | 256 | -0.002 [-0.025, +0.007] | 0.718 | 0.05 |
-| D (today) | extremely_heavy | himalaya | 219520 | 86 | -0.020 [-0.066, +0.001] | 0.566 | 0.11 |
-| D (today) | extremely_heavy | western_ghats | 77490 | 151 | 0.006 [-0.000, +0.009] | 0.815 | 0.02 |
+| D (today, mostly observed) | heavy | domain | 347165 | 9267 | 0.181 [+0.073, +0.261] | 0.917 | 0.87 |
+| D (today, mostly observed) | heavy | himalaya | 219520 | 4140 | -0.065 [-0.288, +0.102] | 0.863 | 0.95 |
+| D (today, mostly observed) | heavy | western_ghats | 77490 | 4184 | 0.410 [+0.334, +0.476] | 0.961 | 0.82 |
+| D (today, mostly observed) | very_heavy | domain | 347165 | 2142 | 0.057 [-0.033, +0.115] | 0.928 | 0.46 |
+| D (today, mostly observed) | very_heavy | himalaya | 219520 | 666 | -0.151 [-0.389, -0.035] | 0.839 | 0.65 |
+| D (today, mostly observed) | very_heavy | western_ghats | 77490 | 1266 | 0.164 [+0.085, +0.230] | 0.966 | 0.38 |
+| D (today, mostly observed) | extremely_heavy | domain | 347165 | 256 | -0.002 [-0.025, +0.007] | 0.718 | 0.05 |
+| D (today, mostly observed) | extremely_heavy | himalaya | 219520 | 86 | -0.020 [-0.066, +0.001] | 0.566 | 0.11 |
+| D (today, mostly observed) | extremely_heavy | western_ghats | 77490 | 151 | 0.006 [-0.000, +0.009] | 0.815 | 0.02 |
 | D+1 | heavy | domain | 793520 | 13625 | 0.223 [+0.158, +0.278] | 0.925 | 1.11 |
 | D+1 | heavy | himalaya | 501760 | 6790 | 0.125 [+0.038, +0.216] | 0.893 | 1.27 |
 | D+1 | heavy | western_ghats | 177120 | 5260 | 0.344 [+0.269, +0.392] | 0.962 | 0.92 |
@@ -507,10 +507,10 @@ Lead D (today), heavy, domain:
 
 | lead | level | share of pixel-days | pixel-days | observed >= heavy | observed >= very heavy | share of heavy events | share of very heavy events |
 |---|---|---|---|---|---|---|---|
-| D (today) | none | 93.095% | 369950 | 0.1% | 0.0% | 2.3% | 0.0% |
-| D (today) | yellow | 4.654% | 18495 | 12.1% | 0.1% | 24.1% | 1.2% |
-| D (today) | orange | 2.138% | 8495 | 74.7% | 6.2% | 68.7% | 58.6% |
-| D (today) | red | 0.113% | 450 | 99.6% | 80.4% | 4.9% | 40.2% |
+| D (today, mostly observed) | none | 93.095% | 369950 | 0.1% | 0.0% | 2.3% | 0.0% |
+| D (today, mostly observed) | yellow | 4.654% | 18495 | 12.1% | 0.1% | 24.1% | 1.2% |
+| D (today, mostly observed) | orange | 2.138% | 8495 | 74.7% | 6.2% | 68.7% | 58.6% |
+| D (today, mostly observed) | red | 0.113% | 450 | 99.6% | 80.4% | 4.9% | 40.2% |
 | D+1 | none | 98.096% | 891027 | 1.0% | 0.1% | 63.6% | 56.3% |
 | D+1 | yellow | 1.722% | 15643 | 27.2% | 3.6% | 29.0% | 32.3% |
 | D+1 | orange | 0.179% | 1623 | 64.8% | 11.3% | 7.2% | 10.4% |
@@ -530,11 +530,11 @@ Test issue days with an ECMWF file: 28 (2026-10-09..2026-11-15).
 
 ### Statements (pre-declared tests)
 
-- D (today), heavy: domain: skilful; beats every baseline; reliable; discriminates (189 event pixel-days on 13 days); himalaya: too few events to conclude (95 event pixel-days on 9 days); western_ghats: too few events to conclude (79 event pixel-days on 4 days)
-- D (today), very_heavy: domain: too few events to conclude (5 event pixel-days on 2 days); himalaya: too few events to conclude (0 event pixel-days on 0 days); western_ghats: too few events to conclude (2 event pixel-days on 2 days)
-- D (today), extremely_heavy: domain: too few events to conclude (0 event pixel-days on 0 days); himalaya: too few events to conclude (0 event pixel-days on 0 days); western_ghats: too few events to conclude (0 event pixel-days on 0 days)
-- D (today), p95: domain: skilful; beats every baseline; NOT reliable; discriminates (1832 event pixel-days on 23 days); himalaya: skilful; beats every baseline; NOT reliable; discriminates (938 event pixel-days on 16 days); western_ghats: skilful; beats every baseline; reliable; discriminates (724 event pixel-days on 16 days)
-- D (today), p99: domain: skilful; beats every baseline; reliable; discriminates (303 event pixel-days on 15 days); himalaya: too few events to conclude (104 event pixel-days on 8 days); western_ghats: too few events to conclude (175 event pixel-days on 7 days)
+- D (today, mostly observed), heavy: domain: skilful; beats every baseline; reliable; discriminates (189 event pixel-days on 13 days); himalaya: too few events to conclude (95 event pixel-days on 9 days); western_ghats: too few events to conclude (79 event pixel-days on 4 days)
+- D (today, mostly observed), very_heavy: domain: too few events to conclude (5 event pixel-days on 2 days); himalaya: too few events to conclude (0 event pixel-days on 0 days); western_ghats: too few events to conclude (2 event pixel-days on 2 days)
+- D (today, mostly observed), extremely_heavy: domain: too few events to conclude (0 event pixel-days on 0 days); himalaya: too few events to conclude (0 event pixel-days on 0 days); western_ghats: too few events to conclude (0 event pixel-days on 0 days)
+- D (today, mostly observed), p95: domain: skilful; beats every baseline; NOT reliable; discriminates (1832 event pixel-days on 23 days); himalaya: skilful; beats every baseline; NOT reliable; discriminates (938 event pixel-days on 16 days); western_ghats: skilful; beats every baseline; reliable; discriminates (724 event pixel-days on 16 days)
+- D (today, mostly observed), p99: domain: skilful; beats every baseline; reliable; discriminates (303 event pixel-days on 15 days); himalaya: too few events to conclude (104 event pixel-days on 8 days); western_ghats: too few events to conclude (175 event pixel-days on 7 days)
 - D+1, heavy: domain: NOT skilful; does not beat ens_mean, hres; NOT reliable; discriminates (308 event pixel-days on 11 days); himalaya: too few events to conclude (149 event pixel-days on 8 days); western_ghats: too few events to conclude (136 event pixel-days on 4 days)
 - D+1, very_heavy: domain: too few events to conclude (13 event pixel-days on 2 days); himalaya: too few events to conclude (0 event pixel-days on 0 days); western_ghats: too few events to conclude (12 event pixel-days on 2 days)
 - D+1, extremely_heavy: domain: too few events to conclude (0 event pixel-days on 0 days); himalaya: too few events to conclude (0 event pixel-days on 0 days); western_ghats: too few events to conclude (0 event pixel-days on 0 days)
@@ -555,21 +555,21 @@ Test issue days with an ECMWF file: 28 (2026-10-09..2026-11-15).
 
 | lead | threshold | region | event pixel-days | event days | BSS (95% CI) | ROC area (CI) | REL/UNC | mean p / base rate | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| D (today) | heavy | domain | 189 | 13 | 0.281 [+0.100, +0.398] | 0.999 [+0.998, +1.000] | 0.035 | 0.83 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | heavy | himalaya | 95 | 9 | 0.224 [-0.171, +0.420] | 0.999 [+0.998, +1.000] | 0.040 | 0.72 | too few events to conclude |
-| D (today) | heavy | western_ghats | 79 | 4 | 0.308 [+0.243, +0.579] | 0.999 [+0.997, +1.000] | 0.060 | 0.99 | too few events to conclude |
-| D (today) | very_heavy | domain | 5 | 2 | 0.148 [+0.032, +0.728] | 1.000 [+0.999, +1.000] | 0.168 | 1.50 | too few events to conclude |
-| D (today) | very_heavy | himalaya | 0 | 0 | 0.622 [-0.097, +0.996] | - - | - | - | too few events to conclude |
-| D (today) | very_heavy | western_ghats | 2 | 2 | 0.031 [-0.310, +1.000] | 1.000 [+0.998, +1.000] | 0.082 | 1.68 | too few events to conclude |
-| D (today) | extremely_heavy | domain | 0 | 0 | 1.000 [+0.999, +1.000] | - - | - | - | too few events to conclude |
-| D (today) | extremely_heavy | himalaya | 0 | 0 | 1.000 [+1.000, +1.000] | - - | - | - | too few events to conclude |
-| D (today) | extremely_heavy | western_ghats | 0 | 0 | 1.000 [+0.999, +1.000] | - - | - | - | too few events to conclude |
-| D (today) | p95 | domain | 1832 | 23 | 0.549 [+0.458, +0.630] | 0.998 [+0.997, +0.999] | 0.045 | 0.75 | skilful; beats every baseline; NOT reliable; discriminates |
-| D (today) | p95 | himalaya | 938 | 16 | 0.472 [+0.247, +0.567] | 0.998 [+0.997, +0.999] | 0.049 | 0.72 | skilful; beats every baseline; NOT reliable; discriminates |
-| D (today) | p95 | western_ghats | 724 | 16 | 0.652 [+0.546, +0.774] | 0.998 [+0.997, +0.999] | 0.049 | 0.80 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p99 | domain | 303 | 15 | 0.428 [+0.229, +0.540] | 0.999 [+0.999, +1.000] | 0.036 | 0.86 | skilful; beats every baseline; reliable; discriminates |
-| D (today) | p99 | himalaya | 104 | 8 | 0.249 [-0.249, +0.427] | 0.999 [+0.998, +1.000] | 0.039 | 0.91 | too few events to conclude |
-| D (today) | p99 | western_ghats | 175 | 7 | 0.534 [+0.316, +0.661] | 0.999 [+0.998, +1.000] | 0.063 | 0.84 | too few events to conclude |
+| D (today, mostly observed) | heavy | domain | 189 | 13 | 0.281 [+0.100, +0.398] | 0.999 [+0.998, +1.000] | 0.035 | 0.83 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | heavy | himalaya | 95 | 9 | 0.224 [-0.171, +0.420] | 0.999 [+0.998, +1.000] | 0.040 | 0.72 | too few events to conclude |
+| D (today, mostly observed) | heavy | western_ghats | 79 | 4 | 0.308 [+0.243, +0.579] | 0.999 [+0.997, +1.000] | 0.060 | 0.99 | too few events to conclude |
+| D (today, mostly observed) | very_heavy | domain | 5 | 2 | 0.148 [+0.032, +0.728] | 1.000 [+0.999, +1.000] | 0.168 | 1.50 | too few events to conclude |
+| D (today, mostly observed) | very_heavy | himalaya | 0 | 0 | 0.622 [-0.097, +0.996] | - - | - | - | too few events to conclude |
+| D (today, mostly observed) | very_heavy | western_ghats | 2 | 2 | 0.031 [-0.310, +1.000] | 1.000 [+0.998, +1.000] | 0.082 | 1.68 | too few events to conclude |
+| D (today, mostly observed) | extremely_heavy | domain | 0 | 0 | 1.000 [+0.999, +1.000] | - - | - | - | too few events to conclude |
+| D (today, mostly observed) | extremely_heavy | himalaya | 0 | 0 | 1.000 [+1.000, +1.000] | - - | - | - | too few events to conclude |
+| D (today, mostly observed) | extremely_heavy | western_ghats | 0 | 0 | 1.000 [+0.999, +1.000] | - - | - | - | too few events to conclude |
+| D (today, mostly observed) | p95 | domain | 1832 | 23 | 0.549 [+0.458, +0.630] | 0.998 [+0.997, +0.999] | 0.045 | 0.75 | skilful; beats every baseline; NOT reliable; discriminates |
+| D (today, mostly observed) | p95 | himalaya | 938 | 16 | 0.472 [+0.247, +0.567] | 0.998 [+0.997, +0.999] | 0.049 | 0.72 | skilful; beats every baseline; NOT reliable; discriminates |
+| D (today, mostly observed) | p95 | western_ghats | 724 | 16 | 0.652 [+0.546, +0.774] | 0.998 [+0.997, +0.999] | 0.049 | 0.80 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p99 | domain | 303 | 15 | 0.428 [+0.229, +0.540] | 0.999 [+0.999, +1.000] | 0.036 | 0.86 | skilful; beats every baseline; reliable; discriminates |
+| D (today, mostly observed) | p99 | himalaya | 104 | 8 | 0.249 [-0.249, +0.427] | 0.999 [+0.998, +1.000] | 0.039 | 0.91 | too few events to conclude |
+| D (today, mostly observed) | p99 | western_ghats | 175 | 7 | 0.534 [+0.316, +0.661] | 0.999 [+0.998, +1.000] | 0.063 | 0.84 | too few events to conclude |
 | D+1 | heavy | domain | 308 | 11 | 0.026 [-0.001, +0.047] | 0.945 [+0.839, +0.974] | 0.009 | 0.75 | NOT skilful; does not beat ens_mean, hres; NOT reliable; discriminates |
 | D+1 | heavy | himalaya | 149 | 8 | 0.045 [+0.016, +0.112] | 0.933 [+0.781, +0.976] | 0.006 | 0.65 | too few events to conclude |
 | D+1 | heavy | western_ghats | 136 | 4 | 0.008 [-0.098, +0.078] | 0.954 [+0.909, +0.978] | 0.012 | 0.84 | too few events to conclude |
@@ -620,11 +620,11 @@ Test issue days with an ECMWF file: 28 (2026-10-09..2026-11-15).
 
 | lead | threshold | BS product | BS climatology | BS raw ensemble | baseline: BS, diff (95% CI), hit rate, FAR |
 |---|---|---|---|---|---|
-| D (today) | heavy | 0.00049 | 0.00069 | - | observed: 0.00074, -0.00025 [-0.00056, -0.00004], 0.455, 0.557 |
-| D (today) | very_heavy | 0.00002 | 0.00002 | - | observed: 0.00002, -0.00000 [-0.00000, +0.00000], 0.200, 0.500 |
-| D (today) | extremely_heavy | 0.00000 | 0.00000 | - | observed: 0.00000, +0.00000 [+0.00000, +0.00000], -, - |
-| D (today) | p95 | 0.00287 | 0.00636 | - | observed: 0.00392, -0.00106 [-0.00183, -0.00039], 0.731, 0.317 |
-| D (today) | p99 | 0.00061 | 0.00107 | - | observed: 0.00093, -0.00032 [-0.00062, -0.00009], 0.584, 0.438 |
+| D (today, mostly observed) | heavy | 0.00049 | 0.00069 | - | observed: 0.00074, -0.00025 [-0.00056, -0.00004], 0.455, 0.557 |
+| D (today, mostly observed) | very_heavy | 0.00002 | 0.00002 | - | observed: 0.00002, -0.00000 [-0.00000, +0.00000], 0.200, 0.500 |
+| D (today, mostly observed) | extremely_heavy | 0.00000 | 0.00000 | - | observed: 0.00000, +0.00000 [+0.00000, +0.00000], -, - |
+| D (today, mostly observed) | p95 | 0.00287 | 0.00636 | - | observed: 0.00392, -0.00106 [-0.00183, -0.00039], 0.731, 0.317 |
+| D (today, mostly observed) | p99 | 0.00061 | 0.00107 | - | observed: 0.00093, -0.00032 [-0.00062, -0.00009], 0.584, 0.438 |
 | D+1 | heavy | 0.00107 | 0.00110 | 0.00110 | gfs: 0.00165, -0.00057 [-0.00144, -0.00006], 0.075, 0.888; ens_mean: 0.00109, -0.00001 [-0.00005, +0.00002], 0.000, -; hres: 0.00114, -0.00007 [-0.00016, +0.00000], 0.000, 1.000 |
 | D+1 | very_heavy | 0.00005 | 0.00005 | 0.00005 | gfs: 0.00009, -0.00004 [-0.00013, +0.00000], 0.000, 1.000; ens_mean: 0.00005, +0.00000 [-0.00000, +0.00000], 0.000, -; hres: 0.00005, +0.00000 [-0.00000, +0.00000], 0.000, - |
 | D+1 | extremely_heavy | 0.00000 | 0.00000 | 0.00000 | gfs: 0.00000, +0.00000 [+0.00000, +0.00000], -, -; ens_mean: 0.00000, +0.00000 [+0.00000, +0.00000], -, -; hres: 0.00000, +0.00000 [+0.00000, +0.00000], -, - |
@@ -691,7 +691,7 @@ Lead D+1, p95, domain:
 | 0.60-0.70 | 66 | 0.6465 | 0.5455 |
 | 0.70-0.80 | 18 | 0.7221 | 0.3333 |
 
-Lead D (today), heavy, domain:
+Lead D (today, mostly observed), heavy, domain:
 
 | probability bin | pixel-days | mean probability | observed frequency |
 |---|---|---|---|
@@ -711,10 +711,10 @@ Lead D (today), heavy, domain:
 
 | lead | level | share of pixel-days | pixel-days | observed >= heavy | observed >= very heavy | share of heavy events | share of very heavy events |
 |---|---|---|---|---|---|---|---|
-| D (today) | none | 99.573% | 282639 | 0.0% | 0.0% | 18.0% | 0.0% |
-| D (today) | yellow | 0.342% | 970 | 10.9% | 0.1% | 56.1% | 20.0% |
-| D (today) | orange | 0.085% | 241 | 20.3% | 1.7% | 25.9% | 80.0% |
-| D (today) | red | 0.000% | 0 | - | - | 0.0% | 0.0% |
+| D (today, mostly observed) | none | 99.573% | 282639 | 0.0% | 0.0% | 18.0% | 0.0% |
+| D (today, mostly observed) | yellow | 0.342% | 970 | 10.9% | 0.1% | 56.1% | 20.0% |
+| D (today, mostly observed) | orange | 0.085% | 241 | 20.3% | 1.7% | 25.9% | 80.0% |
+| D (today, mostly observed) | red | 0.000% | 0 | - | - | 0.0% | 0.0% |
 | D+1 | none | 99.820% | 283338 | 0.1% | 0.0% | 100.0% | 100.0% |
 | D+1 | yellow | 0.172% | 488 | 0.0% | 0.0% | 0.0% | 0.0% |
 | D+1 | orange | 0.008% | 24 | 0.0% | 0.0% | 0.0% | 0.0% |
@@ -734,10 +734,10 @@ File: `data/processed/rainwarn/calibration_shipped.json`. Expected level frequen
 
 | lead | level | share of pixel-days | pixel-days | observed >= heavy | observed >= very heavy | share of heavy events | share of very heavy events |
 |---|---|---|---|---|---|---|---|
-| D (today) | none | 92.521% | 1166041 | 0.2% | 0.0% | 5.0% | 0.7% |
-| D (today) | yellow | 4.263% | 53722 | 11.2% | 0.2% | 15.8% | 1.1% |
-| D (today) | orange | 2.695% | 33965 | 69.8% | 9.1% | 62.1% | 36.3% |
-| D (today) | red | 0.521% | 6566 | 98.9% | 80.2% | 17.0% | 61.9% |
+| D (today, mostly observed) | none | 92.521% | 1166041 | 0.2% | 0.0% | 5.0% | 0.7% |
+| D (today, mostly observed) | yellow | 4.263% | 53722 | 11.2% | 0.2% | 15.8% | 1.1% |
+| D (today, mostly observed) | orange | 2.695% | 33965 | 69.8% | 9.1% | 62.1% | 36.3% |
+| D (today, mostly observed) | red | 0.521% | 6566 | 98.9% | 80.2% | 17.0% | 61.9% |
 | D+1 | none | 97.160% | 2228371 | 1.3% | 0.2% | 56.5% | 38.4% |
 | D+1 | yellow | 2.416% | 55420 | 28.5% | 6.5% | 30.7% | 34.8% |
 | D+1 | orange | 0.415% | 9516 | 67.5% | 27.8% | 12.5% | 25.5% |
@@ -755,11 +755,11 @@ Chosen neighbourhood radius per lead and threshold:
 
 | lead | threshold | radius (pixels) | fitting pixel-days | events | log loss by radius |
 |---|---|---|---|---|---|
-| D (today) | heavy | 2 | 1260294 | 38153 | r0: 0.03152, r1: 0.03136, r2: 0.03133, r3: 0.03134 |
-| D (today) | very_heavy | 2 | 1260294 | 8499 | r0: 0.00977, r1: 0.00970, r2: 0.00969, r3: 0.00970 |
-| D (today) | extremely_heavy | 3 | 1260294 | 691 | r0: 0.00116, r1: 0.00114, r2: 0.00113, r3: 0.00113 |
-| D (today) | p95 | 3 | 1260294 | 84593 | r0: 0.07115, r1: 0.07088, r2: 0.07081, r3: 0.07079 |
-| D (today) | p99 | 3 | 1260294 | 23349 | r0: 0.02511, r1: 0.02506, r2: 0.02506, r3: 0.02505 |
+| D (today, mostly observed) | heavy | 2 | 1260294 | 38153 | r0: 0.03152, r1: 0.03136, r2: 0.03133, r3: 0.03134 |
+| D (today, mostly observed) | very_heavy | 2 | 1260294 | 8499 | r0: 0.00977, r1: 0.00970, r2: 0.00969, r3: 0.00970 |
+| D (today, mostly observed) | extremely_heavy | 3 | 1260294 | 691 | r0: 0.00116, r1: 0.00114, r2: 0.00113, r3: 0.00113 |
+| D (today, mostly observed) | p95 | 3 | 1260294 | 84593 | r0: 0.07115, r1: 0.07088, r2: 0.07081, r3: 0.07079 |
+| D (today, mostly observed) | p99 | 3 | 1260294 | 23349 | r0: 0.02511, r1: 0.02506, r2: 0.02506, r3: 0.02505 |
 | D+1 | heavy | 3 | 2293508 | 51526 | r0: 0.07296, r1: 0.07251, r2: 0.07205, r3: 0.07169 |
 | D+1 | very_heavy | 3 | 2293508 | 10412 | r0: 0.01953, r1: 0.01937, r2: 0.01919, r3: 0.01905 |
 | D+1 | extremely_heavy | 3 | 2293508 | 807 | r0: 0.00221, r1: 0.00220, r2: 0.00217, r3: 0.00215 |
@@ -775,6 +775,58 @@ Chosen neighbourhood radius per lead and threshold:
 | D+3 | extremely_heavy | 3 | 2293508 | 763 | r0: 0.00218, r1: 0.00216, r2: 0.00214, r3: 0.00212 |
 | D+3 | p95 | 3 | 2293508 | 123003 | r0: 0.17352, r1: 0.17297, r2: 0.17238, r3: 0.17191 |
 | D+3 | p99 | 3 | 2293508 | 30362 | r0: 0.05825, r1: 0.05805, r2: 0.05782, r3: 0.05764 |
+
+## How much of the D (today) skill is observation, not forecast
+
+At the run time (05:30 UTC of D) IMD day D has ended. 21 of its 24 hours are already observed by IMERG Early (UTC day D-1); only 00-03 UTC of D comes from a forecast, the GFS 00Z 0-3 h tail (in the archive the tail is persistence of D-1, so the study's lead 0 contains no forecast at all). Lead 0 is therefore a calibrated observation of rain that has already fallen, not a forecast. Its truth, IMERG Late, is the same satellite algorithm as Early run later with more input, so the two agree far better than either agrees with rain gauges. The table separates the parts: `observed 0/1` is the Early total thresholded (no calibration); the product adds the logistic map from Early to Late; `D+1` is the first real forecast; `IMD` scores the lead-0 product against the IMD gauge grid instead (sample-climatology reference).
+
+| test set | threshold | lead-0 days scored | BSS observed 0/1 | BSS lead-0 product | BSS D+1 product | lead-0 BSS vs IMD (CI) | lead-0 ROC area vs IMD |
+|---|---|---|---|---|---|---|---|
+| test_2024 | heavy | 76 of 122 | 0.536 | 0.680 | 0.180 | -0.110 [-0.238, -0.002] | 0.869 |
+| test_2024 | very_heavy | 76 of 122 | 0.403 | 0.595 | 0.100 | -0.428 [-0.693, -0.246] | 0.859 |
+| test_2024 | extremely_heavy | 76 of 122 | 0.060 | 0.442 | 0.008 | -0.263 [-0.610, -0.093] | 0.830 |
+| test_2024 | p95 | 76 of 122 | 0.523 | 0.671 | 0.131 | - - | - |
+| test_2024 | p99 | 76 of 122 | 0.420 | 0.610 | 0.088 | - - | - |
+| test_2023 | heavy | 35 of 80 | 0.556 | 0.676 | 0.130 | 0.181 [+0.073, +0.261] | 0.917 |
+| test_2023 | very_heavy | 35 of 80 | 0.279 | 0.466 | 0.017 | 0.057 [-0.033, +0.115] | 0.928 |
+| test_2023 | extremely_heavy | 35 of 80 | 0.401 | 0.414 | -0.077 | -0.002 [-0.025, +0.007] | 0.718 |
+| test_2023 | p95 | 35 of 80 | 0.579 | 0.685 | 0.114 | - - | - |
+| test_2023 | p99 | 35 of 80 | 0.416 | 0.561 | 0.059 | - - | - |
+| test_2026 | heavy | 25 of 28 | -0.083 | 0.281 | 0.026 | - - | - |
+| test_2026 | very_heavy | 25 of 28 | 0.099 | 0.148 | 0.022 | - - | - |
+| test_2026 | p95 | 25 of 28 | 0.383 | 0.549 | 0.150 | - - | - |
+| test_2026 | p99 | 25 of 28 | 0.129 | 0.428 | 0.010 | - - | - |
+
+Reading: for heavy, very heavy and the two percentiles in the monsoon sets, most of the lead-0 Brier skill is already in the observed total thresholded; for the rarer rows the calibration, which learns how Early totals map onto Late totals, adds most of it. None of it is forecast skill, and against the independent IMD grid the lead-0 skill is much smaller and in some rows below zero. Lead-0 days without IMERG Early in the local store (16 August to 30 September of 2023 and 2024 are not in it) are not scored; the column gives the count.
+
+## The rows marked NOT reliable at D+1..D+3
+
+`mean p / base rate` below 1 means the probabilities are too low on average (the event happens more often than forecast), above 1 too high. Each calibration is fitted on one season and tested on the other, so the two monsoon test sets swap roles:
+
+| lead | threshold | test set | fitting base rate | test base rate | mean p / base rate | REL/UNC | fitting events (pixel-days) | BSS (CI) |
+|---|---|---|---|---|---|---|---|---|
+| D+1 | very_heavy | test_2024 | 0.193% | 0.625% | 0.62 | 0.027 | 1757 | 0.100 [+0.068, +0.130] |
+| D+1 | very_heavy | test_2023 | 0.625% | 0.193% | 1.87 | 0.027 | 8655 | 0.017 [-0.044, +0.086] |
+| D+1 | extremely_heavy | test_2024 | 0.003% | 0.056% | 0.14 | 0.001 | 30 | 0.008 [+0.004, +0.011] |
+| D+1 | extremely_heavy | test_2023 | 0.056% | 0.003% | 8.59 | 0.055 | 777 | -0.077 [-0.184, -0.019] |
+| D+1 | heavy | test_2024 | 1.611% | 2.663% | 0.94 | 0.003 | 14632 | 0.180 [+0.135, +0.224] |
+| D+1 | heavy | test_2023 | 2.663% | 1.611% | 1.18 | 0.006 | 36894 | 0.130 [+0.086, +0.174] |
+| D+2 | very_heavy | test_2024 | 0.189% | 0.611% | 0.58 | 0.016 | 1720 | 0.058 [+0.036, +0.080] |
+| D+2 | very_heavy | test_2023 | 0.611% | 0.189% | 1.96 | 0.031 | 8466 | -0.009 [-0.078, +0.043] |
+| D+2 | extremely_heavy | test_2024 | 0.003% | 0.054% | 0.11 | 0.000 | 30 | 0.004 [+0.001, +0.006] |
+| D+2 | extremely_heavy | test_2023 | 0.054% | 0.003% | 8.93 | 0.055 | 743 | -0.100 [-0.547, -0.021] |
+| D+2 | heavy | test_2024 | 1.586% | 2.631% | 0.95 | 0.001 | 14404 | 0.133 [+0.093, +0.170] |
+| D+2 | heavy | test_2023 | 2.631% | 1.586% | 1.21 | 0.004 | 36438 | 0.098 [+0.052, +0.134] |
+| D+3 | very_heavy | test_2024 | 0.187% | 0.605% | 0.52 | 0.016 | 1698 | 0.045 [+0.025, +0.065] |
+| D+3 | very_heavy | test_2023 | 0.605% | 0.187% | 1.95 | 0.025 | 8380 | -0.010 [-0.058, +0.023] |
+| D+3 | extremely_heavy | test_2024 | 0.003% | 0.053% | 0.11 | 0.000 | 30 | 0.002 [-0.000, +0.005] |
+| D+3 | extremely_heavy | test_2023 | 0.053% | 0.003% | 8.70 | 0.008 | 733 | -0.034 [-0.175, -0.003] |
+| D+3 | heavy | test_2024 | 1.583% | 2.599% | 0.91 | 0.001 | 14381 | 0.111 [+0.074, +0.143] |
+| D+3 | heavy | test_2023 | 2.599% | 1.583% | 1.18 | 0.004 | 36000 | 0.087 [+0.053, +0.116] |
+
+What it means in practice: the shape of the calibration holds (REL/UNC stays small and the ROC area high, so higher probabilities do mark wetter pixels), but its level is set by how often very heavy and extremely heavy rain happened in the one fitting season. The two monsoon seasons differ by several times in that frequency, so a map fitted on the drier season under-warns in the wetter one (orange and red issued too rarely) and the reverse. For extremely heavy rain the fitting season can hold only tens of event pixel-days on a handful of days, so that calibration is barely constrained.
+
+Is a recalibration on more training days the fix? Partly. Fitting on both seasons (the shipped calibration) averages the two base rates and gives the extremely heavy fit several times more events, which removes the worst of the under- and over-forecasting seen here; that is expected, not shown, because no third monsoon season is left to test it on. It cannot remove the season-to-season swing itself: no fixed map knows in advance whether a monsoon will be wet. That needs either more seasons (so the average is a good one and the swing is measured) or a predictor that carries the season's state (for example the observed rain of the past weeks), and a third season (June-September 2025 from the open ECMWF buckets) to test it. Until then the very heavy and extremely heavy probabilities at D+1..D+3 should be read as a ranking of where the risk is highest, not as calibrated frequencies.
 
 ## What this can and cannot conclude
 
