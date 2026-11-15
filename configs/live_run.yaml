@@ -76,6 +76,16 @@ ghcn:
   stations_per_request: 50
   latency_h: 120                     # hours after the end of a day that its gauge value is published (probe: 115-308 h)
   expected_lag_days: 7               # a newest value older than D minus this is reported as late
+  h_zero_as_missing: false           # true: a 0.0 with measurement flag H ("could not be calculated, precipitation noted")
+                                     # is missing, not dry. Since Aug 2025 almost every value of our stations is one
+                                     # (reports/phase8_gauge_sources_probe.md); off until the lead decides
+
+synop:                               # same-day gauges: the 140 stations' own SYNOP reports (ingest.synop_store), merged
+  enabled: false                     # over GHCN per station-day (spec 2026-11-14-aetherguard-same-day-gauges.md); V1 NOT met
+  look_back_days: 120                # as ghcn.look_back_days
+  latency_h: 2.0                     # hours after the end of IMD day D (03 UTC) that its 03 UTC report is usable; measured
+                                     # 15 Nov 2026: all 137 reports in the NWS ring by 1.75 h (p95 0.53 h)
+  collect: true                      # a live run first stores the NWS ring (it keeps about 25 h); backtests never fetch
 
 integrity:
   enabled: true

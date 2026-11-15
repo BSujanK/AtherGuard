@@ -54,7 +54,7 @@ from .early_map import EarlyLateMap, IdentityMap
 
 UTC = timezone.utc
 SOURCE_NAMES = ("imerg_late", "imerg_early", "gfs", "imd_rt", "ghcn")
-OPTIONAL_SOURCE_NAMES = ("ecmwf",)       # fetched when configured; never a failed run, never in `failed_sources`
+OPTIONAL_SOURCE_NAMES = ("ecmwf", "synop")   # fetched when configured; never a failed run, never in `failed_sources`
 IMD_RT_URL = "https://imdpune.gov.in/cmpg/Realtimedata/Rainfall/rain.php"
 IMD_GRID = (129, 135)
 IMD_FILE_BYTES = IMD_GRID[0] * IMD_GRID[1] * 4
@@ -656,12 +656,25 @@ class GhcnData:
     meta: pd.DataFrame          # station metadata (id, lat, lon, ...), one row per column of `values`
 
 
-def ghcn_rows_to_frame(rows: list[dict], index: pd.DatetimeIndex, stations: list[str]) -> pd.DataFrame:
-    """NCEI access-service JSON rows (DATE, STATION, PRCP in mm) as a date x station frame; rows without PRCP skipped."""
+def is_h_zero(row: dict) -> bool:
+    """A 0.0 with GHCN measurement flag H: "reported 0 or the amount could not be calculated, but precipitation was
+    noted" (GHCN-Daily readme). Since August 2025 nearly every value of the project's stations is one of these
+    (Synoptic Summary of the Day v2, reports/phase8_gauge_sources_probe.md): not a measured zero."""
+    flags = str(row.get("PRCP_ATTRIBUTES", "") or "").split(",")
+    try:
+        return float(str(row.get("PRCP", "")).strip()) == 0.0 and flags[0] == "H"
+    except ValueError:
+        return False
+
+
+def ghcn_rows_to_frame(rows: list[dict], index: pd.DatetimeIndex, stations: list[str],
+                       h_zero_as_missing: bool = False) -> pd.DataFrame:
+    """NCEI access-service JSON rows (DATE, STATION, PRCP in mm) as a date x station frame; rows without PRCP skipped,
+    and with `h_zero_as_missing` also the flag-H zeros (`is_h_zero`)."""
     data = {}
     for row in rows:
         text = str(row.get("PRCP", "")).strip()
-        if text:
+        if text and not (h_zero_as_missing and is_h_zero(row)):
             data[(pd.Timestamp(row["DATE"]), row["STATION"])] = float(text)
     frame = pd.DataFrame(np.nan, index=index, columns=stations, dtype=np.float32)
     for (stamp, station), value in data.items():
@@ -680,7 +693,8 @@ class GhcnSource:
 
     def __init__(self, *, look_back_days: int, timeout_s: float, per_request: int, latency_h: float,
                  expected_lag_days: int, stations: Callable[[], pd.DataFrame] | None = None,
-                 fetch: Callable[..., list] | None = None) -> None:
+                 fetch: Callable[..., list] | None = None, h_zero_as_missing: bool = False) -> None:
+        self.h_zero_as_missing = bool(h_zero_as_missing)
         self.look_back, self.timeout_s, self.per_request = int(look_back_days), float(timeout_s), int(per_request)
         self.latency_h, self.expected_lag_days = float(latency_h), int(expected_lag_days)
         self._stations = stations
@@ -711,7 +725,7 @@ class GhcnSource:
         if ctx.cutoff is not None:
             rows = [r for r in rows if utc_day_end(date.fromisoformat(r["DATE"][:10])) + timedelta(hours=self.latency_h)
                     <= ctx.cutoff]
-        values = ghcn_rows_to_frame(rows, index, ids)
+        values = ghcn_rows_to_frame(rows, index, ids, self.h_zero_as_missing)
         observed = values.dropna(how="all")
         if observed.empty:
             return failed(self.name, last_error if failures else "GHCN-Daily returned no PRCP value in the window")
@@ -730,6 +744,95 @@ class GhcnSource:
 
     def load(self, ctx: FetchContext) -> GhcnData | None:
         return self.data
+
+
+# ------------------------------------------------------------------------------------------------------ SYNOP
+
+@dataclass(frozen=True)
+class SynopData:
+    values: pd.DataFrame        # date x GHCN station id, IMD-day totals (mm) from the station's own SYNOP reports
+    how: pd.DataFrame           # same shape: how each total was made, or why it is missing (`ingest.synop.imd_day_total`)
+    meta: pd.DataFrame          # the GHCN station metadata (same columns and order as GhcnSource's)
+
+
+class SynopSource:
+    """Same-day IMD-day rain of the project's 140 gauge stations from their own SYNOP reports (spec
+    2026-11-14-aetherguard-same-day-gauges.md): GHCN station `id` and WMO station `w` (ghcnd-stations.txt) are one
+    sensor, whose GHCN values were GSOD summaries of these reports up to 2025.
+
+    The reports come from the local store (`ingest.synop_store`); a live run first collects the NWS ring into it, a
+    backtest never fetches. A report is usable when it arrived at or before the run's horizon (the cut-off in a
+    backtest) or, without an arrival time (OGIMET backfill), `latency_h` after its observation time. Optional source:
+    without it the run is unchanged."""
+
+    name = "synop"
+
+    def __init__(self, *, look_back_days: int, latency_h: float, collect: bool = True, store: Path | None = None,
+                 stations: Callable[[], pd.DataFrame] | None = None, wmo: Callable[[], dict] | None = None,
+                 collector: Callable[[], dict] | None = None) -> None:
+        self.look_back, self.latency_h, self.collect = int(look_back_days), float(latency_h), bool(collect)
+        self._store, self._stations, self._wmo, self._collector = store, stations, wmo, collector
+        self.data: SynopData | None = None
+        self.collect_result: dict | None = None
+
+    def fetch(self, ctx: FetchContext) -> SourceStatus:
+        from ..ingest import synop_store
+        self.data = None
+        note = None
+        if self.collect and ctx.cutoff is None:
+            try:
+                self.collect_result = (self._collector or synop_store.collect)()
+            except Exception as exc:
+                note = f"ring not collected ({describe_error(exc)}); store as it was"
+        meta = (self._stations() if self._stations is not None else _ghcn_meta()).reset_index(drop=True)
+        wmo = self._wmo() if self._wmo is not None else _ghcn_wmo()
+        index = pd.date_range(pd.Timestamp(ctx.day) - pd.Timedelta(days=self.look_back - 1), pd.Timestamp(ctx.day),
+                              freq="D")
+        frame = synop_store.load_store(self._store)
+        if not frame.empty:
+            first = pd.Timestamp(imd_day_end(index[0].date()) - timedelta(days=1))
+            frame = frame[(frame["time"] > first) & (frame["time"] <= pd.Timestamp(imd_day_end(ctx.day)))]
+            frame = synop_store.usable_at(frame, ctx.horizon, self.latency_h)
+        mapping = {sid: wmo[sid] for sid in meta["id"] if sid in wmo}
+        values, how = synop_store.station_day_totals(synop_store.to_reports(frame), mapping, index)
+        values = values.reindex(columns=list(meta["id"]))
+        how = how.reindex(columns=list(meta["id"])).fillna("no_wmo_index")
+        observed = values.dropna(how="all")
+        if observed.empty:
+            return failed(self.name, note or "no SYNOP IMD-day total in the window")
+        raw = ctx.raw_dir / "synop_prcp.csv"
+        raw.parent.mkdir(parents=True, exist_ok=True)
+        values.rename_axis("date").reset_index().to_csv(raw, index=False)
+        self.data = SynopData(values=values.astype(np.float32), how=how, meta=meta)
+        newest = observed.index.max().date()
+        valid_through = imd_day_end(newest)
+        issued = min(valid_through + timedelta(hours=self.latency_h), ctx.horizon)   # every usable row arrived by then
+        return SourceStatus(self.name, newest == ctx.day and note is None, valid_through, issued,
+                            hours_between(valid_through, issued), note)
+
+    def load(self, ctx: FetchContext) -> SynopData | None:
+        return self.data
+
+
+def _ghcn_meta() -> pd.DataFrame:
+    from ..integrity.stations import select_station_meta
+    return select_station_meta()
+
+
+def _ghcn_wmo() -> dict:
+    from ..ingest.synop_eval import station_wmo
+    return station_wmo()
+
+
+def merge_gauges(ghcn: GhcnData | None, synop: SynopData | None) -> GhcnData | None:
+    """The engine's gauge window: per station-day the SYNOP total when there is one, else the GHCN value (the GHCN
+    window's days and stations, same order). Without GHCN the window is SYNOP's alone."""
+    if synop is None:
+        return ghcn
+    if ghcn is None:
+        return GhcnData(values=synop.values.astype(np.float32), meta=synop.meta)
+    early = synop.values.reindex(index=ghcn.values.index, columns=ghcn.values.columns)
+    return GhcnData(values=early.where(early.notna(), ghcn.values).astype(np.float32), meta=ghcn.meta)
 
 
 # ----------------------------------------------------------------------------------------------------- assembly
@@ -772,8 +875,13 @@ def default_sources(cfg: dict) -> dict[str, Source]:
     ghcn = cfg["ghcn"]
     sources["ghcn"] = (GhcnSource(look_back_days=ghcn["look_back_days"], timeout_s=ghcn["request_timeout_s"],
                                   per_request=ghcn["stations_per_request"], latency_h=ghcn["latency_h"],
-                                  expected_lag_days=ghcn["expected_lag_days"]) if ghcn["enabled"]
+                                  expected_lag_days=ghcn["expected_lag_days"],
+                                  h_zero_as_missing=bool(ghcn.get("h_zero_as_missing", False))) if ghcn["enabled"]
                       else DisabledSource("ghcn", off))
+    syn = cfg.get("synop", {})
+    if syn.get("enabled"):
+        sources["synop"] = SynopSource(look_back_days=int(syn.get("look_back_days", ghcn["look_back_days"])),
+                                       latency_h=float(syn["latency_h"]), collect=bool(syn.get("collect", True)))
     return sources
 
 
@@ -829,7 +937,8 @@ def expected_valid_through(name: str, day: date, cfg: dict) -> datetime:
             "gfs": lambda: imd_day_end(day + timedelta(days=3)),
             "ecmwf": lambda: imd_day_end(day + timedelta(days=3)),
             "imd_rt": lambda: imd_day_end(imd_due_day(day, cutoff_utc(day, cfg), float(cfg["imd_rt"]["latency_h"]))),
-            "ghcn": lambda: utc_day_end(day - timedelta(days=int(cfg["ghcn"]["expected_lag_days"])))}[name]()
+            "ghcn": lambda: utc_day_end(day - timedelta(days=int(cfg["ghcn"]["expected_lag_days"]))),
+            "synop": lambda: imd_day_end(day)}[name]()
 
 
 def source_state(status: SourceStatus, day: date, cfg: dict) -> str:

@@ -91,9 +91,9 @@ from ..ingest import imerg_hh
 from ..manifest import sha256_file
 from . import adapter, audit, bulletin, forecast_choice, forecast_features, forecast_map, season
 from . import postrules as pr
-from .sources import (PERSIST, SOURCE_NAMES, GfsData, GhcnData, ImergSource, LiveRainView, SourceStatus, default_sources,
-                      fetch_all, freshness_record, imd_due_day, local_tz, make_context, project_path, resolve_day,
-                      source_state, write_json_atomic)
+from .sources import (PERSIST, SOURCE_NAMES, GfsData, GhcnData, ImergSource, LiveRainView, SourceStatus, SynopData,
+                      default_sources, fetch_all, freshness_record, imd_due_day, local_tz, make_context, merge_gauges,
+                      project_path, resolve_day, source_state, write_json_atomic)
 
 log = logging.getLogger("aetherguard.live")
 
@@ -152,6 +152,24 @@ class LiveDeps:
 
 
 # ------------------------------------------------------------------------------------------------------ inputs
+
+def synop_summary(cfg: dict, ghcn: GhcnData | None, synop: SynopData | None, day: date) -> dict | None:
+    """What the same-day SYNOP gauges add (run.json `integrity.synop`), or None when `synop.enabled` is off. Stations
+    with a value on IMD day D before (GHCN-Daily alone) and after the merge (`sources.merge_gauges`)."""
+    if not cfg.get("synop", {}).get("enabled"):
+        return None
+    stamp = pd.Timestamp(day)
+
+    def on_day(values: pd.DataFrame | None) -> int:
+        return int(values.loc[stamp].notna().sum()) if values is not None and stamp in values.index else 0
+    merged = merge_gauges(ghcn, synop)
+    how = synop.how.loc[stamp].value_counts().to_dict() if synop is not None and stamp in synop.how.index else {}
+    return {"available": synop is not None, "stations_on_day_ghcn": on_day(ghcn.values if ghcn else None),
+            "stations_on_day_synop": on_day(synop.values if synop else None),
+            "stations_on_day_merged": on_day(merged.values if merged else None),
+            "how_on_day": {str(k): int(v) for k, v in how.items()},
+            "ghcn_h_zero_as_missing": bool(cfg["ghcn"].get("h_zero_as_missing", False))}
+
 
 def load_run_config(path: Path | str | None = None) -> dict:
     return load_config_file(Path(path) if path else PROJECT_ROOT / "configs" / "live_run.yaml")
@@ -887,6 +905,9 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
     ecmwf_forecast = payload("ecmwf", None)
     imd_grids = payload("imd_rt", {})
     gauges = payload("ghcn", None)
+    synop_use = synop_summary(cfg, gauges, payload("synop", None) if cfg.get("synop", {}).get("enabled") else None, day)
+    if synop_use is not None:
+        gauges = merge_gauges(gauges, payload("synop", None))
     runs = {name: sources[name] if isinstance(sources.get(name), ImergSource) and statuses[name].usable else None
             for name in ("imerg_late", "imerg_early")}
     view = LiveRainView(day, runs["imerg_late"], runs["imerg_early"], ctx, gfs.first_hours if gfs else None,
@@ -923,7 +944,7 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
     if not cfg["integrity"]["enabled"]:
         integrity["reason"] = "disabled in configs/live_run.yaml"
     elif gauges is None:
-        integrity["reason"] = "GHCN-Daily gauges unavailable"
+        integrity["reason"] = "GHCN-Daily gauges unavailable" + (" (and no SYNOP totals)" if synop_use is not None else "")
     else:
         runner = deps.integrity or adapter.LiveIntegrity(project_path(cfg["integrity"]["engine_dir"]), live_dir / "cache")
         try:
@@ -932,6 +953,8 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
             station_outputs = outputs
             integrity.update(ran=True, note=INTEGRITY_NOTE,
                              n_stations_observed=int(gauges.values.iloc[-1:].notna().any().sum()))
+            if synop_use is not None:
+                integrity["synop"] = synop_use
         except Exception as exc:
             integrity["reason"] = f"{type(exc).__name__}: {str(exc)[:200]}"
             log.warning("integrity engine did not run: %s", integrity["reason"])

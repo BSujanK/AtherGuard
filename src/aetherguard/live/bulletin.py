@@ -13,7 +13,8 @@ CONFIDENCE = ("High", "Degraded", "Insufficient")
 SOURCE_LABELS = {"imerg_late": "IMERG Late run", "imerg_early": "IMERG Early run",
                  "gfs": "GFS forecast and 00-03 UTC rain", "imd_rt": "IMD real-time rain", "ghcn": "GHCN-Daily gauges"}
 SOURCE_ORDER = tuple(SOURCE_LABELS)
-OPTIONAL_LABELS = {"ecmwf": "ECMWF IFS open data forecast rain (CC BY 4.0)"}
+OPTIONAL_LABELS = {"ecmwf": "ECMWF IFS open data forecast rain (CC BY 4.0)",
+                   "synop": "same-day SYNOP gauge reports (NWS GTS feed)"}
 ATTRIBUTION = "Contains ECMWF open data (IFS), licensed CC BY 4.0: https://www.ecmwf.int/en/forecasts/datasets/open-data"
 
 

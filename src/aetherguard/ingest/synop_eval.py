@@ -84,8 +84,11 @@ def station_wmo(raw_dir: Path | None = None) -> dict[str, str]:
     return out
 
 
-def v1(ogimet_dir: Path, start: str, end: str, alert_config: Path) -> dict:
-    """V1 of the spec: SYNOP July 2024 against the local GHCN-Daily archive (same station, same IMD day)."""
+def v1(ogimet_dir: Path, start: str, end: str, alert_config: Path, isd_presence: dict | None = None) -> dict:
+    """V1 of the spec: SYNOP July 2024 against the local GHCN-Daily archive (same station, same IMD day).
+
+    `isd_presence` ({wmo: [ISO dates whose 03 UTC FM-12 record is in ISD]}) adds a POST-HOC diagnostic, not the
+    criterion: the same metrics on the station-days whose 03 UTC report GSOD (and so GHCN-Daily) could have read."""
     from ..alerts.config import load_config_file
     from ..integrity.stations import load_full_series
     cfg = load_config_file(alert_config)
@@ -93,17 +96,26 @@ def v1(ogimet_dir: Path, start: str, end: str, alert_config: Path) -> dict:
     days = pd.date_range(start, end, freq="D")
     versions = S.latest_versions(read_ogimet_dir(ogimet_dir))
     synop, hows = totals_frame(versions, sorted(set(wmo.values())), days)
-    pairs_a, pairs_b, per_station = [], [], {}
+    pairs_a, pairs_b, present, per_station = [], [], [], {}
     for sid, w in sorted(wmo.items()):
         series = load_full_series(sid).reindex(days)
         ref = series["value"].to_numpy(dtype=float)
         a = synop[w].to_numpy()
         pairs_a.append(a)
         pairs_b.append(ref)
+        have = set((isd_presence or {}).get(w, []))
+        present.append(np.array([d.date().isoformat() in have for d in days]))
         per_station[sid] = {"wmo": w, "n_ghcn": int(np.isfinite(ref).sum()), "n_both": int((np.isfinite(ref) & np.isfinite(a)).sum())}
     a, b = np.concatenate(pairs_a), np.concatenate(pairs_b)
     metrics = agreement(a, b, cfg.agree_abs_mm, cfg.agree_rel)
-    return {"check": "V1", "period": [start, end], "stations": len(wmo), "station_days": int(len(a)),
+    diagnostic = None
+    if isd_presence is not None:
+        keep = np.concatenate(present)
+        diagnostic = {"what": "post-hoc: only station-days whose 03 UTC report is in ISD (not the criterion)",
+                      "metrics": agreement(a[keep], b[keep], cfg.agree_abs_mm, cfg.agree_rel),
+                      "ghcn_zero_while_synop_wet_and_no_isd_03utc": int(((b == 0) & (a >= WET_MM) & ~keep).sum()),
+                      "ghcn_zero_while_synop_wet_with_isd_03utc": int(((b == 0) & (a >= WET_MM) & keep).sum())}
+    return {"diagnostic": diagnostic, "check": "V1", "period": [start, end], "stations": len(wmo), "station_days": int(len(a)),
             "ghcn_station_days": int(np.isfinite(b).sum()), "synop_station_days": int(np.isfinite(a).sum()),
             "coverage_of_ghcn_days": float((np.isfinite(a) & np.isfinite(b)).sum() / max(np.isfinite(b).sum(), 1)),
             "how": dict(hows), "tolerance": {"agree_abs_mm": cfg.agree_abs_mm, "agree_rel": cfg.agree_rel,
@@ -121,11 +133,13 @@ def main(argv=None) -> int:
     p1.add_argument("--end", default="2024-07-31")
     p1.add_argument("--alert-config", type=Path, required=True)
     p1.add_argument("--out", type=Path, required=True)
+    p1.add_argument("--isd-presence", type=Path, default=None)
     args = parser.parse_args(argv)
-    result = v1(args.ogimet_dir, args.start, args.end, args.alert_config)
+    presence = json.loads(args.isd_presence.read_text())["present"] if args.isd_presence else None
+    result = v1(args.ogimet_dir, args.start, args.end, args.alert_config, presence)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=1, allow_nan=False) + "\n", encoding="utf-8")
-    print(json.dumps({k: result[k] for k in ("metrics", "criterion_met", "coverage_of_ghcn_days", "how")}, indent=1))
+    print(json.dumps({k: result[k] for k in ("metrics", "criterion_met", "coverage_of_ghcn_days", "how", "diagnostic")}, indent=1))
     return 0
 
 
