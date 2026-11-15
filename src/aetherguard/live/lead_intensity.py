@@ -35,15 +35,19 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
+from typing import Callable
 from datetime import date, datetime, time as clock, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 from ..config import PROJECT_ROOT, data_root, load_config_file
+from ..features import imerg_features as F
 from ..features import imerg_intensity as ii
 from ..ingest import gfs
-from ..live.probe import apcp_byte_ranges, parse_idx
+from . import forecast_map as fm
+from .probe import apcp_byte_ranges, parse_idx
 from ..urlredact import redact_url
 
 log = logging.getLogger("aetherguard.live.lead_intensity")
@@ -184,6 +188,86 @@ def day_maps_on_grid(day: StoreDay, target: date) -> dict[str, np.ndarray] | Non
         return None
     fine = np.stack([gfs.regrid_to_imerg(b, day.lats, day.lons) for b in blocks])
     return forecast_day_maps(fine)
+
+
+# ---------------------------------------------------------------------------------------------- lead windows
+
+EARLY = ii.LIVE_RUN                     # the store of the truncated Early days (`imerg_hh --live-window`)
+LATE = ii.RUN
+GFS = "gfs3h"
+
+
+@dataclass(frozen=True)
+class LeadSources:
+    """Where the day maps of a lead's window come from: complete Late days (`late_root`), the truncated Early day D
+    (`early_root`), the GFS forecast days (`gfs`: target day -> raw day maps on the IMERG grid, None when missing) and the
+    quantile maps (`maps.apply(source, day_offset, field)`, source `<kind>:<field>`) that put Early and GFS on Late's scale."""
+    late_root: Path
+    early_root: Path
+    gfs: Callable[[date], dict | None]
+    maps: object
+
+
+def day_kind(day: date, issue_day: date) -> str:
+    """Late for a day before D, the Early live window for D, GFS for a day after D."""
+    return LATE if day < issue_day else (EARLY if day == issue_day else GFS)
+
+
+def mapped(maps, kind: str, offset: int, raw: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+    return {name: maps.apply(f"{kind}:{name}", offset, raw[name]) for name in ii.FIELDS}
+
+
+def window(issue_day: date, lead: int, sources: LeadSources) -> tuple[list, dict]:
+    """The maps of the three days a lead reads at lag 1 (T-3..T-1, T = D + lead), oldest first, None for a missing day,
+    and {"days": {iso day: kind}}."""
+    target = issue_day + timedelta(days=lead)
+    days = [target - timedelta(days=k) for k in range(ii.MAX_DAYS, 0, -1)]
+    out, kinds = [], {}
+    for day in days:
+        kind = day_kind(day, issue_day)
+        kinds[day.isoformat()] = kind
+        if kind == LATE:
+            out.append(ii.load_day(sources.late_root, LATE, day))
+            continue
+        raw = ii.load_day(sources.early_root, EARLY, day) if kind == EARLY else sources.gfs(day)
+        out.append(None if raw is None else mapped(sources.maps, kind, (day - issue_day).days, raw))
+    return out, {"days": kinds}
+
+
+def lead_frame(issue_day: date, lead: int, cell_ids, sources: LeadSources) -> tuple[pd.DataFrame | None, dict]:
+    """The six `iint_` inputs of forecast lead `lead` (feature day D + lead, lag 1) for `cell_ids`, built by
+    `imerg_intensity.features_from_maps` as training built them; (None, status with the reason) when a day is missing."""
+    maps, status = window(issue_day, lead, sources)
+    missing = [day for (day, kind), m in zip(status["days"].items(), maps) if m is None]
+    if missing:
+        why = ", ".join(f"{d} ({status['days'][d]})" for d in missing)
+        return None, {**status, "used": False, "reason": f"intensity day maps missing: {why}"}
+    pixels = F.cell_pixels(np.asarray(cell_ids, dtype=np.int64))
+    frame = pd.DataFrame(ii.features_from_maps(maps, pixels), columns=ii.feature_names())
+    return frame, {**status, "used": True, "reason": None}
+
+
+# ---------------------------------------------------------------------------------------------- the quantile maps
+
+def fit_maps(pairs: dict, pixel_region=None, info: dict | None = None) -> fm.ForecastMaps:
+    """One frequency-matched quantile curve (`forecast_map.fit_curve`) per (kind, day offset, field, region) from
+    {(kind, offset, field): (forecast values, IMERG Late values, region of each pair)}. `rest` (pixels outside the two regions)
+    gets the curve of every pair pooled when it has too few pairs of its own."""
+    curves = {}
+    for (kind, offset, field), (forecast, observed, regions) in sorted(pairs.items()):
+        forecast, observed = np.asarray(forecast), np.asarray(observed)
+        regions = np.asarray(regions, dtype=object)
+        source = f"{kind}:{field}"
+        for region in (*fm.REGIONS, fm.REST):
+            chosen = regions == region
+            try:
+                curves[(source, offset, region)] = fm.fit_curve(forecast[chosen], observed[chosen])
+            except ValueError:
+                if region != fm.REST:
+                    raise
+                curves[(source, offset, region)] = fm.fit_curve(forecast, observed)
+    region = np.empty(0, dtype=object) if pixel_region is None else pixel_region
+    return fm.ForecastMaps(curves, region, info)
 
 
 # ------------------------------------------------------------------------------------------------ archive fetch

@@ -5,11 +5,14 @@ import numpy as np
 import pytest
 
 from aetherguard.features import imerg_intensity as ii
+from aetherguard.grid import latlon_to_cell
 from aetherguard.ingest import imerg as imerg_mod
 from aetherguard.live import lead_intensity as li
 
 UTC = timezone.utc
 SHAPE = (imerg_mod.ROWS, imerg_mod.COLS)
+WAYANAD = latlon_to_cell(11.47, 76.13)
+KATHMANDU = latlon_to_cell(27.70, 85.32)
 
 
 def test_day_hours_of_00z_cycle():
@@ -86,3 +89,74 @@ def test_day_maps_on_grid_from_store(tmp_path):
     day = li.load_store_day(tmp_path, date(2023, 7, 1))
     assert li.day_maps_on_grid(day, date(2023, 7, 3)) is None          # hour 30 missing: day D+2 has no maps
     assert li.day_maps_on_grid(day, date(2023, 7, 2)) is not None
+
+
+# ------------------------------------------------------------------------------------------- lead windows and maps
+
+def _maps(value):
+    return {name: np.full(SHAPE, value, dtype=np.float32) for name in ii.FIELDS}
+
+
+def _write_day(root, store, day, value):
+    path = root / store / f"{day.year}" / f"{day:%Y%m%d}.npz"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(path, **_maps(value), n_halfhours=np.full(SHAPE, 48, dtype=np.float32))
+
+
+class _Doubling:
+    """A stand-in for the quantile maps: every value times two, so a mapped day is visible."""
+    def apply(self, source, lead, field):
+        return np.asarray(field, dtype=np.float32) * 2
+
+
+def test_window_sources_by_lead(tmp_path):
+    day = date(2026, 11, 10)
+    for k, d in enumerate((date(2026, 11, 7), date(2026, 11, 8), date(2026, 11, 9))):
+        _write_day(tmp_path, "late", d, 1.0 + k)
+    _write_day(tmp_path, "early_live", day, 10.0)
+    gfs_days = {date(2026, 11, 11): _maps(20.0), date(2026, 11, 12): _maps(30.0)}
+    sources = li.LeadSources(late_root=tmp_path, early_root=tmp_path, gfs=lambda d: gfs_days.get(d), maps=_Doubling())
+    kinds = {lead: li.window(day, lead, sources)[1]["days"] for lead in (1, 2, 3)}
+    assert kinds[1] == {"2026-11-08": "late", "2026-11-09": "late", "2026-11-10": "early_live"}
+    assert kinds[2] == {"2026-11-09": "late", "2026-11-10": "early_live", "2026-11-11": "gfs3h"}
+    assert kinds[3] == {"2026-11-10": "early_live", "2026-11-11": "gfs3h", "2026-11-12": "gfs3h"}
+    maps, _ = li.window(day, 3, sources)
+    assert [float(m["max3h"][0, 0]) for m in maps] == [20.0, 40.0, 60.0]     # Early and GFS days mapped, Late as is
+
+
+def test_lead_frame_matches_the_feature_function(tmp_path):
+    day = date(2026, 11, 10)
+    for k, d in enumerate((date(2026, 11, 8), date(2026, 11, 9))):
+        _write_day(tmp_path, "late", d, 1.0 + k)
+    _write_day(tmp_path, "early_live", day, 10.0)
+    sources = li.LeadSources(late_root=tmp_path, early_root=tmp_path, gfs=lambda d: None, maps=_Doubling())
+    cells = np.array([WAYANAD, KATHMANDU], dtype=np.int64)
+    frame, status = li.lead_frame(day, 1, cells, sources)
+    assert status["used"] and list(frame.columns) == ii.feature_names()
+    assert (frame["iint_max3h_1"] == 20.0).all()                  # day D: the Early day, mapped
+    assert (frame["iint_max3h_max3d"] == 20.0).all()
+
+
+def test_lead_frame_refuses_a_missing_day(tmp_path):
+    day = date(2026, 11, 10)
+    _write_day(tmp_path, "late", date(2026, 11, 9), 1.0)
+    _write_day(tmp_path, "early_live", day, 10.0)
+    sources = li.LeadSources(late_root=tmp_path, early_root=tmp_path, gfs=lambda d: None, maps=_Doubling())
+    frame, status = li.lead_frame(day, 1, np.array([WAYANAD]), sources)
+    assert frame is None and not status["used"]
+    assert "2026-11-08" in status["reason"]                       # v4 never saw a missing intensity input: no NaN handed over
+    frame, status = li.lead_frame(day, 2, np.array([WAYANAD]), sources)
+    assert frame is None and "2026-11-11" in status["reason"]
+
+
+def test_fit_and_apply_intensity_maps():
+    rng = np.random.default_rng(0)
+    obs = rng.gamma(0.6, 6.0, size=(4000,)).astype(np.float32)
+    fcst = obs * 0.4                                              # a forecast at 40% of IMERG's intensities
+    regions = np.array(["himalaya"] * 2000 + ["western_ghats"] * 2000, dtype=object)
+    pairs = {(source, lead, field): (fcst, obs, regions) for source, lead in (("gfs3h", 1),) for field in ii.FIELDS}
+    maps = li.fit_maps(pairs)
+    curve = maps.curves[("gfs3h:max3h", 1, "himalaya")]
+    np.testing.assert_allclose(np.median(curve.apply(fcst[:2000][fcst[:2000] > 0.1])),
+                               np.median(obs[:2000][fcst[:2000] > 0.1]), rtol=0.05)
+    assert ("gfs3h:max3h", 1, "rest") in maps.curves             # every pixel of a field has a curve
