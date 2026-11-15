@@ -99,3 +99,19 @@ change and is merged by the lead only after the user's yes. The main tree is not
 * GFS 3-hour archive: `python -m aetherguard.live.lead_intensity fetch-gfs --start 2021-06-01 --end 2024-09-30 --workers 8`
   (skips written days).
 * IMERG half-hourly days of the study: `bash tools/leads_v4_fetch_imerg_hh.sh`.
+
+## 8. Amendment 1 (2026-11-16, before any held-out number): how the look is computed
+
+* Code: `python -m aetherguard.live.leads_v4_heldout score | preflight --candidate X | heldout --candidate X`
+  (`src/aetherguard/live/leads_v4_heldout.py`, tests `tests/test_live_leads_v4_heldout.py`).
+* Panels: one per lead, cells = the held-out reference (the 2018 operational panel's cells, in its order), one column per
+  target day T = D + L for every June-September issue day D of 2021-2024; a column is scored where the lead's forecast rain
+  and every day of its intensity window exist and both models score the cell. 2021 is the fit season of the GFS intensity
+  maps (rain only, no event); it stays in the look and this is stated with the result.
+* Levels: the incumbent's published lead level as E1 computes it (v3 point level, `uncertain_high` of the rules, rain cap,
+  no widening); the candidate burden-matched per season and lead to those realised shares by `hazard.v4_int.match_burden`
+  (risk, then raw score, then the seeded tie key).
+* Both a and b are scored by `score` (it reads no event); only the candidate chosen by section 4 enters `preflight` and the
+  look. The decision is section 5's 12 rows on the W1 assembly (`verify.heldout.load_event_table`, years 2021-2024);
+  assembly v2 beside it (all records, without `bipad_nepal`, India only).
+* E1 years: 2022, 2023 and 2024 (2021 is the GFS fit season). The look is taken only by the lead.
