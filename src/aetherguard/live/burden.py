@@ -197,8 +197,8 @@ def score_years(years, cells: pd.DataFrame, model_of, stores: bt.Stores, directo
 
 # ----------------------------------------------------------------------------------- out-of-fold scoring
 
-def fold_models(final_model: hm.HazardModel, hazard_cfg: dict, directory: Path | None = None, progress=None
-                ) -> tuple[dict[int, hm.HazardModel], dict]:
+def fold_models(final_model: hm.HazardModel, hazard_cfg: dict, directory: Path | None = None, progress=None,
+                dev: hd.Development | None = None) -> tuple[dict[int, hm.HazardModel], dict]:
     """The year-blocked cross-validation models of the final configuration, one per development year.
 
     The frozen model was fitted on every development positive, so its scores of the development years are in-sample.
@@ -206,10 +206,13 @@ def fold_models(final_model: hm.HazardModel, hazard_cfg: dict, directory: Path |
     the card's tree count) with its own bagging ensemble, and scores the years of its fold; the frozen model's
     calibrators map its raw scores, as they were fitted on exactly such out-of-fold scores, and the card's thresholds
     apply. Returns ({year: model}, a check): the share of development positives at or above the card's Watch raw
-    threshold under these models against the out-of-fold recall the card reports."""
+    threshold under these models against the out-of-fold recall the card reports. `dev` replaces the development rows of
+    `hazard_cfg` (a model with inputs that configuration does not join, such as v4's intensity and static columns, hands in
+    the rows it was cross-validated on)."""
     card = final_model.card
-    dev = hd.load_development(directory, hazard_cfg["extra_groups"], extra_groups_used(hazard_cfg),
-                              hazard_cfg["meta_columns"])
+    if dev is None:
+        dev = hd.load_development(directory, hazard_cfg["extra_groups"], extra_groups_used(hazard_cfg),
+                                  hazard_cfg["meta_columns"])
     layout = cv.make_layout(dev, card["folds"])
     columns, constraints, hp = final_model.columns, final_model.constraints, card["hyperparameters"]
     settings, seed, n_trees = hazard_cfg["training"], hazard_cfg["seed"], int(card["n_trees"])

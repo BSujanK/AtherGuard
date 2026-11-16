@@ -180,21 +180,23 @@ def check_places(table: pd.DataFrame, places: pd.DataFrame, base: Basemap | None
     flag(found, "places", table, problems)
 
 
-def check_imd_sampling(features: pd.DataFrame, grid: np.ndarray | None, lon_offset_columns: int, found) -> None:
+def check_imd_sampling(features: pd.DataFrame, grid: np.ndarray | None, lon_offset_columns: int, found,
+                       column: str = "src_imd_acc_1") -> None:
     """`src_imd_acc_1` of lead 0 is the IMD real-time grid of the day read at the cell's nearest point moved
     `lon_offset_columns` columns (`adapter.imd_cell_series`). Compared where a value is stored (a day whose file had not been
-    published at run time stores none); `grid` is the day's (129, 135) grid, NaN for missing."""
+    published at run time stores none); `grid` is the day's (129, 135) grid, NaN for missing. With `column`
+    `chk_imd_acc_1` the same holds for the second-opinion check day's grid (`run.second_opinion`)."""
     from ..features.sources import _imd_pixels
-    if "src_imd_acc_1" not in features.columns or grid is None:
+    if column not in features.columns or grid is None:
         return
-    stored = features["src_imd_acc_1"].to_numpy(dtype=np.float64)
+    stored = features[column].to_numpy(dtype=np.float64)
     if not np.isfinite(stored).any():
-        found.notes.append("georef: no IMD value stored for the day (the file was not published at run time): sampling not checked")
+        found.notes.append(f"georef: no IMD value stored in {column} (the file was not published at run time): sampling not checked")
         return
     pixel = _imd_pixels(features["cell_id"].to_numpy(dtype=np.int64), lon_offset_columns)
     flat = np.asarray(grid, dtype=np.float64).ravel()
     expected = np.where(pixel >= 0, flat[np.where(pixel >= 0, pixel, 0)], np.nan)
-    flag(found, "georef", features, {f"src_imd_acc_1 is not the IMD grid read {lon_offset_columns:+d} columns from the nearest point":
+    flag(found, "georef", features, {f"{column} is not the IMD grid read {lon_offset_columns:+d} columns from the nearest point":
                                      np.isfinite(stored) & ~(np.abs(stored - expected) <= 1e-4 + 1e-5 * np.abs(expected))})
 
 

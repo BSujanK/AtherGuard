@@ -20,6 +20,9 @@ Rules the run follows (spec sections 5 and 10)
   risk (NaN), confidence `Insufficient` (cause `model_input_missing`), and the blind-escalation rule still applies:
   heavy rain in any other source raises it to at least Watch. A cell without a score keeps the level it had the day
   before (hysteresis never steps down on missing data). IMD real-time missing lowers confidence to `Degraded` only.
+* The second-opinion rain check (IMD real-time against IMERG) uses the newest IMD day due by the run time under the
+  source's declared latency, D-1 at 11:00 IST, or D when its file is already there (`second_opinion`, the `chk_` columns
+  of features_D0, run.json `second_opinion`): a day inside its latency is not a degradation; IMD later than that is.
 * The 00-03 UTC rain of IMD day D comes from the GFS 00Z cycle of D, else the 18Z or 12Z cycle of D-1, else is persisted
   from UTC D-1; persisted, every cell is capped at `Degraded` (cause `nowcast_tail_persisted`) and the blind rule is
   applied again. GFS alone therefore never makes lead 0 Insufficient.
@@ -39,6 +42,8 @@ Rules the run follows (spec sections 5 and 10)
   complete half-hourly Late days of the model's lag (D-3..D-1 at lag 1), fetched when missing, and the per-cell W5
   static inputs from the static table; while either is missing, lead 0 is scored by the forecast-lead model and
   run.json `intensity` says why.
+* Season of validity (`live.season`): a lead dated outside the declared months (`season_of_validity`, June-September)
+  is published unchanged and flagged `outside_validated_season` in run.json and the bulletin.
 * Post-model rules (spec section 11, `live.postrules`, the file named by `post_rules`): the rain trigger caps cell-days
   without recent rain (`no_recent_rain`) before the hysteresis, which holds a level only while it rained within the hold
   window and over at most `blind_hold_days` days without a score (`held_while_blind`); a Warning+ point the ensemble does
@@ -84,11 +89,11 @@ from ..hazard.freeze import FROZEN_NAME, FrozenMismatchError, default_external_f
 from ..ingest import imerg as imerg_grid
 from ..ingest import imerg_hh
 from ..manifest import sha256_file
-from . import adapter, audit, bulletin, forecast_choice, forecast_features, forecast_map
+from . import adapter, audit, bulletin, forecast_choice, forecast_features, forecast_map, season
 from . import postrules as pr
 from .sources import (PERSIST, SOURCE_NAMES, GfsData, GhcnData, ImergSource, LiveRainView, SourceStatus, default_sources,
-                      fetch_all, freshness_record, local_tz, make_context, project_path, resolve_day, source_state,
-                      write_json_atomic)
+                      fetch_all, freshness_record, imd_due_day, local_tz, make_context, project_path, resolve_day,
+                      source_state, write_json_atomic)
 
 log = logging.getLogger("aetherguard.live")
 
@@ -236,6 +241,35 @@ def static_inputs(cells: pd.DataFrame, model: hm.HazardModel, deps: LiveDeps) ->
 def imd_lon_offset(cfg: dict) -> int:
     """Columns the live IMD sampling is moved east (`imd_lon_offset_columns`, 0 when absent)."""
     return int(cfg.get("imd_lon_offset_columns", 0))
+
+
+SECOND_OPINION_WINDOW = 3            # days of the source-disagreement ratio the confidence logic reads (dis_ratio_3)
+SECOND_OPINION_PARAMETERS = ("dis_ratio_lo", "dis_ratio_hi", "agree_abs_mm", "agree_rel")
+
+
+def second_opinion(day: date, grids: dict, horizon: datetime, latency_h: float, config: AlertConfig) -> tuple[date | None, dict]:
+    """(the check day, its run.json record) of the second-opinion rain check (`alerts.confidence`).
+
+    The check day is the newest IMD day with a real-time file that is no older than the newest day due by `horizon` (the
+    run time, or the backtest cut-off) under the declared latency `latency_h` (`sources.imd_due_day`): D-1 at the 11:00
+    IST run, D when its file is already there. None when IMD is later than its latency (no file for a due day or a newer
+    one: `late`) or has no file at all (`missing`); every cell is then `imd_missing`. The record names the days the
+    check used and the parameters the confidence logic judged them with, so the audit can re-derive it."""
+    due = imd_due_day(day, horizon, latency_h)
+    candidates = [d for d in grids if due <= d <= day]
+    check = max(candidates) if candidates else None
+    window = None if check is None else [check - timedelta(days=SECOND_OPINION_WINDOW - 1 - k)
+                                         for k in range(SECOND_OPINION_WINDOW)]
+    state = "on_time" if check is not None else ("late" if grids else "missing")
+    return check, {
+        "source": "imd_rt", "latency_h": float(latency_h), "due_day": due.isoformat(),
+        "check_day": None if check is None else check.isoformat(), "lag_days": None if check is None else (day - check).days,
+        "window": None if window is None else [window[0].isoformat(), window[-1].isoformat()],
+        "days_present": [] if window is None else [d.isoformat() for d in window if d in grids], "state": state,
+        "parameters": {name: getattr(config, name) for name in SECOND_OPINION_PARAMETERS},
+        "rule": ("confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest "
+                 "IMD day due by the run time under the declared latency (or day D when already published); a day still "
+                 "inside its latency is not a degradation, IMD later than that is `imd_missing`")}
 
 
 def load_post_rules(cfg: dict, deps: LiveDeps) -> pr.PostRules:
@@ -902,9 +936,12 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
             integrity["reason"] = f"{type(exc).__name__}: {str(exc)[:200]}"
             log.warning("integrity engine did not run: %s", integrity["reason"])
 
+    check_day, opinion = second_opinion(day, imd_grids, ctx.horizon, float(cfg["imd_rt"]["latency_h"]), alert_config)
     alert_input = adapter.alert_frame(features, adapter.imd_cell_series(imd_grids, cells["cell_id"], day,
                                                                           lon_offset_columns=imd_lon_offset(cfg)),
-                                      adapter.imerg_cell_series(view, cells["cell_id"], day), integ)
+                                      adapter.imerg_cell_series(view, cells["cell_id"], day), integ,
+                                      adapter.check_columns(imd_grids, view, cells["cell_id"], day, check_day,
+                                                            imd_lon_offset(cfg)))
 
     # ---- score and alert (lead 0)
     unscorable = ~scorable_mask(alert_input, model.columns)
@@ -956,6 +993,9 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
                                                forecast_products(gfs, ecmwf_forecast), choice, maps, statuses, alerts,
                                                ~unscorable, run_dir, rules)
     leads.update(forecast_leads)
+    validity = season.season_record(day, cfg)
+    for key, info in leads.items():
+        info["outside_validated_season"] = validity["leads"][str(key)]
 
     # ---- summary, replay set, bulletin
     states = {name: source_state(status, day, cfg) for name, status in statuses.items()}
@@ -977,7 +1017,8 @@ def run_day(day: date, cfg: dict, force: bool = False, backtest: bool = False, d
         "sources": {name: {**status.to_dict(), "state": states[name]} for name, status in statuses.items()},
         "failed_sources": [n for n in SOURCE_NAMES if states[n] == "failed"],
         "late_sources": [n for n in SOURCE_NAMES if states[n] == "late"],
-        "cell_set": cell_set, "imd_day_inputs": inputs, "imerg_gaps": gaps,
+        "cell_set": cell_set, "imd_day_inputs": inputs, "imerg_gaps": gaps, "second_opinion": opinion,
+        "season_of_validity": validity,
         "nowcast_tail": {"product": inputs["D"]["utc_day_0.125"], "persisted": persisted_tail},
         "integrity": integrity, "forecast_widening": widening,
         "forecast_rain": {"choice": choice.to_dict(), "leads": {str(k): v["forecast"] for k, v in forecast_leads.items()

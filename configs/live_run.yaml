@@ -26,7 +26,11 @@ schedule:
   run_time: "11:00"                  # local time of the scheduled task (scripts/install_daily_task.ps1)
   data_cutoff: "11:00"               # backtest: an input issued after this local time of the run date is rejected
 
-hysteresis_history_days: 30          # previous days of the live state fed to the level hysteresis (consecutive days only)
+season_of_validity:                  # live.season: a lead dated outside these months is published unchanged and flagged
+  months: [6, 7, 8, 9]               # `outside_validated_season` (run.json and bulletin); the post-model rules and alert
+  source: reports/phase8_season_validity.md   # parameters were derived on June-September only
+
+hysteresis_history_days: 30         # previous days of the live state fed to the level hysteresis (consecutive days only)
 top_cells: 20                        # cells per lead listed in the bulletin
 
 forecast_widening: reports/forecast_widening.json   # produced by the forecast-skill step (live/forecast_skill.py)
@@ -58,10 +62,12 @@ imd_lon_offset_columns: -1           # live IMD sampling (src_imd_*, imd_acc_*):
 
 imd_rt:
   enabled: true                      # second-opinion rain for the alert engine; the server is slow and flaky
-  days: 3                            # IMD days D-2..D are requested (the confidence logic reads the 1- and 3-day totals)
+  days: 4                            # IMD days D-3..D are requested: the confidence check reads the 1- and 3-day totals ending
+                                     # on the newest IMD day due by the run (D-1 at 11:00 IST, run.second_opinion), so D-3..D-1
   timeout_s: 35
   attempts: 2
-  latency_h: 24                      # hours after the end of an IMD day (03:00 UTC) that its file is published (about 1 day)
+  latency_h: 24                      # hours after the end of an IMD day (03:00 UTC) that its file is published (about 1 day);
+                                     # a day inside this latency is not a degradation of confidence, IMD later than it is
 
 ghcn:
   enabled: true

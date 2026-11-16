@@ -1,0 +1,1944 @@
+{
+  "sets": {
+    "before": "before (dc93f98)",
+    "after": "after, v4, alert_config_v3",
+    "after_v3lead0": "after, lead 0 by v3",
+    "after_cfg4": "after, v4, alert_config_v4"
+  },
+  "days": [
+    "2026-11-08",
+    "2026-11-09",
+    "2026-11-10",
+    "2026-11-11",
+    "2026-11-12",
+    "2026-11-13"
+  ],
+  "per_day": {
+    "2026-11-08": {
+      "before": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 34467,
+          "Watch": 2174,
+          "Warning": 142,
+          "Emergency": 9
+        },
+        "confidence": {
+          "High": 0,
+          "Degraded": 36792,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 36792,
+          "ensemble_disagrees": 80
+        },
+        "n_blind": 0,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 6159,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 80
+        },
+        "second_opinion": null,
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": false,
+          "valid_through": "2026-11-07T03:00:00+00:00",
+          "issued": "2026-11-08T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": "IMD real-time has no file for IMD day 2026-11-08 yet; newest 2026-11-07",
+          "state": "late"
+        },
+        "lead1_levels": {
+          "Normal": 33706,
+          "Watch": 2505,
+          "Warning": 418,
+          "Emergency": 163
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-03T00:00:00+00:00",
+          "issued": "2026-11-08T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 34467,
+          "Watch": 2174,
+          "Warning": 142,
+          "Emergency": 9
+        },
+        "confidence": {
+          "High": 30425,
+          "Degraded": 6367,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 843,
+          "ensemble_disagrees": 80
+        },
+        "n_blind": 0,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 6159,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 80
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-07",
+          "check_day": "2026-11-07",
+          "lag_days": 1,
+          "window": [
+            "2026-11-05",
+            "2026-11-07"
+          ],
+          "days_present": [
+            "2026-11-05",
+            "2026-11-06",
+            "2026-11-07"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-07T03:00:00+00:00",
+          "issued": "2026-11-08T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 33706,
+          "Watch": 2505,
+          "Warning": 418,
+          "Emergency": 163
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-03T00:00:00+00:00",
+          "issued": "2026-11-08T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_v3lead0": {
+        "model": "model_v3_live",
+        "intensity_used": false,
+        "levels": {
+          "Normal": 33993,
+          "Watch": 2313,
+          "Warning": 390,
+          "Emergency": 96
+        },
+        "confidence": {
+          "High": 30437,
+          "Degraded": 6355,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 843,
+          "ensemble_disagrees": 56
+        },
+        "n_blind": 0,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 7458,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 56
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-07",
+          "check_day": "2026-11-07",
+          "lag_days": 1,
+          "window": [
+            "2026-11-05",
+            "2026-11-07"
+          ],
+          "days_present": [
+            "2026-11-05",
+            "2026-11-06",
+            "2026-11-07"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-07T03:00:00+00:00",
+          "issued": "2026-11-08T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 33706,
+          "Watch": 2505,
+          "Warning": 418,
+          "Emergency": 163
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-03T00:00:00+00:00",
+          "issued": "2026-11-08T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_cfg4": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 34467,
+          "Watch": 2174,
+          "Warning": 142,
+          "Emergency": 9
+        },
+        "confidence": {
+          "High": 30302,
+          "Degraded": 6490,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 966,
+          "ensemble_disagrees": 80
+        },
+        "n_blind": 0,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 6159,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 80
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-07",
+          "check_day": "2026-11-07",
+          "lag_days": 1,
+          "window": [
+            "2026-11-05",
+            "2026-11-07"
+          ],
+          "days_present": [
+            "2026-11-05",
+            "2026-11-06",
+            "2026-11-07"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.14827170287288302,
+            "dis_ratio_hi": 5.207462656698434,
+            "agree_abs_mm": 4.178124904632568,
+            "agree_rel": 0.7311684774315875
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-07T03:00:00+00:00",
+          "issued": "2026-11-08T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 33706,
+          "Watch": 2505,
+          "Warning": 418,
+          "Emergency": 163
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-03T00:00:00+00:00",
+          "issued": "2026-11-08T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      }
+    },
+    "2026-11-09": {
+      "before": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 34346,
+          "Watch": 2288,
+          "Warning": 149,
+          "Emergency": 9
+        },
+        "confidence": {
+          "High": 0,
+          "Degraded": 36792,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 36792,
+          "ensemble_disagrees": 70
+        },
+        "n_blind": 4,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 6001,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 70
+        },
+        "second_opinion": null,
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": false,
+          "valid_through": "2026-11-08T03:00:00+00:00",
+          "issued": "2026-11-09T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": "IMD real-time has no file for IMD day 2026-11-09 yet; newest 2026-11-08",
+          "state": "late"
+        },
+        "lead1_levels": {
+          "Normal": 34335,
+          "Watch": 1859,
+          "Warning": 468,
+          "Emergency": 130
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-04T00:00:00+00:00",
+          "issued": "2026-11-09T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 34346,
+          "Watch": 2288,
+          "Warning": 149,
+          "Emergency": 9
+        },
+        "confidence": {
+          "High": 30600,
+          "Degraded": 6192,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 679,
+          "ensemble_disagrees": 70
+        },
+        "n_blind": 0,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 6001,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 70
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-08",
+          "check_day": "2026-11-08",
+          "lag_days": 1,
+          "window": [
+            "2026-11-06",
+            "2026-11-08"
+          ],
+          "days_present": [
+            "2026-11-06",
+            "2026-11-07",
+            "2026-11-08"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-08T03:00:00+00:00",
+          "issued": "2026-11-09T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 34335,
+          "Watch": 1859,
+          "Warning": 468,
+          "Emergency": 130
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-04T00:00:00+00:00",
+          "issued": "2026-11-09T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_v3lead0": {
+        "model": "model_v3_live",
+        "intensity_used": false,
+        "levels": {
+          "Normal": 33873,
+          "Watch": 2390,
+          "Warning": 427,
+          "Emergency": 102
+        },
+        "confidence": {
+          "High": 30611,
+          "Degraded": 6181,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 679,
+          "ensemble_disagrees": 46
+        },
+        "n_blind": 0,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 7228,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 46
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-08",
+          "check_day": "2026-11-08",
+          "lag_days": 1,
+          "window": [
+            "2026-11-06",
+            "2026-11-08"
+          ],
+          "days_present": [
+            "2026-11-06",
+            "2026-11-07",
+            "2026-11-08"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-08T03:00:00+00:00",
+          "issued": "2026-11-09T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 34335,
+          "Watch": 1859,
+          "Warning": 468,
+          "Emergency": 130
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-04T00:00:00+00:00",
+          "issued": "2026-11-09T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_cfg4": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 34346,
+          "Watch": 2288,
+          "Warning": 149,
+          "Emergency": 9
+        },
+        "confidence": {
+          "High": 30440,
+          "Degraded": 6352,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 839,
+          "ensemble_disagrees": 70
+        },
+        "n_blind": 0,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 6001,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 70
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-08",
+          "check_day": "2026-11-08",
+          "lag_days": 1,
+          "window": [
+            "2026-11-06",
+            "2026-11-08"
+          ],
+          "days_present": [
+            "2026-11-06",
+            "2026-11-07",
+            "2026-11-08"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.14827170287288302,
+            "dis_ratio_hi": 5.207462656698434,
+            "agree_abs_mm": 4.178124904632568,
+            "agree_rel": 0.7311684774315875
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-08T03:00:00+00:00",
+          "issued": "2026-11-09T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 34335,
+          "Watch": 1859,
+          "Warning": 468,
+          "Emergency": 130
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-04T00:00:00+00:00",
+          "issued": "2026-11-09T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      }
+    },
+    "2026-11-10": {
+      "before": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 33943,
+          "Watch": 2631,
+          "Warning": 203,
+          "Emergency": 15
+        },
+        "confidence": {
+          "High": 0,
+          "Degraded": 36792,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 36792,
+          "ensemble_disagrees": 64
+        },
+        "n_blind": 54,
+        "n_blind_escalated": 10,
+        "post_rules": {
+          "no_recent_rain": 5901,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 64
+        },
+        "second_opinion": null,
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": false,
+          "valid_through": "2026-11-09T03:00:00+00:00",
+          "issued": "2026-11-10T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": "IMD real-time has no file for IMD day 2026-11-10 yet; newest 2026-11-09",
+          "state": "late"
+        },
+        "lead1_levels": {
+          "Normal": 33478,
+          "Watch": 2811,
+          "Warning": 435,
+          "Emergency": 68
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-05T00:00:00+00:00",
+          "issued": "2026-11-10T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 33953,
+          "Watch": 2621,
+          "Warning": 203,
+          "Emergency": 15
+        },
+        "confidence": {
+          "High": 31119,
+          "Degraded": 5673,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 160,
+          "ensemble_disagrees": 64
+        },
+        "n_blind": 12,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 5901,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 64
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-09",
+          "check_day": "2026-11-09",
+          "lag_days": 1,
+          "window": [
+            "2026-11-07",
+            "2026-11-09"
+          ],
+          "days_present": [
+            "2026-11-07",
+            "2026-11-08",
+            "2026-11-09"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-09T03:00:00+00:00",
+          "issued": "2026-11-10T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 33478,
+          "Watch": 2811,
+          "Warning": 435,
+          "Emergency": 68
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-05T00:00:00+00:00",
+          "issued": "2026-11-10T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_v3lead0": {
+        "model": "model_v3_live",
+        "intensity_used": false,
+        "levels": {
+          "Normal": 33265,
+          "Watch": 2871,
+          "Warning": 519,
+          "Emergency": 137
+        },
+        "confidence": {
+          "High": 31112,
+          "Degraded": 5680,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 160,
+          "ensemble_disagrees": 71
+        },
+        "n_blind": 12,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 7399,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 71
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-09",
+          "check_day": "2026-11-09",
+          "lag_days": 1,
+          "window": [
+            "2026-11-07",
+            "2026-11-09"
+          ],
+          "days_present": [
+            "2026-11-07",
+            "2026-11-08",
+            "2026-11-09"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-09T03:00:00+00:00",
+          "issued": "2026-11-10T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 33478,
+          "Watch": 2811,
+          "Warning": 435,
+          "Emergency": 68
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-05T00:00:00+00:00",
+          "issued": "2026-11-10T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_cfg4": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 33953,
+          "Watch": 2621,
+          "Warning": 203,
+          "Emergency": 15
+        },
+        "confidence": {
+          "High": 30999,
+          "Degraded": 5793,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 280,
+          "ensemble_disagrees": 64
+        },
+        "n_blind": 12,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 5901,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 64
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-09",
+          "check_day": "2026-11-09",
+          "lag_days": 1,
+          "window": [
+            "2026-11-07",
+            "2026-11-09"
+          ],
+          "days_present": [
+            "2026-11-07",
+            "2026-11-08",
+            "2026-11-09"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.14827170287288302,
+            "dis_ratio_hi": 5.207462656698434,
+            "agree_abs_mm": 4.178124904632568,
+            "agree_rel": 0.7311684774315875
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-09T03:00:00+00:00",
+          "issued": "2026-11-10T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 33478,
+          "Watch": 2811,
+          "Warning": 435,
+          "Emergency": 68
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-05T00:00:00+00:00",
+          "issued": "2026-11-10T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      }
+    },
+    "2026-11-11": {
+      "before": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 32769,
+          "Watch": 3262,
+          "Warning": 659,
+          "Emergency": 102
+        },
+        "confidence": {
+          "High": 0,
+          "Degraded": 36792,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 36792,
+          "ensemble_disagrees": 61
+        },
+        "n_blind": 698,
+        "n_blind_escalated": 37,
+        "post_rules": {
+          "no_recent_rain": 5332,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 61
+        },
+        "second_opinion": null,
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": false,
+          "valid_through": "2026-11-10T03:00:00+00:00",
+          "issued": "2026-11-11T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": "IMD real-time has no file for IMD day 2026-11-11 yet; newest 2026-11-10",
+          "state": "late"
+        },
+        "lead1_levels": {
+          "Normal": 31311,
+          "Watch": 4328,
+          "Warning": 897,
+          "Emergency": 256
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-06T00:00:00+00:00",
+          "issued": "2026-11-11T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 32797,
+          "Watch": 3234,
+          "Warning": 659,
+          "Emergency": 102
+        },
+        "confidence": {
+          "High": 30310,
+          "Degraded": 6482,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 977,
+          "ensemble_disagrees": 61
+        },
+        "n_blind": 448,
+        "n_blind_escalated": 18,
+        "post_rules": {
+          "no_recent_rain": 5332,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 61
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-10",
+          "check_day": "2026-11-10",
+          "lag_days": 1,
+          "window": [
+            "2026-11-08",
+            "2026-11-10"
+          ],
+          "days_present": [
+            "2026-11-08",
+            "2026-11-09",
+            "2026-11-10"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-10T03:00:00+00:00",
+          "issued": "2026-11-11T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 31311,
+          "Watch": 4328,
+          "Warning": 897,
+          "Emergency": 256
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-06T00:00:00+00:00",
+          "issued": "2026-11-11T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_v3lead0": {
+        "model": "model_v3_live",
+        "intensity_used": false,
+        "levels": {
+          "Normal": 32257,
+          "Watch": 2976,
+          "Warning": 922,
+          "Emergency": 637
+        },
+        "confidence": {
+          "High": 30297,
+          "Degraded": 6495,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 977,
+          "ensemble_disagrees": 63
+        },
+        "n_blind": 448,
+        "n_blind_escalated": 1,
+        "post_rules": {
+          "no_recent_rain": 6707,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 63
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-10",
+          "check_day": "2026-11-10",
+          "lag_days": 1,
+          "window": [
+            "2026-11-08",
+            "2026-11-10"
+          ],
+          "days_present": [
+            "2026-11-08",
+            "2026-11-09",
+            "2026-11-10"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-10T03:00:00+00:00",
+          "issued": "2026-11-11T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 31311,
+          "Watch": 4328,
+          "Warning": 897,
+          "Emergency": 256
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-06T00:00:00+00:00",
+          "issued": "2026-11-11T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_cfg4": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 32786,
+          "Watch": 3245,
+          "Warning": 659,
+          "Emergency": 102
+        },
+        "confidence": {
+          "High": 30013,
+          "Degraded": 6779,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 1280,
+          "ensemble_disagrees": 61
+        },
+        "n_blind": 535,
+        "n_blind_escalated": 29,
+        "post_rules": {
+          "no_recent_rain": 5332,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 61
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-10",
+          "check_day": "2026-11-10",
+          "lag_days": 1,
+          "window": [
+            "2026-11-08",
+            "2026-11-10"
+          ],
+          "days_present": [
+            "2026-11-08",
+            "2026-11-09",
+            "2026-11-10"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.14827170287288302,
+            "dis_ratio_hi": 5.207462656698434,
+            "agree_abs_mm": 4.178124904632568,
+            "agree_rel": 0.7311684774315875
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-10T03:00:00+00:00",
+          "issued": "2026-11-11T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 31311,
+          "Watch": 4328,
+          "Warning": 897,
+          "Emergency": 256
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-06T00:00:00+00:00",
+          "issued": "2026-11-11T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      }
+    },
+    "2026-11-12": {
+      "before": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 31637,
+          "Watch": 4025,
+          "Warning": 966,
+          "Emergency": 164
+        },
+        "confidence": {
+          "High": 0,
+          "Degraded": 36792,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 36792,
+          "ensemble_disagrees": 49
+        },
+        "n_blind": 297,
+        "n_blind_escalated": 19,
+        "post_rules": {
+          "no_recent_rain": 4888,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 49
+        },
+        "second_opinion": null,
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": false,
+          "valid_through": "2026-11-11T03:00:00+00:00",
+          "issued": "2026-11-12T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": "IMD real-time has no file for IMD day 2026-11-12 yet; newest 2026-11-11",
+          "state": "late"
+        },
+        "lead1_levels": {
+          "Normal": 31406,
+          "Watch": 4352,
+          "Warning": 799,
+          "Emergency": 235
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-07T00:00:00+00:00",
+          "issued": "2026-11-12T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 31653,
+          "Watch": 4009,
+          "Warning": 966,
+          "Emergency": 164
+        },
+        "confidence": {
+          "High": 29445,
+          "Degraded": 7347,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 1864,
+          "ensemble_disagrees": 49
+        },
+        "n_blind": 241,
+        "n_blind_escalated": 17,
+        "post_rules": {
+          "no_recent_rain": 4888,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 49
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-11",
+          "check_day": "2026-11-11",
+          "lag_days": 1,
+          "window": [
+            "2026-11-09",
+            "2026-11-11"
+          ],
+          "days_present": [
+            "2026-11-09",
+            "2026-11-10",
+            "2026-11-11"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-11T03:00:00+00:00",
+          "issued": "2026-11-12T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 31406,
+          "Watch": 4352,
+          "Warning": 799,
+          "Emergency": 235
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-07T00:00:00+00:00",
+          "issued": "2026-11-12T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_v3lead0": {
+        "model": "model_v3_live",
+        "intensity_used": false,
+        "levels": {
+          "Normal": 30887,
+          "Watch": 3612,
+          "Warning": 1308,
+          "Emergency": 985
+        },
+        "confidence": {
+          "High": 29415,
+          "Degraded": 7377,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 1864,
+          "ensemble_disagrees": 99
+        },
+        "n_blind": 241,
+        "n_blind_escalated": 1,
+        "post_rules": {
+          "no_recent_rain": 5983,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 99
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-11",
+          "check_day": "2026-11-11",
+          "lag_days": 1,
+          "window": [
+            "2026-11-09",
+            "2026-11-11"
+          ],
+          "days_present": [
+            "2026-11-09",
+            "2026-11-10",
+            "2026-11-11"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-11T03:00:00+00:00",
+          "issued": "2026-11-12T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 31406,
+          "Watch": 4352,
+          "Warning": 799,
+          "Emergency": 235
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-07T00:00:00+00:00",
+          "issued": "2026-11-12T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_cfg4": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 31637,
+          "Watch": 4025,
+          "Warning": 966,
+          "Emergency": 164
+        },
+        "confidence": {
+          "High": 28977,
+          "Degraded": 7815,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 2334,
+          "ensemble_disagrees": 49
+        },
+        "n_blind": 296,
+        "n_blind_escalated": 27,
+        "post_rules": {
+          "no_recent_rain": 4888,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 49
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-11",
+          "check_day": "2026-11-11",
+          "lag_days": 1,
+          "window": [
+            "2026-11-09",
+            "2026-11-11"
+          ],
+          "days_present": [
+            "2026-11-09",
+            "2026-11-10",
+            "2026-11-11"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.14827170287288302,
+            "dis_ratio_hi": 5.207462656698434,
+            "agree_abs_mm": 4.178124904632568,
+            "agree_rel": 0.7311684774315875
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-11T03:00:00+00:00",
+          "issued": "2026-11-12T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 31406,
+          "Watch": 4352,
+          "Warning": 799,
+          "Emergency": 235
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-07T00:00:00+00:00",
+          "issued": "2026-11-12T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      }
+    },
+    "2026-11-13": {
+      "before": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 31118,
+          "Watch": 4470,
+          "Warning": 1025,
+          "Emergency": 179
+        },
+        "confidence": {
+          "High": 0,
+          "Degraded": 36792,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 36792,
+          "ensemble_disagrees": 54
+        },
+        "n_blind": 110,
+        "n_blind_escalated": 11,
+        "post_rules": {
+          "no_recent_rain": 4543,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 54
+        },
+        "second_opinion": null,
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": false,
+          "valid_through": "2026-11-12T03:00:00+00:00",
+          "issued": "2026-11-13T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": "IMD real-time has no file for IMD day 2026-11-13 yet; newest 2026-11-12",
+          "state": "late"
+        },
+        "lead1_levels": {
+          "Normal": 32569,
+          "Watch": 3874,
+          "Warning": 321,
+          "Emergency": 28
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-08T00:00:00+00:00",
+          "issued": "2026-11-13T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 31121,
+          "Watch": 4467,
+          "Warning": 1025,
+          "Emergency": 179
+        },
+        "confidence": {
+          "High": 28990,
+          "Degraded": 7802,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 2298,
+          "ensemble_disagrees": 54
+        },
+        "n_blind": 30,
+        "n_blind_escalated": 8,
+        "post_rules": {
+          "no_recent_rain": 4543,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 54
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-12",
+          "check_day": "2026-11-12",
+          "lag_days": 1,
+          "window": [
+            "2026-11-10",
+            "2026-11-12"
+          ],
+          "days_present": [
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-12T03:00:00+00:00",
+          "issued": "2026-11-13T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 32569,
+          "Watch": 3874,
+          "Warning": 321,
+          "Emergency": 28
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-08T00:00:00+00:00",
+          "issued": "2026-11-13T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_v3lead0": {
+        "model": "model_v3_live",
+        "intensity_used": false,
+        "levels": {
+          "Normal": 30253,
+          "Watch": 4311,
+          "Warning": 1509,
+          "Emergency": 719
+        },
+        "confidence": {
+          "High": 28995,
+          "Degraded": 7797,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 2298,
+          "ensemble_disagrees": 59
+        },
+        "n_blind": 30,
+        "n_blind_escalated": 0,
+        "post_rules": {
+          "no_recent_rain": 5458,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 59
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-12",
+          "check_day": "2026-11-12",
+          "lag_days": 1,
+          "window": [
+            "2026-11-10",
+            "2026-11-12"
+          ],
+          "days_present": [
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.12478674203157425,
+            "dis_ratio_hi": 13.471030235290527,
+            "agree_abs_mm": 3.0,
+            "agree_rel": 0.6834401487021482
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-12T03:00:00+00:00",
+          "issued": "2026-11-13T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 32569,
+          "Watch": 3874,
+          "Warning": 321,
+          "Emergency": 28
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-08T00:00:00+00:00",
+          "issued": "2026-11-13T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      },
+      "after_cfg4": {
+        "model": "model_v4_live",
+        "intensity_used": true,
+        "levels": {
+          "Normal": 31111,
+          "Watch": 4477,
+          "Warning": 1025,
+          "Emergency": 179
+        },
+        "confidence": {
+          "High": 28548,
+          "Degraded": 8244,
+          "Insufficient": 0
+        },
+        "confidence_causes": {
+          "imd_missing": 5461,
+          "sources_disagree": 2740,
+          "ensemble_disagrees": 54
+        },
+        "n_blind": 30,
+        "n_blind_escalated": 8,
+        "post_rules": {
+          "no_recent_rain": 4543,
+          "held_while_blind": 0,
+          "ensemble_disagrees": 54
+        },
+        "second_opinion": {
+          "source": "imd_rt",
+          "latency_h": 24.0,
+          "due_day": "2026-11-12",
+          "check_day": "2026-11-12",
+          "lag_days": 1,
+          "window": [
+            "2026-11-10",
+            "2026-11-12"
+          ],
+          "days_present": [
+            "2026-11-10",
+            "2026-11-11",
+            "2026-11-12"
+          ],
+          "state": "on_time",
+          "parameters": {
+            "dis_ratio_lo": 0.14827170287288302,
+            "dis_ratio_hi": 5.207462656698434,
+            "agree_abs_mm": 4.178124904632568,
+            "agree_rel": 0.7311684774315875
+          },
+          "rule": "confidence compares IMD real-time with IMERG on the 1- and 3-day totals ending on the check day, the newest IMD day due by the run time under the declared latency (or day D when already published); a day still inside its latency is not a degradation, IMD later than that is `imd_missing`"
+        },
+        "imd_rt": {
+          "name": "imd_rt",
+          "ok": true,
+          "valid_through": "2026-11-12T03:00:00+00:00",
+          "issued": "2026-11-13T03:00:00+00:00",
+          "latency_h": 24.0,
+          "error": null,
+          "state": "ok"
+        },
+        "lead1_levels": {
+          "Normal": 32569,
+          "Watch": 3874,
+          "Warning": 321,
+          "Emergency": 28
+        },
+        "audit": 0,
+        "audit_violations": {},
+        "integrity": {
+          "ran": true,
+          "reason": null,
+          "n_stations_observed": 0,
+          "note": "the integrity engine ran with the IMD real-time grid and IMERG in place of the IMD final grid and CHIRPS it was trained against, and without soil-wetness references; this substitution is not validated"
+        },
+        "ghcn": {
+          "name": "ghcn",
+          "ok": true,
+          "valid_through": "2026-11-08T00:00:00+00:00",
+          "issued": "2026-11-13T00:00:00+00:00",
+          "latency_h": 120.0,
+          "error": null,
+          "state": "ok"
+        }
+      }
+    }
+  },
+  "totals": {
+    "before": {
+      "days": 6,
+      "audit_violations": 0,
+      "confidence": {
+        "High": 0,
+        "Degraded": 220752,
+        "Insufficient": 0
+      },
+      "levels": {
+        "Normal": 198280,
+        "Watch": 18850,
+        "Warning": 3144,
+        "Emergency": 478
+      },
+      "blind_escalated": 77
+    },
+    "after": {
+      "days": 6,
+      "audit_violations": 0,
+      "confidence": {
+        "High": 180889,
+        "Degraded": 39863,
+        "Insufficient": 0
+      },
+      "levels": {
+        "Normal": 198337,
+        "Watch": 18793,
+        "Warning": 3144,
+        "Emergency": 478
+      },
+      "blind_escalated": 43
+    },
+    "after_v3lead0": {
+      "days": 6,
+      "audit_violations": 0,
+      "confidence": {
+        "High": 180867,
+        "Degraded": 39885,
+        "Insufficient": 0
+      },
+      "levels": {
+        "Normal": 194528,
+        "Watch": 18473,
+        "Warning": 5075,
+        "Emergency": 2676
+      },
+      "blind_escalated": 2
+    },
+    "after_cfg4": {
+      "days": 6,
+      "audit_violations": 0,
+      "confidence": {
+        "High": 179279,
+        "Degraded": 41473,
+        "Insufficient": 0
+      },
+      "levels": {
+        "Normal": 198300,
+        "Watch": 18830,
+        "Warning": 3144,
+        "Emergency": 478
+      },
+      "blind_escalated": 64
+    }
+  }
+}
