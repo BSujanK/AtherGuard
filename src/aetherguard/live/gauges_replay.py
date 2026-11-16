@@ -192,6 +192,21 @@ def render(result: dict) -> str:
                          f"{s.get('flagged', '-')} | {_fmt(s.get('trust_mean_observed'))} | "
                          f"{' / '.join(str(e['confidence'][k]) for k in STATES)} | "
                          f"{' / '.join(str(e['levels'][k]) for k in LEVELS)} | {e['n_blind_escalated']} | {e['audit']} |")
+    for name, entries in result["sets"].items():
+        observed = sum((e.get("sensors") or {}).get("observed", 0) for e in entries.values())
+        flagged = sum((e.get("sensors") or {}).get("flagged", 0) for e in entries.values())
+        uncertain = sum(((e.get("sensors") or {}).get("states") or {}).get("uncertain", 0) for e in entries.values())
+        if observed:
+            lines += ["", f"**{LABELS[name]}: the engine flags {flagged} of {observed} station readings on the run days "
+                      f"({flagged / observed:.2f}); {uncertain} station-days are out of distribution ('uncertain').** "
+                      "The readings are mostly dry-day zeros that agree with the IMD real-time grid (V2), so the flags "
+                      "point at the engine under its live substitute references, not at the SYNOP values (not verified)."]
+    lines += ["", "Integrity-engine verdicts on D (station states of the alert engine and the engine's fault types):", ""]
+    for name, entries in result["sets"].items():
+        for day, e in entries.items():
+            s = e.get("sensors") or {}
+            lines.append(f"- {LABELS[name]}, {day}: states {s.get('states')}, fault types {s.get('fault_types') or '-'}, "
+                         f"lowest trust {_fmt(s.get('trust_min_observed'))}")
     lines += ["", "## Level and confidence changes against `before`", "",
               "| day | set | cells | level changed (up / down) | level pairs | confidence changed | confidence pairs |",
               "|---|---|---|---|---|---|---|"]
@@ -216,7 +231,9 @@ def render(result: dict) -> str:
               "OGIMET archive reports, treated as arriving `synop.latency_h` after observation.",
               "- The integrity engine runs with the live substitutes for its references (IMD real-time grid, IMERG), as "
               "every live run does; that substitution is not validated.",
-              "- V1 compares two summaries of the same reports; it tests the decoding and the day rule, not the gauges.", ""]
+              "- V1 compares two summaries of the same reports; it tests the decoding and the day rule, not the gauges.",
+              "- The `after, GHCN flag-H zeros missing` run of 15 Nov was repeated: its first attempt hit a DNS failure "
+              "(GHCN failed, IMD real-time late); the failed run.json is kept in the scratch replay directory.", ""]
     return "\n".join(lines)
 
 

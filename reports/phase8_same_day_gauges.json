@@ -1,16 +1,1001 @@
 {
   "report": "phase8_same_day_gauges",
-  "days": [],
-  "sets": {},
+  "days": [
+    "2026-11-10",
+    "2026-11-11",
+    "2026-11-12",
+    "2026-11-13",
+    "2026-11-14",
+    "2026-11-15"
+  ],
+  "sets": {
+    "before": {
+      "2026-11-10": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 0,
+        "synop": null,
+        "confidence": {
+          "High": 31135,
+          "Degraded": 5657,
+          "Insufficient": 0
+        },
+        "levels": {
+          "Normal": 34259,
+          "Watch": 2358,
+          "Warning": 165,
+          "Emergency": 10
+        },
+        "n_blind_escalated": 0,
+        "cells_with_trusted_station": 0,
+        "cells_with_station_flagged_7d": 0,
+        "sensors": {
+          "states": {
+            "missing": 140
+          },
+          "observed": 0,
+          "flagged": 0,
+          "trust_mean_observed": null,
+          "trust_min_observed": null,
+          "fault_types": {}
+        }
+      },
+      "2026-11-11": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 0,
+        "synop": null,
+        "confidence": {
+          "High": 30310,
+          "Degraded": 6482,
+          "Insufficient": 0
+        },
+        "levels": {
+          "Normal": 32797,
+          "Watch": 3236,
+          "Warning": 657,
+          "Emergency": 102
+        },
+        "n_blind_escalated": 18,
+        "cells_with_trusted_station": 0,
+        "cells_with_station_flagged_7d": 0,
+        "sensors": {
+          "states": {
+            "missing": 140
+          },
+          "observed": 0,
+          "flagged": 0,
+          "trust_mean_observed": null,
+          "trust_min_observed": null,
+          "fault_types": {}
+        }
+      },
+      "2026-11-12": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 0,
+        "synop": null,
+        "confidence": {
+          "High": 29445,
+          "Degraded": 7347,
+          "Insufficient": 0
+        },
+        "levels": {
+          "Normal": 31653,
+          "Watch": 4012,
+          "Warning": 963,
+          "Emergency": 164
+        },
+        "n_blind_escalated": 17,
+        "cells_with_trusted_station": 0,
+        "cells_with_station_flagged_7d": 0,
+        "sensors": {
+          "states": {
+            "missing": 140
+          },
+          "observed": 0,
+          "flagged": 0,
+          "trust_mean_observed": null,
+          "trust_min_observed": null,
+          "fault_types": {}
+        }
+      },
+      "2026-11-13": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 0,
+        "synop": null,
+        "confidence": {
+          "High": 28990,
+          "Degraded": 7802,
+          "Insufficient": 0
+        },
+        "levels": {
+          "Normal": 31121,
+          "Watch": 4467,
+          "Warning": 1025,
+          "Emergency": 179
+        },
+        "n_blind_escalated": 8,
+        "cells_with_trusted_station": 0,
+        "cells_with_station_flagged_7d": 0,
+        "sensors": {
+          "states": {
+            "missing": 140
+          },
+          "observed": 0,
+          "flagged": 0,
+          "trust_mean_observed": null,
+          "trust_min_observed": null,
+          "fault_types": {}
+        }
+      },
+      "2026-11-14": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 0,
+        "synop": null,
+        "confidence": {
+          "High": 29528,
+          "Degraded": 7264,
+          "Insufficient": 0
+        },
+        "levels": {
+          "Normal": 32759,
+          "Watch": 3295,
+          "Warning": 625,
+          "Emergency": 113
+        },
+        "n_blind_escalated": 0,
+        "cells_with_trusted_station": 0,
+        "cells_with_station_flagged_7d": 0,
+        "sensors": {
+          "states": {
+            "missing": 140
+          },
+          "observed": 0,
+          "flagged": 0,
+          "trust_mean_observed": null,
+          "trust_min_observed": null,
+          "fault_types": {}
+        }
+      },
+      "2026-11-15": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 0,
+        "synop": null,
+        "confidence": {
+          "High": 29930,
+          "Degraded": 6862,
+          "Insufficient": 0
+        },
+        "levels": {
+          "Normal": 33432,
+          "Watch": 3050,
+          "Warning": 284,
+          "Emergency": 26
+        },
+        "n_blind_escalated": 0,
+        "cells_with_trusted_station": 0,
+        "cells_with_station_flagged_7d": 0,
+        "sensors": {
+          "states": {
+            "missing": 140
+          },
+          "observed": 0,
+          "flagged": 0,
+          "trust_mean_observed": null,
+          "trust_min_observed": null,
+          "fault_types": {}
+        }
+      }
+    },
+    "after": {
+      "2026-11-10": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 139,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 139,
+          "stations_on_day_merged": 139,
+          "how_on_day": {
+            "ir3_zero": 127,
+            "24h_group": 12,
+            "no_03utc_report": 1
+          },
+          "ghcn_h_zero_as_missing": false
+        },
+        "confidence": {
+          "High": 10176,
+          "Degraded": 26580,
+          "Insufficient": 36
+        },
+        "levels": {
+          "Normal": 34246,
+          "Watch": 2371,
+          "Warning": 165,
+          "Emergency": 10
+        },
+        "n_blind_escalated": 13,
+        "cells_with_trusted_station": 7391,
+        "cells_with_station_flagged_7d": 19444,
+        "sensors": {
+          "states": {
+            "uncertain": 138,
+            "missing": 1,
+            "trusted": 1
+          },
+          "observed": 139,
+          "flagged": 83,
+          "trust_mean_observed": 0.45150086539059625,
+          "trust_min_observed": 0.01333332189536629,
+          "fault_types": {
+            "zero_fault": 83
+          }
+        }
+      },
+      "2026-11-11": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 139,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 139,
+          "stations_on_day_merged": 139,
+          "how_on_day": {
+            "ir3_zero": 122,
+            "24h_group": 17,
+            "no_03utc_report": 1
+          },
+          "ghcn_h_zero_as_missing": false
+        },
+        "confidence": {
+          "High": 9859,
+          "Degraded": 26621,
+          "Insufficient": 312
+        },
+        "levels": {
+          "Normal": 32772,
+          "Watch": 3261,
+          "Warning": 657,
+          "Emergency": 102
+        },
+        "n_blind_escalated": 30,
+        "cells_with_trusted_station": 8979,
+        "cells_with_station_flagged_7d": 19773,
+        "sensors": {
+          "states": {
+            "uncertain": 138,
+            "missing": 1,
+            "trusted": 1
+          },
+          "observed": 139,
+          "flagged": 84,
+          "trust_mean_observed": 0.4473366135760398,
+          "trust_min_observed": 0.013333321788750352,
+          "fault_types": {
+            "zero_fault": 84
+          }
+        }
+      },
+      "2026-11-12": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 139,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 139,
+          "stations_on_day_merged": 139,
+          "how_on_day": {
+            "ir3_zero": 119,
+            "24h_group": 20,
+            "no_03utc_report": 1
+          },
+          "ghcn_h_zero_as_missing": false
+        },
+        "confidence": {
+          "High": 9652,
+          "Degraded": 26521,
+          "Insufficient": 619
+        },
+        "levels": {
+          "Normal": 30631,
+          "Watch": 5004,
+          "Warning": 993,
+          "Emergency": 164
+        },
+        "n_blind_escalated": 631,
+        "cells_with_trusted_station": 10079,
+        "cells_with_station_flagged_7d": 18993,
+        "sensors": {
+          "states": {
+            "uncertain": 138,
+            "missing": 1,
+            "trusted": 1
+          },
+          "observed": 139,
+          "flagged": 80,
+          "trust_mean_observed": 0.4707224305307233,
+          "trust_min_observed": 0.004385962014251454,
+          "fault_types": {
+            "zero_fault": 80
+          }
+        }
+      },
+      "2026-11-13": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 137,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 137,
+          "stations_on_day_merged": 137,
+          "how_on_day": {
+            "ir3_zero": 125,
+            "24h_group": 12,
+            "no_03utc_report": 3
+          },
+          "ghcn_h_zero_as_missing": false
+        },
+        "confidence": {
+          "High": 9375,
+          "Degraded": 26920,
+          "Insufficient": 497
+        },
+        "levels": {
+          "Normal": 30928,
+          "Watch": 4654,
+          "Warning": 1031,
+          "Emergency": 179
+        },
+        "n_blind_escalated": 11,
+        "cells_with_trusted_station": 10299,
+        "cells_with_station_flagged_7d": 19830,
+        "sensors": {
+          "states": {
+            "uncertain": 136,
+            "missing": 3,
+            "trusted": 1
+          },
+          "observed": 137,
+          "flagged": 79,
+          "trust_mean_observed": 0.4559346921277524,
+          "trust_min_observed": 0.004385961781860459,
+          "fault_types": {
+            "zero_fault": 79
+          }
+        }
+      },
+      "2026-11-14": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 139,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 139,
+          "stations_on_day_merged": 139,
+          "how_on_day": {
+            "ir3_zero": 129,
+            "24h_group": 10,
+            "no_03utc_report": 1
+          },
+          "ghcn_h_zero_as_missing": false
+        },
+        "confidence": {
+          "High": 9507,
+          "Degraded": 26868,
+          "Insufficient": 417
+        },
+        "levels": {
+          "Normal": 32756,
+          "Watch": 3298,
+          "Warning": 625,
+          "Emergency": 113
+        },
+        "n_blind_escalated": 0,
+        "cells_with_trusted_station": 10302,
+        "cells_with_station_flagged_7d": 21228,
+        "sensors": {
+          "states": {
+            "uncertain": 138,
+            "missing": 1,
+            "trusted": 1
+          },
+          "observed": 139,
+          "flagged": 81,
+          "trust_mean_observed": 0.45054681439515937,
+          "trust_min_observed": 0.004385961139410144,
+          "fault_types": {
+            "zero_fault": 81
+          }
+        }
+      },
+      "2026-11-15": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 137,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 137,
+          "stations_on_day_merged": 137,
+          "how_on_day": {
+            "ir3_zero": 118,
+            "24h_group": 19,
+            "no_03utc_report": 3
+          },
+          "ghcn_h_zero_as_missing": false
+        },
+        "confidence": {
+          "High": 9756,
+          "Degraded": 26763,
+          "Insufficient": 273
+        },
+        "levels": {
+          "Normal": 33432,
+          "Watch": 3050,
+          "Warning": 284,
+          "Emergency": 26
+        },
+        "n_blind_escalated": 0,
+        "cells_with_trusted_station": 10901,
+        "cells_with_station_flagged_7d": 21228,
+        "sensors": {
+          "states": {
+            "uncertain": 137,
+            "missing": 3
+          },
+          "observed": 137,
+          "flagged": 77,
+          "trust_mean_observed": 0.4590929400176389,
+          "trust_min_observed": 0.0043859612493830635,
+          "fault_types": {
+            "zero_fault": 76,
+            "scale_drift": 1
+          }
+        }
+      }
+    },
+    "after_h": {
+      "2026-11-10": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 139,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 139,
+          "stations_on_day_merged": 139,
+          "how_on_day": {
+            "ir3_zero": 127,
+            "24h_group": 12,
+            "no_03utc_report": 1
+          },
+          "ghcn_h_zero_as_missing": true
+        },
+        "confidence": {
+          "High": 10176,
+          "Degraded": 26580,
+          "Insufficient": 36
+        },
+        "levels": {
+          "Normal": 34246,
+          "Watch": 2371,
+          "Warning": 165,
+          "Emergency": 10
+        },
+        "n_blind_escalated": 13,
+        "cells_with_trusted_station": 7391,
+        "cells_with_station_flagged_7d": 19444,
+        "sensors": {
+          "states": {
+            "uncertain": 138,
+            "missing": 1,
+            "trusted": 1
+          },
+          "observed": 139,
+          "flagged": 83,
+          "trust_mean_observed": 0.4506454155959587,
+          "trust_min_observed": 0.01333332189536629,
+          "fault_types": {
+            "zero_fault": 83
+          }
+        }
+      },
+      "2026-11-11": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 139,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 139,
+          "stations_on_day_merged": 139,
+          "how_on_day": {
+            "ir3_zero": 122,
+            "24h_group": 17,
+            "no_03utc_report": 1
+          },
+          "ghcn_h_zero_as_missing": true
+        },
+        "confidence": {
+          "High": 9859,
+          "Degraded": 26621,
+          "Insufficient": 312
+        },
+        "levels": {
+          "Normal": 32772,
+          "Watch": 3261,
+          "Warning": 657,
+          "Emergency": 102
+        },
+        "n_blind_escalated": 30,
+        "cells_with_trusted_station": 8979,
+        "cells_with_station_flagged_7d": 19773,
+        "sensors": {
+          "states": {
+            "uncertain": 138,
+            "missing": 1,
+            "trusted": 1
+          },
+          "observed": 139,
+          "flagged": 84,
+          "trust_mean_observed": 0.4466015547089385,
+          "trust_min_observed": 0.013333321788750352,
+          "fault_types": {
+            "zero_fault": 84
+          }
+        }
+      },
+      "2026-11-12": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 139,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 139,
+          "stations_on_day_merged": 139,
+          "how_on_day": {
+            "ir3_zero": 119,
+            "24h_group": 20,
+            "no_03utc_report": 1
+          },
+          "ghcn_h_zero_as_missing": true
+        },
+        "confidence": {
+          "High": 9652,
+          "Degraded": 26521,
+          "Insufficient": 619
+        },
+        "levels": {
+          "Normal": 30631,
+          "Watch": 5004,
+          "Warning": 993,
+          "Emergency": 164
+        },
+        "n_blind_escalated": 631,
+        "cells_with_trusted_station": 10079,
+        "cells_with_station_flagged_7d": 18993,
+        "sensors": {
+          "states": {
+            "uncertain": 138,
+            "missing": 1,
+            "trusted": 1
+          },
+          "observed": 139,
+          "flagged": 80,
+          "trust_mean_observed": 0.4694410658038239,
+          "trust_min_observed": 0.004385962014251454,
+          "fault_types": {
+            "zero_fault": 80
+          }
+        }
+      },
+      "2026-11-13": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 137,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 137,
+          "stations_on_day_merged": 137,
+          "how_on_day": {
+            "ir3_zero": 125,
+            "24h_group": 12,
+            "no_03utc_report": 3
+          },
+          "ghcn_h_zero_as_missing": true
+        },
+        "confidence": {
+          "High": 9375,
+          "Degraded": 26920,
+          "Insufficient": 497
+        },
+        "levels": {
+          "Normal": 30928,
+          "Watch": 4654,
+          "Warning": 1031,
+          "Emergency": 179
+        },
+        "n_blind_escalated": 11,
+        "cells_with_trusted_station": 10299,
+        "cells_with_station_flagged_7d": 19830,
+        "sensors": {
+          "states": {
+            "uncertain": 136,
+            "missing": 3,
+            "trusted": 1
+          },
+          "observed": 137,
+          "flagged": 79,
+          "trust_mean_observed": 0.4555896065770558,
+          "trust_min_observed": 0.004385961781860459,
+          "fault_types": {
+            "zero_fault": 79
+          }
+        }
+      },
+      "2026-11-14": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 139,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 139,
+          "stations_on_day_merged": 139,
+          "how_on_day": {
+            "ir3_zero": 129,
+            "24h_group": 10,
+            "no_03utc_report": 1
+          },
+          "ghcn_h_zero_as_missing": true
+        },
+        "confidence": {
+          "High": 9507,
+          "Degraded": 26868,
+          "Insufficient": 417
+        },
+        "levels": {
+          "Normal": 32756,
+          "Watch": 3298,
+          "Warning": 625,
+          "Emergency": 113
+        },
+        "n_blind_escalated": 0,
+        "cells_with_trusted_station": 10302,
+        "cells_with_station_flagged_7d": 21228,
+        "sensors": {
+          "states": {
+            "uncertain": 138,
+            "missing": 1,
+            "trusted": 1
+          },
+          "observed": 139,
+          "flagged": 81,
+          "trust_mean_observed": 0.4500268383545141,
+          "trust_min_observed": 0.004385961139410144,
+          "fault_types": {
+            "zero_fault": 81
+          }
+        }
+      },
+      "2026-11-15": {
+        "status": "complete",
+        "audit": 0,
+        "integrity_ran": true,
+        "stations_observed_on_day": 137,
+        "synop": {
+          "available": true,
+          "stations_on_day_ghcn": 0,
+          "stations_on_day_synop": 137,
+          "stations_on_day_merged": 137,
+          "how_on_day": {
+            "ir3_zero": 118,
+            "24h_group": 19,
+            "no_03utc_report": 3
+          },
+          "ghcn_h_zero_as_missing": true
+        },
+        "confidence": {
+          "High": 9756,
+          "Degraded": 26763,
+          "Insufficient": 273
+        },
+        "levels": {
+          "Normal": 33432,
+          "Watch": 3050,
+          "Warning": 284,
+          "Emergency": 26
+        },
+        "n_blind_escalated": 0,
+        "cells_with_trusted_station": 10901,
+        "cells_with_station_flagged_7d": 21228,
+        "sensors": {
+          "states": {
+            "uncertain": 137,
+            "missing": 3
+          },
+          "observed": 137,
+          "flagged": 77,
+          "trust_mean_observed": 0.45874785481442576,
+          "trust_min_observed": 0.0043859612493830635,
+          "fault_types": {
+            "zero_fault": 76,
+            "scale_drift": 1
+          }
+        }
+      }
+    }
+  },
   "labels": {
     "before": "before (GHCN-Daily only)",
     "after": "after (SYNOP merged)",
     "after_h": "after, GHCN flag-H zeros missing"
   },
-  "totals": {},
-  "level_changes_vs_before": {},
-  "levels_changed": false,
-  "model_change": false,
+  "totals": {
+    "before": {
+      "days": 6,
+      "audit_violations": 0,
+      "levels": {
+        "Normal": 196021,
+        "Watch": 20418,
+        "Warning": 3719,
+        "Emergency": 594
+      },
+      "confidence": {
+        "High": 179338,
+        "Degraded": 41414,
+        "Insufficient": 0
+      },
+      "blind_escalated": 43,
+      "stations_observed_on_day": 0
+    },
+    "after": {
+      "days": 6,
+      "audit_violations": 0,
+      "levels": {
+        "Normal": 194765,
+        "Watch": 21638,
+        "Warning": 3755,
+        "Emergency": 594
+      },
+      "confidence": {
+        "High": 58325,
+        "Degraded": 160273,
+        "Insufficient": 2154
+      },
+      "blind_escalated": 685,
+      "stations_observed_on_day": 830
+    },
+    "after_h": {
+      "days": 6,
+      "audit_violations": 0,
+      "levels": {
+        "Normal": 194765,
+        "Watch": 21638,
+        "Warning": 3755,
+        "Emergency": 594
+      },
+      "confidence": {
+        "High": 58325,
+        "Degraded": 160273,
+        "Insufficient": 2154
+      },
+      "blind_escalated": 685,
+      "stations_observed_on_day": 830
+    }
+  },
+  "level_changes_vs_before": {
+    "2026-11-10": {
+      "after": {
+        "cells": 36792,
+        "level_changed": 13,
+        "up": 13,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 13
+        },
+        "confidence_changed": 20995,
+        "confidence_pairs": {
+          "High->Degraded": 20959,
+          "Degraded->Insufficient": 36
+        }
+      },
+      "after_h": {
+        "cells": 36792,
+        "level_changed": 13,
+        "up": 13,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 13
+        },
+        "confidence_changed": 20995,
+        "confidence_pairs": {
+          "High->Degraded": 20959,
+          "Degraded->Insufficient": 36
+        }
+      }
+    },
+    "2026-11-11": {
+      "after": {
+        "cells": 36792,
+        "level_changed": 25,
+        "up": 25,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 25
+        },
+        "confidence_changed": 20763,
+        "confidence_pairs": {
+          "High->Degraded": 20451,
+          "Degraded->Insufficient": 312
+        }
+      },
+      "after_h": {
+        "cells": 36792,
+        "level_changed": 25,
+        "up": 25,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 25
+        },
+        "confidence_changed": 20763,
+        "confidence_pairs": {
+          "High->Degraded": 20451,
+          "Degraded->Insufficient": 312
+        }
+      }
+    },
+    "2026-11-12": {
+      "after": {
+        "cells": 36792,
+        "level_changed": 1052,
+        "up": 1052,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 1022,
+          "Watch->Warning": 30
+        },
+        "confidence_changed": 20412,
+        "confidence_pairs": {
+          "High->Degraded": 19793,
+          "Degraded->Insufficient": 619
+        }
+      },
+      "after_h": {
+        "cells": 36792,
+        "level_changed": 1052,
+        "up": 1052,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 1022,
+          "Watch->Warning": 30
+        },
+        "confidence_changed": 20412,
+        "confidence_pairs": {
+          "High->Degraded": 19793,
+          "Degraded->Insufficient": 619
+        }
+      }
+    },
+    "2026-11-13": {
+      "after": {
+        "cells": 36792,
+        "level_changed": 199,
+        "up": 199,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 193,
+          "Watch->Warning": 6
+        },
+        "confidence_changed": 20112,
+        "confidence_pairs": {
+          "High->Degraded": 19615,
+          "Degraded->Insufficient": 497
+        }
+      },
+      "after_h": {
+        "cells": 36792,
+        "level_changed": 199,
+        "up": 199,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 193,
+          "Watch->Warning": 6
+        },
+        "confidence_changed": 20112,
+        "confidence_pairs": {
+          "High->Degraded": 19615,
+          "Degraded->Insufficient": 497
+        }
+      }
+    },
+    "2026-11-14": {
+      "after": {
+        "cells": 36792,
+        "level_changed": 3,
+        "up": 3,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 3
+        },
+        "confidence_changed": 20438,
+        "confidence_pairs": {
+          "High->Degraded": 20021,
+          "Degraded->Insufficient": 417
+        }
+      },
+      "after_h": {
+        "cells": 36792,
+        "level_changed": 3,
+        "up": 3,
+        "down": 0,
+        "pairs": {
+          "Normal->Watch": 3
+        },
+        "confidence_changed": 20438,
+        "confidence_pairs": {
+          "High->Degraded": 20021,
+          "Degraded->Insufficient": 417
+        }
+      }
+    },
+    "2026-11-15": {
+      "after": {
+        "cells": 36792,
+        "level_changed": 0,
+        "up": 0,
+        "down": 0,
+        "pairs": {},
+        "confidence_changed": 20447,
+        "confidence_pairs": {
+          "High->Degraded": 20174,
+          "Degraded->Insufficient": 273
+        }
+      },
+      "after_h": {
+        "cells": 36792,
+        "level_changed": 0,
+        "up": 0,
+        "down": 0,
+        "pairs": {},
+        "confidence_changed": 20447,
+        "confidence_pairs": {
+          "High->Degraded": 20174,
+          "Degraded->Insufficient": 273
+        }
+      }
+    }
+  },
+  "levels_changed": true,
+  "model_change": true,
   "v1": {
     "diagnostic": {
       "what": "post-hoc: only station-days whose 03 UTC report is in ISD (not the criterion)",

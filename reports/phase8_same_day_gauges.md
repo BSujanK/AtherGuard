@@ -32,18 +32,76 @@ GHCN-Daily 2026 is source flag 2 (Synoptic Summary of the Day v2); its flag-H ze
 
 | day | set | stations on D | SYNOP how on D | flagged on D | mean trust | High / Degraded / Insufficient | Normal / Watch / Warning / Emergency | blind-escalated | audit |
 |---|---|---|---|---|---|---|---|---|---|
+| 2026-11-10 | before (GHCN-Daily only) | 0 | - | 0 | - | 31135 / 5657 / 0 | 34259 / 2358 / 165 / 10 | 0 | 0 |
+| 2026-11-10 | after (SYNOP merged) | 139 | {'ir3_zero': 127, '24h_group': 12, 'no_03utc_report': 1} | 83 | 0.452 | 10176 / 26580 / 36 | 34246 / 2371 / 165 / 10 | 13 | 0 |
+| 2026-11-10 | after, GHCN flag-H zeros missing | 139 | {'ir3_zero': 127, '24h_group': 12, 'no_03utc_report': 1} | 83 | 0.451 | 10176 / 26580 / 36 | 34246 / 2371 / 165 / 10 | 13 | 0 |
+| 2026-11-11 | before (GHCN-Daily only) | 0 | - | 0 | - | 30310 / 6482 / 0 | 32797 / 3236 / 657 / 102 | 18 | 0 |
+| 2026-11-11 | after (SYNOP merged) | 139 | {'ir3_zero': 122, '24h_group': 17, 'no_03utc_report': 1} | 84 | 0.447 | 9859 / 26621 / 312 | 32772 / 3261 / 657 / 102 | 30 | 0 |
+| 2026-11-11 | after, GHCN flag-H zeros missing | 139 | {'ir3_zero': 122, '24h_group': 17, 'no_03utc_report': 1} | 84 | 0.447 | 9859 / 26621 / 312 | 32772 / 3261 / 657 / 102 | 30 | 0 |
+| 2026-11-12 | before (GHCN-Daily only) | 0 | - | 0 | - | 29445 / 7347 / 0 | 31653 / 4012 / 963 / 164 | 17 | 0 |
+| 2026-11-12 | after (SYNOP merged) | 139 | {'ir3_zero': 119, '24h_group': 20, 'no_03utc_report': 1} | 80 | 0.471 | 9652 / 26521 / 619 | 30631 / 5004 / 993 / 164 | 631 | 0 |
+| 2026-11-12 | after, GHCN flag-H zeros missing | 139 | {'ir3_zero': 119, '24h_group': 20, 'no_03utc_report': 1} | 80 | 0.469 | 9652 / 26521 / 619 | 30631 / 5004 / 993 / 164 | 631 | 0 |
+| 2026-11-13 | before (GHCN-Daily only) | 0 | - | 0 | - | 28990 / 7802 / 0 | 31121 / 4467 / 1025 / 179 | 8 | 0 |
+| 2026-11-13 | after (SYNOP merged) | 137 | {'ir3_zero': 125, '24h_group': 12, 'no_03utc_report': 3} | 79 | 0.456 | 9375 / 26920 / 497 | 30928 / 4654 / 1031 / 179 | 11 | 0 |
+| 2026-11-13 | after, GHCN flag-H zeros missing | 137 | {'ir3_zero': 125, '24h_group': 12, 'no_03utc_report': 3} | 79 | 0.456 | 9375 / 26920 / 497 | 30928 / 4654 / 1031 / 179 | 11 | 0 |
+| 2026-11-14 | before (GHCN-Daily only) | 0 | - | 0 | - | 29528 / 7264 / 0 | 32759 / 3295 / 625 / 113 | 0 | 0 |
+| 2026-11-14 | after (SYNOP merged) | 139 | {'ir3_zero': 129, '24h_group': 10, 'no_03utc_report': 1} | 81 | 0.451 | 9507 / 26868 / 417 | 32756 / 3298 / 625 / 113 | 0 | 0 |
+| 2026-11-14 | after, GHCN flag-H zeros missing | 139 | {'ir3_zero': 129, '24h_group': 10, 'no_03utc_report': 1} | 81 | 0.450 | 9507 / 26868 / 417 | 32756 / 3298 / 625 / 113 | 0 | 0 |
+| 2026-11-15 | before (GHCN-Daily only) | 0 | - | 0 | - | 29930 / 6862 / 0 | 33432 / 3050 / 284 / 26 | 0 | 0 |
+| 2026-11-15 | after (SYNOP merged) | 137 | {'ir3_zero': 118, '24h_group': 19, 'no_03utc_report': 3} | 77 | 0.459 | 9756 / 26763 / 273 | 33432 / 3050 / 284 / 26 | 0 | 0 |
+| 2026-11-15 | after, GHCN flag-H zeros missing | 137 | {'ir3_zero': 118, '24h_group': 19, 'no_03utc_report': 3} | 77 | 0.459 | 9756 / 26763 / 273 | 33432 / 3050 / 284 / 26 | 0 | 0 |
+
+**after (SYNOP merged): the engine flags 484 of 830 station readings on the run days (0.58); 825 station-days are out of distribution ('uncertain').** The readings are mostly dry-day zeros that agree with the IMD real-time grid (V2), so the flags point at the engine under its live substitute references, not at the SYNOP values (not verified).
+
+**after, GHCN flag-H zeros missing: the engine flags 484 of 830 station readings on the run days (0.58); 825 station-days are out of distribution ('uncertain').** The readings are mostly dry-day zeros that agree with the IMD real-time grid (V2), so the flags point at the engine under its live substitute references, not at the SYNOP values (not verified).
+
+Integrity-engine verdicts on D (station states of the alert engine and the engine's fault types):
+
+- before (GHCN-Daily only), 2026-11-10: states {'missing': 140}, fault types -, lowest trust -
+- before (GHCN-Daily only), 2026-11-11: states {'missing': 140}, fault types -, lowest trust -
+- before (GHCN-Daily only), 2026-11-12: states {'missing': 140}, fault types -, lowest trust -
+- before (GHCN-Daily only), 2026-11-13: states {'missing': 140}, fault types -, lowest trust -
+- before (GHCN-Daily only), 2026-11-14: states {'missing': 140}, fault types -, lowest trust -
+- before (GHCN-Daily only), 2026-11-15: states {'missing': 140}, fault types -, lowest trust -
+- after (SYNOP merged), 2026-11-10: states {'uncertain': 138, 'missing': 1, 'trusted': 1}, fault types {'zero_fault': 83}, lowest trust 0.013
+- after (SYNOP merged), 2026-11-11: states {'uncertain': 138, 'missing': 1, 'trusted': 1}, fault types {'zero_fault': 84}, lowest trust 0.013
+- after (SYNOP merged), 2026-11-12: states {'uncertain': 138, 'missing': 1, 'trusted': 1}, fault types {'zero_fault': 80}, lowest trust 0.004
+- after (SYNOP merged), 2026-11-13: states {'uncertain': 136, 'missing': 3, 'trusted': 1}, fault types {'zero_fault': 79}, lowest trust 0.004
+- after (SYNOP merged), 2026-11-14: states {'uncertain': 138, 'missing': 1, 'trusted': 1}, fault types {'zero_fault': 81}, lowest trust 0.004
+- after (SYNOP merged), 2026-11-15: states {'uncertain': 137, 'missing': 3}, fault types {'zero_fault': 76, 'scale_drift': 1}, lowest trust 0.004
+- after, GHCN flag-H zeros missing, 2026-11-10: states {'uncertain': 138, 'missing': 1, 'trusted': 1}, fault types {'zero_fault': 83}, lowest trust 0.013
+- after, GHCN flag-H zeros missing, 2026-11-11: states {'uncertain': 138, 'missing': 1, 'trusted': 1}, fault types {'zero_fault': 84}, lowest trust 0.013
+- after, GHCN flag-H zeros missing, 2026-11-12: states {'uncertain': 138, 'missing': 1, 'trusted': 1}, fault types {'zero_fault': 80}, lowest trust 0.004
+- after, GHCN flag-H zeros missing, 2026-11-13: states {'uncertain': 136, 'missing': 3, 'trusted': 1}, fault types {'zero_fault': 79}, lowest trust 0.004
+- after, GHCN flag-H zeros missing, 2026-11-14: states {'uncertain': 138, 'missing': 1, 'trusted': 1}, fault types {'zero_fault': 81}, lowest trust 0.004
+- after, GHCN flag-H zeros missing, 2026-11-15: states {'uncertain': 137, 'missing': 3}, fault types {'zero_fault': 76, 'scale_drift': 1}, lowest trust 0.004
 
 ## Level and confidence changes against `before`
 
 | day | set | cells | level changed (up / down) | level pairs | confidence changed | confidence pairs |
 |---|---|---|---|---|---|---|
+| 2026-11-10 | after (SYNOP merged) | 36792 | 13 (13 / 0) | {'Normal->Watch': 13} | 20995 | {'High->Degraded': 20959, 'Degraded->Insufficient': 36} |
+| 2026-11-10 | after, GHCN flag-H zeros missing | 36792 | 13 (13 / 0) | {'Normal->Watch': 13} | 20995 | {'High->Degraded': 20959, 'Degraded->Insufficient': 36} |
+| 2026-11-11 | after (SYNOP merged) | 36792 | 25 (25 / 0) | {'Normal->Watch': 25} | 20763 | {'High->Degraded': 20451, 'Degraded->Insufficient': 312} |
+| 2026-11-11 | after, GHCN flag-H zeros missing | 36792 | 25 (25 / 0) | {'Normal->Watch': 25} | 20763 | {'High->Degraded': 20451, 'Degraded->Insufficient': 312} |
+| 2026-11-12 | after (SYNOP merged) | 36792 | 1052 (1052 / 0) | {'Normal->Watch': 1022, 'Watch->Warning': 30} | 20412 | {'High->Degraded': 19793, 'Degraded->Insufficient': 619} |
+| 2026-11-12 | after, GHCN flag-H zeros missing | 36792 | 1052 (1052 / 0) | {'Normal->Watch': 1022, 'Watch->Warning': 30} | 20412 | {'High->Degraded': 19793, 'Degraded->Insufficient': 619} |
+| 2026-11-13 | after (SYNOP merged) | 36792 | 199 (199 / 0) | {'Normal->Watch': 193, 'Watch->Warning': 6} | 20112 | {'High->Degraded': 19615, 'Degraded->Insufficient': 497} |
+| 2026-11-13 | after, GHCN flag-H zeros missing | 36792 | 199 (199 / 0) | {'Normal->Watch': 193, 'Watch->Warning': 6} | 20112 | {'High->Degraded': 19615, 'Degraded->Insufficient': 497} |
+| 2026-11-14 | after (SYNOP merged) | 36792 | 3 (3 / 0) | {'Normal->Watch': 3} | 20438 | {'High->Degraded': 20021, 'Degraded->Insufficient': 417} |
+| 2026-11-14 | after, GHCN flag-H zeros missing | 36792 | 3 (3 / 0) | {'Normal->Watch': 3} | 20438 | {'High->Degraded': 20021, 'Degraded->Insufficient': 417} |
+| 2026-11-15 | after (SYNOP merged) | 36792 | 0 (0 / 0) | - | 20447 | {'High->Degraded': 20174, 'Degraded->Insufficient': 273} |
+| 2026-11-15 | after, GHCN flag-H zeros missing | 36792 | 0 (0 / 0) | - | 20447 | {'High->Degraded': 20174, 'Degraded->Insufficient': 273} |
 
 ## Totals
 
 | set | days | stations on D (sum) | High | Degraded | Insufficient | Watch | Warning | Emergency | blind-escalated | audit violations |
 |---|---|---|---|---|---|---|---|---|---|---|
+| before (GHCN-Daily only) | 6 | 0 | 179338 | 41414 | 0 | 20418 | 3719 | 594 | 43 | 0 |
+| after (SYNOP merged) | 6 | 830 | 58325 | 160273 | 2154 | 21638 | 3755 | 594 | 685 | 0 |
+| after, GHCN flag-H zeros missing | 6 | 830 | 58325 | 160273 | 2154 | 21638 | 3755 | 594 | 685 | 0 |
 
-Published alert levels do not change on these days; confidence may.
+**Published alert levels change in these replays: wiring the SYNOP gauges is a MODEL CHANGE.** The lead decides.
 
 ## Caveats
 
@@ -51,3 +109,4 @@ Published alert levels do not change on these days; confidence may.
 - Only the newest replayed day has reports with measured arrival times (the NWS ring); earlier days use OGIMET archive reports, treated as arriving `synop.latency_h` after observation.
 - The integrity engine runs with the live substitutes for its references (IMD real-time grid, IMERG), as every live run does; that substitution is not validated.
 - V1 compares two summaries of the same reports; it tests the decoding and the day rule, not the gauges.
+- The `after, GHCN flag-H zeros missing` run of 15 Nov was repeated: its first attempt hit a DNS failure (GHCN failed, IMD real-time late); the failed run.json is kept in the scratch replay directory.
