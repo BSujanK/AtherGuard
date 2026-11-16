@@ -6,7 +6,7 @@ Measured 2026-11-15T18:33:01+00:00 (and during 15-16 Nov 2026 for the evidence f
 
 1. **NOAA ISD / Global Hourly and GSOD have ended.** isd-history.csv last modified Sat, 30 Aug 2025 00:02:02 GMT; newest year prefix in `noaa-isd-pds`: data/2025/, in `noaa-global-hourly-pds`: 2025/; GSOD 2026 files: HTTP [404]. NCEI's successor products are GHCNh (hourly) and the Synoptic Summary of the Day v2 (SSOD, GHCN-Daily source flag 2).
 2. **The engine's current gauge source carries no rain in 2026.** GHCN-Daily for the 140 project stations, June-September 2026: 3861 station-days from 69 stations, source flags {'2': 3861}, measurement flags {'H': 3856, 'G': 5}; share >= 1 mm 0.0010 against 0.6328 in June-September 2024 (10234 station-days, source S). Flag H means the amount 'could not be calculated, but at least one occurrence of precipitation was noted': these are not measured zeros, yet the live run reads them as dry days.
-3. **The same stations' own SYNOP reports are on the WMO GTS within the hour.** In the NWS ring on 15 Nov 2026, 137 of 140 stations had a non-NIL 03 UTC report, 137 of them before 05:30 UTC (the run), p95 delay 0.53 h, maximum 1.75 h.
+3. **The same stations' own SYNOP reports are on the WMO GTS within the hour.** NWS ring, 03 UTC cycles: 2026-11-15: 137 of 140 stations with a non-NIL report, 137 before 05:30 UTC (the run), p95 delay 0.53 h, maximum 1.75 h; 2026-11-16: 137 of 140 stations with a non-NIL report, 137 before 05:30 UTC (the run), p95 delay 0.75 h, maximum 0.92 h. All hours: 0 UTC p90 0.42 h max 3.83 h (223 reports); 3 UTC p90 0.50 h max 1.75 h (274 reports); 6 UTC p90 0.42 h max 0.67 h (133 reports); 9 UTC p90 0.50 h max 0.58 h (130 reports); 12 UTC p90 0.50 h max 1.58 h (274 reports); 15 UTC p90 0.50 h max 1.42 h (213 reports); 18 UTC p90 0.42 h max 6.08 h (199 reports); 21 UTC p90 1.25 h max 4.25 h (198 reports).
 
 ## Candidates
 
@@ -46,5 +46,5 @@ Precipitation in Indian SYNOPs: section 1 `i_R` (3 = omitted because zero, 4 = n
 
 ## Caveats
 
-- Latency of the ring was measured on one 03 UTC cycle (15 Nov 2026) and the hours around it; the collection job keeps measuring (ledger).
+- Latency of the ring was measured on two 03 UTC cycles (15 and 16 Nov 2026) and the hours in between; more days need the daily collection.
 - The station list near the scored cells comes from isd-history.csv, frozen since August 2025.

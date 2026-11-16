@@ -133,10 +133,12 @@ def render(r: dict) -> str:
              f"{m24.get('wet_share_ge1mm'):.4f} in June-September 2024 ({m24.get('station_days')} station-days, source S). Flag H "
              "means the amount 'could not be calculated, but at least one occurrence of precipitation was noted': these "
              "are not measured zeros, yet the live run reads them as dry days.",
-             f"3. **The same stations' own SYNOP reports are on the WMO GTS within the hour.** In the NWS ring on 15 Nov 2026, "
-             f"{o3.get('stations_reported')} of {lat.get('wmo_stations')} stations had a non-NIL 03 UTC report, "
-             f"{o3.get('by_0530utc')} of them before 05:30 UTC (the run), p95 delay {o3.get('lag_h_p95', 0):.2f} h, "
-             f"maximum {o3.get('lag_h_max', 0):.2f} h.",
+             "3. **The same stations' own SYNOP reports are on the WMO GTS within the hour.** NWS ring, 03 UTC cycles: "
+             + "; ".join(f"{t[:10]}: {v.get('stations_reported')} of {lat.get('wmo_stations')} stations with a non-NIL "
+                         f"report, {v.get('by_0530utc')} before 05:30 UTC (the run), p95 delay {v.get('lag_h_p95', 0):.2f} h, "
+                         f"maximum {v.get('lag_h_max', 0):.2f} h" for t, v in (lat.get('03utc') or {}).items())
+             + ". All hours: " + "; ".join(f"{h} UTC p90 {v['lag_h_p90']:.2f} h max {v['lag_h_max']:.2f} h ({v['reports']} reports)"
+                                         for h, v in (lat.get('by_hour') or {}).items()) + ".",
              "", "## Candidates", "",
              "| source | data end (measured) | latency | precipitation for our stations | licence | verdict |",
              "|---|---|---|---|---|---|",
@@ -176,8 +178,8 @@ def render(r: dict) -> str:
     lines += [f"- {k}: {v}" for k, v in r["licences"].items()]
     lines += ["", "## Decisions for the user", ""] + [f"- {d}" for d in r["decisions_for_user"]]
     lines += ["", "## Caveats", "",
-              "- Latency of the ring was measured on one 03 UTC cycle (15 Nov 2026) and the hours around it; the "
-              "collection job keeps measuring (ledger).",
+              "- Latency of the ring was measured on two 03 UTC cycles (15 and 16 Nov 2026) and the hours in between; "
+              "more days need the daily collection.",
               "- The station list near the scored cells comes from isd-history.csv, frozen since August 2025.", ""]
     return "\n".join(lines)
 
