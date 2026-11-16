@@ -1,0 +1,235 @@
+{
+  "generated_utc": "2026-11-16T02:58:49+00:00",
+  "replay_dir": "C:\\Users\\sujan\\AtherGuard-backups\\scratch\\leads-v4\\replays",
+  "reference": "the same set's published lead 0 of the target day (replayed, backtest mode)",
+  "audit": {
+    "c": {
+      "days": 32,
+      "violations": 0,
+      "by_check": {},
+      "lead_intensity_used": 0,
+      "expected_risk_leads": 0
+    },
+    "a": {
+      "days": 32,
+      "violations": 0,
+      "by_check": {},
+      "lead_intensity_used": 29,
+      "expected_risk_leads": 0
+    },
+    "b": {
+      "days": 32,
+      "violations": 0,
+      "by_check": {},
+      "lead_intensity_used": 29,
+      "expected_risk_leads": 32
+    }
+  },
+  "results": {
+    "1": {
+      "c": {
+        "pairs": 1140497,
+        "agreement": 0.882651159976747,
+        "within_one": 0.9901095750361465,
+        "warning_plus_recall": 0.5083337785138095,
+        "warning_plus_precision": 0.4775419050486801,
+        "emergency_recall": 0.3598199212155318,
+        "emergency_precision": 0.2436737804878049,
+        "burden_reference": {
+          "normal": 0.829177981178381,
+          "watch": 0.1379959789460209,
+          "warning": 0.025035576595115988,
+          "emergency": 0.0077904632804821055
+        },
+        "burden_forecast": {
+          "normal": 0.832993861448123,
+          "watch": 0.13206347758915632,
+          "warning": 0.023438904267174748,
+          "emergency": 0.011503756695545889
+        },
+        "issue_days": 31
+      },
+      "a": {
+        "pairs": 1140497,
+        "agreement": 0.9210379334623414,
+        "within_one": 0.995797446201086,
+        "warning_plus_recall": 0.521315241198782,
+        "warning_plus_precision": 0.7159311837423425,
+        "emergency_recall": 0.29510410804727066,
+        "emergency_precision": 0.5213760190892822,
+        "burden_reference": {
+          "normal": 0.829177981178381,
+          "watch": 0.1379959789460209,
+          "warning": 0.025035576595115988,
+          "emergency": 0.0077904632804821055
+        },
+        "burden_forecast": {
+          "normal": 0.8531420950690796,
+          "watch": 0.12295516779088415,
+          "warning": 0.01949325601031831,
+          "emergency": 0.004409481129718009
+        },
+        "issue_days": 31
+      },
+      "b": {
+        "pairs": 1140497,
+        "agreement": 0.9200927315021433,
+        "within_one": 0.9958000766332572,
+        "warning_plus_recall": 0.521315241198782,
+        "warning_plus_precision": 0.7159311837423425,
+        "emergency_recall": 0.29510410804727066,
+        "emergency_precision": 0.5213760190892822,
+        "burden_reference": {
+          "normal": 0.8279162505469106,
+          "watch": 0.13925770957749123,
+          "warning": 0.025035576595115988,
+          "emergency": 0.0077904632804821055
+        },
+        "burden_forecast": {
+          "normal": 0.8531420950690796,
+          "watch": 0.12295516779088415,
+          "warning": 0.01949325601031831,
+          "emergency": 0.004409481129718009
+        },
+        "issue_days": 31
+      }
+    },
+    "2": {
+      "c": {
+        "pairs": 1103681,
+        "agreement": 0.8738023033829522,
+        "within_one": 0.9876757867536,
+        "warning_plus_recall": 0.47009934238141876,
+        "warning_plus_precision": 0.4546537118731224,
+        "emergency_recall": 0.3835956917978459,
+        "emergency_precision": 0.2510262566803501,
+        "burden_reference": {
+          "normal": 0.8324225931224692,
+          "watch": 0.13519939185326194,
+          "warning": 0.02472272332313413,
+          "emergency": 0.007655291701134658
+        },
+        "burden_forecast": {
+          "normal": 0.8346832100942211,
+          "watch": 0.13183881936900246,
+          "warning": 0.021779843994777476,
+          "emergency": 0.011698126541999001
+        },
+        "issue_days": 30
+      },
+      "a": {
+        "pairs": 1103681,
+        "agreement": 0.9141327974296921,
+        "within_one": 0.99413417463923,
+        "warning_plus_recall": 0.4757520638029943,
+        "warning_plus_precision": 0.7476582083644839,
+        "emergency_recall": 0.3084388685051485,
+        "emergency_precision": 0.5646803900325027,
+        "burden_reference": {
+          "normal": 0.8324225931224692,
+          "watch": 0.13519939185326194,
+          "warning": 0.02472272332313413,
+          "emergency": 0.007655291701134658
+        },
+        "burden_forecast": {
+          "normal": 0.8558043492639631,
+          "watch": 0.12359277726082084,
+          "warning": 0.01642141162165517,
+          "emergency": 0.004181461853560948
+        },
+        "issue_days": 30
+      },
+      "b": {
+        "pairs": 1103681,
+        "agreement": 0.9115903961380145,
+        "within_one": 0.9939303113852644,
+        "warning_plus_recall": 0.4321533510563873,
+        "warning_plus_precision": 0.7586460994301435,
+        "emergency_recall": 0.28121671203692744,
+        "emergency_precision": 0.5538461538461539,
+        "burden_reference": {
+          "normal": 0.831118774355996,
+          "watch": 0.13650321061973522,
+          "warning": 0.02472272332313413,
+          "emergency": 0.007655291701134658
+        },
+        "burden_forecast": {
+          "normal": 0.8624820034049694,
+          "watch": 0.11907426149403677,
+          "warning": 0.014556742392049876,
+          "emergency": 0.003886992708943979
+        },
+        "issue_days": 30
+      }
+    },
+    "3": {
+      "c": {
+        "pairs": 1066877,
+        "agreement": 0.8719318159450433,
+        "within_one": 0.9840740778927656,
+        "warning_plus_recall": 0.3918675782655632,
+        "warning_plus_precision": 0.4228578824747605,
+        "emergency_recall": 0.2879938231887788,
+        "emergency_precision": 0.18165584415584415,
+        "burden_reference": {
+          "normal": 0.8363691409600169,
+          "watch": 0.13237327264530024,
+          "warning": 0.023973710184023087,
+          "emergency": 0.007283876210659711
+        },
+        "burden_forecast": {
+          "normal": 0.8603034839067671,
+          "watch": 0.1107297279817636,
+          "warning": 0.017419065178085197,
+          "emergency": 0.011547722933384073
+        },
+        "issue_days": 29
+      },
+      "a": {
+        "pairs": 1066877,
+        "agreement": 0.9037508541284516,
+        "within_one": 0.9898291930559943,
+        "warning_plus_recall": 0.40023389708528245,
+        "warning_plus_precision": 0.6536559087124737,
+        "emergency_recall": 0.23600566207695278,
+        "emergency_precision": 0.3920478837109876,
+        "burden_reference": {
+          "normal": 0.8363691409600169,
+          "watch": 0.13237327264530024,
+          "warning": 0.023973710184023087,
+          "emergency": 0.007283876210659711
+        },
+        "burden_forecast": {
+          "normal": 0.8752508489732181,
+          "watch": 0.10561011250594024,
+          "warning": 0.014754278140779115,
+          "emergency": 0.004384760380062557
+        },
+        "issue_days": 29
+      },
+      "b": {
+        "pairs": 1066877,
+        "agreement": 0.9007495709439794,
+        "within_one": 0.9896586016944784,
+        "warning_plus_recall": 0.37654432049898046,
+        "warning_plus_precision": 0.6407286457801816,
+        "emergency_recall": 0.1868485394415133,
+        "emergency_precision": 0.3422106999764318,
+        "burden_reference": {
+          "normal": 0.8350203444258335,
+          "watch": 0.13372206917948368,
+          "warning": 0.023973710184023087,
+          "emergency": 0.007283876210659711
+        },
+        "burden_forecast": {
+          "normal": 0.8779306330532948,
+          "watch": 0.10369986418303141,
+          "warning": 0.014392474483937698,
+          "emergency": 0.00397702827973609
+        },
+        "issue_days": 29
+      }
+    }
+  },
+  "caveat": "October-November 2026: outside the validated season (June-September)"
+}

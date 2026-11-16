@@ -1,0 +1,24 @@
+{
+  "parts": {
+    "measure": "phase8_leads_v4_measure.json",
+    "e1": "phase8_leads_v4_e1.json",
+    "e2": "phase8_leads_v4_e2.json"
+  },
+  "look_choice": {
+    "chosen": "a",
+    "candidates": {
+      "a": {
+        "warning_plus_recall_lead2": 0.7825721134765284,
+        "burden_within_20pct": true,
+        "burden_problems": []
+      },
+      "b": {
+        "warning_plus_recall_lead2": 0.7415741931387023,
+        "burden_within_20pct": true,
+        "burden_problems": []
+      }
+    },
+    "rule": "higher lead-2 Warning+ recall of the v4 reference among a and b (a on a tie: the simpler), burden by level within 20% of the reference at every lead; none qualifies: no look"
+  },
+  "generated_utc": "2026-11-16T06:55:47+00:00"
+}

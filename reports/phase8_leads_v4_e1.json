@@ -1,0 +1,1568 @@
+{
+  "generated_utc": "2026-11-16T04:35:04+00:00",
+  "years": [
+    2022,
+    2023,
+    2024
+  ],
+  "months": [
+    6,
+    7,
+    8,
+    9
+  ],
+  "cells": 2536,
+  "seed": 20261115,
+  "candidates": {
+    "c": "v3 on the selected forecast rain (incumbent)",
+    "a": "v4, forecast intensity mapped",
+    "b": "a with the expected risk over the ensemble percentiles (= a where the lead's rain is GFS)",
+    "a_oracle": "v4 with the observed Late intensity of the window (diagnostic ceiling)",
+    "a_raw": "v4 with unmapped forecast intensity (diagnostic)"
+  },
+  "reference": "published level of the target day from observed features (lead 0 as the live run scores it): v4 with Late lag-1 intensity and static inputs; v3 for the incumbent's own consistency",
+  "issue_days": {
+    "1": 366,
+    "2": 366,
+    "3": 366
+  },
+  "forecast_sources": {
+    "1": {
+      "NOAA GFS": 366
+    },
+    "2": {
+      "GFS fallback": 164,
+      "ECMWF IFS ensemble mean (CC BY 4.0)": 202
+    },
+    "3": {
+      "GFS fallback": 164,
+      "ECMWF IFS ensemble mean (CC BY 4.0), bias-corrected": 202
+    }
+  },
+  "results": {
+    "1": {
+      "a": {
+        "vs_v4_reference": {
+          "pairs": 928155,
+          "agreement": 0.8233937219537685,
+          "within_one": 0.9909444004503558,
+          "warning_plus_recall": 0.8051687964905588,
+          "warning_plus_precision": 0.7065074893308415,
+          "emergency_recall": 0.6206396541818281,
+          "emergency_precision": 0.5672100815122268,
+          "burden_reference": {
+            "normal": 0.566737236776185,
+            "watch": 0.297690579698434,
+            "warning": 0.09619190760163981,
+            "emergency": 0.03938027592374119
+          },
+          "burden_forecast": {
+            "normal": 0.5410206269426981,
+            "watch": 0.30447500686846485,
+            "warning": 0.11141458053881087,
+            "emergency": 0.04308978565002613
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 168123,
+              "mean_lead_risk": 2.0429006396501216e-12,
+              "mean_lead0_risk": 2.5288632325939606e-08
+            },
+            {
+              "decile": 3,
+              "n": 91348,
+              "mean_lead_risk": 1.8487666914207327e-07,
+              "mean_lead0_risk": 2.906471117639549e-07
+            },
+            {
+              "decile": 4,
+              "n": 50149,
+              "mean_lead_risk": 3.7525274071954995e-07,
+              "mean_lead0_risk": 3.1119957157244844e-07
+            },
+            {
+              "decile": 5,
+              "n": 88265,
+              "mean_lead_risk": 5.138240681553517e-07,
+              "mean_lead0_risk": 6.40910899118198e-07
+            },
+            {
+              "decile": 6,
+              "n": 155403,
+              "mean_lead_risk": 1.5439452771002476e-06,
+              "mean_lead0_risk": 1.8007185027495422e-06
+            },
+            {
+              "decile": 7,
+              "n": 20945,
+              "mean_lead_risk": 3.0266729291073785e-06,
+              "mean_lead0_risk": 3.039810772838677e-06
+            },
+            {
+              "decile": 8,
+              "n": 155560,
+              "mean_lead_risk": 4.544186767473525e-06,
+              "mean_lead0_risk": 6.237073037108971e-06
+            },
+            {
+              "decile": 9,
+              "n": 96384,
+              "mean_lead_risk": 1.4148248340488074e-05,
+              "mean_lead0_risk": 1.624175185064599e-05
+            },
+            {
+              "decile": 10,
+              "n": 101978,
+              "mean_lead_risk": 0.0002632403208744966,
+              "mean_lead0_risk": 0.0002731473573248025
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.002250170828500246,
+            "warning_plus_recall": 0.0030750738745652247
+          }
+        }
+      },
+      "a_oracle": {
+        "vs_v4_reference": {
+          "pairs": 928155,
+          "agreement": 0.8244323415808782,
+          "within_one": 0.9909778000441737,
+          "warning_plus_recall": 0.8061383431877424,
+          "warning_plus_precision": 0.7074815698254278,
+          "emergency_recall": 0.6224179912998277,
+          "emergency_precision": 0.5681250624313255,
+          "burden_reference": {
+            "normal": 0.566737236776185,
+            "watch": 0.297690579698434,
+            "warning": 0.09619190760163981,
+            "emergency": 0.03938027592374119
+          },
+          "burden_forecast": {
+            "normal": 0.5409118089112271,
+            "watch": 0.3046107600562406,
+            "warning": 0.11133377506989674,
+            "emergency": 0.04314365596263555
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 168381,
+              "mean_lead_risk": 2.039770426829021e-12,
+              "mean_lead0_risk": 2.4963583750539977e-08
+            },
+            {
+              "decile": 3,
+              "n": 91374,
+              "mean_lead_risk": 1.849856362354949e-07,
+              "mean_lead0_risk": 2.884038043951759e-07
+            },
+            {
+              "decile": 4,
+              "n": 50020,
+              "mean_lead_risk": 3.752455898398055e-07,
+              "mean_lead0_risk": 3.1237489438052426e-07
+            },
+            {
+              "decile": 5,
+              "n": 88195,
+              "mean_lead_risk": 5.133884113156366e-07,
+              "mean_lead0_risk": 6.398763313500646e-07
+            },
+            {
+              "decile": 6,
+              "n": 155298,
+              "mean_lead_risk": 1.5442328215863252e-06,
+              "mean_lead0_risk": 1.7991254176645937e-06
+            },
+            {
+              "decile": 7,
+              "n": 21056,
+              "mean_lead_risk": 3.0269981031150465e-06,
+              "mean_lead0_risk": 3.0250741552636238e-06
+            },
+            {
+              "decile": 8,
+              "n": 155398,
+              "mean_lead_risk": 4.5449677324840005e-06,
+              "mean_lead0_risk": 6.219411316927778e-06
+            },
+            {
+              "decile": 9,
+              "n": 96412,
+              "mean_lead_risk": 1.4147136811707859e-05,
+              "mean_lead0_risk": 1.62150793298043e-05
+            },
+            {
+              "decile": 10,
+              "n": 102021,
+              "mean_lead_risk": 0.00026217198205342996,
+              "mean_lead0_risk": 0.00027309735677909415
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.0022709024194385477,
+            "warning_plus_recall": 0.003066939993067571
+          }
+        }
+      },
+      "a_raw": {
+        "vs_v4_reference": {
+          "pairs": 928155,
+          "agreement": 0.8228593284526831,
+          "within_one": 0.9908679046064505,
+          "warning_plus_recall": 0.8021886324623307,
+          "warning_plus_precision": 0.7065827605034369,
+          "emergency_recall": 0.6150584115345681,
+          "emergency_precision": 0.5660724177871783,
+          "burden_reference": {
+            "normal": 0.566737236776185,
+            "watch": 0.297690579698434,
+            "warning": 0.09619190760163981,
+            "emergency": 0.03938027592374119
+          },
+          "burden_forecast": {
+            "normal": 0.5413319973495806,
+            "watch": 0.3047519002752773,
+            "warning": 0.11112799047572873,
+            "emergency": 0.04278811189941335
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 168474,
+              "mean_lead_risk": 2.0386444450769696e-12,
+              "mean_lead0_risk": 2.5624284909589854e-08
+            },
+            {
+              "decile": 3,
+              "n": 91410,
+              "mean_lead_risk": 1.8468215861652487e-07,
+              "mean_lead0_risk": 2.949956850890985e-07
+            },
+            {
+              "decile": 4,
+              "n": 50109,
+              "mean_lead_risk": 3.752569593597814e-07,
+              "mean_lead0_risk": 3.1214940137221825e-07
+            },
+            {
+              "decile": 5,
+              "n": 88215,
+              "mean_lead_risk": 5.135254773438348e-07,
+              "mean_lead0_risk": 6.447182681076614e-07
+            },
+            {
+              "decile": 6,
+              "n": 155526,
+              "mean_lead_risk": 1.5443380413228502e-06,
+              "mean_lead0_risk": 1.8128586048721064e-06
+            },
+            {
+              "decile": 7,
+              "n": 20953,
+              "mean_lead_risk": 3.026966178974117e-06,
+              "mean_lead0_risk": 3.061663968192009e-06
+            },
+            {
+              "decile": 8,
+              "n": 155536,
+              "mean_lead_risk": 4.5457167469548585e-06,
+              "mean_lead0_risk": 6.297902491658904e-06
+            },
+            {
+              "decile": 9,
+              "n": 96477,
+              "mean_lead_risk": 1.4149791942637788e-05,
+              "mean_lead0_risk": 1.6315270003848014e-05
+            },
+            {
+              "decile": 10,
+              "n": 101455,
+              "mean_lead_risk": 0.0002460955913287571,
+              "mean_lead0_risk": 0.00027434522414865943
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.0022463494667311406,
+            "warning_plus_recall": 0.0031348800936392483
+          }
+        }
+      },
+      "b": {
+        "vs_v4_reference": {
+          "pairs": 928155,
+          "agreement": 0.8233937219537685,
+          "within_one": 0.9909444004503558,
+          "warning_plus_recall": 0.8051687964905588,
+          "warning_plus_precision": 0.7065074893308415,
+          "emergency_recall": 0.6206396541818281,
+          "emergency_precision": 0.5672100815122268,
+          "burden_reference": {
+            "normal": 0.566737236776185,
+            "watch": 0.297690579698434,
+            "warning": 0.09619190760163981,
+            "emergency": 0.03938027592374119
+          },
+          "burden_forecast": {
+            "normal": 0.5410206269426981,
+            "watch": 0.30447500686846485,
+            "warning": 0.11141458053881087,
+            "emergency": 0.04308978565002613
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 168123,
+              "mean_lead_risk": 2.0429006396501216e-12,
+              "mean_lead0_risk": 2.5288632325939606e-08
+            },
+            {
+              "decile": 3,
+              "n": 91348,
+              "mean_lead_risk": 1.8487666914207327e-07,
+              "mean_lead0_risk": 2.906471117639549e-07
+            },
+            {
+              "decile": 4,
+              "n": 50149,
+              "mean_lead_risk": 3.7525274071954995e-07,
+              "mean_lead0_risk": 3.1119957157244844e-07
+            },
+            {
+              "decile": 5,
+              "n": 88265,
+              "mean_lead_risk": 5.138240681553517e-07,
+              "mean_lead0_risk": 6.40910899118198e-07
+            },
+            {
+              "decile": 6,
+              "n": 155403,
+              "mean_lead_risk": 1.5439452771002476e-06,
+              "mean_lead0_risk": 1.8007185027495422e-06
+            },
+            {
+              "decile": 7,
+              "n": 20945,
+              "mean_lead_risk": 3.0266729291073785e-06,
+              "mean_lead0_risk": 3.039810772838677e-06
+            },
+            {
+              "decile": 8,
+              "n": 155560,
+              "mean_lead_risk": 4.544186767473525e-06,
+              "mean_lead0_risk": 6.237073037108971e-06
+            },
+            {
+              "decile": 9,
+              "n": 96384,
+              "mean_lead_risk": 1.4148248340488074e-05,
+              "mean_lead0_risk": 1.624175185064599e-05
+            },
+            {
+              "decile": 10,
+              "n": 101978,
+              "mean_lead_risk": 0.0002632403208744966,
+              "mean_lead0_risk": 0.0002731473573248025
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.002250170828500246,
+            "warning_plus_recall": 0.0030750738745652247
+          }
+        }
+      },
+      "c": {
+        "vs_v3_reference": {
+          "pairs": 928155,
+          "agreement": 0.770367018439808,
+          "within_one": 0.9795152749271404,
+          "warning_plus_recall": 0.8126337590610977,
+          "warning_plus_precision": 0.7079945867375069,
+          "emergency_recall": 0.6427990121793793,
+          "emergency_precision": 0.5827037065303111,
+          "burden_reference": {
+            "normal": 0.48566349370525397,
+            "watch": 0.3270617515393442,
+            "warning": 0.11049016597443315,
+            "emergency": 0.0767845887809687
+          },
+          "burden_forecast": {
+            "normal": 0.4582478142120659,
+            "watch": 0.3267988644138102,
+            "warning": 0.1302497966395699,
+            "emergency": 0.08470352473455403
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 1,
+              "n": 33111,
+              "mean_lead_risk": 0.0,
+              "mean_lead0_risk": 2.017246073502209e-08
+            },
+            {
+              "decile": 2,
+              "n": 97484,
+              "mean_lead_risk": 1.0843125775976265e-07,
+              "mean_lead0_risk": 1.8751149473420407e-07
+            },
+            {
+              "decile": 3,
+              "n": 140207,
+              "mean_lead_risk": 1.665098574369763e-07,
+              "mean_lead0_risk": 2.3305580137686728e-07
+            },
+            {
+              "decile": 4,
+              "n": 32308,
+              "mean_lead_risk": 3.8627482664688426e-07,
+              "mean_lead0_risk": 5.521265597118015e-07
+            },
+            {
+              "decile": 5,
+              "n": 153213,
+              "mean_lead_risk": 1.0068285676685009e-06,
+              "mean_lead0_risk": 1.294339609653562e-06
+            },
+            {
+              "decile": 6,
+              "n": 84045,
+              "mean_lead_risk": 2.6621390742887844e-06,
+              "mean_lead0_risk": 3.211349879145217e-06
+            },
+            {
+              "decile": 7,
+              "n": 97414,
+              "mean_lead_risk": 4.535582199757871e-06,
+              "mean_lead0_risk": 5.912816103410594e-06
+            },
+            {
+              "decile": 8,
+              "n": 88453,
+              "mean_lead_risk": 8.367376350233516e-06,
+              "mean_lead0_risk": 1.0525622417570936e-05
+            },
+            {
+              "decile": 9,
+              "n": 107786,
+              "mean_lead_risk": 1.968674121880433e-05,
+              "mean_lead0_risk": 2.1913988966227977e-05
+            },
+            {
+              "decile": 10,
+              "n": 94134,
+              "mean_lead_risk": 0.00018542025700572844,
+              "mean_lead0_risk": 0.0002005816822957283
+            }
+          ]
+        },
+        "vs_v4_reference": {
+          "pairs": 928155,
+          "agreement": 0.6554573320188977,
+          "within_one": 0.9477953574564594,
+          "warning_plus_recall": 0.7528689045711743,
+          "warning_plus_precision": 0.4748383539672197,
+          "emergency_recall": 0.5687669284014117,
+          "emergency_precision": 0.26443053753593326,
+          "burden_reference": {
+            "normal": 0.566737236776185,
+            "watch": 0.297690579698434,
+            "warning": 0.09619190760163981,
+            "emergency": 0.03938027592374119
+          },
+          "burden_forecast": {
+            "normal": 0.4582478142120659,
+            "watch": 0.3267988644138102,
+            "warning": 0.1302497966395699,
+            "emergency": 0.08470352473455403
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 1,
+              "n": 33111,
+              "mean_lead_risk": 0.0,
+              "mean_lead0_risk": 7.669603709026777e-08
+            },
+            {
+              "decile": 2,
+              "n": 97484,
+              "mean_lead_risk": 1.0843125775976265e-07,
+              "mean_lead0_risk": 2.0483988932151525e-07
+            },
+            {
+              "decile": 3,
+              "n": 140207,
+              "mean_lead_risk": 1.665098574369763e-07,
+              "mean_lead0_risk": 4.0172525028415664e-07
+            },
+            {
+              "decile": 4,
+              "n": 32308,
+              "mean_lead_risk": 3.8627482664688426e-07,
+              "mean_lead0_risk": 7.789898611930202e-07
+            },
+            {
+              "decile": 5,
+              "n": 153213,
+              "mean_lead_risk": 1.0068285676685009e-06,
+              "mean_lead0_risk": 1.6476153708883025e-06
+            },
+            {
+              "decile": 6,
+              "n": 84045,
+              "mean_lead_risk": 2.6621390742887844e-06,
+              "mean_lead0_risk": 3.6315594572493194e-06
+            },
+            {
+              "decile": 7,
+              "n": 97414,
+              "mean_lead_risk": 4.535582199757871e-06,
+              "mean_lead0_risk": 6.605589261387872e-06
+            },
+            {
+              "decile": 8,
+              "n": 88453,
+              "mean_lead_risk": 8.367376350233516e-06,
+              "mean_lead0_risk": 1.1412929260608599e-05
+            },
+            {
+              "decile": 9,
+              "n": 107786,
+              "mean_lead_risk": 1.968674121880433e-05,
+              "mean_lead0_risk": 3.689299838984577e-05
+            },
+            {
+              "decile": 10,
+              "n": 94134,
+              "mean_lead_risk": 0.00018542025700572844,
+              "mean_lead0_risk": 0.0002607559951179257
+            }
+          ]
+        }
+      }
+    },
+    "2": {
+      "a": {
+        "vs_v4_reference": {
+          "pairs": 928152,
+          "agreement": 0.8016790353304201,
+          "within_one": 0.9896353183530284,
+          "warning_plus_recall": 0.7825721134765284,
+          "warning_plus_precision": 0.690222489813635,
+          "emergency_recall": 0.5884041331802525,
+          "emergency_precision": 0.5509060196560197,
+          "burden_reference": {
+            "normal": 0.5658695989450004,
+            "watch": 0.29839616786905593,
+            "warning": 0.09632043027435161,
+            "emergency": 0.039413802911592064
+          },
+          "burden_forecast": {
+            "normal": 0.5327845008145218,
+            "watch": 0.3133204475129074,
+            "warning": 0.11179849852179384,
+            "emergency": 0.042096553150777025
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 163448,
+              "mean_lead_risk": 6.81856330163319e-13,
+              "mean_lead0_risk": 2.8526757724550064e-08
+            },
+            {
+              "decile": 3,
+              "n": 91086,
+              "mean_lead_risk": 1.8549476802389563e-07,
+              "mean_lead0_risk": 3.3154277579253323e-07
+            },
+            {
+              "decile": 4,
+              "n": 49346,
+              "mean_lead_risk": 3.7521720343342227e-07,
+              "mean_lead0_risk": 2.975199219949958e-07
+            },
+            {
+              "decile": 5,
+              "n": 87735,
+              "mean_lead_risk": 5.145222003553442e-07,
+              "mean_lead0_risk": 6.738147609791243e-07
+            },
+            {
+              "decile": 6,
+              "n": 157619,
+              "mean_lead_risk": 1.5442228932466733e-06,
+              "mean_lead0_risk": 1.8504593803193798e-06
+            },
+            {
+              "decile": 7,
+              "n": 21016,
+              "mean_lead_risk": 3.026810921110785e-06,
+              "mean_lead0_risk": 3.0681382316434615e-06
+            },
+            {
+              "decile": 8,
+              "n": 158931,
+              "mean_lead_risk": 4.548774061895697e-06,
+              "mean_lead0_risk": 6.537377015328414e-06
+            },
+            {
+              "decile": 9,
+              "n": 98114,
+              "mean_lead_risk": 1.4073941413878961e-05,
+              "mean_lead0_risk": 1.6711704431974656e-05
+            },
+            {
+              "decile": 10,
+              "n": 100857,
+              "mean_lead_risk": 0.00015788581840674246,
+              "mean_lead0_risk": 0.00027476217703989333
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.0021700893407874634,
+            "warning_plus_recall": 0.0032009472428615494
+          }
+        }
+      },
+      "a_oracle": {
+        "vs_v4_reference": {
+          "pairs": 928152,
+          "agreement": 0.8075282927796309,
+          "within_one": 0.9902375903946767,
+          "warning_plus_recall": 0.7890174786874316,
+          "warning_plus_precision": 0.6972105126568516,
+          "emergency_recall": 0.5988190913564048,
+          "emergency_precision": 0.5598977635782748,
+          "burden_reference": {
+            "normal": 0.5658695989450004,
+            "watch": 0.29839616786905593,
+            "warning": 0.09632043027435161,
+            "emergency": 0.039413802911592064
+          },
+          "burden_forecast": {
+            "normal": 0.5330991044570286,
+            "watch": 0.31329351226954205,
+            "warning": 0.11145372740671787,
+            "emergency": 0.042153655866711486
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 163700,
+              "mean_lead_risk": 6.211537250753738e-13,
+              "mean_lead0_risk": 2.5851591922694633e-08
+            },
+            {
+              "decile": 3,
+              "n": 90940,
+              "mean_lead_risk": 1.8596988413141125e-07,
+              "mean_lead0_risk": 3.0174905421063096e-07
+            },
+            {
+              "decile": 4,
+              "n": 49402,
+              "mean_lead_risk": 3.751844693401762e-07,
+              "mean_lead0_risk": 2.944395054307177e-07
+            },
+            {
+              "decile": 5,
+              "n": 87605,
+              "mean_lead_risk": 5.148244103849795e-07,
+              "mean_lead0_risk": 6.574792413133243e-07
+            },
+            {
+              "decile": 6,
+              "n": 157597,
+              "mean_lead_risk": 1.5437465105755774e-06,
+              "mean_lead0_risk": 1.8122459379121883e-06
+            },
+            {
+              "decile": 7,
+              "n": 21057,
+              "mean_lead_risk": 3.0264227655601012e-06,
+              "mean_lead0_risk": 3.0251184646159316e-06
+            },
+            {
+              "decile": 8,
+              "n": 159204,
+              "mean_lead_risk": 4.545320532796563e-06,
+              "mean_lead0_risk": 6.3983407676615755e-06
+            },
+            {
+              "decile": 9,
+              "n": 97878,
+              "mean_lead_risk": 1.406622664741906e-05,
+              "mean_lead0_risk": 1.6669549507770025e-05
+            },
+            {
+              "decile": 10,
+              "n": 100769,
+              "mean_lead_risk": 0.00016885454455900934,
+              "mean_lead0_risk": 0.0002754001249487622
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.002249528353485582,
+            "warning_plus_recall": 0.0030725074371307126
+          }
+        }
+      },
+      "a_raw": {
+        "vs_v4_reference": {
+          "pairs": 928152,
+          "agreement": 0.7939367689774951,
+          "within_one": 0.9891267809582913,
+          "warning_plus_recall": 0.7994157895572384,
+          "warning_plus_precision": 0.6736904069086846,
+          "emergency_recall": 0.6115849324804549,
+          "emergency_precision": 0.5320064678746373,
+          "burden_reference": {
+            "normal": 0.5658695989450004,
+            "watch": 0.29839616786905593,
+            "warning": 0.09632043027435161,
+            "emergency": 0.039413802911592064
+          },
+          "burden_forecast": {
+            "normal": 0.523012394521587,
+            "watch": 0.3159223920219964,
+            "warning": 0.11575582447702532,
+            "emergency": 0.0453093889793913
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 158264,
+              "mean_lead_risk": 6.424889096373065e-13,
+              "mean_lead0_risk": 2.5947693120025588e-08
+            },
+            {
+              "decile": 3,
+              "n": 115381,
+              "mean_lead_risk": 2.2506955147323442e-07,
+              "mean_lead0_risk": 2.9442398899559413e-07
+            },
+            {
+              "decile": 4,
+              "n": 24092,
+              "mean_lead_risk": 3.8688476785637965e-07,
+              "mean_lead0_risk": 3.3624962226661936e-07
+            },
+            {
+              "decile": 5,
+              "n": 159813,
+              "mean_lead_risk": 7.993362065066879e-07,
+              "mean_lead0_risk": 9.088586326506612e-07
+            },
+            {
+              "decile": 6,
+              "n": 96590,
+              "mean_lead_risk": 2.030361398708739e-06,
+              "mean_lead0_risk": 2.3201273592592453e-06
+            },
+            {
+              "decile": 7,
+              "n": 7813,
+              "mean_lead_risk": 3.2685197311249804e-06,
+              "mean_lead0_risk": 3.1335146357943966e-06
+            },
+            {
+              "decile": 8,
+              "n": 160013,
+              "mean_lead_risk": 4.55110210176121e-06,
+              "mean_lead0_risk": 6.1578096345860695e-06
+            },
+            {
+              "decile": 9,
+              "n": 110890,
+              "mean_lead_risk": 1.5210860117201265e-05,
+              "mean_lead0_risk": 1.7151090601677574e-05
+            },
+            {
+              "decile": 10,
+              "n": 95296,
+              "mean_lead_risk": 0.0001839880989048889,
+              "mean_lead0_risk": 0.00028886750153120627
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.002051466034678792,
+            "warning_plus_recall": 0.0028844574007682853
+          }
+        }
+      },
+      "b": {
+        "vs_v4_reference": {
+          "pairs": 928152,
+          "agreement": 0.8070660840034822,
+          "within_one": 0.9900587403787311,
+          "warning_plus_recall": 0.7415741931387023,
+          "warning_plus_precision": 0.7134783837242159,
+          "emergency_recall": 0.5355092668525504,
+          "emergency_precision": 0.574251040628481,
+          "burden_reference": {
+            "normal": 0.5658695989450004,
+            "watch": 0.29839616786905593,
+            "warning": 0.09632043027435161,
+            "emergency": 0.039413802911592064
+          },
+          "burden_forecast": {
+            "normal": 0.5556169679104285,
+            "watch": 0.30330376921021557,
+            "warning": 0.1043245071927874,
+            "emergency": 0.03675475568656858
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 164416,
+              "mean_lead_risk": 6.7964032012438724e-09,
+              "mean_lead0_risk": 2.826823193462962e-08
+            },
+            {
+              "decile": 3,
+              "n": 113496,
+              "mean_lead_risk": 2.1038295533460208e-07,
+              "mean_lead0_risk": 2.8744259481575824e-07
+            },
+            {
+              "decile": 4,
+              "n": 90410,
+              "mean_lead_risk": 4.2949473529162835e-07,
+              "mean_lead0_risk": 5.339830486123222e-07
+            },
+            {
+              "decile": 5,
+              "n": 95369,
+              "mean_lead_risk": 1.056942946510113e-06,
+              "mean_lead0_risk": 1.2071707310147745e-06
+            },
+            {
+              "decile": 6,
+              "n": 93123,
+              "mean_lead_risk": 1.977256437523302e-06,
+              "mean_lead0_risk": 2.3408267423960505e-06
+            },
+            {
+              "decile": 7,
+              "n": 36750,
+              "mean_lead_risk": 3.187814228731688e-06,
+              "mean_lead0_risk": 3.5642350627834394e-06
+            },
+            {
+              "decile": 8,
+              "n": 143058,
+              "mean_lead_risk": 5.113369900036952e-06,
+              "mean_lead0_risk": 6.970375082887468e-06
+            },
+            {
+              "decile": 9,
+              "n": 98697,
+              "mean_lead_risk": 1.5448811661420592e-05,
+              "mean_lead0_risk": 1.8351297686117928e-05
+            },
+            {
+              "decile": 10,
+              "n": 92833,
+              "mean_lead_risk": 0.00018456220560505903,
+              "mean_lead0_risk": 0.0002961997218333652
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.002237740187881074,
+            "warning_plus_recall": 0.0038767184549262004
+          }
+        }
+      },
+      "c": {
+        "vs_v3_reference": {
+          "pairs": 928152,
+          "agreement": 0.7482136546600126,
+          "within_one": 0.9778053594669839,
+          "warning_plus_recall": 0.8004722482348142,
+          "warning_plus_precision": 0.6907011560349785,
+          "emergency_recall": 0.6162147011421765,
+          "emergency_precision": 0.5688080515381232,
+          "burden_reference": {
+            "normal": 0.4846092019410614,
+            "watch": 0.32785578224256373,
+            "warning": 0.11065644420310466,
+            "emergency": 0.07687857161327025
+          },
+          "burden_forecast": {
+            "normal": 0.4502182832122325,
+            "watch": 0.33244231548280884,
+            "warning": 0.1340534739999483,
+            "emergency": 0.08328592730501039
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 1,
+              "n": 32090,
+              "mean_lead_risk": 0.0,
+              "mean_lead0_risk": 1.8823696278099236e-08
+            },
+            {
+              "decile": 2,
+              "n": 93411,
+              "mean_lead_risk": 1.0845091589277566e-07,
+              "mean_lead0_risk": 2.03583993320951e-07
+            },
+            {
+              "decile": 3,
+              "n": 139143,
+              "mean_lead_risk": 1.670912559402691e-07,
+              "mean_lead0_risk": 2.5359521590986395e-07
+            },
+            {
+              "decile": 4,
+              "n": 32523,
+              "mean_lead_risk": 3.913455536784022e-07,
+              "mean_lead0_risk": 5.69353206038641e-07
+            },
+            {
+              "decile": 5,
+              "n": 154649,
+              "mean_lead_risk": 1.006805011778609e-06,
+              "mean_lead0_risk": 1.349181671848208e-06
+            },
+            {
+              "decile": 6,
+              "n": 84233,
+              "mean_lead_risk": 2.6585530540472547e-06,
+              "mean_lead0_risk": 3.2893997282334513e-06
+            },
+            {
+              "decile": 7,
+              "n": 98994,
+              "mean_lead_risk": 4.539569261544711e-06,
+              "mean_lead0_risk": 6.068964097480392e-06
+            },
+            {
+              "decile": 8,
+              "n": 106740,
+              "mean_lead_risk": 9.188838582942382e-06,
+              "mean_lead0_risk": 1.1543621068135576e-05
+            },
+            {
+              "decile": 9,
+              "n": 82637,
+              "mean_lead_risk": 2.005683126723913e-05,
+              "mean_lead0_risk": 2.2096062837739965e-05
+            },
+            {
+              "decile": 10,
+              "n": 103732,
+              "mean_lead_risk": 8.436248136252046e-05,
+              "mean_lead0_risk": 0.00018395068151172485
+            }
+          ]
+        },
+        "vs_v4_reference": {
+          "pairs": 928152,
+          "agreement": 0.6425208371042674,
+          "within_one": 0.9449723752144046,
+          "warning_plus_recall": 0.7436459176707784,
+          "warning_plus_precision": 0.4644266423430033,
+          "emergency_recall": 0.5477010551637417,
+          "emergency_precision": 0.2591912240304261,
+          "burden_reference": {
+            "normal": 0.5658695989450004,
+            "watch": 0.29839616786905593,
+            "warning": 0.09632043027435161,
+            "emergency": 0.039413802911592064
+          },
+          "burden_forecast": {
+            "normal": 0.4502182832122325,
+            "watch": 0.33244231548280884,
+            "warning": 0.1340534739999483,
+            "emergency": 0.08328592730501039
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 1,
+              "n": 32090,
+              "mean_lead_risk": 0.0,
+              "mean_lead0_risk": 7.735660425707826e-08
+            },
+            {
+              "decile": 2,
+              "n": 93411,
+              "mean_lead_risk": 1.0845091589277566e-07,
+              "mean_lead0_risk": 2.06847228789616e-07
+            },
+            {
+              "decile": 3,
+              "n": 139143,
+              "mean_lead_risk": 1.670912559402691e-07,
+              "mean_lead0_risk": 4.1485213638792347e-07
+            },
+            {
+              "decile": 4,
+              "n": 32523,
+              "mean_lead_risk": 3.913455536784022e-07,
+              "mean_lead0_risk": 8.002152497305425e-07
+            },
+            {
+              "decile": 5,
+              "n": 154649,
+              "mean_lead_risk": 1.006805011778609e-06,
+              "mean_lead0_risk": 1.7164469194568341e-06
+            },
+            {
+              "decile": 6,
+              "n": 84233,
+              "mean_lead_risk": 2.6585530540472547e-06,
+              "mean_lead0_risk": 3.8073310981541074e-06
+            },
+            {
+              "decile": 7,
+              "n": 98994,
+              "mean_lead_risk": 4.539569261544711e-06,
+              "mean_lead0_risk": 6.798056113628982e-06
+            },
+            {
+              "decile": 8,
+              "n": 106740,
+              "mean_lead_risk": 9.188838582942382e-06,
+              "mean_lead0_risk": 1.2740045267960307e-05
+            },
+            {
+              "decile": 9,
+              "n": 82637,
+              "mean_lead_risk": 2.005683126723913e-05,
+              "mean_lead0_risk": 4.05093584193205e-05
+            },
+            {
+              "decile": 10,
+              "n": 103732,
+              "mean_lead_risk": 8.436248136252046e-05,
+              "mean_lead0_risk": 0.00023891399429265268
+            }
+          ]
+        }
+      }
+    },
+    "3": {
+      "a": {
+        "vs_v4_reference": {
+          "pairs": 928120,
+          "agreement": 0.7859597896823687,
+          "within_one": 0.9849663836572857,
+          "warning_plus_recall": 0.7158667491160475,
+          "warning_plus_precision": 0.6811447709854566,
+          "emergency_recall": 0.5366100213103109,
+          "emergency_precision": 0.5009436849622526,
+          "burden_reference": {
+            "normal": 0.564994828254967,
+            "watch": 0.2990981769598759,
+            "warning": 0.09647028401499806,
+            "emergency": 0.039436710770159034
+          },
+          "burden_forecast": {
+            "normal": 0.5580377537387406,
+            "watch": 0.29912726802568634,
+            "warning": 0.10059044089126407,
+            "emergency": 0.04224453734430893
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 173319,
+              "mean_lead_risk": 1.0284738261362133e-12,
+              "mean_lead0_risk": 4.0547848152113947e-08
+            },
+            {
+              "decile": 3,
+              "n": 93346,
+              "mean_lead_risk": 1.834059032704189e-07,
+              "mean_lead0_risk": 4.4287924183578944e-07
+            },
+            {
+              "decile": 4,
+              "n": 51187,
+              "mean_lead_risk": 3.751591924966866e-07,
+              "mean_lead0_risk": 3.623311529336062e-07
+            },
+            {
+              "decile": 5,
+              "n": 91149,
+              "mean_lead_risk": 5.118788163068525e-07,
+              "mean_lead0_risk": 8.190138745823125e-07
+            },
+            {
+              "decile": 6,
+              "n": 146994,
+              "mean_lead_risk": 1.460345006171734e-06,
+              "mean_lead0_risk": 2.1334021416462152e-06
+            },
+            {
+              "decile": 7,
+              "n": 32297,
+              "mean_lead_risk": 2.8454514059979377e-06,
+              "mean_lead0_risk": 3.94390525740752e-06
+            },
+            {
+              "decile": 8,
+              "n": 149224,
+              "mean_lead_risk": 4.340140875230021e-06,
+              "mean_lead0_risk": 7.567852252474733e-06
+            },
+            {
+              "decile": 9,
+              "n": 95402,
+              "mean_lead_risk": 1.3705507685574387e-05,
+              "mean_lead0_risk": 2.334019833733697e-05
+            },
+            {
+              "decile": 10,
+              "n": 95202,
+              "mean_lead_risk": 0.00018399244991469413,
+              "mean_lead0_risk": 0.000282825268640281
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.002106870036102715,
+            "warning_plus_recall": 0.003109805406641535
+          }
+        }
+      },
+      "a_oracle": {
+        "vs_v4_reference": {
+          "pairs": 928120,
+          "agreement": 0.7916896522001465,
+          "within_one": 0.9857992500969702,
+          "warning_plus_recall": 0.7221693700550191,
+          "warning_plus_precision": 0.6881279366662134,
+          "emergency_recall": 0.5461996612206983,
+          "emergency_precision": 0.5098829350404244,
+          "burden_reference": {
+            "normal": 0.564994828254967,
+            "watch": 0.2990981769598759,
+            "warning": 0.09647028401499806,
+            "emergency": 0.039436710770159034
+          },
+          "burden_forecast": {
+            "normal": 0.5582306167305952,
+            "watch": 0.29913911994138687,
+            "warning": 0.10038464853682713,
+            "emergency": 0.042245614791190794
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 173436,
+              "mean_lead_risk": 1.0277800172519106e-12,
+              "mean_lead0_risk": 3.7238172819854056e-08
+            },
+            {
+              "decile": 3,
+              "n": 93196,
+              "mean_lead_risk": 1.8441114710673322e-07,
+              "mean_lead0_risk": 3.7960764810081983e-07
+            },
+            {
+              "decile": 4,
+              "n": 51142,
+              "mean_lead_risk": 3.751545265880665e-07,
+              "mean_lead0_risk": 3.566441132818343e-07
+            },
+            {
+              "decile": 5,
+              "n": 91314,
+              "mean_lead_risk": 5.132959973373527e-07,
+              "mean_lead0_risk": 8.004978326070476e-07
+            },
+            {
+              "decile": 6,
+              "n": 146915,
+              "mean_lead_risk": 1.4607324547892315e-06,
+              "mean_lead0_risk": 2.087923828399496e-06
+            },
+            {
+              "decile": 7,
+              "n": 32247,
+              "mean_lead_risk": 2.844954713054551e-06,
+              "mean_lead0_risk": 3.838699903138865e-06
+            },
+            {
+              "decile": 8,
+              "n": 149648,
+              "mean_lead_risk": 4.339258309011541e-06,
+              "mean_lead0_risk": 7.43620379166226e-06
+            },
+            {
+              "decile": 9,
+              "n": 95150,
+              "mean_lead_risk": 1.3705678632376152e-05,
+              "mean_lead0_risk": 2.328210886296352e-05
+            },
+            {
+              "decile": 10,
+              "n": 95072,
+              "mean_lead_risk": 0.000188015810819797,
+              "mean_lead0_risk": 0.0002837035848377036
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.0022026041431044896,
+            "warning_plus_recall": 0.0029656709993366066
+          }
+        }
+      },
+      "a_raw": {
+        "vs_v4_reference": {
+          "pairs": 928120,
+          "agreement": 0.7793528854027496,
+          "within_one": 0.9842563461621342,
+          "warning_plus_recall": 0.731326008022959,
+          "warning_plus_precision": 0.6643094272772445,
+          "emergency_recall": 0.5569094584995355,
+          "emergency_precision": 0.4826557431392513,
+          "burden_reference": {
+            "normal": 0.564994828254967,
+            "watch": 0.2990981769598759,
+            "warning": 0.09647028401499806,
+            "emergency": 0.039436710770159034
+          },
+          "burden_forecast": {
+            "normal": 0.5493901650648623,
+            "watch": 0.3009923285782011,
+            "warning": 0.1041136921949748,
+            "emergency": 0.045503814161961816
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 168459,
+              "mean_lead_risk": 3.0180300487014253e-13,
+              "mean_lead0_risk": 3.803944021554411e-08
+            },
+            {
+              "decile": 3,
+              "n": 92720,
+              "mean_lead_risk": 1.838872571037957e-07,
+              "mean_lead0_risk": 4.1626029433370086e-07
+            },
+            {
+              "decile": 4,
+              "n": 50974,
+              "mean_lead_risk": 3.7516923382258966e-07,
+              "mean_lead0_risk": 3.463372732678497e-07
+            },
+            {
+              "decile": 5,
+              "n": 90743,
+              "mean_lead_risk": 5.119351748754478e-07,
+              "mean_lead0_risk": 7.920356723114831e-07
+            },
+            {
+              "decile": 6,
+              "n": 145882,
+              "mean_lead_risk": 1.4607575190080667e-06,
+              "mean_lead0_risk": 2.0712142370323105e-06
+            },
+            {
+              "decile": 7,
+              "n": 32179,
+              "mean_lead_risk": 2.8473294929081134e-06,
+              "mean_lead0_risk": 3.7418390696139554e-06
+            },
+            {
+              "decile": 8,
+              "n": 155603,
+              "mean_lead_risk": 4.519070905094626e-06,
+              "mean_lead0_risk": 7.581616558392651e-06
+            },
+            {
+              "decile": 9,
+              "n": 91072,
+              "mean_lead_risk": 1.402677488529648e-05,
+              "mean_lead0_risk": 2.2872730750510203e-05
+            },
+            {
+              "decile": 10,
+              "n": 100488,
+              "mean_lead_risk": 0.00020212047407794104,
+              "mean_lead0_risk": 0.0002691286574691453
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.001973970457812298,
+            "warning_plus_recall": 0.0029634560705628934
+          }
+        }
+      },
+      "b": {
+        "vs_v4_reference": {
+          "pairs": 928120,
+          "agreement": 0.7827533077619273,
+          "within_one": 0.9850902900487006,
+          "warning_plus_recall": 0.703443847214955,
+          "warning_plus_precision": 0.6808753903882012,
+          "emergency_recall": 0.5167203977924704,
+          "emergency_precision": 0.5105687984234538,
+          "burden_reference": {
+            "normal": 0.564994828254967,
+            "watch": 0.2990981769598759,
+            "warning": 0.09647028401499806,
+            "emergency": 0.039436710770159034
+          },
+          "burden_forecast": {
+            "normal": 0.5695815196310822,
+            "watch": 0.2900066801706676,
+            "warning": 0.10049993535318709,
+            "emergency": 0.039911864845063136
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 2,
+              "n": 168126,
+              "mean_lead_risk": 6.757013851441251e-09,
+              "mean_lead0_risk": 3.6337875550648616e-08
+            },
+            {
+              "decile": 3,
+              "n": 100506,
+              "mean_lead_risk": 1.8067642212227603e-07,
+              "mean_lead0_risk": 3.380677058810172e-07
+            },
+            {
+              "decile": 4,
+              "n": 102517,
+              "mean_lead_risk": 4.132931147031871e-07,
+              "mean_lead0_risk": 5.548873639167356e-07
+            },
+            {
+              "decile": 5,
+              "n": 92637,
+              "mean_lead_risk": 9.930975928724757e-07,
+              "mean_lead0_risk": 1.32976304461504e-06
+            },
+            {
+              "decile": 6,
+              "n": 90773,
+              "mean_lead_risk": 1.7956913401589662e-06,
+              "mean_lead0_risk": 2.5110121939234517e-06
+            },
+            {
+              "decile": 7,
+              "n": 45237,
+              "mean_lead_risk": 2.9456508639682207e-06,
+              "mean_lead0_risk": 4.10143494936819e-06
+            },
+            {
+              "decile": 8,
+              "n": 140739,
+              "mean_lead_risk": 5.143972419968964e-06,
+              "mean_lead0_risk": 8.021490699153695e-06
+            },
+            {
+              "decile": 9,
+              "n": 93668,
+              "mean_lead_risk": 1.5412675088329023e-05,
+              "mean_lead0_risk": 2.3295904325730368e-05
+            },
+            {
+              "decile": 10,
+              "n": 93917,
+              "mean_lead_risk": 0.0002791515993533345,
+              "mean_lead0_risk": 0.00028663006061039345
+            }
+          ],
+          "delta_vs_incumbent_se": {
+            "agreement": 0.0020737725720634446,
+            "warning_plus_recall": 0.0033139187630121993
+          }
+        }
+      },
+      "c": {
+        "vs_v3_reference": {
+          "pairs": 928120,
+          "agreement": 0.7301857518424342,
+          "within_one": 0.9678382105762185,
+          "warning_plus_recall": 0.7269808324111714,
+          "warning_plus_precision": 0.6838134171794692,
+          "emergency_recall": 0.5632470258922323,
+          "emergency_precision": 0.5224661482337363,
+          "burden_reference": {
+            "normal": 0.48363789165194154,
+            "watch": 0.32844567512821615,
+            "warning": 0.11093285351032194,
+            "emergency": 0.07698357970952031
+          },
+          "burden_forecast": {
+            "normal": 0.47971383010817564,
+            "watch": 0.3205070465026074,
+            "warning": 0.11678662241951472,
+            "emergency": 0.08299250096970219
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 1,
+              "n": 34741,
+              "mean_lead_risk": 0.0,
+              "mean_lead0_risk": 2.74319613643688e-08
+            },
+            {
+              "decile": 2,
+              "n": 103555,
+              "mean_lead_risk": 1.0851894391796546e-07,
+              "mean_lead0_risk": 2.6408232369949905e-07
+            },
+            {
+              "decile": 3,
+              "n": 99722,
+              "mean_lead_risk": 1.4109978702992047e-07,
+              "mean_lead0_risk": 2.3024088953809925e-07
+            },
+            {
+              "decile": 4,
+              "n": 79526,
+              "mean_lead_risk": 2.885918372692405e-07,
+              "mean_lead0_risk": 5.859955833572522e-07
+            },
+            {
+              "decile": 5,
+              "n": 109875,
+              "mean_lead_risk": 8.696818637822974e-07,
+              "mean_lead0_risk": 1.5198181601509123e-06
+            },
+            {
+              "decile": 6,
+              "n": 61950,
+              "mean_lead_risk": 1.4989759164611e-06,
+              "mean_lead0_risk": 2.8222452965519146e-06
+            },
+            {
+              "decile": 7,
+              "n": 138990,
+              "mean_lead_risk": 3.352546134699653e-06,
+              "mean_lead0_risk": 5.915806363271562e-06
+            },
+            {
+              "decile": 8,
+              "n": 113258,
+              "mean_lead_risk": 7.757967404341397e-06,
+              "mean_lead0_risk": 1.2404291359493212e-05
+            },
+            {
+              "decile": 9,
+              "n": 86978,
+              "mean_lead_risk": 1.8942232431406274e-05,
+              "mean_lead0_risk": 2.329581474930309e-05
+            },
+            {
+              "decile": 10,
+              "n": 99525,
+              "mean_lead_risk": 0.00018157459572131803,
+              "mean_lead0_risk": 0.000187064521271475
+            }
+          ]
+        },
+        "vs_v4_reference": {
+          "pairs": 928120,
+          "agreement": 0.6454951945869069,
+          "within_one": 0.9394604146015602,
+          "warning_plus_recall": 0.677781477429482,
+          "warning_plus_precision": 0.46108543353162296,
+          "emergency_recall": 0.5056007868422491,
+          "emergency_precision": 0.2402534176327781,
+          "burden_reference": {
+            "normal": 0.564994828254967,
+            "watch": 0.2990981769598759,
+            "warning": 0.09647028401499806,
+            "emergency": 0.039436710770159034
+          },
+          "burden_forecast": {
+            "normal": 0.47971383010817564,
+            "watch": 0.3205070465026074,
+            "warning": 0.11678662241951472,
+            "emergency": 0.08299250096970219
+          },
+          "days": 366,
+          "calibration": [
+            {
+              "decile": 1,
+              "n": 34741,
+              "mean_lead_risk": 0.0,
+              "mean_lead0_risk": 9.294655621416693e-08
+            },
+            {
+              "decile": 2,
+              "n": 103555,
+              "mean_lead_risk": 1.0851894391796546e-07,
+              "mean_lead0_risk": 2.630844031202699e-07
+            },
+            {
+              "decile": 3,
+              "n": 99722,
+              "mean_lead_risk": 1.4109978702992047e-07,
+              "mean_lead0_risk": 3.7177177832844337e-07
+            },
+            {
+              "decile": 4,
+              "n": 79526,
+              "mean_lead_risk": 2.885918372692405e-07,
+              "mean_lead0_risk": 8.57048089650423e-07
+            },
+            {
+              "decile": 5,
+              "n": 109875,
+              "mean_lead_risk": 8.696818637822974e-07,
+              "mean_lead0_risk": 1.8770843700036444e-06
+            },
+            {
+              "decile": 6,
+              "n": 61950,
+              "mean_lead_risk": 1.4989759164611e-06,
+              "mean_lead0_risk": 3.319534590469771e-06
+            },
+            {
+              "decile": 7,
+              "n": 138990,
+              "mean_lead_risk": 3.352546134699653e-06,
+              "mean_lead0_risk": 6.582231206905334e-06
+            },
+            {
+              "decile": 8,
+              "n": 113258,
+              "mean_lead_risk": 7.757967404341397e-06,
+              "mean_lead0_risk": 2.5486570862631664e-05
+            },
+            {
+              "decile": 9,
+              "n": 86978,
+              "mean_lead_risk": 1.8942232431406274e-05,
+              "mean_lead0_risk": 2.687337534512436e-05
+            },
+            {
+              "decile": 10,
+              "n": 99525,
+              "mean_lead_risk": 0.00018157459572131803,
+              "mean_lead0_risk": 0.00024293062534180474
+            }
+          ]
+        }
+      }
+    }
+  }
+}
