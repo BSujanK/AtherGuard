@@ -1,0 +1,413 @@
+{
+  "created_utc": "2026-11-16T19:30:42Z",
+  "spec": "docs/superpowers/specs/2026-11-17-aetherguard-kerala-susceptibility.md",
+  "inventory": {
+    "source": "Hao et al. 2020, ESSD 12, 2899-2918; van Westen 2020, DANS doi:10.17026/dans-x6c-y7x2",
+    "licence": "CC-BY-4.0",
+    "points": 4728,
+    "nrsc": 2899,
+    "gsi": 1395,
+    "new": 856,
+    "gsi_only": 973,
+    "attribute_mismatch_points": 1
+  },
+  "cells": {
+    "training": 1063,
+    "positive": 351,
+    "points_used": 4679,
+    "dropped_points": 49,
+    "dropped_cells": 16,
+    "districts": {
+      "Alappuzha": {
+        "cells": 3,
+        "positive": 0
+      },
+      "Ernakulam": {
+        "cells": 72,
+        "positive": 19
+      },
+      "Idukki": {
+        "cells": 145,
+        "positive": 93
+      },
+      "Kannur": {
+        "cells": 86,
+        "positive": 17
+      },
+      "Kasaragod": {
+        "cells": 57,
+        "positive": 13
+      },
+      "Kollam": {
+        "cells": 68,
+        "positive": 4
+      },
+      "Kottayam": {
+        "cells": 60,
+        "positive": 7
+      },
+      "Kozhikode": {
+        "cells": 70,
+        "positive": 17
+      },
+      "Malappuram": {
+        "cells": 103,
+        "positive": 35
+      },
+      "Palakkad": {
+        "cells": 123,
+        "positive": 54
+      },
+      "Pathanamthitta": {
+        "cells": 82,
+        "positive": 24
+      },
+      "Thiruvananthapuram": {
+        "cells": 63,
+        "positive": 3
+      },
+      "Thrissur": {
+        "cells": 64,
+        "positive": 35
+      },
+      "Wayanad": {
+        "cells": 67,
+        "positive": 30
+      }
+    }
+  },
+  "inputs": [
+    "stat_elev_mean",
+    "stat_elev_std",
+    "stat_relief",
+    "stat_slope_mean",
+    "stat_slope_p90",
+    "stat_slope_max",
+    "stat_curvature_mean",
+    "stat_aspect_sin",
+    "stat_aspect_cos",
+    "stat_twi_proxy",
+    "lc_tree",
+    "lc_shrub_grass",
+    "lc_crop",
+    "lc_bare",
+    "soil_clay",
+    "soil_sand",
+    "soil_coarse",
+    "ter_steep25",
+    "ter_steep35",
+    "rain_2018"
+  ],
+  "rain_window": [
+    "2018-06-01",
+    "2018-08-26"
+  ],
+  "rain_ref_mm": 1545.8798828125,
+  "forms": {
+    "S_lr": {
+      "C": 1.0,
+      "penalty": "l2"
+    },
+    "S_gbm": {
+      "objective": "binary",
+      "learning_rate": 0.03,
+      "num_leaves": 7,
+      "min_data_in_leaf": 20,
+      "feature_fraction": 0.8,
+      "bagging_fraction": 0.8,
+      "bagging_freq": 1,
+      "seed": 20261117,
+      "deterministic": true,
+      "force_col_wise": true,
+      "num_threads": 1,
+      "verbose": -1,
+      "rounds": 300
+    }
+  },
+  "bootstrap": {
+    "n": 2000,
+    "seed": 20261117,
+    "unit": "district"
+  },
+  "metrics": {
+    "S_lr": {
+      "roc_auc": {
+        "value": 0.8058196485162777,
+        "ci": [
+          0.7706206829767582,
+          0.8467213820398157
+        ]
+      },
+      "average_precision": {
+        "value": 0.6076556318876357,
+        "ci": [
+          0.4957106855127149,
+          0.6726114475495915
+        ]
+      }
+    },
+    "S_gbm": {
+      "roc_auc": {
+        "value": 0.8171276289253818,
+        "ci": [
+          0.7781609587676032,
+          0.8513561595484174
+        ]
+      },
+      "average_precision": {
+        "value": 0.6104936349569575,
+        "ci": [
+          0.4858079728161284,
+          0.6762503727376408
+        ]
+      }
+    },
+    "B_slope": {
+      "roc_auc": {
+        "value": 0.831256602324018,
+        "ci": [
+          0.7958982048807243,
+          0.8697779909839384
+        ]
+      },
+      "average_precision": {
+        "value": 0.6491413486519739,
+        "ci": [
+          0.5538339024213987,
+          0.7215316443542116
+        ]
+      }
+    },
+    "differences": {
+      "S_lr-B_slope": {
+        "roc_auc": {
+          "value": -0.025436953807740248,
+          "ci": [
+            -0.040607679351254956,
+            -0.011091025924019837
+          ]
+        },
+        "average_precision": {
+          "value": -0.04148571676433821,
+          "ci": [
+            -0.0853235199852669,
+            -0.009839199237661368
+          ]
+        }
+      },
+      "S_gbm-B_slope": {
+        "roc_auc": {
+          "value": -0.014128973398636169,
+          "ci": [
+            -0.030362770056237692,
+            -0.003444188949422787
+          ]
+        },
+        "average_precision": {
+          "value": -0.038647713695016406,
+          "ci": [
+            -0.08743115422918278,
+            -0.014219806726438125
+          ]
+        }
+      },
+      "S_gbm-S_lr": {
+        "roc_auc": {
+          "value": 0.01130798040910408,
+          "ci": [
+            -0.008638523036664403,
+            0.030162453155392354
+          ]
+        },
+        "average_precision": {
+          "value": 0.002838003069321804,
+          "ci": [
+            -0.027445730295739715,
+            0.025896183650416623
+          ]
+        }
+      }
+    }
+  },
+  "selection": {
+    "selected": "S_gbm",
+    "passed": false,
+    "selected_auc": 0.8171276289253818,
+    "baseline_auc": 0.831256602324018,
+    "rule": "the candidate with the higher pooled leave-one-district-out ROC AUC of its surface; stage 1 passes when that AUC is above B_slope's (stat_slope_mean alone)"
+  },
+  "checks": {
+    "reported_surface": {
+      "description": "S_gbm without rain_2018, fitted on the 36792 scored cells, label = a development positive (2007-2017) in the cell; scored on the Kerala cells against the mapped label",
+      "training_cells": 36792,
+      "training_positive_cells": 557,
+      "training_positive_cells_by_region": {
+        "himalaya": 485,
+        "western_ghats": 72
+      },
+      "kerala": {
+        "roc_auc": 0.6612327539293832,
+        "average_precision": 0.448763166597437
+      }
+    },
+    "spearman_with_exposure": {
+      "surface": {
+        "road_density": -0.11544869011407152,
+        "lc_built": -0.25670838178524485
+      },
+      "reported_surface": {
+        "road_density": 0.13732620269364623,
+        "lc_built": -0.022510571055235514
+      }
+    },
+    "imagery_only": {
+      "cells": 1030,
+      "positive_cells": 318,
+      "left_out_gsi_only_cells": 33,
+      "roc_auc": 0.845814783407533,
+      "average_precision": 0.6170374433941064,
+      "slope_roc_auc": 0.8573466539467176
+    },
+    "full_model_oof": {
+      "S_lr": {
+        "roc_auc": 0.8392674221325906,
+        "average_precision": 0.6758197260159284
+      },
+      "S_gbm": {
+        "roc_auc": 0.8491709081596721,
+        "average_precision": 0.6987659401440041
+      }
+    }
+  },
+  "surface": {
+    "cells": 166728,
+    "nan_cells": 0,
+    "scored_cells_quantiles": {
+      "0.1": 0.044241298881481934,
+      "0.5": 0.5457898031321565,
+      "0.9": 0.9013426427088371
+    }
+  },
+  "table_sha256": "afc4cb926fa1fc1ac09a1648a2aae2a186455d36f6be3f8513914b1bb69a975a",
+  "seconds": 32.33662670000194,
+  "within_district": [
+    {
+      "district": "Ernakulam",
+      "cells": 72,
+      "positive": 19,
+      "S_lr": 0.7785501489572988,
+      "S_gbm": 0.7358490566037736,
+      "B_slope": 0.7745779543197616
+    },
+    {
+      "district": "Idukki",
+      "cells": 145,
+      "positive": 93,
+      "S_lr": 0.5942928039702233,
+      "S_gbm": 0.553763440860215,
+      "B_slope": 0.6294458229942101
+    },
+    {
+      "district": "Kannur",
+      "cells": 86,
+      "positive": 17,
+      "S_lr": 0.8934356351236147,
+      "S_gbm": 0.8601875532821824,
+      "B_slope": 0.895993179880648
+    },
+    {
+      "district": "Kasaragod",
+      "cells": 57,
+      "positive": 13,
+      "S_lr": 0.6346153846153846,
+      "S_gbm": 0.6136363636363636,
+      "B_slope": 0.6311188811188811
+    },
+    {
+      "district": "Kollam",
+      "cells": 68,
+      "positive": 4,
+      "S_lr": 0.90234375,
+      "S_gbm": 0.88671875,
+      "B_slope": 0.921875
+    },
+    {
+      "district": "Kottayam",
+      "cells": 60,
+      "positive": 7,
+      "S_lr": 0.9730458221024259,
+      "S_gbm": 0.9703504043126685,
+      "B_slope": 0.9838274932614556
+    },
+    {
+      "district": "Kozhikode",
+      "cells": 70,
+      "positive": 17,
+      "S_lr": 0.9567147613762487,
+      "S_gbm": 0.9211986681465039,
+      "B_slope": 0.9589345172031076
+    },
+    {
+      "district": "Malappuram",
+      "cells": 103,
+      "positive": 35,
+      "S_lr": 0.8445378151260504,
+      "S_gbm": 0.8201680672268907,
+      "B_slope": 0.8142857142857143
+    },
+    {
+      "district": "Palakkad",
+      "cells": 123,
+      "positive": 54,
+      "S_lr": 0.8056897477187333,
+      "S_gbm": 0.8064949006977993,
+      "B_slope": 0.8279656468062265
+    },
+    {
+      "district": "Pathanamthitta",
+      "cells": 82,
+      "positive": 24,
+      "S_lr": 0.7672413793103449,
+      "S_gbm": 0.7406609195402298,
+      "B_slope": 0.7844827586206896
+    },
+    {
+      "district": "Thiruvananthapuram",
+      "cells": 63,
+      "positive": 3,
+      "S_lr": 0.7333333333333333,
+      "S_gbm": 0.6555555555555554,
+      "B_slope": 0.7388888888888889
+    },
+    {
+      "district": "Thrissur",
+      "cells": 64,
+      "positive": 35,
+      "S_lr": 0.9300492610837439,
+      "S_gbm": 0.9201970443349753,
+      "B_slope": 0.941871921182266
+    },
+    {
+      "district": "Wayanad",
+      "cells": 67,
+      "positive": 30,
+      "S_lr": 0.8495495495495495,
+      "S_gbm": 0.890990990990991,
+      "B_slope": 0.918018018018018
+    }
+  ],
+  "input_sha256": {
+    "inventory_kerala_landslide.cpg": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824",
+    "inventory_kerala_landslide.dbf": "ed4285a158d7dddb63a4201a6bd5b96dd5cfc4c2990207560b502bfef310a032",
+    "inventory_kerala_landslide.prj": "a02a27b1d1982c8516d83398e85a3c8b1aef1713c13ef4d84d7bde17430c07c4",
+    "inventory_kerala_landslide.shp": "d59779d003c0afe3829bc87cc2211bd046cf91f9ffe3d701c425420536fa1011",
+    "inventory_kerala_landslide.shx": "5ad6d083857ac932d204109b051969d9ee55ac68d63e103f606ed88adb512f9e",
+    "inventory_kerala_landslide.xml": "0d4b55d7a04d1a7246d7b455469b12a697a1017a1a0b1e7e2529b28afe26f2a4",
+    "cell_districts": "d4f0fbd2422f48876e19ec7a35ece2789cbe8dd052a2b0fb08a7ddcedc3be9c4",
+    "cell_terrain": "dd17d8699ab6ead3d9b6dc653359b9243dafd52915fb7d7652fd3a7820572e72",
+    "cell_static": "9b14416d927efebbb1325ace04e8eb8e5781eb2f18e66ad57833b5fe0fe0305a",
+    "cell_regions": "193a9ce746af3348d4c38ea44ea42026f669a994fe6948a5d9d568a6205b9b4e",
+    "imerg_late_2018": "4080e647f01dc2bae550e8c1aa8f8caa377e0b26ed5c5be5cae318aab8da940d",
+    "positive_cell_days": "f3c6b4f8c8320c87cd6baee0cf97ef52eb0393075ab904e9cece5c6df42de204"
+  }
+}
