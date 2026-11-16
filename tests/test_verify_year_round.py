@@ -126,3 +126,43 @@ def test_a_second_look_is_refused(tmp_path, monkeypatch):
         Y.heldout_look(say=lambda m: None)
     with pytest.raises(FileExistsError):
         Y.preflight(say=lambda m: None)
+
+
+def test_the_look_runs_end_to_end_on_a_synthetic_season(tmp_path, monkeypatch):
+    from aetherguard.grid import latlon_to_cell
+    from aetherguard.manifest import sha256_file
+    from aetherguard.verify import heldout
+    ids = latlon_to_cell([30.0, 12.0], [79.0, 75.0])
+    days = [date(2018, 5, 25) + timedelta(days=i) for i in range(221)]
+    october = days.index(date(2018, 10, 10))
+    risk = np.full((2, len(days)), 0.5)
+    risk[:, october] = 3.0                                  # Warning on 10 October in both cells, rain everywhere
+    hi = np.where(risk < 1.0, 1.5, risk)                    # uncertain_high would raise every quiet day to Watch
+    cells = pd.DataFrame({"cell_id": ids, "region": ["himalaya", "western_ghats"], "in_universe": [True, True]})
+    values = {"risk": risk, "new_hi": hi, **{f"acc_{w}": np.full((2, len(days)), 50.0, dtype=np.float32)
+                                             for w in (1, 3, 7)}}
+    panel = H.Panel(cells, days, 20, values)
+    monkeypatch.setattr(Y, "results_dir", lambda: tmp_path)
+    panel_file = tmp_path / "season_2018_v4.npz"
+    panel_file.write_bytes(b"synthetic")
+    monkeypatch.setattr(Y, "heldout_years", lambda: iter([(2018, panel, panel_file)]))
+    monkeypatch.setattr(Y, "chain_inputs", lambda: ({}, CONFIG, RULES, CARD))
+    doc = Y.treatment_document({"post_monsoon": "m1.00_uoff", "rest": Y.TODAY_KEY}, CARD)
+    Y.dump_json(Y.document_path(), doc)
+    declared = {"burden": {"himalaya|Watch+": {"required_heldout_reduction": 0.5}},
+                "treatment_document_sha256": sha256_file(Y.document_path())}
+    monkeypatch.setattr(Y, "committed_criterion", lambda: declared)
+    event = pd.DataFrame({"cell_id": [ids[0]], "date": pd.to_datetime(["2018-10-10"]), "source": ["reported"]})
+    monkeypatch.setattr(heldout, "load_event_table", lambda cfg: event)
+    monkeypatch.setattr(heldout, "assembly_events", lambda directory: event)
+    Y.preflight(say=lambda m: None)
+    result = Y.heldout_look(say=lambda m: None)
+    look = result["look"]
+    assert look["monsoon_differing"] == 0
+    assert look["burden_reduction"]["himalaya|Warning+"] == 0.0
+    assert look["burden_reduction"]["himalaya|Watch+"] > 0.9            # the quiet October-December Watch days go
+    assert look["detection"]["heldout_w1"]["slides"] == 1
+    assert max(look["detection"]["heldout_w1"]["lost"].values()) == 0
+    assert result["decision"]["adopt"]
+    with pytest.raises(FileExistsError):
+        Y.heldout_look(say=lambda m: None)

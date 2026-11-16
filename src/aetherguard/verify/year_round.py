@@ -504,11 +504,12 @@ def live_days(live_dir: Path) -> list[dict]:
         model = run.get("model")
         model = model.get("dir", model.get("name")) if isinstance(model, dict) else model
         a = pd.read_parquet(folder / "alerts.parquet",
-                            columns=["region", "raw_level", "level", "uncertain_high", "reason_codes"])
+                            columns=["region", "raw_level", "level", "uncertain_high", "reason_codes", "rain_ok"])
         for r, g in a.groupby("region"):
             held = g["reason_codes"].fillna("").str.contains("hysteresis_hold") & (g["raw_level"] < lv.EMERGENCY)
             row = {"day": folder.name, "month": int(folder.name[5:7]), "region": str(r), "cells": int(len(g)),
                    "model": Path(str(model)).name, "uncertain_high_share": float(g["uncertain_high"].mean()),
+                   "rain_ok_share": float(g["rain_ok"].mean()),
                    "emergency_held": int(((g["level"] >= lv.EMERGENCY) & held).sum())}
             for k in LEVELS:
                 row[f"{LEVEL_NAMES[k]}_published"] = float((g["level"] >= k).mean())
@@ -556,20 +557,20 @@ def rain_minimum(rules) -> float | None:
     return float(minimum[7]) if set(minimum) == {7} else None
 
 
-def summarise(say=print) -> dict:
+def summarise(say=print, years=burden.DEV_YEARS) -> dict:
     """Step 2: the diagnosis, the candidates, the declared selection with its leave-one-year-out estimate, the live
     days, the slide counts and the power of a held-out look; writes summary.json and the treatment document."""
     cfg, _, rules, card = chain_inputs()
-    parts = load_years()
+    parts = load_years(years)
     events = event_table(parts)
     say(f"{len(events)} development events, {events['slide'].nunique()} slides")
-    cells = O.load_light(F.panel_path(F.out_dir(), "jun_dec", burden.DEV_YEARS[0])).cells
-    selection = {s: select_season(parts, events, s, burden.DEV_YEARS) for s in OUT_SEASONS}
+    cells = O.load_light(F.panel_path(F.out_dir(), "jun_dec", years[0])).cells
+    selection = {s: select_season(parts, events, s, years) for s in OUT_SEASONS}
     choices = {s: selection[s]["chosen"] for s in OUT_SEASONS}
     document = treatment_document(choices, card)
     dump_json(document_path(), document)
     counts = slide_counts(cfg, cells)
-    loyo_by = {s: loyo(parts, events, s) for s in OUT_SEASONS}
+    loyo_by = {s: loyo(parts, events, s, years) for s in OUT_SEASONS}
     power = {}
     for s in OUT_SEASONS:
         w1 = sum(counts["heldout_w1"][f"{r}|{s}"]["slides"] for r in REGIONS)
@@ -585,7 +586,7 @@ def summarise(say=print) -> dict:
                     "w1_chance_veto_fires_at_10pct_loss": veto_power(w1, 0.10),
                     "has_heldout_panels": s == LOOK_SEASON}
     result = {"created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "spec": SPEC,
-              "years": list(burden.DEV_YEARS),
+              "years": list(years),
               "candidates_grid": {"scales": list(SCALES), "uncertain_high_out_of_season": list(UNCERTAIN)},
               "rule": {"loss_min": LOSS_MIN, "loss_share": LOSS_SHARE},
               "card_thresholds": {r: card[r].to_dict() for r in REGIONS},
@@ -644,8 +645,9 @@ BAND_TEXT = ["below 1,000 m", "1,000-2,000 m", "2,000-3,000 m", "3,000-4,000 m",
 def markdown(result: dict) -> str:
     s, d = result["summary"], result["summary"]["diagnosis"]
     crit = result["heldout_criterion"]
+    years = s["years"]
     lines = ["# Year-round alerts: what a level means outside June-September (phase 8, development)", "",
-             "Development years 2007-2017 only, out of fold, every one of the 36,792 scored cells "
+             f"Development years {years[0]}-{years[-1]} only, out of fold, every one of the 36,792 scored cells "
              "(`data/processed/alerts/year_round/summary.json`, from `python -m aetherguard.verify.year_round`). "
              "Nothing here is wired into the live run. A change of the out-of-season levels would be a model change.", ""]
     lines += ["## Answer", ""] + [f"- {x}" for x in result["findings"]] + [""]
@@ -694,10 +696,26 @@ def markdown(result: dict) -> str:
                              f"{_p(row['Watch+']['published_share'], 1)} | {_f(row['Watch+']['hits_per_100k'], 2)} |")
     lines += ["", "## The live days so far (lead 0, published)", "",
               "| month | model | region | days | Watch+ | Warning+ | Emergency | Emergency held by the hysteresis "
-              "(cells, summed) |", "|---|---|---|---|---|---|---|---|"]
+              "(cells, summed) | 7-day rain at or above the rain minimum |", "|---|---|---|---|---|---|---|---|---|"]
     for row in result["live_months"]:
         lines.append(f"| {row['month']} | `{row['model']}` | {REGION_TEXT[row['region']]} | {row['days']} | "
-                     f"{_p(row['Watch+'])} | {_p(row['Warning+'])} | {_p(row['Emergency'])} | {row['emergency_held']} |")
+                     f"{_p(row['Watch+'])} | {_p(row['Warning+'])} | {_p(row['Emergency'])} | {row['emergency_held']} | "
+                     f"{_p(row['rain_ok_share'], 1)} |")
+    months = sorted({row["month"] for row in result["live_months"]})
+    lines += ["", "The same months in the development years (v4 out of fold, today's chain; lowest / median / highest "
+              "year):", "", "| month | region | Watch+ | Emergency | 7-day rain at or above the rain minimum |",
+              "|---|---|---|---|---|"]
+    for month in months:
+        for r in REGIONS:
+            per_year = d["monthly_by_year"].get(f"{r}|{month}", [])
+            if not per_year:
+                continue
+            cells = []
+            for name in ("Watch+", "Emergency", "rain_ok_share"):
+                v = np.array([x[name] for x in per_year], dtype=float)
+                cells.append(" / ".join(_p(x, 2 if name != "rain_ok_share" else 1)
+                                        for x in (v.min(), float(np.median(v)), v.max())))
+            lines.append(f"| {month} | {REGION_TEXT[r]} | {' | '.join(cells)} |")
     if s.get("live_replays"):
         lines += ["", "The same live days replayed with v4 and with v3 at lead 0 (`reports/phase8_live_replays.json`), "
                   "Emergency cells of 36,792:", "", "| day | v4 | v3 |", "|---|---|---|"]
@@ -789,6 +807,7 @@ def live_months(rows: list[dict]) -> list[dict]:
     for (month, model, region), g in frame.groupby(["month", "model", "region"]):
         out.append({"month": int(month), "model": model, "region": region, "days": int(len(g)),
                     **{LEVEL_NAMES[k]: float(g[f"{LEVEL_NAMES[k]}_published"].mean()) for k in LEVELS},
+                    "rain_ok_share": float(g["rain_ok_share"].mean()),
                     "emergency_held": int(g["emergency_held"].sum())})
     return out
 
@@ -802,14 +821,15 @@ def findings(summary: dict) -> list[str]:
         for season in OUT_SEASONS:
             row = d[f"{r}|{season}"]
             parts = []
-            for k in (lv.WATCH, lv.EMERGENCY):
+            for k in LEVELS:
                 a, b = row[LEVEL_NAMES[k]]["hits_per_100k"], mon[LEVEL_NAMES[k]]["hits_per_100k"]
-                parts.append(f"{LEVEL_NAMES[k]} {_f(a, 2)} against {_f(b, 2)}")
+                parts.append(f"{LEVEL_NAMES[k]} {_f(a, 2)} (monsoon {_f(b, 2)})")
             eo = (row["Watch+"]["expected_over_observed"], mon["Watch+"]["expected_over_observed"])
-            out.append(f"{REGION_TEXT[r]}, {SEASON_TEXT[season]}: published Emergency {_p(row['Emergency']['published_share'])} "
-                       f"(monsoon {_p(mon['Emergency']['published_share'])}), but hits per 100k alert cell-days "
-                       f"{'; '.join(parts)} in the monsoon; E/O at Watch+ {_f(eo[0], 2)} against {_f(eo[1], 2)} "
-                       f"({row['events']} events).")
+            out.append(f"{REGION_TEXT[r]}, {SEASON_TEXT[season]} ({row['events']} development events): published "
+                       f"Watch+ {_p(row['Watch+']['published_share'])} and Emergency "
+                       f"{_p(row['Emergency']['published_share'])} (monsoon {_p(mon['Watch+']['published_share'])} and "
+                       f"{_p(mon['Emergency']['published_share'])}); hits per 100k alert cell-days {', '.join(parts)}; "
+                       f"E/O at Watch+ {_f(eo[0], 2)} (monsoon {_f(eo[1], 2)}).")
     return out
 
 
@@ -845,13 +865,15 @@ def committed_criterion() -> dict:
 
 
 def heldout_years():
-    """(year, light v4 held-out season panel) of 2018-2025, cells checked against the held-out reference order."""
+    """(year, light v4 held-out season panel, its path) of 2018-2025, cells checked against the held-out reference
+    order."""
     from . import heldout
     reference = H.load_panel(H.alerts_dir(H.HELDOUT_DIR) / H.HELDOUT_FILE).cells["cell_id"].to_numpy()
     for year in bt.SEASON_YEARS:
-        panel = O.load_light(H.alerts_dir(P.V4_SEASONS) / f"season_{year}_v4.npz")
+        path = H.alerts_dir(P.V4_SEASONS) / f"season_{year}_v4.npz"
+        panel = O.load_light(path)
         heldout.check_cell_order(panel.cells["cell_id"].to_numpy(), reference, f"v4 season {year}")
-        yield year, panel, reference
+        yield year, panel, path
 
 
 def preflight(say=print) -> dict:
@@ -865,8 +887,7 @@ def preflight(say=print) -> dict:
     if sha256_file(document_path()) != crit["treatment_document_sha256"]:
         raise ValueError("the treatment document changed after the criterion was committed")
     panels = {}
-    for year, panel, _ in heldout_years():
-        path = H.alerts_dir(P.V4_SEASONS) / f"season_{year}_v4.npz"
+    for year, panel, path in heldout_years():
         months = {d.month for d in panel.days}
         if not {10, 11, 12} <= months:
             raise ValueError(f"{path.name}: no October-December days")
@@ -938,7 +959,7 @@ def heldout_look(say=print) -> dict:
     counts = {"today": {}, "treatment": {}}
     monsoon_differing = 0
     days, treat_all, base_all, cell_ids = [], [], [], None
-    for year, panel, reference in heldout_years():
+    for year, panel, _ in heldout_years():
         say(f"held-out season {year}")
         y = O.Year.from_panel(year, panel, panel.days.index(date(year, 6, 1)))
         base = treatment_levels(y, card, config, rules, {}, True)["published"]
