@@ -169,3 +169,39 @@ def test_the_live_window_fetch_writes_the_early_day_only_with_its_44_half_hours(
     assert problems == {short: "CMR lists 43 of 44 half-hours"}
     assert slots == [("early", 44, list(range(44)))]
     assert imerg_hh._day_path(root, li.EARLY, enough).is_file() and not imerg_hh._day_path(root, li.EARLY, short).exists()
+
+
+# ------------------------------------------------------------------------------------------- a static-only lead model
+
+def static_only_model():
+    """The tiny test model plus three static inputs and no intensity input (v4-static's shape)."""
+    import lightgbm as lgb
+    from aetherguard.hazard.calibration import MonotoneCalibrator
+    from aetherguard.hazard.model import HazardModel
+    from test_live_run_intensity import STATIC
+    rng = np.random.default_rng(9)
+    n = 3000
+    acc3 = rng.uniform(0, 320, n)
+    columns = [*H.MODEL_COLUMNS, *STATIC]
+    frame = pd.DataFrame({c: acc3 * 0.3 + rng.uniform(0, 5, n) for c in columns}).astype(np.float32)
+    y = (acc3 + rng.normal(0, 25, n) > 140).astype(int)
+    constraints = [1, 1, 1, 1, 1, 0, 0, 0, 0]
+    params = dict(objective="binary", num_leaves=7, min_data_in_leaf=20, learning_rate=0.2, verbosity=-1, seed=1,
+                  deterministic=True, force_row_wise=True, monotone_constraints=constraints)
+    booster = lgb.train(params, lgb.Dataset(frame, y), num_boost_round=20)
+    members = [lgb.train({**params, "seed": 10 + k}, lgb.Dataset(frame, y), num_boost_round=20) for k in range(3)]
+    return HazardModel(columns, constraints, booster, 20, members, MonotoneCalibrator([0.0, 1.0], [0.0, 0.6]), {})
+
+
+def test_a_static_only_lead_model_needs_no_intensity_window(tmp_path):
+    from test_live_run_intensity import STATIC, static_table
+    cfg = H.make_cfg(tmp_path)
+    model = static_only_model()
+    deps = H.make_deps(forecast_model=model, incumbent_model=H.tiny_model(), incumbent_thresholds=H.THRESHOLDS,
+                       forecast_thresholds=H.THRESHOLDS, static_table=static_table(),
+                       intensity_fetch=lambda run, days, root: (_ for _ in ()).throw(AssertionError("no window may be read")))
+    summary = live_run.run_day(H.DAY, cfg, deps=deps)
+    assert summary["lead_intensity"]["used"] is True and summary["forecast_model"]["n_columns"] == len(H.MODEL_COLUMNS) + 3
+    features = pd.read_parquet(live_run.live_root(cfg) / H.DAY.isoformat() / "features_D2.parquet")
+    assert set(STATIC) <= set(features.columns) and not set(IINT) & set(features.columns)
+    assert summary["audit"]["total_violations"] == 0, summary["audit"]

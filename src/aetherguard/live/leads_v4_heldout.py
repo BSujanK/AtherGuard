@@ -165,15 +165,16 @@ def load_year(year: int) -> dict:
         return {k: data[k] for k in data.files}
 
 
-def lead_pool(lead: int, candidate: str, events: pd.DataFrame, years=YEARS):
+def lead_pool(lead: int, candidate: str, events: pd.DataFrame, years=YEARS, loader=None):
     """The held-out pool of one lead: the incumbent's levels and the candidate's, burden-matched per season, over the target
-    days of the seasons; the events dated on those days."""
+    days of the seasons; the events dated on those days. `loader` (year -> the arrays of its panel file) defaults to this
+    study's panels."""
     from ..hazard import v4_int
     from ..verify import heldout as vh
     from ..verify import operating_point as op
     cell_ids, days, scored, incumbent, candidate_levels, seasons = None, [], [], [], [], {}
     for year in years:
-        data = load_year(year)
+        data = (loader or load_year)(year)
         cell_ids = data["cell_ids"]
         on = data[f"L{lead}_scored"]
         season_days = target_days(year, lead)

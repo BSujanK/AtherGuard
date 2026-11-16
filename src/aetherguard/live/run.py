@@ -211,15 +211,16 @@ def lead_inputs_configured(cfg: dict, deps: LiveDeps) -> bool:
 
 def load_forecast_model(cfg: dict, deps: LiveDeps, model: hm.HazardModel) -> hm.HazardModel:
     """The model of the forecast leads: handed in, else the frozen model `lead_model_config` (or `model_config`) names when
-    it is not lead 0's, else `model`. A model with rain-intensity or static inputs is a forecast-lead model only when
-    `lead_intensity` says where the leads' intensity comes from (W7, `live.lead_intensity`)."""
+    it is not lead 0's, else `model`. A model with rain-intensity inputs is a forecast-lead model only when
+    `lead_intensity` says where the leads' intensity comes from (W7, `live.lead_intensity`); one with static inputs only
+    (v4-static) joins the static table at every lead."""
     if deps.forecast_model is not None:
         forecast = deps.forecast_model
     elif deps.model is None and cfg[lead_model_key(cfg)] != cfg[lead0_key(cfg)]:
         forecast = load_live_model({**cfg, "model_config": cfg[lead_model_key(cfg)]})
     else:
         forecast = model
-    if reads_lead0_inputs(forecast) and not lead_inputs_configured(cfg, deps):
+    if uses_intensity(forecast) and not lead_inputs_configured(cfg, deps):
         raise LiveRunError("the forecast-lead model reads rain-intensity inputs, which no forecast lead has observed, or "
                            "static inputs, which only lead 0 joins; `model_config` must name a model without them "
                            "(or `lead_intensity` must say where the forecast leads' intensity comes from)")
@@ -317,14 +318,18 @@ def default_lead_sources(cfg: dict) -> Callable:
 
 def lead_inputs(day: date, cfg: dict, deps: LiveDeps, cells: pd.DataFrame, model, gfs) -> tuple[dict | None, dict]:
     """({lead: the intensity and static inputs of that lead, in cells order}, status) for a lead model that reads them;
-    (None, status with the reason) when any day of any lead's window, or the static table, is missing."""
+    (None, status with the reason) when any day of any lead's window, or the static table, is missing. A model with static
+    but no intensity inputs (v4-static) reads no window: its lead inputs are the static table only."""
+    ground, static = static_inputs(cells, model, deps)
+    if static is not None and not static["used"]:
+        return None, {"used": False, "reason": static["reason"]}
+    if not uses_intensity(model):
+        return ({lead: ground.reset_index(drop=True) for lead in (1, 2, 3)},
+                {"used": True, "reason": None, "rule": "static inputs only: the forecast-lead model reads no rain-intensity input"})
     try:
         sources = (deps.lead_sources or default_lead_sources(cfg))(day, gfs)
     except (OSError, ValueError, KeyError) as exc:
         return None, {"used": False, "reason": f"lead intensity sources unavailable ({type(exc).__name__}: {str(exc)[:160]})"}
-    ground, static = static_inputs(cells, model, deps)
-    if static is not None and not static["used"]:
-        return None, {"used": False, "reason": static["reason"]}
     out, leads = {}, {}
     cell_ids = cells["cell_id"].to_numpy(dtype=np.int64)
     for lead in (1, 2, 3):
