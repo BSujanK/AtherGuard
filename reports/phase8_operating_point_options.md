@@ -2,8 +2,6 @@
 
 This document puts one decision in front of the user: how often AetherGuard may raise each alert level. Nothing here changes the live run. Held-out numbers appear only in the section of the one look taken; every other number comes from `data/processed/alerts/operating_options/` (development years 2007-2017, out of fold, every one of the 36,792 scored cells).
 
-**Incomplete:** the January-May panels are not all scored yet, so the rest-of-year rows are missing.
-
 **Outcome:** B_balanced was chosen and taken to its one held-out look. It was NOT confirmed (failed: burden western_ghats|monsoon|3, loss against A_detection_first tolerant|1; section "The held-out look of B_balanced"), so today's levels (A) stay live and B_balanced is not re-tested or tuned on these events. The development analysis below is unchanged by the look; the held-out look shows the burden and the detection loss of B on new years.
 
 ## The three options at a glance (published levels, the whole live chain)
@@ -42,6 +40,22 @@ Share of cell-days at each level or above, and how many development events (land
 | B_balanced | 18.0% | 3.0% | 0.76% | 58% / 83% | 42% / 67% |
 | C_rare_emergency | 13.1% | 3.0% | 0.76% | 58% / 83% | 42% / 67% |
 
+**Himalaya, rest of year (Jan-May)** (90 development events)
+
+| option | Watch+ share | Warning+ share | Emergency share | Warning+ caught (exact / tolerant) | Emergency caught (exact / tolerant) |
+|---|---|---|---|---|---|
+| A_detection_first | 20.0% | 5.0% | 1.15% | 60% / 84% | 36% / 61% |
+| B_balanced | 20.0% | 5.0% | 1.15% | 60% / 84% | 36% / 61% |
+| C_rare_emergency | 14.5% | 4.0% | 1.15% | 58% / 80% | 36% / 61% |
+
+**Western Ghats, rest of year (Jan-May)** (5 development events)
+
+| option | Watch+ share | Warning+ share | Emergency share | Warning+ caught (exact / tolerant) | Emergency caught (exact / tolerant) |
+|---|---|---|---|---|---|
+| A_detection_first | 7.8% | 0.9% | 0.18% | 40% / 60% | 40% / 40% |
+| B_balanced | 7.8% | 0.9% | 0.18% | 40% / 60% | 40% / 40% |
+| C_rare_emergency | 7.8% | 0.9% | 0.18% | 40% / 60% | 40% / 40% |
+
 ## The price of each step, as a cost ratio
 
 Moving from one option to the next saves published alert cell-days and loses some development events. The cost ratio is cell-days saved per event lost: the step is worth taking when one missed landslide is worth FEWER false-alarm cell-days than this number ('any': no event is lost).
@@ -60,6 +74,12 @@ Moving from one option to the next saves published alert cell-days and loses som
 | A_detection_first->B_balanced | Western Ghats, post-monsoon (Oct-Dec) | Watch+ | 1,366 (0%) | 0 / 0 | any / any |
 | A_detection_first->B_balanced | Western Ghats, post-monsoon (Oct-Dec) | Warning+ | 565 (0%) | 0 / 0 | any / any |
 | A_detection_first->B_balanced | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 0 (0%) | 0 / 0 | any / any |
+| A_detection_first->B_balanced | Himalaya, rest of year (Jan-May) | Watch+ | 0 (0%) | 0 / 0 | any / any |
+| A_detection_first->B_balanced | Himalaya, rest of year (Jan-May) | Warning+ | 0 (0%) | 0 / 0 | any / any |
+| A_detection_first->B_balanced | Himalaya, rest of year (Jan-May) | Emergency | 0 (0%) | 0 / 0 | any / any |
+| A_detection_first->B_balanced | Western Ghats, rest of year (Jan-May) | Watch+ | 0 (0%) | 0 / 0 | any / any |
+| A_detection_first->B_balanced | Western Ghats, rest of year (Jan-May) | Warning+ | 0 (0%) | 0 / 0 | any / any |
+| A_detection_first->B_balanced | Western Ghats, rest of year (Jan-May) | Emergency | 0 (0%) | 0 / 0 | any / any |
 | B_balanced->C_rare_emergency | Himalaya, monsoon (Jun-Sep) | Watch+ | 4,454,914 (38%) | 36 / 6 | 123,748 / 742,486 |
 | B_balanced->C_rare_emergency | Himalaya, monsoon (Jun-Sep) | Warning+ | 1,496,464 (44%) | 67 / 35 | 22,335 / 42,756 |
 | B_balanced->C_rare_emergency | Himalaya, monsoon (Jun-Sep) | Emergency | 519,518 (48%) | 59 / 57 | 8,805 / 9,114 |
@@ -72,6 +92,12 @@ Moving from one option to the next saves published alert cell-days and loses som
 | B_balanced->C_rare_emergency | Western Ghats, post-monsoon (Oct-Dec) | Watch+ | 401,325 (27%) | 0 / 0 | any / any |
 | B_balanced->C_rare_emergency | Western Ghats, post-monsoon (Oct-Dec) | Warning+ | 250 (0%) | 0 / 0 | any / any |
 | B_balanced->C_rare_emergency | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 234 (0%) | 0 / 0 | any / any |
+| B_balanced->C_rare_emergency | Himalaya, rest of year (Jan-May) | Watch+ | 2,656,689 (28%) | 1 / 1 | 2,656,689 / 2,656,689 |
+| B_balanced->C_rare_emergency | Himalaya, rest of year (Jan-May) | Warning+ | 494,492 (21%) | 2 / 4 | 247,246 / 123,623 |
+| B_balanced->C_rare_emergency | Himalaya, rest of year (Jan-May) | Emergency | 0 (0%) | 0 / 0 | any / any |
+| B_balanced->C_rare_emergency | Western Ghats, rest of year (Jan-May) | Watch+ | 0 (0%) | 0 / 0 | any / any |
+| B_balanced->C_rare_emergency | Western Ghats, rest of year (Jan-May) | Warning+ | 0 (0%) | 0 / 0 | any / any |
+| B_balanced->C_rare_emergency | Western Ghats, rest of year (Jan-May) | Emergency | 0 (0%) | 0 / 0 | any / any |
 
 ## Recommendation
 
@@ -95,14 +121,20 @@ District boundaries: ODbL 1.0; contains information from geoBoundaries (gbOpen) 
 | A_detection_first | 3 cells or 10% of cells | Himalaya, post-monsoon (Oct-Dec) | 1.6, 3.7 | 0.4, 1.5 | 0.1, 0.5 |
 | A_detection_first | 3 cells or 10% of cells | Western Ghats, monsoon (Jun-Sep) | 4.4, 6.8 | 0.3, 5.2 | 0.0, 2.6 |
 | A_detection_first | 3 cells or 10% of cells | Western Ghats, post-monsoon (Oct-Dec) | 1.3, 5.1 | 0.1, 2.5 | 0.0, 1.1 |
+| A_detection_first | 3 cells or 10% of cells | Himalaya, rest of year (Jan-May) | 2.9, 5.5 | 0.9, 3.1 | 0.1, 1.2 |
+| A_detection_first | 3 cells or 10% of cells | Western Ghats, rest of year (Jan-May) | 0.5, 3.3 | 0.0, 1.0 | 0.0, 0.3 |
 | B_balanced | 1 cell | Himalaya, monsoon (Jun-Sep) | 6.3, 7.0 | 2.6, 6.6 | 0.7, 4.9 |
 | B_balanced | 1 cell | Himalaya, post-monsoon (Oct-Dec) | 1.9, 4.6 | 0.6, 2.2 | 0.2, 0.9 |
 | B_balanced | 1 cell | Western Ghats, monsoon (Jun-Sep) | 3.6, 6.8 | 0.2, 5.5 | 0.1, 4.2 |
 | B_balanced | 1 cell | Western Ghats, post-monsoon (Oct-Dec) | 1.8, 5.5 | 0.2, 3.3 | 0.0, 1.8 |
+| B_balanced | 1 cell | Himalaya, rest of year (Jan-May) | 3.0, 6.0 | 1.2, 4.0 | 0.3, 1.9 |
+| B_balanced | 1 cell | Western Ghats, rest of year (Jan-May) | 1.0, 3.6 | 0.0, 1.5 | 0.0, 0.6 |
 | C_rare_emergency | 1 cell | Himalaya, monsoon (Jun-Sep) | 5.1, 7.0 | 1.4, 5.9 | 0.3, 3.8 |
 | C_rare_emergency | 1 cell | Himalaya, post-monsoon (Oct-Dec) | 1.5, 4.2 | 0.6, 2.2 | 0.2, 0.9 |
 | C_rare_emergency | 1 cell | Western Ghats, monsoon (Jun-Sep) | 1.7, 6.7 | 0.2, 5.5 | 0.0, 3.6 |
 | C_rare_emergency | 1 cell | Western Ghats, post-monsoon (Oct-Dec) | 1.2, 5.4 | 0.2, 3.3 | 0.0, 1.8 |
+| C_rare_emergency | 1 cell | Himalaya, rest of year (Jan-May) | 2.7, 5.5 | 1.0, 3.6 | 0.3, 1.9 |
+| C_rare_emergency | 1 cell | Western Ghats, rest of year (Jan-May) | 1.0, 3.6 | 0.0, 1.5 | 0.0, 0.6 |
 
 ## The options in full
 
@@ -126,6 +158,12 @@ Thresholds (calibrated risk, Watch / Warning / Emergency) are in `data/processed
 | Western Ghats, post-monsoon (Oct-Dec) | Watch+ | 4.14e-06 | 13.17% | 20.84% | 18.02% | x1.37 | 10 / 12 (83% [58, 100]) | 10 / 12 (83% [58, 100]) | 146,779 |
 | Western Ghats, post-monsoon (Oct-Dec) | Warning+ | 2.59e-05 | 2.20% | 2.20% | 3.00% | x1.36 | 7 / 12 (58% [33, 83]) | 10 / 12 (83% [58, 100]) | 24,453 |
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 9.29e-05 | 0.46% | 0.46% | 0.76% | x1.65 | 5 / 12 (42% [17, 67]) | 8 / 12 (67% [42, 92]) | 7,763 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 3.73e-06 | 15.12% | 25.67% | 20.01% | x1.32 | 73 / 90 (81% [73, 89]) | 85 / 90 (94% [90, 99]) | 112,602 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 1.7e-05 | 3.78% | 3.78% | 5.02% | x1.33 | 54 / 90 (60% [49, 70]) | 76 / 90 (84% [76, 92]) | 31,570 |
+| Himalaya, rest of year (Jan-May) | Emergency | 7.45e-05 | 0.73% | 0.73% | 1.15% | x1.57 | 32 / 90 (36% [26, 46]) | 55 / 90 (61% [51, 71]) | 10,015 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 4.14e-06 | 5.31% | 10.04% | 7.85% | x1.48 | 4 / 5 (80% [40, 100]) | 4 / 5 (80% [40, 100]) | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 2.59e-05 | 0.61% | 0.61% | 0.86% | x1.41 | 2 / 5 (40% [0, 80]) | 3 / 5 (60% [20, 100]) | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 9.29e-05 | 0.11% | 0.11% | 0.18% | x1.69 | 2 / 5 (40% [0, 80]) | 2 / 5 (40% [0, 80]) | 12,100 |
 
 Districts (each candidate rule): district-days at the level or above, events inside a district at the level on the event day (and within 1 day), district-days per event:
 
@@ -167,6 +205,24 @@ Districts (each candidate rule): district-days at the level or above, events ins
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 1 cell | 9,493 | 9 / 12 | 9 | 1,055 | 7,763 |
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 3 cells or 10% of cells | 5,312 | 8 / 12 | 8 | 664 | 7,763 |
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 5 cells or 25% of cells | 3,705 | 6 / 12 | 7 | 618 | 7,763 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 1 cell | 292,426 | 86 / 90 | 87 | 3,400 | 112,602 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 3 cells or 10% of cells | 261,489 | 83 / 90 | 87 | 3,150 | 112,602 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 5 cells or 25% of cells | 238,991 | 81 / 90 | 85 | 2,951 | 112,602 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 1 cell | 160,923 | 79 / 90 | 81 | 2,037 | 31,570 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 3 cells or 10% of cells | 126,510 | 74 / 90 | 79 | 1,710 | 31,570 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 5 cells or 25% of cells | 103,942 | 71 / 90 | 77 | 1,464 | 31,570 |
+| Himalaya, rest of year (Jan-May) | Emergency | 1 cell | 73,623 | 66 / 90 | 74 | 1,116 | 10,015 |
+| Himalaya, rest of year (Jan-May) | Emergency | 3 cells or 10% of cells | 43,663 | 59 / 90 | 67 | 740 | 10,015 |
+| Himalaya, rest of year (Jan-May) | Emergency | 5 cells or 25% of cells | 30,522 | 50 / 90 | 57 | 610 | 10,015 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 1 cell | 41,525 | 4 / 5 | 4 | 10,381 | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 3 cells or 10% of cells | 33,968 | 4 / 5 | 4 | 8,492 | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 5 cells or 25% of cells | 30,156 | 4 / 5 | 4 | 7,539 | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 1 cell | 13,423 | 4 / 5 | 4 | 3,356 | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 3 cells or 10% of cells | 8,346 | 2 / 5 | 4 | 4,173 | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 5 cells or 25% of cells | 6,035 | 1 / 5 | 2 | 6,035 | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 1 cell | 5,142 | 2 / 5 | 3 | 2,571 | 12,100 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 3 cells or 10% of cells | 2,187 | 0 / 5 | 0 |  | 12,100 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 5 cells or 25% of cells | 1,322 | 0 / 5 | 0 |  | 12,100 |
 
 Chosen district rule: **3 cells or 10% of cells**.
 
@@ -190,6 +246,12 @@ Thresholds (calibrated risk, Watch / Warning / Emergency) are in `data/processed
 | Western Ghats, post-monsoon (Oct-Dec) | Watch+ | 4.14e-06 | 13.17% | 20.84% | 18.00% | x1.37 | 10 / 12 (83% [58, 100]) | 10 / 12 (83% [58, 100]) | 146,643 |
 | Western Ghats, post-monsoon (Oct-Dec) | Warning+ | 2.59e-05 | 2.20% | 2.20% | 3.00% | x1.36 | 7 / 12 (58% [33, 83]) | 10 / 12 (83% [58, 100]) | 24,396 |
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 9.29e-05 | 0.46% | 0.46% | 0.76% | x1.65 | 5 / 12 (42% [17, 67]) | 8 / 12 (67% [42, 92]) | 7,763 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 3.73e-06 | 15.12% | 25.67% | 20.01% | x1.32 | 73 / 90 (81% [73, 89]) | 85 / 90 (94% [90, 99]) | 112,602 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 1.7e-05 | 3.78% | 3.78% | 5.02% | x1.33 | 54 / 90 (60% [49, 70]) | 76 / 90 (84% [76, 92]) | 31,570 |
+| Himalaya, rest of year (Jan-May) | Emergency | 7.45e-05 | 0.73% | 0.73% | 1.15% | x1.57 | 32 / 90 (36% [26, 46]) | 55 / 90 (61% [51, 71]) | 10,015 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 4.14e-06 | 5.31% | 10.04% | 7.85% | x1.48 | 4 / 5 (80% [40, 100]) | 4 / 5 (80% [40, 100]) | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 2.59e-05 | 0.61% | 0.61% | 0.86% | x1.41 | 2 / 5 (40% [0, 80]) | 3 / 5 (60% [20, 100]) | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 9.29e-05 | 0.11% | 0.11% | 0.18% | x1.69 | 2 / 5 (40% [0, 80]) | 2 / 5 (40% [0, 80]) | 12,100 |
 
 Districts (each candidate rule): district-days at the level or above, events inside a district at the level on the event day (and within 1 day), district-days per event:
 
@@ -231,6 +293,24 @@ Districts (each candidate rule): district-days at the level or above, events ins
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 1 cell | 9,493 | 9 / 12 | 9 | 1,055 | 7,763 |
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 3 cells or 10% of cells | 5,312 | 8 / 12 | 8 | 664 | 7,763 |
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 5 cells or 25% of cells | 3,705 | 6 / 12 | 7 | 618 | 7,763 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 1 cell | 292,426 | 86 / 90 | 87 | 3,400 | 112,602 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 3 cells or 10% of cells | 261,489 | 83 / 90 | 87 | 3,150 | 112,602 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 5 cells or 25% of cells | 238,991 | 81 / 90 | 85 | 2,951 | 112,602 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 1 cell | 160,923 | 79 / 90 | 81 | 2,037 | 31,570 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 3 cells or 10% of cells | 126,510 | 74 / 90 | 79 | 1,710 | 31,570 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 5 cells or 25% of cells | 103,942 | 71 / 90 | 77 | 1,464 | 31,570 |
+| Himalaya, rest of year (Jan-May) | Emergency | 1 cell | 73,623 | 66 / 90 | 74 | 1,116 | 10,015 |
+| Himalaya, rest of year (Jan-May) | Emergency | 3 cells or 10% of cells | 43,663 | 59 / 90 | 67 | 740 | 10,015 |
+| Himalaya, rest of year (Jan-May) | Emergency | 5 cells or 25% of cells | 30,522 | 50 / 90 | 57 | 610 | 10,015 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 1 cell | 41,525 | 4 / 5 | 4 | 10,381 | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 3 cells or 10% of cells | 33,968 | 4 / 5 | 4 | 8,492 | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 5 cells or 25% of cells | 30,156 | 4 / 5 | 4 | 7,539 | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 1 cell | 13,423 | 4 / 5 | 4 | 3,356 | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 3 cells or 10% of cells | 8,346 | 2 / 5 | 4 | 4,173 | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 5 cells or 25% of cells | 6,035 | 1 / 5 | 2 | 6,035 | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 1 cell | 5,142 | 2 / 5 | 3 | 2,571 | 12,100 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 3 cells or 10% of cells | 2,187 | 0 / 5 | 0 |  | 12,100 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 5 cells or 25% of cells | 1,322 | 0 / 5 | 0 |  | 12,100 |
 
 Chosen district rule: **1 cell**.
 
@@ -254,6 +334,12 @@ Thresholds (calibrated risk, Watch / Warning / Emergency) are in `data/processed
 | Western Ghats, post-monsoon (Oct-Dec) | Watch+ | 4.14e-06 | 6.81% | 11.96% | 13.08% | x1.92 | 10 / 12 (83% [58, 100]) | 10 / 12 (83% [58, 100]) | 106,510 |
 | Western Ghats, post-monsoon (Oct-Dec) | Warning+ | 2.59e-05 | 2.20% | 2.20% | 2.99% | x1.36 | 7 / 12 (58% [33, 83]) | 10 / 12 (83% [58, 100]) | 24,371 |
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 9.29e-05 | 0.46% | 0.46% | 0.76% | x1.64 | 5 / 12 (42% [17, 67]) | 8 / 12 (67% [42, 92]) | 7,734 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 3.73e-06 | 7.35% | 13.94% | 14.46% | x1.97 | 72 / 90 (80% [71, 88]) | 84 / 90 (93% [88, 98]) | 82,315 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 1.94e-05 | 2.43% | 2.43% | 3.98% | x1.64 | 52 / 90 (58% [47, 68]) | 72 / 90 (80% [72, 88]) | 26,456 |
+| Himalaya, rest of year (Jan-May) | Emergency | 7.45e-05 | 0.73% | 0.73% | 1.15% | x1.57 | 32 / 90 (36% [26, 46]) | 55 / 90 (61% [51, 71]) | 10,015 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 4.14e-06 | 5.31% | 10.04% | 7.85% | x1.48 | 4 / 5 (80% [40, 100]) | 4 / 5 (80% [40, 100]) | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 2.59e-05 | 0.61% | 0.61% | 0.86% | x1.41 | 2 / 5 (40% [0, 80]) | 3 / 5 (60% [20, 100]) | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 9.29e-05 | 0.11% | 0.11% | 0.18% | x1.69 | 2 / 5 (40% [0, 80]) | 2 / 5 (40% [0, 80]) | 12,100 |
 
 Districts (each candidate rule): district-days at the level or above, events inside a district at the level on the event day (and within 1 day), district-days per event:
 
@@ -295,6 +381,24 @@ Districts (each candidate rule): district-days at the level or above, events ins
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 1 cell | 9,486 | 9 / 12 | 9 | 1,054 | 7,734 |
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 3 cells or 10% of cells | 5,297 | 8 / 12 | 8 | 662 | 7,734 |
 | Western Ghats, post-monsoon (Oct-Dec) | Emergency | 5 cells or 25% of cells | 3,698 | 6 / 12 | 7 | 616 | 7,734 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 1 cell | 257,317 | 84 / 90 | 86 | 3,063 | 82,315 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 3 cells or 10% of cells | 225,262 | 82 / 90 | 85 | 2,747 | 82,315 |
+| Himalaya, rest of year (Jan-May) | Watch+ | 5 cells or 25% of cells | 202,012 | 79 / 90 | 82 | 2,557 | 82,315 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 1 cell | 146,029 | 77 / 90 | 80 | 1,896 | 26,456 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 3 cells or 10% of cells | 111,050 | 69 / 90 | 77 | 1,609 | 26,456 |
+| Himalaya, rest of year (Jan-May) | Warning+ | 5 cells or 25% of cells | 88,984 | 67 / 90 | 72 | 1,328 | 26,456 |
+| Himalaya, rest of year (Jan-May) | Emergency | 1 cell | 73,623 | 66 / 90 | 74 | 1,116 | 10,015 |
+| Himalaya, rest of year (Jan-May) | Emergency | 3 cells or 10% of cells | 43,663 | 59 / 90 | 67 | 740 | 10,015 |
+| Himalaya, rest of year (Jan-May) | Emergency | 5 cells or 25% of cells | 30,522 | 50 / 90 | 57 | 610 | 10,015 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 1 cell | 41,489 | 4 / 5 | 4 | 10,372 | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 3 cells or 10% of cells | 33,963 | 4 / 5 | 4 | 8,491 | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Watch+ | 5 cells or 25% of cells | 30,155 | 4 / 5 | 4 | 7,539 | 262,673 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 1 cell | 13,423 | 4 / 5 | 4 | 3,356 | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 3 cells or 10% of cells | 8,346 | 2 / 5 | 4 | 4,173 | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Warning+ | 5 cells or 25% of cells | 6,035 | 1 / 5 | 2 | 6,035 | 38,551 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 1 cell | 5,142 | 2 / 5 | 3 | 2,571 | 12,100 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 3 cells or 10% of cells | 2,187 | 0 / 5 | 0 |  | 12,100 |
+| Western Ghats, rest of year (Jan-May) | Emergency | 5 cells or 25% of cells | 1,322 | 0 / 5 | 0 |  | 12,100 |
 
 Chosen district rule: **1 cell**.
 
@@ -417,6 +521,64 @@ Each row caps the level at a share of the cell-days of the region and season. Co
 | Emergency | 1.0% | 0.80% | 65,418 | 5 / 12 (42% [17, 67]) | 9 / 12 (75% [50, 92]) | 4.4% | 0.08 / 0.14 | any / any |
 | Emergency | 0.5% | 0.46% | 37,687 | 5 / 12 (42% [17, 67]) | 8 / 12 (67% [42, 92]) | 2.9% | 0.13 / 0.21 | any / 27,731 |
 | Emergency | 0.2% | 0.04% | 3,608 | 2 / 12 (17% [0, 42]) | 4 / 12 (33% [8, 58]) | 0.4% | 0.55 / 1.11 | 11,360 / 8,520 |
+
+### Himalaya, rest of year (Jan-May): 90 events (88 independent slides), 47,830,016 cell-days
+
+| level | cap | realised share | alert cell-days | caught cell-exact [95% CI] | caught tolerant [95% CI] | chance floor | events per 1,000 alert cell-days (exact / tolerant) | cost ratio (exact / tolerant) |
+|---|---|---|---|---|---|---|---|---|
+| Watch+ today | card | 15.12% | 7,232,482 | 71 / 90 (79% [70, 87]) | 86 / 90 (96% [91, 99]) | 38.1% | 0.01 / 0.01 | |
+| Warning+ today | card | 3.78% | 1,808,603 | 53 / 90 (59% [48, 69]) | 81 / 90 (90% [83, 96]) | 17.1% | 0.03 / 0.04 | |
+| Emergency today | card | 0.73% | 350,421 | 29 / 90 (32% [23, 42]) | 57 / 90 (63% [53, 73]) | 5.5% | 0.08 / 0.16 | |
+| Watch+ | 45.0% | 35.07% | 16,775,952 | 84 / 90 (93% [88, 98]) | 88 / 90 (98% [94, 100]) | 59.9% | 0.01 / 0.01 | any / any |
+| Watch+ | 35.0% | 34.23% | 16,371,061 | 83 / 90 (92% [86, 98]) | 88 / 90 (98% [94, 100]) | 59.2% | 0.01 / 0.01 | 404,891 / any |
+| Watch+ | 25.0% | 23.66% | 11,318,618 | 76 / 90 (84% [76, 91]) | 88 / 90 (98% [94, 100]) | 48.7% | 0.01 / 0.01 | 721,778 / any |
+| Watch+ | 15.0% | 7.35% | 3,515,395 | 63 / 90 (70% [60, 80]) | 85 / 90 (94% [90, 99]) | 25.5% | 0.02 / 0.02 | 600,248 / 2,601,074 |
+| Watch+ | 10.0% | 7.35% | 3,515,395 | 63 / 90 (70% [60, 80]) | 85 / 90 (94% [90, 99]) | 25.5% | 0.02 / 0.02 | any / any |
+| Watch+ | 6.0% | 4.21% | 2,014,238 | 55 / 90 (61% [51, 71]) | 82 / 90 (91% [85, 97]) | 18.3% | 0.03 / 0.04 | 187,645 / 500,386 |
+| Watch+ | 3.0% | 2.43% | 1,160,696 | 48 / 90 (53% [43, 64]) | 74 / 90 (82% [74, 90]) | 12.8% | 0.04 / 0.06 | 121,935 / 106,693 |
+| Warning+ | 20.0% | 17.19% | 8,222,036 | 74 / 90 (82% [74, 90]) | 86 / 90 (96% [91, 99]) | 40.9% | 0.01 / 0.01 | any / any |
+| Warning+ | 15.0% | 7.35% | 3,515,395 | 63 / 90 (70% [60, 80]) | 85 / 90 (94% [90, 99]) | 25.5% | 0.02 / 0.02 | 427,876 / 4,706,641 |
+| Warning+ | 10.0% | 7.35% | 3,515,395 | 63 / 90 (70% [60, 80]) | 85 / 90 (94% [90, 99]) | 25.5% | 0.02 / 0.02 | any / any |
+| Warning+ | 6.0% | 4.21% | 2,014,238 | 55 / 90 (61% [51, 71]) | 82 / 90 (91% [85, 97]) | 18.3% | 0.03 / 0.04 | 187,645 / 500,386 |
+| Warning+ | 4.0% | 3.78% | 1,808,681 | 53 / 90 (59% [48, 69]) | 81 / 90 (90% [83, 96]) | 17.1% | 0.03 / 0.04 | 102,778 / 205,557 |
+| Warning+ | 2.0% | 1.76% | 840,625 | 44 / 90 (49% [38, 59]) | 71 / 90 (79% [70, 87]) | 10.3% | 0.05 / 0.08 | 107,562 / 96,806 |
+| Warning+ | 1.0% | 0.90% | 432,210 | 32 / 90 (36% [26, 46]) | 63 / 90 (70% [60, 79]) | 6.4% | 0.07 / 0.15 | 34,035 / 51,052 |
+| Emergency | 8.0% | 7.35% | 3,515,395 | 63 / 90 (70% [60, 80]) | 85 / 90 (94% [90, 99]) | 25.5% | 0.02 / 0.02 | any / any |
+| Emergency | 5.0% | 4.21% | 2,014,238 | 55 / 90 (61% [51, 71]) | 82 / 90 (91% [85, 97]) | 18.3% | 0.03 / 0.04 | 187,645 / 500,386 |
+| Emergency | 3.0% | 2.43% | 1,160,696 | 48 / 90 (53% [43, 64]) | 74 / 90 (82% [74, 90]) | 12.8% | 0.04 / 0.06 | 121,935 / 106,693 |
+| Emergency | 2.0% | 1.76% | 840,625 | 44 / 90 (49% [38, 59]) | 71 / 90 (79% [70, 87]) | 10.3% | 0.05 / 0.08 | 80,018 / 106,690 |
+| Emergency | 1.0% | 0.90% | 432,210 | 32 / 90 (36% [26, 46]) | 63 / 90 (70% [60, 79]) | 6.4% | 0.07 / 0.15 | 34,035 / 51,052 |
+| Emergency | 0.5% | 0.47% | 224,418 | 25 / 90 (28% [19, 38]) | 50 / 90 (56% [45, 66]) | 4.0% | 0.11 / 0.22 | 29,685 / 15,984 |
+| Emergency | 0.2% | 0.13% | 60,850 | 22 / 90 (24% [16, 33]) | 37 / 90 (41% [31, 52]) | 1.4% | 0.36 / 0.61 | 54,523 / 12,582 |
+
+### Western Ghats, rest of year (Jan-May): 5 events (5 independent slides), 13,391,872 cell-days
+
+| level | cap | realised share | alert cell-days | caught cell-exact [95% CI] | caught tolerant [95% CI] | chance floor | events per 1,000 alert cell-days (exact / tolerant) | cost ratio (exact / tolerant) |
+|---|---|---|---|---|---|---|---|---|
+| Watch+ today | card | 5.31% | 710,840 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 14.0% | 0.00 / 0.01 | |
+| Warning+ today | card | 0.61% | 82,297 | 2 / 5 (40% [0, 80]) | 3 / 5 (60% [20, 100]) | 3.3% | 0.02 / 0.04 | |
+| Emergency today | card | 0.11% | 14,315 | 2 / 5 (40% [0, 80]) | 2 / 5 (40% [0, 80]) | 0.8% | 0.14 / 0.14 | |
+| Watch+ | 45.0% | 39.68% | 5,313,399 | 5 / 5 (100% [100, 100]) | 5 / 5 (100% [100, 100]) | 60.0% | 0.00 / 0.00 | any / any |
+| Watch+ | 35.0% | 22.28% | 2,983,519 | 4 / 5 (80% [40, 100]) | 4 / 5 (80% [40, 100]) | 42.8% | 0.00 / 0.00 | 2,329,880 / 2,329,880 |
+| Watch+ | 25.0% | 22.28% | 2,983,519 | 4 / 5 (80% [40, 100]) | 4 / 5 (80% [40, 100]) | 42.8% | 0.00 / 0.00 | any / any |
+| Watch+ | 15.0% | 12.57% | 1,683,007 | 4 / 5 (80% [40, 100]) | 4 / 5 (80% [40, 100]) | 26.8% | 0.00 / 0.00 | any / any |
+| Watch+ | 10.0% | 7.30% | 977,294 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 17.6% | 0.00 / 0.00 | 705,713 / any |
+| Watch+ | 6.0% | 5.31% | 710,858 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 14.0% | 0.00 / 0.01 | any / any |
+| Watch+ | 3.0% | 2.37% | 317,916 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 8.3% | 0.01 / 0.01 | any / any |
+| Warning+ | 20.0% | 12.57% | 1,683,007 | 4 / 5 (80% [40, 100]) | 4 / 5 (80% [40, 100]) | 26.8% | 0.00 / 0.00 | any / any |
+| Warning+ | 15.0% | 12.57% | 1,683,007 | 4 / 5 (80% [40, 100]) | 4 / 5 (80% [40, 100]) | 26.8% | 0.00 / 0.00 | any / any |
+| Warning+ | 10.0% | 7.30% | 977,294 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 17.6% | 0.00 / 0.00 | 705,713 / any |
+| Warning+ | 6.0% | 5.31% | 710,858 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 14.0% | 0.00 / 0.01 | any / any |
+| Warning+ | 4.0% | 2.37% | 317,916 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 8.3% | 0.01 / 0.01 | any / any |
+| Warning+ | 2.0% | 1.27% | 169,414 | 2 / 5 (40% [0, 80]) | 4 / 5 (80% [40, 100]) | 5.5% | 0.01 / 0.02 | 148,502 / any |
+| Warning+ | 1.0% | 0.87% | 116,845 | 2 / 5 (40% [0, 80]) | 4 / 5 (80% [40, 100]) | 4.2% | 0.02 / 0.03 | any / any |
+| Emergency | 8.0% | 7.30% | 977,294 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 17.6% | 0.00 / 0.00 | any / any |
+| Emergency | 5.0% | 2.37% | 317,916 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 8.3% | 0.01 / 0.01 | any / any |
+| Emergency | 3.0% | 2.37% | 317,916 | 3 / 5 (60% [20, 100]) | 4 / 5 (80% [40, 100]) | 8.3% | 0.01 / 0.01 | any / any |
+| Emergency | 2.0% | 1.27% | 169,414 | 2 / 5 (40% [0, 80]) | 4 / 5 (80% [40, 100]) | 5.5% | 0.01 / 0.02 | 148,502 / any |
+| Emergency | 1.0% | 0.87% | 116,845 | 2 / 5 (40% [0, 80]) | 4 / 5 (80% [40, 100]) | 4.2% | 0.02 / 0.03 | any / any |
+| Emergency | 0.5% | 0.19% | 25,781 | 2 / 5 (40% [0, 80]) | 3 / 5 (60% [20, 100]) | 1.3% | 0.08 / 0.12 | any / 91,064 |
+| Emergency | 0.2% | 0.19% | 25,781 | 2 / 5 (40% [0, 80]) | 3 / 5 (60% [20, 100]) | 1.3% | 0.08 / 0.12 | any / any |
 
 ## The one held-out look per option (pre-declared; the lead's, after the user chooses)
 

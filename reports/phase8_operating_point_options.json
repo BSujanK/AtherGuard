@@ -1,17 +1,18 @@
 {
-  "created_utc": "2026-11-15T22:57:53Z",
+  "created_utc": "2026-11-16T12:43:04Z",
   "windows_present": [
-    "jun_dec"
+    "jun_dec",
+    "jan_may"
   ],
   "panels": "data/processed/alerts/oof_v4_full",
   "years": "2007-2017 (development, out of fold)",
   "events": {
     "jun_dec": 680,
-    "jan_may": null
+    "jan_may": 95
   },
   "slides": {
     "jun_dec": 627,
-    "jan_may": null
+    "jan_may": 93
   },
   "tradeoff": {
     "jun_dec": {
@@ -2793,6 +2794,1428 @@
         }
       },
       "seconds": 130.52126860000135
+    },
+    "jan_may": {
+      "window": "jan_may",
+      "years": [
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017
+      ],
+      "events": 95,
+      "slides": 93,
+      "card_thresholds": {
+        "himalaya": {
+          "watch": 3.7311450650042954e-06,
+          "warning": 1.6977379073292264e-05,
+          "emergency": 7.451552372842032e-05,
+          "source": "card.alert_levels risk_by_region[himalaya]"
+        },
+        "western_ghats": {
+          "watch": 4.141888444997089e-06,
+          "warning": 2.59122369086138e-05,
+          "emergency": 9.290367884892074e-05,
+          "source": "card.alert_levels risk_by_region[western_ghats]"
+        }
+      },
+      "ladders": {
+        "Emergency": [
+          0.08,
+          0.05,
+          0.03,
+          0.02,
+          0.01,
+          0.005,
+          0.002
+        ],
+        "Warning+": [
+          0.2,
+          0.15,
+          0.1,
+          0.06,
+          0.04,
+          0.02,
+          0.01
+        ],
+        "Watch+": [
+          0.45,
+          0.35,
+          0.25,
+          0.15,
+          0.1,
+          0.06,
+          0.03
+        ]
+      },
+      "strata": {
+        "himalaya|rest": {
+          "events": 90,
+          "slides": 88,
+          "cell_days": 47830016,
+          "Watch+": [
+            {
+              "step": 1,
+              "alert_cell_days": 16775952,
+              "share": 0.35074109111734353,
+              "chance_floor_tolerant": 0.5991231740336445,
+              "cap": 0.45,
+              "threshold": 4.287480087049066e-07,
+              "tolerant": {
+                "hits": 88,
+                "detection": 0.9777777777777777,
+                "ci": [
+                  0.9438202247191011,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.005245603945457164,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 84,
+                "detection": 0.9333333333333333,
+                "ci": [
+                  0.8764044943820225,
+                  0.978021978021978
+                ],
+                "per_1000_alert_cell_days": 0.0050071674024818385,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 2,
+              "alert_cell_days": 16371061,
+              "share": 0.3422758838299364,
+              "chance_floor_tolerant": 0.5918398605595282,
+              "cap": 0.35,
+              "threshold": 1.011618672541072e-06,
+              "tolerant": {
+                "hits": 88,
+                "detection": 0.9777777777777777,
+                "ci": [
+                  0.9438202247191011,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0053753388372323576,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 83,
+                "detection": 0.9222222222222223,
+                "ci": [
+                  0.8571428571428571,
+                  0.9772727272727273
+                ],
+                "per_1000_alert_cell_days": 0.005069921857844156,
+                "cost_ratio": 404891.0
+              }
+            },
+            {
+              "step": 3,
+              "alert_cell_days": 11318618,
+              "share": 0.23664257189460275,
+              "chance_floor_tolerant": 0.48697658809062494,
+              "cap": 0.25,
+              "threshold": 1.1433049501474637e-06,
+              "tolerant": {
+                "hits": 88,
+                "detection": 0.9777777777777777,
+                "ci": [
+                  0.9438202247191011,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.007774800775147637,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 76,
+                "detection": 0.8444444444444444,
+                "ci": [
+                  0.7640449438202247,
+                  0.9139784946236559
+                ],
+                "per_1000_alert_cell_days": 0.006714600669445687,
+                "cost_ratio": 721777.5714285715
+              }
+            },
+            {
+              "step": 4,
+              "alert_cell_days": 3515395,
+              "share": 0.07349767560186474,
+              "chance_floor_tolerant": 0.25455462946113167,
+              "cap": 0.15,
+              "threshold": 3.7311450650042958e-06,
+              "tolerant": {
+                "hits": 85,
+                "detection": 0.9444444444444444,
+                "ci": [
+                  0.8975959188660804,
+                  0.9888888888888889
+                ],
+                "per_1000_alert_cell_days": 0.02417935964521768,
+                "cost_ratio": 2601074.3333333335
+              },
+              "cell_exact": {
+                "hits": 63,
+                "detection": 0.7,
+                "ci": [
+                  0.5999456521739132,
+                  0.7955120020429005
+                ],
+                "per_1000_alert_cell_days": 0.017921172442926042,
+                "cost_ratio": 600247.9230769231
+              }
+            },
+            {
+              "step": 5,
+              "alert_cell_days": 3515395,
+              "share": 0.07349767560186474,
+              "chance_floor_tolerant": 0.25455462946113167,
+              "cap": 0.1,
+              "threshold": 3.7311450650042958e-06,
+              "tolerant": {
+                "hits": 85,
+                "detection": 0.9444444444444444,
+                "ci": [
+                  0.8975959188660804,
+                  0.9888888888888889
+                ],
+                "per_1000_alert_cell_days": 0.02417935964521768,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 63,
+                "detection": 0.7,
+                "ci": [
+                  0.5999456521739132,
+                  0.7955120020429005
+                ],
+                "per_1000_alert_cell_days": 0.017921172442926042,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 6,
+              "alert_cell_days": 2014238,
+              "share": 0.04211242580391359,
+              "chance_floor_tolerant": 0.18258099683679804,
+              "cap": 0.06,
+              "threshold": 9.82286301976147e-06,
+              "tolerant": {
+                "hits": 82,
+                "detection": 0.9111111111111111,
+                "ci": [
+                  0.8539325842696629,
+                  0.9666666666666667
+                ],
+                "per_1000_alert_cell_days": 0.04071018419868953,
+                "cost_ratio": 500385.6666666667
+              },
+              "cell_exact": {
+                "hits": 55,
+                "detection": 0.6111111111111112,
+                "ci": [
+                  0.5056179775280899,
+                  0.7078651685393258
+                ],
+                "per_1000_alert_cell_days": 0.027305611352779563,
+                "cost_ratio": 187644.625
+              }
+            },
+            {
+              "step": 7,
+              "alert_cell_days": 1160696,
+              "share": 0.024267104572994497,
+              "chance_floor_tolerant": 0.12831896188368408,
+              "cap": 0.03,
+              "threshold": 1.9405906203781422e-05,
+              "tolerant": {
+                "hits": 74,
+                "detection": 0.8222222222222222,
+                "ci": [
+                  0.7386363636363636,
+                  0.9
+                ],
+                "per_1000_alert_cell_days": 0.06375485053795309,
+                "cost_ratio": 106692.75
+              },
+              "cell_exact": {
+                "hits": 48,
+                "detection": 0.5333333333333333,
+                "ci": [
+                  0.42696629213483145,
+                  0.6363886113886112
+                ],
+                "per_1000_alert_cell_days": 0.04135449764623984,
+                "cost_ratio": 121934.57142857143
+              }
+            }
+          ],
+          "Warning+": [
+            {
+              "step": 1,
+              "alert_cell_days": 8222036,
+              "share": 0.17190117603138583,
+              "chance_floor_tolerant": 0.40939543068519985,
+              "cap": 0.2,
+              "threshold": 1.7651419651159896e-06,
+              "tolerant": {
+                "hits": 86,
+                "detection": 0.9555555555555556,
+                "ci": [
+                  0.9090909090909091,
+                  0.989010989010989
+                ],
+                "per_1000_alert_cell_days": 0.01045969635744723,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 74,
+                "detection": 0.8222222222222222,
+                "ci": [
+                  0.7386363636363636,
+                  0.898876404494382
+                ],
+                "per_1000_alert_cell_days": 0.009000203842454594,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 2,
+              "alert_cell_days": 3515395,
+              "share": 0.07349767560186474,
+              "chance_floor_tolerant": 0.25455462946113167,
+              "cap": 0.15,
+              "threshold": 3.7311450650042958e-06,
+              "tolerant": {
+                "hits": 85,
+                "detection": 0.9444444444444444,
+                "ci": [
+                  0.8975959188660804,
+                  0.9888888888888889
+                ],
+                "per_1000_alert_cell_days": 0.02417935964521768,
+                "cost_ratio": 4706641.0
+              },
+              "cell_exact": {
+                "hits": 63,
+                "detection": 0.7,
+                "ci": [
+                  0.5999456521739132,
+                  0.7955120020429005
+                ],
+                "per_1000_alert_cell_days": 0.017921172442926042,
+                "cost_ratio": 427876.45454545453
+              }
+            },
+            {
+              "step": 3,
+              "alert_cell_days": 3515395,
+              "share": 0.07349767560186474,
+              "chance_floor_tolerant": 0.25455462946113167,
+              "cap": 0.1,
+              "threshold": 3.7311450650042958e-06,
+              "tolerant": {
+                "hits": 85,
+                "detection": 0.9444444444444444,
+                "ci": [
+                  0.8975959188660804,
+                  0.9888888888888889
+                ],
+                "per_1000_alert_cell_days": 0.02417935964521768,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 63,
+                "detection": 0.7,
+                "ci": [
+                  0.5999456521739132,
+                  0.7955120020429005
+                ],
+                "per_1000_alert_cell_days": 0.017921172442926042,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 4,
+              "alert_cell_days": 2014238,
+              "share": 0.04211242580391359,
+              "chance_floor_tolerant": 0.18258099683679804,
+              "cap": 0.06,
+              "threshold": 9.82286301976147e-06,
+              "tolerant": {
+                "hits": 82,
+                "detection": 0.9111111111111111,
+                "ci": [
+                  0.8539325842696629,
+                  0.9666666666666667
+                ],
+                "per_1000_alert_cell_days": 0.04071018419868953,
+                "cost_ratio": 500385.6666666667
+              },
+              "cell_exact": {
+                "hits": 55,
+                "detection": 0.6111111111111112,
+                "ci": [
+                  0.5056179775280899,
+                  0.7078651685393258
+                ],
+                "per_1000_alert_cell_days": 0.027305611352779563,
+                "cost_ratio": 187644.625
+              }
+            },
+            {
+              "step": 5,
+              "alert_cell_days": 1808681,
+              "share": 0.03781476886815175,
+              "chance_floor_tolerant": 0.1706409631976707,
+              "cap": 0.04,
+              "threshold": 1.1920045112220663e-05,
+              "tolerant": {
+                "hits": 81,
+                "detection": 0.9,
+                "ci": [
+                  0.8333333333333334,
+                  0.9560439560439561
+                ],
+                "per_1000_alert_cell_days": 0.04478401663975018,
+                "cost_ratio": 205557.0
+              },
+              "cell_exact": {
+                "hits": 53,
+                "detection": 0.5888888888888889,
+                "ci": [
+                  0.4835164835164835,
+                  0.6853932584269663
+                ],
+                "per_1000_alert_cell_days": 0.029303121998848883,
+                "cost_ratio": 102778.5
+              }
+            },
+            {
+              "step": 6,
+              "alert_cell_days": 840625,
+              "share": 0.017575260689856344,
+              "chance_floor_tolerant": 0.10334531353700571,
+              "cap": 0.02,
+              "threshold": 2.4994462971531637e-05,
+              "tolerant": {
+                "hits": 71,
+                "detection": 0.7888888888888889,
+                "ci": [
+                  0.7032967032967034,
+                  0.8666666666666667
+                ],
+                "per_1000_alert_cell_days": 0.08446096654275093,
+                "cost_ratio": 96805.6
+              },
+              "cell_exact": {
+                "hits": 44,
+                "detection": 0.4888888888888889,
+                "ci": [
+                  0.38202247191011235,
+                  0.5888888888888889
+                ],
+                "per_1000_alert_cell_days": 0.052342007434944236,
+                "cost_ratio": 107561.77777777778
+              }
+            },
+            {
+              "step": 7,
+              "alert_cell_days": 432210,
+              "share": 0.009036375818899997,
+              "chance_floor_tolerant": 0.06448962927380163,
+              "cap": 0.01,
+              "threshold": 4.932473471980411e-05,
+              "tolerant": {
+                "hits": 63,
+                "detection": 0.7,
+                "ci": [
+                  0.6043956043956044,
+                  0.7889468864468862
+                ],
+                "per_1000_alert_cell_days": 0.1457624765738877,
+                "cost_ratio": 51051.875
+              },
+              "cell_exact": {
+                "hits": 32,
+                "detection": 0.35555555555555557,
+                "ci": [
+                  0.25555555555555554,
+                  0.4606741573033708
+                ],
+                "per_1000_alert_cell_days": 0.07403808333911756,
+                "cost_ratio": 34034.583333333336
+              }
+            }
+          ],
+          "Emergency": [
+            {
+              "step": 1,
+              "alert_cell_days": 3515395,
+              "share": 0.07349767560186474,
+              "chance_floor_tolerant": 0.25455462946113167,
+              "cap": 0.08,
+              "threshold": 3.7311450650042958e-06,
+              "tolerant": {
+                "hits": 85,
+                "detection": 0.9444444444444444,
+                "ci": [
+                  0.8975959188660804,
+                  0.9888888888888889
+                ],
+                "per_1000_alert_cell_days": 0.02417935964521768,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 63,
+                "detection": 0.7,
+                "ci": [
+                  0.5999456521739132,
+                  0.7955120020429005
+                ],
+                "per_1000_alert_cell_days": 0.017921172442926042,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 2,
+              "alert_cell_days": 2014238,
+              "share": 0.04211242580391359,
+              "chance_floor_tolerant": 0.18258099683679804,
+              "cap": 0.05,
+              "threshold": 9.82286301976147e-06,
+              "tolerant": {
+                "hits": 82,
+                "detection": 0.9111111111111111,
+                "ci": [
+                  0.8539325842696629,
+                  0.9666666666666667
+                ],
+                "per_1000_alert_cell_days": 0.04071018419868953,
+                "cost_ratio": 500385.6666666667
+              },
+              "cell_exact": {
+                "hits": 55,
+                "detection": 0.6111111111111112,
+                "ci": [
+                  0.5056179775280899,
+                  0.7078651685393258
+                ],
+                "per_1000_alert_cell_days": 0.027305611352779563,
+                "cost_ratio": 187644.625
+              }
+            },
+            {
+              "step": 3,
+              "alert_cell_days": 1160696,
+              "share": 0.024267104572994497,
+              "chance_floor_tolerant": 0.12831896188368408,
+              "cap": 0.03,
+              "threshold": 1.9405906203781422e-05,
+              "tolerant": {
+                "hits": 74,
+                "detection": 0.8222222222222222,
+                "ci": [
+                  0.7386363636363636,
+                  0.9
+                ],
+                "per_1000_alert_cell_days": 0.06375485053795309,
+                "cost_ratio": 106692.75
+              },
+              "cell_exact": {
+                "hits": 48,
+                "detection": 0.5333333333333333,
+                "ci": [
+                  0.42696629213483145,
+                  0.6363886113886112
+                ],
+                "per_1000_alert_cell_days": 0.04135449764623984,
+                "cost_ratio": 121934.57142857143
+              }
+            },
+            {
+              "step": 4,
+              "alert_cell_days": 840625,
+              "share": 0.017575260689856344,
+              "chance_floor_tolerant": 0.10334531353700571,
+              "cap": 0.02,
+              "threshold": 2.4994462971531637e-05,
+              "tolerant": {
+                "hits": 71,
+                "detection": 0.7888888888888889,
+                "ci": [
+                  0.7032967032967034,
+                  0.8666666666666667
+                ],
+                "per_1000_alert_cell_days": 0.08446096654275093,
+                "cost_ratio": 106690.33333333333
+              },
+              "cell_exact": {
+                "hits": 44,
+                "detection": 0.4888888888888889,
+                "ci": [
+                  0.38202247191011235,
+                  0.5888888888888889
+                ],
+                "per_1000_alert_cell_days": 0.052342007434944236,
+                "cost_ratio": 80017.75
+              }
+            },
+            {
+              "step": 5,
+              "alert_cell_days": 432210,
+              "share": 0.009036375818899997,
+              "chance_floor_tolerant": 0.06448962927380163,
+              "cap": 0.01,
+              "threshold": 4.932473471980411e-05,
+              "tolerant": {
+                "hits": 63,
+                "detection": 0.7,
+                "ci": [
+                  0.6043956043956044,
+                  0.7889468864468862
+                ],
+                "per_1000_alert_cell_days": 0.1457624765738877,
+                "cost_ratio": 51051.875
+              },
+              "cell_exact": {
+                "hits": 32,
+                "detection": 0.35555555555555557,
+                "ci": [
+                  0.25555555555555554,
+                  0.4606741573033708
+                ],
+                "per_1000_alert_cell_days": 0.07403808333911756,
+                "cost_ratio": 34034.583333333336
+              }
+            },
+            {
+              "step": 6,
+              "alert_cell_days": 224418,
+              "share": 0.004691990903787279,
+              "chance_floor_tolerant": 0.03957797128899142,
+              "cap": 0.005,
+              "threshold": 7.832581522308722e-05,
+              "tolerant": {
+                "hits": 50,
+                "detection": 0.5555555555555556,
+                "ci": [
+                  0.45454545454545453,
+                  0.6559934017595304
+                ],
+                "per_1000_alert_cell_days": 0.22279852774732864,
+                "cost_ratio": 15984.0
+              },
+              "cell_exact": {
+                "hits": 25,
+                "detection": 0.2777777777777778,
+                "ci": [
+                  0.18888888888888888,
+                  0.375
+                ],
+                "per_1000_alert_cell_days": 0.11139926387366432,
+                "cost_ratio": 29684.571428571428
+              }
+            },
+            {
+              "step": 7,
+              "alert_cell_days": 60850,
+              "share": 0.0012722136659958467,
+              "chance_floor_tolerant": 0.013976767224999465,
+              "cap": 0.002,
+              "threshold": 0.00018346103604680077,
+              "tolerant": {
+                "hits": 37,
+                "detection": 0.4111111111111111,
+                "ci": [
+                  0.3111111111111111,
+                  0.5164835164835165
+                ],
+                "per_1000_alert_cell_days": 0.6080525883319639,
+                "cost_ratio": 12582.153846153846
+              },
+              "cell_exact": {
+                "hits": 22,
+                "detection": 0.24444444444444444,
+                "ci": [
+                  0.16129032258064516,
+                  0.33342391304347774
+                ],
+                "per_1000_alert_cell_days": 0.36154478225143794,
+                "cost_ratio": 54522.666666666664
+              }
+            }
+          ],
+          "card": [
+            {
+              "step": 1,
+              "alert_cell_days": 7232482,
+              "share": 0.15121220114164294,
+              "chance_floor_tolerant": 0.38118713989140207,
+              "level": "Watch+",
+              "threshold": 3.7311450650042954e-06,
+              "tolerant": {
+                "hits": 86,
+                "detection": 0.9555555555555556,
+                "ci": [
+                  0.9090909090909091,
+                  0.989010989010989
+                ],
+                "per_1000_alert_cell_days": 0.011890800419551683
+              },
+              "cell_exact": {
+                "hits": 71,
+                "detection": 0.7888888888888889,
+                "ci": [
+                  0.7,
+                  0.8666666666666667
+                ],
+                "per_1000_alert_cell_days": 0.009816823602188017
+              }
+            },
+            {
+              "step": 2,
+              "alert_cell_days": 1808603,
+              "share": 0.037813138093033466,
+              "chance_floor_tolerant": 0.17063571544696954,
+              "level": "Warning+",
+              "threshold": 1.6977379073292264e-05,
+              "tolerant": {
+                "hits": 81,
+                "detection": 0.9,
+                "ci": [
+                  0.8333333333333334,
+                  0.9560439560439561
+                ],
+                "per_1000_alert_cell_days": 0.04478594804940609
+              },
+              "cell_exact": {
+                "hits": 53,
+                "detection": 0.5888888888888889,
+                "ci": [
+                  0.4835164835164835,
+                  0.6853932584269663
+                ],
+                "per_1000_alert_cell_days": 0.0293043857607225
+              }
+            },
+            {
+              "step": 3,
+              "alert_cell_days": 350421,
+              "share": 0.0073263826631377255,
+              "chance_floor_tolerant": 0.05531166872283714,
+              "level": "Emergency",
+              "threshold": 7.451552372842032e-05,
+              "tolerant": {
+                "hits": 57,
+                "detection": 0.6333333333333333,
+                "ci": [
+                  0.5280898876404494,
+                  0.7340980827682952
+                ],
+                "per_1000_alert_cell_days": 0.16266148432885016
+              },
+              "cell_exact": {
+                "hits": 29,
+                "detection": 0.32222222222222224,
+                "ci": [
+                  0.22727272727272727,
+                  0.42045454545454547
+                ],
+                "per_1000_alert_cell_days": 0.08275759729011674
+              }
+            }
+          ]
+        },
+        "western_ghats|rest": {
+          "events": 5,
+          "slides": 5,
+          "cell_days": 13391872,
+          "Watch+": [
+            {
+              "step": 1,
+              "alert_cell_days": 5313399,
+              "share": 0.39676297682654077,
+              "chance_floor_tolerant": 0.5998784934623032,
+              "cap": 0.45,
+              "threshold": 1.1369261501853357e-07,
+              "tolerant": {
+                "hits": 5,
+                "detection": 1.0,
+                "ci": [
+                  1.0,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0009410172283316197,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 5,
+                "detection": 1.0,
+                "ci": [
+                  1.0,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0009410172283316197,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 2,
+              "alert_cell_days": 2983519,
+              "share": 0.222785806196475,
+              "chance_floor_tolerant": 0.42788760227098943,
+              "cap": 0.35,
+              "threshold": 2.1342723571639352e-07,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0013406986850092123,
+                "cost_ratio": 2329880.0
+              },
+              "cell_exact": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0013406986850092123,
+                "cost_ratio": 2329880.0
+              }
+            },
+            {
+              "step": 3,
+              "alert_cell_days": 2983519,
+              "share": 0.222785806196475,
+              "chance_floor_tolerant": 0.42788760227098943,
+              "cap": 0.25,
+              "threshold": 2.1342723571639352e-07,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0013406986850092123,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0013406986850092123,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 4,
+              "alert_cell_days": 1683007,
+              "share": 0.12567376689382934,
+              "chance_floor_tolerant": 0.2683296256117143,
+              "cap": 0.15,
+              "threshold": 3.094124548192656e-07,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0023766983738035554,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0023766983738035554,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 5,
+              "alert_cell_days": 977294,
+              "share": 0.07297665330134577,
+              "chance_floor_tolerant": 0.17563354846880258,
+              "cap": 0.1,
+              "threshold": 1.923741134650134e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.004092934163107519,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0030697006223306396,
+                "cost_ratio": 705713.0
+              }
+            },
+            {
+              "step": 6,
+              "alert_cell_days": 710858,
+              "share": 0.053081301852347454,
+              "chance_floor_tolerant": 0.1401387348983025,
+              "cap": 0.06,
+              "threshold": 2.5130292336832638e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.005627002861330955,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.004220252145998216,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 7,
+              "alert_cell_days": 317916,
+              "share": 0.023739474212417802,
+              "chance_floor_tolerant": 0.08285488391764796,
+              "cap": 0.03,
+              "threshold": 4.14188844499709e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.012581939883491237,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.009436454912618427,
+                "cost_ratio": null
+              }
+            }
+          ],
+          "Warning+": [
+            {
+              "step": 1,
+              "alert_cell_days": 1683007,
+              "share": 0.12567376689382934,
+              "chance_floor_tolerant": 0.2683296256117143,
+              "cap": 0.2,
+              "threshold": 3.094124548192656e-07,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0023766983738035554,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0023766983738035554,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 2,
+              "alert_cell_days": 1683007,
+              "share": 0.12567376689382934,
+              "chance_floor_tolerant": 0.2683296256117143,
+              "cap": 0.15,
+              "threshold": 3.094124548192656e-07,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0023766983738035554,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0023766983738035554,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 3,
+              "alert_cell_days": 977294,
+              "share": 0.07297665330134577,
+              "chance_floor_tolerant": 0.17563354846880258,
+              "cap": 0.1,
+              "threshold": 1.923741134650134e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.004092934163107519,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0030697006223306396,
+                "cost_ratio": 705713.0
+              }
+            },
+            {
+              "step": 4,
+              "alert_cell_days": 710858,
+              "share": 0.053081301852347454,
+              "chance_floor_tolerant": 0.1401387348983025,
+              "cap": 0.06,
+              "threshold": 2.5130292336832638e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.005627002861330955,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.004220252145998216,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 5,
+              "alert_cell_days": 317916,
+              "share": 0.023739474212417802,
+              "chance_floor_tolerant": 0.08285488391764796,
+              "cap": 0.04,
+              "threshold": 4.14188844499709e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.012581939883491237,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.009436454912618427,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 6,
+              "alert_cell_days": 169414,
+              "share": 0.01265050920438905,
+              "chance_floor_tolerant": 0.05481541340896926,
+              "cap": 0.02,
+              "threshold": 7.545139186132286e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.023610799579727768,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 2,
+                "detection": 0.4,
+                "ci": [
+                  0.0,
+                  0.8
+                ],
+                "per_1000_alert_cell_days": 0.011805399789863884,
+                "cost_ratio": 148502.0
+              }
+            },
+            {
+              "step": 7,
+              "alert_cell_days": 116845,
+              "share": 0.008725068459435693,
+              "chance_floor_tolerant": 0.04242349389241474,
+              "cap": 0.01,
+              "threshold": 9.171749843830192e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.03423338610980359,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 2,
+                "detection": 0.4,
+                "ci": [
+                  0.0,
+                  0.8
+                ],
+                "per_1000_alert_cell_days": 0.017116693054901794,
+                "cost_ratio": null
+              }
+            }
+          ],
+          "Emergency": [
+            {
+              "step": 1,
+              "alert_cell_days": 977294,
+              "share": 0.07297665330134577,
+              "chance_floor_tolerant": 0.17563354846880258,
+              "cap": 0.08,
+              "threshold": 1.923741134650134e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.004092934163107519,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0030697006223306396,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 2,
+              "alert_cell_days": 317916,
+              "share": 0.023739474212417802,
+              "chance_floor_tolerant": 0.08285488391764796,
+              "cap": 0.05,
+              "threshold": 4.14188844499709e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.012581939883491237,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.009436454912618427,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 3,
+              "alert_cell_days": 317916,
+              "share": 0.023739474212417802,
+              "chance_floor_tolerant": 0.08285488391764796,
+              "cap": 0.03,
+              "threshold": 4.14188844499709e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.012581939883491237,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.009436454912618427,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 4,
+              "alert_cell_days": 169414,
+              "share": 0.01265050920438905,
+              "chance_floor_tolerant": 0.05481541340896926,
+              "cap": 0.02,
+              "threshold": 7.545139186132286e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.023610799579727768,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 2,
+                "detection": 0.4,
+                "ci": [
+                  0.0,
+                  0.8
+                ],
+                "per_1000_alert_cell_days": 0.011805399789863884,
+                "cost_ratio": 148502.0
+              }
+            },
+            {
+              "step": 5,
+              "alert_cell_days": 116845,
+              "share": 0.008725068459435693,
+              "chance_floor_tolerant": 0.04242349389241474,
+              "cap": 0.01,
+              "threshold": 9.171749843830192e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.03423338610980359,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 2,
+                "detection": 0.4,
+                "ci": [
+                  0.0,
+                  0.8
+                ],
+                "per_1000_alert_cell_days": 0.017116693054901794,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 6,
+              "alert_cell_days": 25781,
+              "share": 0.0019251229402431564,
+              "chance_floor_tolerant": 0.013275365833843096,
+              "cap": 0.005,
+              "threshold": 2.5912236908613802e-05,
+              "tolerant": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.11636476474923393,
+                "cost_ratio": 91064.0
+              },
+              "cell_exact": {
+                "hits": 2,
+                "detection": 0.4,
+                "ci": [
+                  0.0,
+                  0.8
+                ],
+                "per_1000_alert_cell_days": 0.07757650983282262,
+                "cost_ratio": null
+              }
+            },
+            {
+              "step": 7,
+              "alert_cell_days": 25781,
+              "share": 0.0019251229402431564,
+              "chance_floor_tolerant": 0.013275365833843096,
+              "cap": 0.002,
+              "threshold": 2.5912236908613802e-05,
+              "tolerant": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.11636476474923393,
+                "cost_ratio": null
+              },
+              "cell_exact": {
+                "hits": 2,
+                "detection": 0.4,
+                "ci": [
+                  0.0,
+                  0.8
+                ],
+                "per_1000_alert_cell_days": 0.07757650983282262,
+                "cost_ratio": null
+              }
+            }
+          ],
+          "card": [
+            {
+              "step": 1,
+              "alert_cell_days": 710840,
+              "share": 0.05307995775347912,
+              "chance_floor_tolerant": 0.14013821219318703,
+              "level": "Watch+",
+              "threshold": 4.141888444997089e-06,
+              "tolerant": {
+                "hits": 4,
+                "detection": 0.8,
+                "ci": [
+                  0.4,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.0056271453491643685
+              },
+              "cell_exact": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.004220359011873277
+              }
+            },
+            {
+              "step": 2,
+              "alert_cell_days": 82297,
+              "share": 0.006145294698157211,
+              "chance_floor_tolerant": 0.032974628192384156,
+              "level": "Warning+",
+              "threshold": 2.59122369086138e-05,
+              "tolerant": {
+                "hits": 3,
+                "detection": 0.6,
+                "ci": [
+                  0.2,
+                  1.0
+                ],
+                "per_1000_alert_cell_days": 0.03645333365736297
+              },
+              "cell_exact": {
+                "hits": 2,
+                "detection": 0.4,
+                "ci": [
+                  0.0,
+                  0.8
+                ],
+                "per_1000_alert_cell_days": 0.024302222438241976
+              }
+            },
+            {
+              "step": 3,
+              "alert_cell_days": 14315,
+              "share": 0.0010689319611179079,
+              "chance_floor_tolerant": 0.008151586275615538,
+              "level": "Emergency",
+              "threshold": 9.290367884892074e-05,
+              "tolerant": {
+                "hits": 2,
+                "detection": 0.4,
+                "ci": [
+                  0.0,
+                  0.8
+                ],
+                "per_1000_alert_cell_days": 0.13971358714635
+              },
+              "cell_exact": {
+                "hits": 2,
+                "detection": 0.4,
+                "ci": [
+                  0.0,
+                  0.8
+                ],
+                "per_1000_alert_cell_days": 0.13971358714635
+              }
+            }
+          ]
+        }
+      },
+      "seconds": 162.19362750000073
     }
   },
   "schemes_meta": {
@@ -2950,6 +4373,130 @@
         "post_monsoon": 1012
       },
       "seconds": 430.0127518000081
+    },
+    "jan_may": {
+      "window": "jan_may",
+      "years": [
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017
+      ],
+      "events": 95,
+      "events_without_district": 0,
+      "alert_config": "data/processed/alerts/alert_config_v3.json",
+      "post_rules": "data/processed/alerts/post_rules_v3.json",
+      "options": {
+        "A_detection_first": null,
+        "B_balanced": {
+          "monsoon": [
+            0.2,
+            0.06,
+            0.02
+          ],
+          "post_monsoon": [
+            0.2,
+            0.06,
+            0.02
+          ],
+          "rest": [
+            0.2,
+            0.06,
+            0.02
+          ]
+        },
+        "C_rare_emergency": {
+          "monsoon": [
+            0.1,
+            0.03,
+            0.01
+          ],
+          "post_monsoon": [
+            0.1,
+            0.03,
+            0.01
+          ],
+          "rest": [
+            0.1,
+            0.03,
+            0.01
+          ]
+        }
+      },
+      "thresholds": {
+        "A_detection_first": {
+          "himalaya|rest": [
+            3.7311450650042954e-06,
+            1.6977379073292264e-05,
+            7.451552372842032e-05
+          ],
+          "western_ghats|rest": [
+            4.141888444997089e-06,
+            2.59122369086138e-05,
+            9.290367884892074e-05
+          ]
+        },
+        "B_balanced": {
+          "himalaya|rest": [
+            3.7311450650042954e-06,
+            1.6977379073292264e-05,
+            7.451552372842032e-05
+          ],
+          "western_ghats|rest": [
+            4.141888444997089e-06,
+            2.59122369086138e-05,
+            9.290367884892074e-05
+          ]
+        },
+        "C_rare_emergency": {
+          "himalaya|rest": [
+            3.7311450650042958e-06,
+            1.9405906203781422e-05,
+            7.451552372842032e-05
+          ],
+          "western_ghats|rest": [
+            4.141888444997089e-06,
+            2.59122369086138e-05,
+            9.290367884892074e-05
+          ]
+        }
+      },
+      "district_rules": {
+        "any_cell": {
+          "cells": 1,
+          "share": null,
+          "name": "1 cell"
+        },
+        "3_cells_or_10pct": {
+          "cells": 3,
+          "share": 0.1,
+          "name": "3 cells or 10% of cells"
+        },
+        "5_cells_or_25pct": {
+          "cells": 5,
+          "share": 0.25,
+          "name": "5 cells or 25% of cells"
+        }
+      },
+      "districts": {
+        "count": 555,
+        "by_region": {
+          "himalaya": 431,
+          "western_ghats": 124
+        },
+        "cells_median": 49.0
+      },
+      "season_days": {
+        "rest": 1664
+      },
+      "seconds": 390.04634149999947
     }
   },
   "options": {
@@ -2973,6 +4520,16 @@
           9.290367884892074e-05
         ],
         "western_ghats|post_monsoon": [
+          4.141888444997089e-06,
+          2.59122369086138e-05,
+          9.290367884892074e-05
+        ],
+        "himalaya|rest": [
+          3.7311450650042954e-06,
+          1.6977379073292264e-05,
+          7.451552372842032e-05
+        ],
+        "western_ghats|rest": [
           4.141888444997089e-06,
           2.59122369086138e-05,
           9.290367884892074e-05
@@ -4015,6 +5572,524 @@
               }
             }
           }
+        },
+        "himalaya|rest": {
+          "events": 90,
+          "cell_days": 47830016,
+          "Watch+": {
+            "point_share": 0.15121220114164294,
+            "raw_share": 0.2566971334485859,
+            "published_share": 0.20010789877218524,
+            "published_cell_days": 9571164,
+            "point_cell_exact_hits": 71,
+            "hold_inflation": 1.3233581500790461,
+            "tolerant": {
+              "hits": 85,
+              "detection": 0.9444444444444444,
+              "ci": [
+                0.8975959188660804,
+                0.9888888888888889
+              ],
+              "cell_days_per_event": 112601.92941176471
+            },
+            "cell_exact": {
+              "hits": 73,
+              "detection": 0.8111111111111111,
+              "ci": [
+                0.7252747252747253,
+                0.8901098901098901
+              ],
+              "cell_days_per_event": 131111.83561643836
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 292426,
+                "districts": 431,
+                "share_of_district_days": 0.40774194627877924,
+                "events_in_alerted_district": 86,
+                "events_in_alerted_district_within_1_day": 87,
+                "detection_same_day": 0.9555555555555556,
+                "detection_same_day_ci": [
+                  0.9101123595505618,
+                  0.9890139751552796
+                ],
+                "district_days_per_event": 3400.3023255813955,
+                "days_per_week": {
+                  "mean": 2.8541936239514545,
+                  "median": 3.0498798076923075,
+                  "p90": 5.956730769230769,
+                  "max": 7.0
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 261489,
+                "districts": 431,
+                "share_of_district_days": 0.364605178029627,
+                "events_in_alerted_district": 83,
+                "events_in_alerted_district_within_1_day": 87,
+                "detection_same_day": 0.9222222222222223,
+                "detection_same_day_ci": [
+                  0.8636363636363636,
+                  0.9775280898876404
+                ],
+                "district_days_per_event": 3150.4698795180725,
+                "days_per_week": {
+                  "mean": 2.5522362462073893,
+                  "median": 2.8731971153846154,
+                  "p90": 5.477163461538462,
+                  "max": 6.941105769230769
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 238991,
+                "districts": 431,
+                "share_of_district_days": 0.333235264590398,
+                "events_in_alerted_district": 81,
+                "events_in_alerted_district_within_1_day": 85,
+                "detection_same_day": 0.9,
+                "detection_same_day_ci": [
+                  0.8351648351648352,
+                  0.957458006718925
+                ],
+                "district_days_per_event": 2950.5061728395062,
+                "days_per_week": {
+                  "mean": 2.332646852132786,
+                  "median": 2.6544471153846154,
+                  "p90": 5.149038461538462,
+                  "max": 6.861177884615385
+                }
+              }
+            }
+          },
+          "Warning+": {
+            "point_share": 0.037813138093033466,
+            "raw_share": 0.037813138093033466,
+            "published_share": 0.0501628726195701,
+            "published_cell_days": 2399291,
+            "point_cell_exact_hits": 53,
+            "hold_inflation": 1.3265990380420687,
+            "tolerant": {
+              "hits": 76,
+              "detection": 0.8444444444444444,
+              "ci": [
+                0.7640449438202247,
+                0.9204768896833502
+              ],
+              "cell_days_per_event": 31569.61842105263
+            },
+            "cell_exact": {
+              "hits": 54,
+              "detection": 0.6,
+              "ci": [
+                0.4945054945054945,
+                0.6989516129032257
+              ],
+              "cell_days_per_event": 44431.31481481482
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 160923,
+                "districts": 431,
+                "share_of_district_days": 0.22438174861681243,
+                "events_in_alerted_district": 79,
+                "events_in_alerted_district_within_1_day": 81,
+                "detection_same_day": 0.8777777777777778,
+                "detection_same_day_ci": [
+                  0.8089887640449438,
+                  0.9444444444444444
+                ],
+                "district_days_per_event": 2037.0,
+                "days_per_week": {
+                  "mean": 1.570672240317687,
+                  "median": 1.203125,
+                  "p90": 3.987980769230769,
+                  "max": 6.394230769230769
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 126510,
+                "districts": 431,
+                "share_of_district_days": 0.17639824647510263,
+                "events_in_alerted_district": 74,
+                "events_in_alerted_district_within_1_day": 79,
+                "detection_same_day": 0.8222222222222222,
+                "detection_same_day_ci": [
+                  0.7415730337078652,
+                  0.898876404494382
+                ],
+                "district_days_per_event": 1709.5945945945946,
+                "days_per_week": {
+                  "mean": 1.2347877253257182,
+                  "median": 0.8834134615384615,
+                  "p90": 3.083533653846154,
+                  "max": 6.007211538461538
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 103942,
+                "districts": 431,
+                "share_of_district_days": 0.14493072907371052,
+                "events_in_alerted_district": 71,
+                "events_in_alerted_district_within_1_day": 77,
+                "detection_same_day": 0.7888888888888889,
+                "detection_same_day_ci": [
+                  0.7045454545454546,
+                  0.8681677018633539
+                ],
+                "district_days_per_event": 1463.9718309859154,
+                "days_per_week": {
+                  "mean": 1.0145151035159736,
+                  "median": 0.5342548076923077,
+                  "p90": 2.603966346153846,
+                  "max": 5.700120192307692
+                }
+              }
+            }
+          },
+          "Emergency": {
+            "point_share": 0.0073263826631377255,
+            "raw_share": 0.0073263826631377255,
+            "published_share": 0.011516345718972788,
+            "published_cell_days": 550827,
+            "point_cell_exact_hits": 29,
+            "hold_inflation": 1.5719006566387286,
+            "tolerant": {
+              "hits": 55,
+              "detection": 0.6111111111111112,
+              "ci": [
+                0.5056179775280899,
+                0.7111111111111111
+              ],
+              "cell_days_per_event": 10015.036363636364
+            },
+            "cell_exact": {
+              "hits": 32,
+              "detection": 0.35555555555555557,
+              "ci": [
+                0.25555555555555554,
+                0.45555555555555555
+              ],
+              "cell_days_per_event": 17213.34375
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 73623,
+                "districts": 431,
+                "share_of_district_days": 0.10265566437622702,
+                "events_in_alerted_district": 66,
+                "events_in_alerted_district_within_1_day": 74,
+                "detection_same_day": 0.7333333333333333,
+                "detection_same_day_ci": [
+                  0.6444444444444445,
+                  0.8241758241758241
+                ],
+                "district_days_per_event": 1115.5,
+                "days_per_week": {
+                  "mean": 0.7185896506335891,
+                  "median": 0.29867788461538464,
+                  "p90": 1.9435096153846154,
+                  "max": 4.884014423076923
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 43663,
+                "districts": 431,
+                "share_of_district_days": 0.06088116857040871,
+                "events_in_alerted_district": 59,
+                "events_in_alerted_district_within_1_day": 67,
+                "detection_same_day": 0.6555555555555556,
+                "detection_same_day_ci": [
+                  0.5567866161616162,
+                  0.7555555555555555
+                ],
+                "district_days_per_event": 740.0508474576271,
+                "days_per_week": {
+                  "mean": 0.42616817999286094,
+                  "median": 0.14302884615384615,
+                  "p90": 1.1694711538461537,
+                  "max": 3.8197115384615383
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 30522,
+                "districts": 431,
+                "share_of_district_days": 0.04255811618775656,
+                "events_in_alerted_district": 50,
+                "events_in_alerted_district_within_1_day": 57,
+                "detection_same_day": 0.5555555555555556,
+                "detection_same_day_ci": [
+                  0.45054945054945056,
+                  0.6590909090909091
+                ],
+                "district_days_per_event": 610.44,
+                "days_per_week": {
+                  "mean": 0.2979068133142959,
+                  "median": 0.06310096153846154,
+                  "p90": 0.8792067307692307,
+                  "max": 3.138221153846154
+                }
+              }
+            }
+          }
+        },
+        "western_ghats|rest": {
+          "events": 5,
+          "cell_days": 13391872,
+          "Watch+": {
+            "point_share": 0.05307995775347912,
+            "raw_share": 0.10042927530968038,
+            "published_share": 0.07845744045343325,
+            "published_cell_days": 1050692,
+            "point_cell_exact_hits": 3,
+            "hold_inflation": 1.4780991503010525,
+            "tolerant": {
+              "hits": 4,
+              "detection": 0.8,
+              "ci": [
+                0.4,
+                1.0
+              ],
+              "cell_days_per_event": 262673.0
+            },
+            "cell_exact": {
+              "hits": 4,
+              "detection": 0.8,
+              "ci": [
+                0.4,
+                1.0
+              ],
+              "cell_days_per_event": 262673.0
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 41525,
+                "districts": 124,
+                "share_of_district_days": 0.20124941842431762,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 10381.25,
+                "days_per_week": {
+                  "mean": 1.4087459289702238,
+                  "median": 0.9780649038461539,
+                  "p90": 3.635877403846154,
+                  "max": 5.439302884615385
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 33968,
+                "districts": 124,
+                "share_of_district_days": 0.16462468982630274,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 8492.0,
+                "days_per_week": {
+                  "mean": 1.152372828784119,
+                  "median": 0.5027043269230769,
+                  "p90": 3.2547475961538463,
+                  "max": 4.728365384615385
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 30156,
+                "districts": 124,
+                "share_of_district_days": 0.14614996898263027,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 7539.0,
+                "days_per_week": {
+                  "mean": 1.023049782878412,
+                  "median": 0.3407451923076923,
+                  "p90": 3.004026442307693,
+                  "max": 4.463341346153846
+                }
+              }
+            }
+          },
+          "Warning+": {
+            "point_share": 0.006145294698157211,
+            "raw_share": 0.006145294698157211,
+            "published_share": 0.008636133917647958,
+            "published_cell_days": 115654,
+            "point_cell_exact_hits": 2,
+            "hold_inflation": 1.4053246169362188,
+            "tolerant": {
+              "hits": 3,
+              "detection": 0.6,
+              "ci": [
+                0.2,
+                1.0
+              ],
+              "cell_days_per_event": 38551.333333333336
+            },
+            "cell_exact": {
+              "hits": 2,
+              "detection": 0.4,
+              "ci": [
+                0.0,
+                0.8
+              ],
+              "cell_days_per_event": 57827.0
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 13423,
+                "districts": 124,
+                "share_of_district_days": 0.06505408653846154,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 3355.75,
+                "days_per_week": {
+                  "mean": 0.4553786057692307,
+                  "median": 0.02734375,
+                  "p90": 1.5177884615384618,
+                  "max": 3.138221153846154
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 8346,
+                "districts": 124,
+                "share_of_district_days": 0.04044858870967742,
+                "events_in_alerted_district": 2,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.4,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.8
+                ],
+                "district_days_per_event": 4173.0,
+                "days_per_week": {
+                  "mean": 0.28314012096774194,
+                  "median": 0.00841346153846154,
+                  "p90": 0.9646033653846156,
+                  "max": 2.494591346153846
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 6035,
+                "districts": 124,
+                "share_of_district_days": 0.02924841035980149,
+                "events_in_alerted_district": 1,
+                "events_in_alerted_district_within_1_day": 2,
+                "detection_same_day": 0.2,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.6
+                ],
+                "district_days_per_event": 6035.0,
+                "days_per_week": {
+                  "mean": 0.20473887251861042,
+                  "median": 0.0,
+                  "p90": 0.672235576923077,
+                  "max": 2.1875
+                }
+              }
+            }
+          },
+          "Emergency": {
+            "point_share": 0.0010689319611179079,
+            "raw_share": 0.0010689319611179079,
+            "published_share": 0.0018069915841489525,
+            "published_cell_days": 24199,
+            "point_cell_exact_hits": 2,
+            "hold_inflation": 1.6904645476772617,
+            "tolerant": {
+              "hits": 2,
+              "detection": 0.4,
+              "ci": [
+                0.0,
+                0.8
+              ],
+              "cell_days_per_event": 12099.5
+            },
+            "cell_exact": {
+              "hits": 2,
+              "detection": 0.4,
+              "ci": [
+                0.0,
+                0.8
+              ],
+              "cell_days_per_event": 12099.5
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 5142,
+                "districts": 124,
+                "share_of_district_days": 0.024920517990074442,
+                "events_in_alerted_district": 2,
+                "events_in_alerted_district_within_1_day": 3,
+                "detection_same_day": 0.4,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.8
+                ],
+                "district_days_per_event": 2571.0,
+                "days_per_week": {
+                  "mean": 0.17444362593052107,
+                  "median": 0.0,
+                  "p90": 0.6486778846153848,
+                  "max": 1.5943509615384615
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 2187,
+                "districts": 124,
+                "share_of_district_days": 0.010599216811414392,
+                "events_in_alerted_district": 0,
+                "events_in_alerted_district_within_1_day": 0,
+                "detection_same_day": 0.0,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.0
+                ],
+                "district_days_per_event": null,
+                "days_per_week": {
+                  "mean": 0.07419451767990075,
+                  "median": 0.0,
+                  "p90": 0.2780649038461539,
+                  "max": 0.8623798076923077
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 1322,
+                "districts": 124,
+                "share_of_district_days": 0.006407025434243176,
+                "events_in_alerted_district": 0,
+                "events_in_alerted_district_within_1_day": 0,
+                "detection_same_day": 0.0,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.0
+                ],
+                "district_days_per_event": null,
+                "days_per_week": {
+                  "mean": 0.04484917803970223,
+                  "median": 0.0,
+                  "p90": 0.16490384615384623,
+                  "max": 0.6352163461538461
+                }
+              }
+            }
+          }
         }
       },
       "district_rule": {
@@ -4022,44 +6097,44 @@
         "totals": {
           "any_cell": {
             "Watch+": {
-              "days": 759486,
-              "events": 676
+              "days": 1093437,
+              "events": 766
             },
             "Warning+": {
-              "days": 454878,
-              "events": 668
+              "days": 629224,
+              "events": 751
             },
             "Emergency": {
-              "days": 265001,
-              "events": 626
+              "days": 343766,
+              "events": 694
             }
           },
           "3_cells_or_10pct": {
             "Watch+": {
-              "days": 692904,
-              "events": 676
+              "days": 988361,
+              "events": 763
             },
             "Warning+": {
-              "days": 383611,
-              "events": 660
+              "days": 518467,
+              "events": 736
             },
             "Emergency": {
-              "days": 187988,
-              "events": 572
+              "days": 233838,
+              "events": 631
             }
           },
           "5_cells_or_25pct": {
             "Watch+": {
-              "days": 643783,
-              "events": 675
+              "days": 912930,
+              "events": 760
             },
             "Warning+": {
-              "days": 334707,
-              "events": 649
+              "days": 444684,
+              "events": 721
             },
             "Emergency": {
-              "days": 146704,
-              "events": 543
+              "days": 178548,
+              "events": 593
             }
           }
         },
@@ -4149,6 +6224,16 @@
           9.290367884892074e-05
         ],
         "western_ghats|post_monsoon": [
+          4.141888444997089e-06,
+          2.59122369086138e-05,
+          9.290367884892074e-05
+        ],
+        "himalaya|rest": [
+          3.7311450650042954e-06,
+          1.6977379073292264e-05,
+          7.451552372842032e-05
+        ],
+        "western_ghats|rest": [
           4.141888444997089e-06,
           2.59122369086138e-05,
           9.290367884892074e-05
@@ -5191,6 +7276,524 @@
               }
             }
           }
+        },
+        "himalaya|rest": {
+          "events": 90,
+          "cell_days": 47830016,
+          "Watch+": {
+            "point_share": 0.15121220114164294,
+            "raw_share": 0.2566971334485859,
+            "published_share": 0.20010789877218524,
+            "published_cell_days": 9571164,
+            "point_cell_exact_hits": 71,
+            "hold_inflation": 1.3233581500790461,
+            "tolerant": {
+              "hits": 85,
+              "detection": 0.9444444444444444,
+              "ci": [
+                0.8975959188660804,
+                0.9888888888888889
+              ],
+              "cell_days_per_event": 112601.92941176471
+            },
+            "cell_exact": {
+              "hits": 73,
+              "detection": 0.8111111111111111,
+              "ci": [
+                0.7252747252747253,
+                0.8901098901098901
+              ],
+              "cell_days_per_event": 131111.83561643836
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 292426,
+                "districts": 431,
+                "share_of_district_days": 0.40774194627877924,
+                "events_in_alerted_district": 86,
+                "events_in_alerted_district_within_1_day": 87,
+                "detection_same_day": 0.9555555555555556,
+                "detection_same_day_ci": [
+                  0.9101123595505618,
+                  0.9890139751552796
+                ],
+                "district_days_per_event": 3400.3023255813955,
+                "days_per_week": {
+                  "mean": 2.8541936239514545,
+                  "median": 3.0498798076923075,
+                  "p90": 5.956730769230769,
+                  "max": 7.0
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 261489,
+                "districts": 431,
+                "share_of_district_days": 0.364605178029627,
+                "events_in_alerted_district": 83,
+                "events_in_alerted_district_within_1_day": 87,
+                "detection_same_day": 0.9222222222222223,
+                "detection_same_day_ci": [
+                  0.8636363636363636,
+                  0.9775280898876404
+                ],
+                "district_days_per_event": 3150.4698795180725,
+                "days_per_week": {
+                  "mean": 2.5522362462073893,
+                  "median": 2.8731971153846154,
+                  "p90": 5.477163461538462,
+                  "max": 6.941105769230769
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 238991,
+                "districts": 431,
+                "share_of_district_days": 0.333235264590398,
+                "events_in_alerted_district": 81,
+                "events_in_alerted_district_within_1_day": 85,
+                "detection_same_day": 0.9,
+                "detection_same_day_ci": [
+                  0.8351648351648352,
+                  0.957458006718925
+                ],
+                "district_days_per_event": 2950.5061728395062,
+                "days_per_week": {
+                  "mean": 2.332646852132786,
+                  "median": 2.6544471153846154,
+                  "p90": 5.149038461538462,
+                  "max": 6.861177884615385
+                }
+              }
+            }
+          },
+          "Warning+": {
+            "point_share": 0.037813138093033466,
+            "raw_share": 0.037813138093033466,
+            "published_share": 0.0501628726195701,
+            "published_cell_days": 2399291,
+            "point_cell_exact_hits": 53,
+            "hold_inflation": 1.3265990380420687,
+            "tolerant": {
+              "hits": 76,
+              "detection": 0.8444444444444444,
+              "ci": [
+                0.7640449438202247,
+                0.9204768896833502
+              ],
+              "cell_days_per_event": 31569.61842105263
+            },
+            "cell_exact": {
+              "hits": 54,
+              "detection": 0.6,
+              "ci": [
+                0.4945054945054945,
+                0.6989516129032257
+              ],
+              "cell_days_per_event": 44431.31481481482
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 160923,
+                "districts": 431,
+                "share_of_district_days": 0.22438174861681243,
+                "events_in_alerted_district": 79,
+                "events_in_alerted_district_within_1_day": 81,
+                "detection_same_day": 0.8777777777777778,
+                "detection_same_day_ci": [
+                  0.8089887640449438,
+                  0.9444444444444444
+                ],
+                "district_days_per_event": 2037.0,
+                "days_per_week": {
+                  "mean": 1.570672240317687,
+                  "median": 1.203125,
+                  "p90": 3.987980769230769,
+                  "max": 6.394230769230769
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 126510,
+                "districts": 431,
+                "share_of_district_days": 0.17639824647510263,
+                "events_in_alerted_district": 74,
+                "events_in_alerted_district_within_1_day": 79,
+                "detection_same_day": 0.8222222222222222,
+                "detection_same_day_ci": [
+                  0.7415730337078652,
+                  0.898876404494382
+                ],
+                "district_days_per_event": 1709.5945945945946,
+                "days_per_week": {
+                  "mean": 1.2347877253257182,
+                  "median": 0.8834134615384615,
+                  "p90": 3.083533653846154,
+                  "max": 6.007211538461538
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 103942,
+                "districts": 431,
+                "share_of_district_days": 0.14493072907371052,
+                "events_in_alerted_district": 71,
+                "events_in_alerted_district_within_1_day": 77,
+                "detection_same_day": 0.7888888888888889,
+                "detection_same_day_ci": [
+                  0.7045454545454546,
+                  0.8681677018633539
+                ],
+                "district_days_per_event": 1463.9718309859154,
+                "days_per_week": {
+                  "mean": 1.0145151035159736,
+                  "median": 0.5342548076923077,
+                  "p90": 2.603966346153846,
+                  "max": 5.700120192307692
+                }
+              }
+            }
+          },
+          "Emergency": {
+            "point_share": 0.0073263826631377255,
+            "raw_share": 0.0073263826631377255,
+            "published_share": 0.011516345718972788,
+            "published_cell_days": 550827,
+            "point_cell_exact_hits": 29,
+            "hold_inflation": 1.5719006566387286,
+            "tolerant": {
+              "hits": 55,
+              "detection": 0.6111111111111112,
+              "ci": [
+                0.5056179775280899,
+                0.7111111111111111
+              ],
+              "cell_days_per_event": 10015.036363636364
+            },
+            "cell_exact": {
+              "hits": 32,
+              "detection": 0.35555555555555557,
+              "ci": [
+                0.25555555555555554,
+                0.45555555555555555
+              ],
+              "cell_days_per_event": 17213.34375
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 73623,
+                "districts": 431,
+                "share_of_district_days": 0.10265566437622702,
+                "events_in_alerted_district": 66,
+                "events_in_alerted_district_within_1_day": 74,
+                "detection_same_day": 0.7333333333333333,
+                "detection_same_day_ci": [
+                  0.6444444444444445,
+                  0.8241758241758241
+                ],
+                "district_days_per_event": 1115.5,
+                "days_per_week": {
+                  "mean": 0.7185896506335891,
+                  "median": 0.29867788461538464,
+                  "p90": 1.9435096153846154,
+                  "max": 4.884014423076923
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 43663,
+                "districts": 431,
+                "share_of_district_days": 0.06088116857040871,
+                "events_in_alerted_district": 59,
+                "events_in_alerted_district_within_1_day": 67,
+                "detection_same_day": 0.6555555555555556,
+                "detection_same_day_ci": [
+                  0.5567866161616162,
+                  0.7555555555555555
+                ],
+                "district_days_per_event": 740.0508474576271,
+                "days_per_week": {
+                  "mean": 0.42616817999286094,
+                  "median": 0.14302884615384615,
+                  "p90": 1.1694711538461537,
+                  "max": 3.8197115384615383
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 30522,
+                "districts": 431,
+                "share_of_district_days": 0.04255811618775656,
+                "events_in_alerted_district": 50,
+                "events_in_alerted_district_within_1_day": 57,
+                "detection_same_day": 0.5555555555555556,
+                "detection_same_day_ci": [
+                  0.45054945054945056,
+                  0.6590909090909091
+                ],
+                "district_days_per_event": 610.44,
+                "days_per_week": {
+                  "mean": 0.2979068133142959,
+                  "median": 0.06310096153846154,
+                  "p90": 0.8792067307692307,
+                  "max": 3.138221153846154
+                }
+              }
+            }
+          }
+        },
+        "western_ghats|rest": {
+          "events": 5,
+          "cell_days": 13391872,
+          "Watch+": {
+            "point_share": 0.05307995775347912,
+            "raw_share": 0.10042927530968038,
+            "published_share": 0.07845744045343325,
+            "published_cell_days": 1050692,
+            "point_cell_exact_hits": 3,
+            "hold_inflation": 1.4780991503010525,
+            "tolerant": {
+              "hits": 4,
+              "detection": 0.8,
+              "ci": [
+                0.4,
+                1.0
+              ],
+              "cell_days_per_event": 262673.0
+            },
+            "cell_exact": {
+              "hits": 4,
+              "detection": 0.8,
+              "ci": [
+                0.4,
+                1.0
+              ],
+              "cell_days_per_event": 262673.0
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 41525,
+                "districts": 124,
+                "share_of_district_days": 0.20124941842431762,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 10381.25,
+                "days_per_week": {
+                  "mean": 1.4087459289702238,
+                  "median": 0.9780649038461539,
+                  "p90": 3.635877403846154,
+                  "max": 5.439302884615385
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 33968,
+                "districts": 124,
+                "share_of_district_days": 0.16462468982630274,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 8492.0,
+                "days_per_week": {
+                  "mean": 1.152372828784119,
+                  "median": 0.5027043269230769,
+                  "p90": 3.2547475961538463,
+                  "max": 4.728365384615385
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 30156,
+                "districts": 124,
+                "share_of_district_days": 0.14614996898263027,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 7539.0,
+                "days_per_week": {
+                  "mean": 1.023049782878412,
+                  "median": 0.3407451923076923,
+                  "p90": 3.004026442307693,
+                  "max": 4.463341346153846
+                }
+              }
+            }
+          },
+          "Warning+": {
+            "point_share": 0.006145294698157211,
+            "raw_share": 0.006145294698157211,
+            "published_share": 0.008636133917647958,
+            "published_cell_days": 115654,
+            "point_cell_exact_hits": 2,
+            "hold_inflation": 1.4053246169362188,
+            "tolerant": {
+              "hits": 3,
+              "detection": 0.6,
+              "ci": [
+                0.2,
+                1.0
+              ],
+              "cell_days_per_event": 38551.333333333336
+            },
+            "cell_exact": {
+              "hits": 2,
+              "detection": 0.4,
+              "ci": [
+                0.0,
+                0.8
+              ],
+              "cell_days_per_event": 57827.0
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 13423,
+                "districts": 124,
+                "share_of_district_days": 0.06505408653846154,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 3355.75,
+                "days_per_week": {
+                  "mean": 0.4553786057692307,
+                  "median": 0.02734375,
+                  "p90": 1.5177884615384618,
+                  "max": 3.138221153846154
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 8346,
+                "districts": 124,
+                "share_of_district_days": 0.04044858870967742,
+                "events_in_alerted_district": 2,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.4,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.8
+                ],
+                "district_days_per_event": 4173.0,
+                "days_per_week": {
+                  "mean": 0.28314012096774194,
+                  "median": 0.00841346153846154,
+                  "p90": 0.9646033653846156,
+                  "max": 2.494591346153846
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 6035,
+                "districts": 124,
+                "share_of_district_days": 0.02924841035980149,
+                "events_in_alerted_district": 1,
+                "events_in_alerted_district_within_1_day": 2,
+                "detection_same_day": 0.2,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.6
+                ],
+                "district_days_per_event": 6035.0,
+                "days_per_week": {
+                  "mean": 0.20473887251861042,
+                  "median": 0.0,
+                  "p90": 0.672235576923077,
+                  "max": 2.1875
+                }
+              }
+            }
+          },
+          "Emergency": {
+            "point_share": 0.0010689319611179079,
+            "raw_share": 0.0010689319611179079,
+            "published_share": 0.0018069915841489525,
+            "published_cell_days": 24199,
+            "point_cell_exact_hits": 2,
+            "hold_inflation": 1.6904645476772617,
+            "tolerant": {
+              "hits": 2,
+              "detection": 0.4,
+              "ci": [
+                0.0,
+                0.8
+              ],
+              "cell_days_per_event": 12099.5
+            },
+            "cell_exact": {
+              "hits": 2,
+              "detection": 0.4,
+              "ci": [
+                0.0,
+                0.8
+              ],
+              "cell_days_per_event": 12099.5
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 5142,
+                "districts": 124,
+                "share_of_district_days": 0.024920517990074442,
+                "events_in_alerted_district": 2,
+                "events_in_alerted_district_within_1_day": 3,
+                "detection_same_day": 0.4,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.8
+                ],
+                "district_days_per_event": 2571.0,
+                "days_per_week": {
+                  "mean": 0.17444362593052107,
+                  "median": 0.0,
+                  "p90": 0.6486778846153848,
+                  "max": 1.5943509615384615
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 2187,
+                "districts": 124,
+                "share_of_district_days": 0.010599216811414392,
+                "events_in_alerted_district": 0,
+                "events_in_alerted_district_within_1_day": 0,
+                "detection_same_day": 0.0,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.0
+                ],
+                "district_days_per_event": null,
+                "days_per_week": {
+                  "mean": 0.07419451767990075,
+                  "median": 0.0,
+                  "p90": 0.2780649038461539,
+                  "max": 0.8623798076923077
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 1322,
+                "districts": 124,
+                "share_of_district_days": 0.006407025434243176,
+                "events_in_alerted_district": 0,
+                "events_in_alerted_district_within_1_day": 0,
+                "detection_same_day": 0.0,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.0
+                ],
+                "district_days_per_event": null,
+                "days_per_week": {
+                  "mean": 0.04484917803970223,
+                  "median": 0.0,
+                  "p90": 0.16490384615384623,
+                  "max": 0.6352163461538461
+                }
+              }
+            }
+          }
         }
       },
       "district_rule": {
@@ -5198,44 +7801,44 @@
         "totals": {
           "any_cell": {
             "Watch+": {
-              "days": 660552,
-              "events": 676
+              "days": 994503,
+              "events": 766
             },
             "Warning+": {
-              "days": 359938,
-              "events": 646
+              "days": 534284,
+              "events": 729
             },
             "Emergency": {
-              "days": 199576,
-              "events": 584
+              "days": 278341,
+              "events": 652
             }
           },
           "3_cells_or_10pct": {
             "Watch+": {
-              "days": 585480,
-              "events": 675
+              "days": 880937,
+              "events": 762
             },
             "Warning+": {
-              "days": 276207,
-              "events": 609
+              "days": 411063,
+              "events": 685
             },
             "Emergency": {
-              "days": 124691,
-              "events": 501
+              "days": 170541,
+              "events": 560
             }
           },
           "5_cells_or_25pct": {
             "Watch+": {
-              "days": 532295,
-              "events": 673
+              "days": 801442,
+              "events": 758
             },
             "Warning+": {
-              "days": 224998,
-              "events": 579
+              "days": 334975,
+              "events": 651
             },
             "Emergency": {
-              "days": 90111,
-              "events": 457
+              "days": 121955,
+              "events": 507
             }
           }
         },
@@ -5327,6 +7930,16 @@
         ],
         "western_ghats|post_monsoon": [
           4.14188844499709e-06,
+          2.59122369086138e-05,
+          9.290367884892074e-05
+        ],
+        "himalaya|rest": [
+          3.7311450650042958e-06,
+          1.9405906203781422e-05,
+          7.451552372842032e-05
+        ],
+        "western_ghats|rest": [
+          4.141888444997089e-06,
           2.59122369086138e-05,
           9.290367884892074e-05
         ]
@@ -6368,6 +8981,524 @@
               }
             }
           }
+        },
+        "himalaya|rest": {
+          "events": 90,
+          "cell_days": 47830016,
+          "Watch+": {
+            "point_share": 0.07349767560186474,
+            "raw_share": 0.1393651844063778,
+            "published_share": 0.14456351007701942,
+            "published_cell_days": 6914475,
+            "point_cell_exact_hits": 63,
+            "hold_inflation": 1.9669126797984295,
+            "tolerant": {
+              "hits": 84,
+              "detection": 0.9333333333333333,
+              "ci": [
+                0.8777777777777778,
+                0.9782608695652174
+              ],
+              "cell_days_per_event": 82315.17857142857
+            },
+            "cell_exact": {
+              "hits": 72,
+              "detection": 0.8,
+              "ci": [
+                0.7142857142857143,
+                0.8791208791208791
+              ],
+              "cell_days_per_event": 96034.375
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 257317,
+                "districts": 431,
+                "share_of_district_days": 0.3587879818847046,
+                "events_in_alerted_district": 84,
+                "events_in_alerted_district_within_1_day": 86,
+                "detection_same_day": 0.9333333333333333,
+                "detection_same_day_ci": [
+                  0.8764044943820225,
+                  0.978021978021978
+                ],
+                "district_days_per_event": 3063.2976190476193,
+                "days_per_week": {
+                  "mean": 2.511515873192932,
+                  "median": 2.700721153846154,
+                  "p90": 5.536057692307692,
+                  "max": 6.987379807692308
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 225262,
+                "districts": 431,
+                "share_of_district_days": 0.3140923389255756,
+                "events_in_alerted_district": 82,
+                "events_in_alerted_district_within_1_day": 85,
+                "detection_same_day": 0.9111111111111111,
+                "detection_same_day_ci": [
+                  0.8522727272727273,
+                  0.967032967032967
+                ],
+                "district_days_per_event": 2747.0975609756097,
+                "days_per_week": {
+                  "mean": 2.198646372479029,
+                  "median": 2.423076923076923,
+                  "p90": 4.934495192307692,
+                  "max": 6.806490384615385
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 202012,
+                "districts": 431,
+                "share_of_district_days": 0.2816738800642513,
+                "events_in_alerted_district": 79,
+                "events_in_alerted_district_within_1_day": 82,
+                "detection_same_day": 0.8777777777777778,
+                "detection_same_day_ci": [
+                  0.8089344994892749,
+                  0.945054945054945
+                ],
+                "district_days_per_event": 2557.1139240506327,
+                "days_per_week": {
+                  "mean": 1.9717171604497592,
+                  "median": 2.0907451923076925,
+                  "p90": 4.585336538461538,
+                  "max": 6.722355769230769
+                }
+              }
+            }
+          },
+          "Warning+": {
+            "point_share": 0.024267104572994497,
+            "raw_share": 0.024267104572994497,
+            "published_share": 0.039824343776092404,
+            "published_cell_days": 1904799,
+            "point_cell_exact_hits": 48,
+            "hold_inflation": 1.6410834533762502,
+            "tolerant": {
+              "hits": 72,
+              "detection": 0.8,
+              "ci": [
+                0.7159090909090909,
+                0.8804347826086957
+              ],
+              "cell_days_per_event": 26455.541666666668
+            },
+            "cell_exact": {
+              "hits": 52,
+              "detection": 0.5777777777777777,
+              "ci": [
+                0.473103509393832,
+                0.6777777777777778
+              ],
+              "cell_days_per_event": 36630.75
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 146029,
+                "districts": 431,
+                "share_of_district_days": 0.20361441415313225,
+                "events_in_alerted_district": 77,
+                "events_in_alerted_district_within_1_day": 80,
+                "detection_same_day": 0.8555555555555555,
+                "detection_same_day_ci": [
+                  0.7840909090909091,
+                  0.9247311827956989
+                ],
+                "district_days_per_event": 1896.4805194805194,
+                "days_per_week": {
+                  "mean": 1.4253008990719258,
+                  "median": 0.9969951923076923,
+                  "p90": 3.579927884615385,
+                  "max": 6.230168269230769
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 111050,
+                "districts": 431,
+                "share_of_district_days": 0.15484171426021773,
+                "events_in_alerted_district": 69,
+                "events_in_alerted_district_within_1_day": 77,
+                "detection_same_day": 0.7666666666666667,
+                "detection_same_day_ci": [
+                  0.6739130434782609,
+                  0.8539325842696629
+                ],
+                "district_days_per_event": 1609.4202898550725,
+                "days_per_week": {
+                  "mean": 1.0838919998215242,
+                  "median": 0.6941105769230769,
+                  "p90": 2.7217548076923075,
+                  "max": 5.737980769230769
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 88984,
+                "districts": 431,
+                "share_of_district_days": 0.12407415670176691,
+                "events_in_alerted_district": 67,
+                "events_in_alerted_district_within_1_day": 72,
+                "detection_same_day": 0.7444444444444445,
+                "detection_same_day_ci": [
+                  0.6477272727272727,
+                  0.8351648351648352
+                ],
+                "district_days_per_event": 1328.1194029850747,
+                "days_per_week": {
+                  "mean": 0.8685190969123683,
+                  "median": 0.3701923076923077,
+                  "p90": 2.292668269230769,
+                  "max": 5.355168269230769
+                }
+              }
+            }
+          },
+          "Emergency": {
+            "point_share": 0.0073263826631377255,
+            "raw_share": 0.0073263826631377255,
+            "published_share": 0.011516345718972788,
+            "published_cell_days": 550827,
+            "point_cell_exact_hits": 29,
+            "hold_inflation": 1.5719006566387286,
+            "tolerant": {
+              "hits": 55,
+              "detection": 0.6111111111111112,
+              "ci": [
+                0.5056179775280899,
+                0.7111111111111111
+              ],
+              "cell_days_per_event": 10015.036363636364
+            },
+            "cell_exact": {
+              "hits": 32,
+              "detection": 0.35555555555555557,
+              "ci": [
+                0.25555555555555554,
+                0.45555555555555555
+              ],
+              "cell_days_per_event": 17213.34375
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 73623,
+                "districts": 431,
+                "share_of_district_days": 0.10265566437622702,
+                "events_in_alerted_district": 66,
+                "events_in_alerted_district_within_1_day": 74,
+                "detection_same_day": 0.7333333333333333,
+                "detection_same_day_ci": [
+                  0.6444444444444445,
+                  0.8241758241758241
+                ],
+                "district_days_per_event": 1115.5,
+                "days_per_week": {
+                  "mean": 0.7185896506335891,
+                  "median": 0.29867788461538464,
+                  "p90": 1.9435096153846154,
+                  "max": 4.884014423076923
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 43663,
+                "districts": 431,
+                "share_of_district_days": 0.06088116857040871,
+                "events_in_alerted_district": 59,
+                "events_in_alerted_district_within_1_day": 67,
+                "detection_same_day": 0.6555555555555556,
+                "detection_same_day_ci": [
+                  0.5567866161616162,
+                  0.7555555555555555
+                ],
+                "district_days_per_event": 740.0508474576271,
+                "days_per_week": {
+                  "mean": 0.42616817999286094,
+                  "median": 0.14302884615384615,
+                  "p90": 1.1694711538461537,
+                  "max": 3.8197115384615383
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 30522,
+                "districts": 431,
+                "share_of_district_days": 0.04255811618775656,
+                "events_in_alerted_district": 50,
+                "events_in_alerted_district_within_1_day": 57,
+                "detection_same_day": 0.5555555555555556,
+                "detection_same_day_ci": [
+                  0.45054945054945056,
+                  0.6590909090909091
+                ],
+                "district_days_per_event": 610.44,
+                "days_per_week": {
+                  "mean": 0.2979068133142959,
+                  "median": 0.06310096153846154,
+                  "p90": 0.8792067307692307,
+                  "max": 3.138221153846154
+                }
+              }
+            }
+          }
+        },
+        "western_ghats|rest": {
+          "events": 5,
+          "cell_days": 13391872,
+          "Watch+": {
+            "point_share": 0.05307995775347912,
+            "raw_share": 0.10042927530968038,
+            "published_share": 0.07845744045343325,
+            "published_cell_days": 1050692,
+            "point_cell_exact_hits": 3,
+            "hold_inflation": 1.4780991503010525,
+            "tolerant": {
+              "hits": 4,
+              "detection": 0.8,
+              "ci": [
+                0.4,
+                1.0
+              ],
+              "cell_days_per_event": 262673.0
+            },
+            "cell_exact": {
+              "hits": 4,
+              "detection": 0.8,
+              "ci": [
+                0.4,
+                1.0
+              ],
+              "cell_days_per_event": 262673.0
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 41489,
+                "districts": 124,
+                "share_of_district_days": 0.20107494571960297,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 10372.25,
+                "days_per_week": {
+                  "mean": 1.4075246200372211,
+                  "median": 0.9780649038461539,
+                  "p90": 3.635877403846154,
+                  "max": 5.439302884615385
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 33963,
+                "districts": 124,
+                "share_of_district_days": 0.16460045750620347,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 8490.75,
+                "days_per_week": {
+                  "mean": 1.1522032025434246,
+                  "median": 0.5027043269230769,
+                  "p90": 3.2547475961538463,
+                  "max": 4.728365384615385
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 30155,
+                "districts": 124,
+                "share_of_district_days": 0.14614512251861042,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 7538.75,
+                "days_per_week": {
+                  "mean": 1.023015857630273,
+                  "median": 0.3407451923076923,
+                  "p90": 3.004026442307693,
+                  "max": 4.463341346153846
+                }
+              }
+            }
+          },
+          "Warning+": {
+            "point_share": 0.006145294698157211,
+            "raw_share": 0.006145294698157211,
+            "published_share": 0.008636133917647958,
+            "published_cell_days": 115654,
+            "point_cell_exact_hits": 2,
+            "hold_inflation": 1.4053246169362188,
+            "tolerant": {
+              "hits": 3,
+              "detection": 0.6,
+              "ci": [
+                0.2,
+                1.0
+              ],
+              "cell_days_per_event": 38551.333333333336
+            },
+            "cell_exact": {
+              "hits": 2,
+              "detection": 0.4,
+              "ci": [
+                0.0,
+                0.8
+              ],
+              "cell_days_per_event": 57827.0
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 13423,
+                "districts": 124,
+                "share_of_district_days": 0.06505408653846154,
+                "events_in_alerted_district": 4,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.8,
+                "detection_same_day_ci": [
+                  0.4,
+                  1.0
+                ],
+                "district_days_per_event": 3355.75,
+                "days_per_week": {
+                  "mean": 0.4553786057692307,
+                  "median": 0.02734375,
+                  "p90": 1.5177884615384618,
+                  "max": 3.138221153846154
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 8346,
+                "districts": 124,
+                "share_of_district_days": 0.04044858870967742,
+                "events_in_alerted_district": 2,
+                "events_in_alerted_district_within_1_day": 4,
+                "detection_same_day": 0.4,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.8
+                ],
+                "district_days_per_event": 4173.0,
+                "days_per_week": {
+                  "mean": 0.28314012096774194,
+                  "median": 0.00841346153846154,
+                  "p90": 0.9646033653846156,
+                  "max": 2.494591346153846
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 6035,
+                "districts": 124,
+                "share_of_district_days": 0.02924841035980149,
+                "events_in_alerted_district": 1,
+                "events_in_alerted_district_within_1_day": 2,
+                "detection_same_day": 0.2,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.6
+                ],
+                "district_days_per_event": 6035.0,
+                "days_per_week": {
+                  "mean": 0.20473887251861042,
+                  "median": 0.0,
+                  "p90": 0.672235576923077,
+                  "max": 2.1875
+                }
+              }
+            }
+          },
+          "Emergency": {
+            "point_share": 0.0010689319611179079,
+            "raw_share": 0.0010689319611179079,
+            "published_share": 0.0018069915841489525,
+            "published_cell_days": 24199,
+            "point_cell_exact_hits": 2,
+            "hold_inflation": 1.6904645476772617,
+            "tolerant": {
+              "hits": 2,
+              "detection": 0.4,
+              "ci": [
+                0.0,
+                0.8
+              ],
+              "cell_days_per_event": 12099.5
+            },
+            "cell_exact": {
+              "hits": 2,
+              "detection": 0.4,
+              "ci": [
+                0.0,
+                0.8
+              ],
+              "cell_days_per_event": 12099.5
+            },
+            "districts": {
+              "any_cell": {
+                "district_days": 5142,
+                "districts": 124,
+                "share_of_district_days": 0.024920517990074442,
+                "events_in_alerted_district": 2,
+                "events_in_alerted_district_within_1_day": 3,
+                "detection_same_day": 0.4,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.8
+                ],
+                "district_days_per_event": 2571.0,
+                "days_per_week": {
+                  "mean": 0.17444362593052107,
+                  "median": 0.0,
+                  "p90": 0.6486778846153848,
+                  "max": 1.5943509615384615
+                }
+              },
+              "3_cells_or_10pct": {
+                "district_days": 2187,
+                "districts": 124,
+                "share_of_district_days": 0.010599216811414392,
+                "events_in_alerted_district": 0,
+                "events_in_alerted_district_within_1_day": 0,
+                "detection_same_day": 0.0,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.0
+                ],
+                "district_days_per_event": null,
+                "days_per_week": {
+                  "mean": 0.07419451767990075,
+                  "median": 0.0,
+                  "p90": 0.2780649038461539,
+                  "max": 0.8623798076923077
+                }
+              },
+              "5_cells_or_25pct": {
+                "district_days": 1322,
+                "districts": 124,
+                "share_of_district_days": 0.006407025434243176,
+                "events_in_alerted_district": 0,
+                "events_in_alerted_district_within_1_day": 0,
+                "detection_same_day": 0.0,
+                "detection_same_day_ci": [
+                  0.0,
+                  0.0
+                ],
+                "district_days_per_event": null,
+                "days_per_week": {
+                  "mean": 0.04484917803970223,
+                  "median": 0.0,
+                  "p90": 0.16490384615384623,
+                  "max": 0.6352163461538461
+                }
+              }
+            }
+          }
         }
       },
       "district_rule": {
@@ -6375,44 +9506,44 @@
         "totals": {
           "any_cell": {
             "Watch+": {
-              "days": 563682,
-              "events": 674
+              "days": 862488,
+              "events": 762
             },
             "Warning+": {
-              "days": 303911,
-              "events": 622
+              "days": 463363,
+              "events": 703
             },
             "Emergency": {
-              "days": 151481,
-              "events": 537
+              "days": 230246,
+              "events": 605
             }
           },
           "3_cells_or_10pct": {
             "Watch+": {
-              "days": 480746,
-              "events": 671
+              "days": 739971,
+              "events": 757
             },
             "Warning+": {
-              "days": 217537,
-              "events": 565
+              "days": 336933,
+              "events": 636
             },
             "Emergency": {
-              "days": 84482,
-              "events": 429
+              "days": 130332,
+              "events": 488
             }
           },
           "5_cells_or_25pct": {
             "Watch+": {
-              "days": 424341,
-              "events": 670
+              "days": 656508,
+              "events": 753
             },
             "Warning+": {
-              "days": 169313,
-              "events": 527
+              "days": 264332,
+              "events": 595
             },
             "Emergency": {
-              "days": 57275,
-              "events": 358
+              "days": 89119,
+              "events": 408
             }
           }
         },
@@ -6621,6 +9752,82 @@
             "cost_ratio": null
           }
         }
+      },
+      "himalaya|rest": {
+        "Watch+": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        },
+        "Warning+": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        },
+        "Emergency": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        }
+      },
+      "western_ghats|rest": {
+        "Watch+": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        },
+        "Warning+": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        },
+        "Emergency": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        }
       }
     },
     "B_balanced->C_rare_emergency": {
@@ -6766,6 +9973,82 @@
         "Emergency": {
           "saved_cell_days": 234,
           "saved_share": 0.0037678125754770147,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        }
+      },
+      "himalaya|rest": {
+        "Watch+": {
+          "saved_cell_days": 2656689,
+          "saved_share": 0.2775721949806732,
+          "tolerant": {
+            "lost": 1,
+            "cost_ratio": 2656689.0
+          },
+          "cell_exact": {
+            "lost": 1,
+            "cost_ratio": 2656689.0
+          }
+        },
+        "Warning+": {
+          "saved_cell_days": 494492,
+          "saved_share": 0.20609921847745855,
+          "tolerant": {
+            "lost": 4,
+            "cost_ratio": 123623.0
+          },
+          "cell_exact": {
+            "lost": 2,
+            "cost_ratio": 247246.0
+          }
+        },
+        "Emergency": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        }
+      },
+      "western_ghats|rest": {
+        "Watch+": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        },
+        "Warning+": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
+          "tolerant": {
+            "lost": 0,
+            "cost_ratio": null
+          },
+          "cell_exact": {
+            "lost": 0,
+            "cost_ratio": null
+          }
+        },
+        "Emergency": {
+          "saved_cell_days": 0,
+          "saved_share": 0.0,
           "tolerant": {
             "lost": 0,
             "cost_ratio": null
