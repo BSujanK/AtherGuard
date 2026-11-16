@@ -69,6 +69,24 @@ look reads them from there. The look is the lead's, once. It refuses if its resu
 reported and nothing is tuned after it. A confirmed rule goes to a reviewed wiring step, a change of the published
 district messages, after the user's yes. January-May has no held-out panels and stays development-only.
 
+## 7. Amendment after the development curve, before any held-out number (2026-11-17)
+
+The declared choice of section 4 was applied as written and found no Warning+ or Emergency cap on the ladder that keeps
+90% of R0's within-1-day coverage. Even the gentlest caps (Warning+ 25%, Emergency 10% of district-days) lose more. The
+chosen rule therefore caps Watch+ only (F1, 50%) and leaves Warning+ and Emergency at any cell
+(`data/processed/alerts/district_cap/fit.json`). That rule barely changes what an officer receives. So that the user has a
+real choice, one alternative is added now, before any held-out number:
+
+- **alternative**: family F1, caps Watch+ 50%, Warning+ 25%, Emergency 10% of district-days, the gentlest cap of each
+  level's ladder. It was picked from the development curve and is labelled so.
+
+Both rules carry the criterion of section 5, with their own development values. `reports/phase8_district_cap.json`
+(`heldout_criteria.declared` and `heldout_criteria.alternative`) holds them. The study still has ONE look: the command
+`python -m aetherguard.verify.district_cap heldout --rule <declared|alternative>` refuses if any look of this study
+exists. Which rule gets the look is the user's choice, through the lead, because it is a cost-ratio choice.
+
+The first step of every curve also gets its cost ratio against R0. That is reporting only and changes no choice.
+
 ## 6. Not in scope
 
 Changes to the cell levels, wiring, message text, and the forecast leads.

@@ -47,6 +47,10 @@ LADDERS = {1: (0.50, 0.40, 0.30, 0.20, 0.15, 0.10, 0.05),
            3: (0.10, 0.06, 0.04, 0.03, 0.02, 0.01, 0.005)}
 MIN_SHARE = 1e-9                    # "any cell": a positive share, so at least one cell is always needed
 KEEP = 0.90                         # spec section 4: keep this share of R0's within-1-day coverage
+# spec section 7 (amendment after the development curve, before any held-out number): the user-choice alternative, the
+# gentlest cap of each level's ladder in the stratum family
+ALTERNATIVE = {"family": "F1_stratum", "caps": {1: 0.50, 2: 0.25, 3: 0.10}}
+RULES = ("declared", "alternative")
 FAMILIES = ("F1_stratum", "F2_district")
 READINGS = ("same_day", "within_1_day")
 BURDEN_FACTOR = 1.5
@@ -366,16 +370,10 @@ def fit(say=print) -> dict:
                           "himalaya_monsoon_emergency_p90_days_per_week": p90}
     chosen = min(FAMILIES, key=lambda f: (choice[f]["himalaya_monsoon_emergency_p90_days_per_week"], f != "F1_stratum"))
     caps = {L: choice[chosen]["caps"][LEVEL_NAMES[L]] for L in LEVELS}
-    final = np.full((data.n_districts, len(FL.SEASON_NAMES), len(LEVELS)), MIN_SHARE)
-    for L, cap in caps.items():
-        if cap is not None:
-            final[:, :, L - 1] = np.nan_to_num(fit_thresholds(data, chosen, L, cap, None), nan=MIN_SHARE)
-    rule = {"family": chosen, "caps": {LEVEL_NAMES[L]: c for L, c in caps.items()}, "shares": final.tolist(),
-            "seasons": list(FL.SEASON_NAMES), "levels": [LEVEL_NAMES[L] for L in LEVELS],
-            "districts": json.loads((results_dir() / "districts.json").read_text(encoding="utf-8"))["districts"],
-            "fitted_on": "2007-2017 development, every year", "attribution": DI.ATTRIBUTION,
-            "status": "a candidate district rule; the live run does not read it"}
-    dump_json(results_dir() / "rule.json", jsonable(rule))
+    write_rule(data, chosen, caps, "declared")
+    say("the alternative of spec section 7")
+    alt_combined = evaluate(data, s_loyo(data, ALTERNATIVE["family"], ALTERNATIVE["caps"]), None)
+    write_rule(data, ALTERNATIVE["family"], ALTERNATIVE["caps"], "alternative")
     result = {"windows": data.windows, "events": int(len(data.events)),
               "events_without_district": int((data.events["district"] < 0).sum()),
               "slides": int(len(np.unique(data.labels))), "districts": data.n_districts,
@@ -384,15 +382,37 @@ def fit(say=print) -> dict:
                                              for n, steps in c.items()} for f, c in curve.items()},
               "choice": {f: {**{k: v for k, v in c.items() if k != "combined"}, "combined": _strip(c["combined"])}
                          for f, c in choice.items()},
-              "chosen": chosen, "rule_file": f"data/processed/alerts/{RESULTS}/rule.json",
+              "chosen": chosen, "rule_file": rule_file("declared"),
               "loss": loss_shares(r0, choice[chosen]["combined"], jun_dec_mask(data)),
+              "alternative": {"family": ALTERNATIVE["family"],
+                              "caps": {LEVEL_NAMES[L]: c for L, c in ALTERNATIVE["caps"].items()},
+                              "combined": _strip(alt_combined), "rule_file": rule_file("alternative"),
+                              "loss": loss_shares(r0, alt_combined, jun_dec_mask(data))},
               "seconds": time.perf_counter() - started}
     for family in FAMILIES:
         for name, steps in result["curve"][family].items():
-            add_cost_ratios(steps, name)
+            add_cost_ratios([{"result": result["r0"]}] + steps, name)
     dump_json(results_dir() / "fit.json", jsonable(result))
     say(f"chosen {chosen} {result['choice'][chosen]['caps']}; wrote {results_dir() / 'fit.json'}")
     return result
+
+
+def rule_file(which: str) -> str:
+    return f"data/processed/alerts/{RESULTS}/rule_{which}.json"
+
+
+def write_rule(data: Data, family: str, caps: dict, which: str) -> None:
+    """The rule's shares fitted on every development year, written to its own file (never read by the live run)."""
+    final = np.full((data.n_districts, len(FL.SEASON_NAMES), len(LEVELS)), MIN_SHARE)
+    for L, cap in caps.items():
+        if cap is not None:
+            final[:, :, L - 1] = np.nan_to_num(fit_thresholds(data, family, L, cap, None), nan=MIN_SHARE)
+    rule = {"which": which, "family": family, "caps": {LEVEL_NAMES[L]: c for L, c in caps.items()},
+            "shares": final.tolist(), "seasons": list(FL.SEASON_NAMES), "levels": [LEVEL_NAMES[L] for L in LEVELS],
+            "districts": json.loads((results_dir() / "districts.json").read_text(encoding="utf-8"))["districts"],
+            "fitted_on": "2007-2017 development, every year", "attribution": DI.ATTRIBUTION,
+            "status": "a candidate district rule; the live run does not read it"}
+    dump_json(results_dir() / f"rule_{which}.json", jsonable(rule))
 
 
 def _strip(result: dict) -> dict:
@@ -425,20 +445,293 @@ def add_cost_ratios(steps: list[dict], level_name: str) -> None:
 
 # ------------------------------------------------------------------------------------------ the criterion
 
-def declared_criterion(result: dict) -> dict:
-    chosen = result["choice"][result["chosen"]]["combined"]
+def declared_criterion(result: dict, which: str = "declared") -> dict:
+    if which == "declared":
+        chosen, family, loss_of, file_ = (result["choice"][result["chosen"]]["combined"], result["chosen"],
+                                          result["loss"], result["rule_file"])
+    else:
+        alt = result["alternative"]
+        chosen, family, loss_of, file_ = alt["combined"], alt["family"], alt["loss"], alt["rule_file"]
     burden_keys = {f"{k}|{L}": chosen[k][LEVEL_NAMES[L]]["share"] for k in chosen
                    if k.split("|")[1] in oo.WINDOW_SEASONS["jun_dec"] for L in LEVELS}
     events = sum(chosen[k]["Watch+"]["events"] for k in chosen if k.split("|")[1] in oo.WINDOW_SEASONS["jun_dec"])
     loss = {}
-    for key, q in result["loss"].items():
+    for key, q in loss_of.items():
         loss[key] = {"share": q, "margin_slides": MARGIN_SD * float(np.sqrt(HELDOUT_SLIDES * q * (1.0 - q)))}
-    return {"rule": result["chosen"], "rule_file": result["rule_file"], "burden": burden_keys,
+    return {"which": which, "rule": family, "rule_file": file_, "burden": burden_keys,
             "burden_factor": BURDEN_FACTOR, "loss": loss, "slides": HELDOUT_SLIDES, "development_events": events,
             "text": f"confirmed when every held-out share of district-days at a level (region x season x level, "
                     f"June-December 2018-2025) is at most {BURDEN_FACTOR} x its development value, and at every level "
                     f"and reading the independent slides the rule leaves uncovered compared with R0 on the same days are "
                     f"at most q x 87 + {MARGIN_SD} x sqrt(87 q (1 - q))"}
+
+
+# ------------------------------------------------------------------------------------------- the one look
+
+def heldout_look(which: str, say=print) -> dict:
+    """THE look (spec section 5): the chosen rule and R0 on the v4 held-out season panels with today's cell levels, and
+    the W1 events, decided by the criterion of the committed report. Refuses when its result exists."""
+    from . import heldout
+    path = results_dir() / HELDOUT_FILE
+    oo.refuse_second_look(path)
+    declared = json.loads((PROJECT_ROOT / "reports" / f"{REPORT_STEM}.json").read_text(encoding="utf-8"))
+    declared = declared["heldout_criteria"][which]
+    rule = json.loads((results_dir() / f"rule_{which}.json").read_text(encoding="utf-8"))
+    final = np.asarray(rule["shares"], dtype=np.float64)                       # (districts, 3 seasons, 3 levels)
+    config, rules, card = chain_inputs()
+    thresholds = a_thresholds("jun_dec", card)
+    reference = H.load_panel(H.alerts_dir(H.HELDOUT_DIR) / H.HELDOUT_FILE).cells["cell_id"].to_numpy()
+    cfg = live_run.load_run_config()
+    events = heldout.load_event_table(cfg)
+    events = events[pd.to_datetime(events["date"]).dt.year.isin(bt.SEASON_YEARS)]
+    all_days, per_year = [], []
+    burden_acc: dict = {}
+    index = info = None
+    for year in bt.SEASON_YEARS:
+        say(f"held-out season {year}")
+        panel = oo.load_light(H.alerts_dir(P.V4_SEASONS) / f"season_{year}_v4.npz")
+        heldout.check_cell_order(panel.cells["cell_id"].to_numpy(), reference, f"v4 season {year}")
+        y = oo.Year.from_panel(year, panel, panel.days.index(date(year, 6, 1)))
+        if index is None:
+            index, info = oo.district_index(y.cell_ids, y.region)
+            region = info["region"].to_numpy(dtype=str)
+        _, _, published = oo.chain_levels(y, thresholds, card, config, rules)
+        count, n = district_counts(published, y.scored, index, len(info))
+        f = shares(count, n)
+        valid = np.isfinite(f[..., 0])
+        arms = {"rule": district_level(f, final[:, y.season, :]),
+                "R0": district_level(f, np.full(f.shape, MIN_SHARE))}
+        for (r, sname) in [(r, s) for r in oo.REGIONS for s in oo.WINDOW_SEASONS["jun_dec"]]:
+            block = np.ix_(region == r, y.season == FL.SEASON_NAMES.index(sname))
+            for L in LEVELS:
+                a = burden_acc.setdefault(f"{r}|{sname}|{L}", [0, 0])
+                a[0] += int(((arms["rule"][block] >= L) & valid[block]).sum())
+                a[1] += int(valid[block].sum())
+        per_year.append((y.days, y.cell_ids, {k: v for k, v in arms.items()}, valid))
+        all_days += y.days
+        del panel, y, published
+    kept, outside = heldout.events_on_days(events, all_days)
+    labels = heldout.event_clusters(kept)
+    look = {"burden": {k: a[0] / a[1] for k, a in burden_acc.items()}, "coverage": {}, "base_coverage": {}}
+    hits = {arm: {reading: {L: np.zeros(len(kept), dtype=bool) for L in LEVELS} for reading in READINGS}
+            for arm in ("rule", "R0")}
+    kept_days = pd.to_datetime(kept["date"]).dt.date.to_numpy()
+    for days, cell_ids, arms, valid in per_year:
+        inside = np.isin(kept_days, days)
+        if not inside.any():
+            continue
+        rows = pd.Index(cell_ids).get_indexer(kept["cell_id"].to_numpy(dtype=np.int64)[inside])
+        district = np.where(rows >= 0, index[np.maximum(rows, 0)], -1)
+        day = pd.Index(days).get_indexer(kept_days[inside])
+        for arm, lev in arms.items():
+            for L in LEVELS:
+                same, near = coverage((lev >= L) & valid, district, day)
+                hits[arm]["same_day"][L][inside] = same
+                hits[arm]["within_1_day"][L][inside] = near
+    groups = np.unique(labels)
+    for arm, key in (("rule", "coverage"), ("R0", "base_coverage")):
+        for reading in READINGS:
+            for L in LEVELS:
+                covered = np.zeros(len(groups), dtype=bool)
+                np.logical_or.at(covered, np.searchsorted(groups, labels), hits[arm][reading][L])
+                look[key][f"{reading}|{L}"] = {"hits": int(covered.sum()), "of": int(len(groups))}
+    result = {"declared": declared, "look": look, "events_outside_panel_days": int(outside),
+              "decision": decide(declared, look)}
+    text = json.dumps(jsonable(result), indent=2, allow_nan=False)
+    with open(path, "x", encoding="utf-8") as handle:
+        handle.write(text + "\n")
+    say(f"district rule: {'CONFIRMED' if result['decision']['confirmed'] else 'NOT confirmed'} {result['decision']['failed']}")
+    return result
+
+
+# ------------------------------------------------------------------------------------------------ report
+
+CAVEATS = [
+    "Development data only (2007-2017, out of fold, every scored cell); the curve's shares are fitted leave-one-year-out. "
+    "No held-out number is in the development tables.",
+    "The district levels aggregate today's published cell levels (option A: the card's thresholds and the whole live "
+    "chain except the blind-escalation rule).",
+    "Catalogue events are recorded where people and roads are, and most landslides are never recorded; coverage counts "
+    "recorded events only.",
+    "The chance floor is the share of district-days at the level within one day: the coverage an event placed in a "
+    "random district on a random day would get. Read coverage against it.",
+    "A cost ratio counts every alerted district-day without a recorded event as a false alarm.",
+    "January-May has no held-out panels, so its rows can only ever be development numbers.",
+    f"District boundaries: {DI.ATTRIBUTION}. Nepal uses the 75 districts of 2006, Bhutan its 20 dzongkhags.",
+]
+FAMILY_TEXT = {"R0": "any cell (today's natural rule)",
+               "F1_stratum": "share of cells, one share per region, season and level",
+               "F2_district": "share of cells, one share per district, season and level"}
+
+
+def _p(x, d: int = 1) -> str:
+    return "" if x is None else f"{100.0 * x:.{d}f}%"
+
+
+def _cov(e: dict) -> str:
+    return f"{e['hits']} ({_p(e['coverage'], 0)} {oo._ci(e['ci'])})"
+
+
+def build_report() -> dict:
+    result = json.loads((results_dir() / "fit.json").read_text(encoding="utf-8"))
+    result["heldout_criteria"] = {which: declared_criterion(result, which) for which in RULES}
+    result["heldout_commands"] = {which: f"python -m aetherguard.verify.district_cap heldout --rule {which}"
+                                  for which in RULES}
+    look = results_dir() / HELDOUT_FILE
+    result["heldout_look"] = json.loads(look.read_text(encoding="utf-8")) if look.is_file() else None
+    result["caveats"] = CAVEATS
+    result["created_utc"] = pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%dT%H:%M:%SZ")
+    return result
+
+
+def _cap(x) -> str:
+    return "none (any cell)" if x is None else _p(x)
+
+
+def _rules(result: dict) -> list[tuple[str, dict, dict]]:
+    """(label, caps, combined numbers) of R0, the declared rule and the alternative."""
+    chosen = result["chosen"]
+    return [("R0 any cell", {n: None for n in ("Watch+", "Warning+", "Emergency")}, result["r0"]),
+            (f"declared ({chosen})", result["choice"][chosen]["caps"], result["choice"][chosen]["combined"]),
+            (f"alternative ({result['alternative']['family']})", result["alternative"]["caps"],
+             result["alternative"]["combined"])]
+
+
+def recommendation(result: dict) -> list[str]:
+    r0 = result["r0"]["himalaya|monsoon"]
+    dec = result["choice"][result["chosen"]]["combined"]["himalaya|monsoon"]
+    alt = result["alternative"]["combined"]["himalaya|monsoon"]
+    f1 = result["curve"]["F1_stratum"]["Emergency"][0]["result"]["himalaya|monsoon"]["Emergency"]
+    e0, ed, ea = r0["Emergency"], dec["Emergency"], alt["Emergency"]
+    w0, wa = r0["Warning+"], alt["Warning+"]
+    lift = lambda e: e["within_1_day"]["coverage"] / e["chance_floor_within_1_day"]  # noqa: E731
+    saved = e0["district_days"] - ea["district_days"]
+    lost = e0["within_1_day"]["hits"] - ea["within_1_day"]["hits"]
+    ratio = saved / lost if lost > 0 else None
+    lost_share = lost / e0["within_1_day"]["hits"] if e0["within_1_day"]["hits"] else 0.0
+    return [
+        "## What the development data say, and the recommendation", "",
+        f"- With R0, a Himalayan district in the monsoon is at Emergency on {_p(e0['share'], 0)} of days (median "
+        f"district {e0['days_per_week']['median']:.1f} days a week, busiest tenth {e0['days_per_week']['p90']:.1f}). It "
+        f"covers {_p(e0['within_1_day']['coverage'], 0)} of the development events within a day.",
+        f"- Coverage falls nearly in step with frequency. A district's coverage is {lift(e0):.1f} x its chance floor "
+        f"under R0, and {lift(f1):.1f} x with a 10% Emergency cap: capping makes each alert more informative, but every "
+        "district-day removed also removes slides. Going from R0 to the alternative's Emergency cap saves "
+        f"{saved:,} Himalayan monsoon district-days and leaves {lost} covered events uncovered: "
+        f"{oo._ratio(ratio)} district-days per event (the cost ratio; the curve below gives it for every step).",
+        f"- The rule declared before the curve (keep {result['keep']:.0%} of R0's within-1-day coverage) finds no "
+        "Warning+ or Emergency cap on the declared ladder that meets it. It caps only Watch+ "
+        f"({_p(result['choice'][result['chosen']]['caps']['Watch+'])}), which leaves the Emergency frequency where it is "
+        f"(p90 {ed['days_per_week']['p90']:.1f} days a week). So no district frequency an officer can act on comes "
+        "without losing covered slides.",
+        f"- The alternative (spec section 7: the gentlest cap of each ladder, Warning+ {_p(result['alternative']['caps']['Warning+'])}, "
+        f"Emergency {_p(result['alternative']['caps']['Emergency'])}) brings Emergency to {_p(ea['share'], 0)} of "
+        f"district-days (median {ea['days_per_week']['median']:.2f}, busiest tenth {ea['days_per_week']['p90']:.1f} days "
+        f"a week) and Warning+ to {_p(alt['Warning+']['share'], 0)} (from {_p(w0['share'], 0)}). The price: within-1-day "
+        f"Emergency coverage {_p(e0['within_1_day']['coverage'], 0)} -> {_p(ea['within_1_day']['coverage'], 0)}, "
+        f"Warning+ {_p(w0['within_1_day']['coverage'], 0)} -> {_p(wa['within_1_day']['coverage'], 0)}.",
+        "- Recommendation: the choice is the user's cost ratio, not a statistical one. If an uncovered recorded slide is "
+        f"worth more than about {oo._ratio(ratio)} false-alarm district-days, keep R0 for Warning+ and Emergency (the declared rule) "
+        "and use districts only to route the cell alerts. If the user wants a district Emergency that fires on about one "
+        f"monsoon day in {1 / ea['share']:.0f} instead, take the alternative to the one look, knowing it gives up "
+        f"{_p(lost_share, 0)} of the Emergency events R0 covers in the Himalayan monsoon on development data. I recommend "
+        "the alternative for the look only if the user accepts that "
+        "price, and the declared rule otherwise. The declared rule's look tells little, because it changes only Watch+.",
+        "",
+    ]
+
+
+def markdown(result: dict) -> str:
+    rules = _rules(result)
+    out = ["# A district level an officer can act on: frequency-capped district rule (phase 8, development only)", "",
+           "Today a district would take the highest level of any of its cells (R0). A district holds a median of 49 "
+           "scored cells, so that puts districts on alert most days. This report caps how often a district may be at "
+           "each level and shows what the cap costs in covered slides. Every number comes from "
+           f"`data/processed/alerts/{RESULTS}/fit.json`: development years 2007-2017, out of fold, today's published cell "
+           "levels (option A), district shares fitted leave-one-year-out. Nothing is wired.", ""]
+    if result.get("heldout_look") is None:
+        out += ["No held-out number is in this report.", ""]
+    out += ["## The rules side by side", "",
+            "| rule | Watch+ cap | Warning+ cap | Emergency cap |", "|---|---|---|---|"]
+    for label, caps, _ in rules:
+        out.append(f"| {label} | {_cap(caps['Watch+'])} | {_cap(caps['Warning+'])} | {_cap(caps['Emergency'])} |")
+    out += ["", "Share of district-days at the level or above, days per week for the median district and the busiest "
+                "tenth (p90), and the development events inside a district at the level within one day:", "",
+            "| region and season | level | rule | district-days | days/week median | p90 | covered within 1 day | "
+            "covered same day | chance floor |", "|---|---|---|---|---|---|---|---|---|"]
+    for key in [k for k in result["r0"] if "|" in k]:
+        for name in ("Watch+", "Warning+", "Emergency"):
+            for label, _, res in rules:
+                e = res[key][name]
+                out.append(f"| {oo._stratum(key)} ({e['events']} events) | {name} | {label} | {_p(e['share'])} | "
+                           f"{e['days_per_week']['median']:.2f} | {e['days_per_week']['p90']:.2f} | "
+                           f"{_cov(e['within_1_day'])} | {_cov(e['same_day'])} | {_p(e['chance_floor_within_1_day'])} |")
+    out.append("")
+    out += recommendation(result)
+    out += ["## The choice of each family (spec section 4)", "",
+            "| family | Watch+ cap | Warning+ cap | Emergency cap | Himalaya monsoon Emergency p90 days/week |",
+            "|---|---|---|---|---|"]
+    for family, c in result["choice"].items():
+        cs = c["caps"]
+        out.append(f"| {family} | {_cap(cs['Watch+'])} | {_cap(cs['Warning+'])} | {_cap(cs['Emergency'])} | "
+                   f"{c['himalaya_monsoon_emergency_p90_days_per_week']:.2f} |")
+    out += [f"", f"Chosen: **{result['chosen']}**.", "",
+            "## The trade-off curve (each level alone, leave-one-year-out)", "",
+            "Cost ratio: district-days saved per covered event lost against the row above (the first cap against R0); "
+            "the step is worth taking when one uncovered recorded landslide is worth FEWER false-alarm district-days "
+            "than that ('any': none lost). Chance floor: the share of district-days at the level within one day."]
+    r0 = result["r0"]
+    for family, levels in result["curve"].items():
+        for name, steps in levels.items():
+            for key in [k for k in steps[0]["result"] if "|" in k]:
+                base = r0[key][name]
+                out += ["", f"### {family}, {name}, {oo._stratum(key)} ({base['events']} events)", "",
+                        "| cap | district-days | days/week median / p90 | chance floor | covered within 1 day | "
+                        "covered same day | district-days per event covered | cost ratio (within 1 day / same day) |",
+                        "|---|---|---|---|---|---|---|---|",
+                        f"| R0 any cell | {_p(base['share'])} | {base['days_per_week']['median']:.2f} / "
+                        f"{base['days_per_week']['p90']:.2f} | {_p(base['chance_floor_within_1_day'])} | "
+                        f"{_cov(base['within_1_day'])} | {_cov(base['same_day'])} | "
+                        f"{(base['within_1_day']['district_days_per_event'] or 0):,.0f} | |"]
+                for x in steps:
+                    e = x["result"][key][name]
+                    cr = [oo._ratio(e[r].get("cost_ratio")) for r in READINGS]
+                    out.append(f"| {_p(x['cap'])} | {_p(e['share'])} | {e['days_per_week']['median']:.2f} / "
+                               f"{e['days_per_week']['p90']:.2f} | {_p(e['chance_floor_within_1_day'])} | "
+                               f"{_cov(e['within_1_day'])} | {_cov(e['same_day'])} | "
+                               f"{(e['within_1_day']['district_days_per_event'] or 0):,.0f} | {cr[1]} / {cr[0]} |")
+    out += ["", "## The one held-out look (pre-declared, one look for this study; the lead's)", ""]
+    for which, c in result["heldout_criteria"].items():
+        out += [f"### {which}", "",
+                f"Command (in this worktree, PYTHONPATH=src): `{result['heldout_commands'][which]}`. {c['text']}.", "",
+                "| condition | development value | allowed |", "|---|---|---|"]
+        for key, v in c["burden"].items():
+            out.append(f"| burden {key.replace('|', ' / ')} | {_p(v, 2)} | at most {_p(v * c['burden_factor'], 2)} |")
+        for key, v in c["loss"].items():
+            out.append(f"| coverage lost against R0 {key.replace('|', ' / ')} | {_p(v['share'], 1)} of events | "
+                       f"{v['share'] * c['slides']:.1f} + {v['margin_slides']:.1f} slides |")
+        out.append("")
+    if result.get("heldout_look"):
+        d = result["heldout_look"]["decision"]
+        out += [f"## The held-out look ({result['heldout_look']['declared']['which']}): "
+                f"{'CONFIRMED' if d['confirmed'] else 'NOT confirmed'}", "",
+                "| condition | held-out | limit | result |", "|---|---|---|---|"]
+        for cond in d["conditions"]:
+            got = _p(cond["heldout"], 2) if "heldout" in cond else f"{cond['heldout_lost']} slides lost"
+            lim = _p(cond["limit"], 2) if "limit" in cond else f"{cond['allowed']:.1f}"
+            out.append(f"| {cond['condition'].replace('|', ' / ')} | {got} | {lim} | {'pass' if cond['passed'] else 'FAIL'} |")
+        out.append("")
+    out += ["## Caveats", ""] + [f"- {x}" for x in result["caveats"]] + [""]
+    return "\n".join(out)
+
+
+def write_report(say=print) -> dict:
+    result = build_report()
+    reports = PROJECT_ROOT / "reports"
+    dump_json(reports / f"{REPORT_STEM}.json", jsonable(result))
+    (reports / f"{REPORT_STEM}.md").write_text(markdown(result), encoding="utf-8")
+    say(f"wrote reports/{REPORT_STEM}.{{json,md}}")
+    return result
 
 
 # ------------------------------------------------------------------------------------------------- CLI
@@ -449,12 +742,19 @@ def main(argv=None) -> int:
     cmd = sub.add_parser("counts", help="today's cell levels summed per district (resumable per year)")
     cmd.add_argument("--window", choices=sorted(oo.WINDOW_SEASONS), required=True)
     sub.add_parser("fit", help="the curve, the choice and the rule file")
+    sub.add_parser("report", help="reports/phase8_district_cap.{json,md}")
+    cmd = sub.add_parser("heldout", help="THE one held-out look (the lead's)")
+    cmd.add_argument("--rule", choices=RULES, required=True)
     args = parser.parse_args(argv)
     say = lambda m: print(m, flush=True)  # noqa: E731
     if args.command == "counts":
         counts(args.window, say)
     elif args.command == "fit":
         fit(say)
+    elif args.command == "report":
+        write_report(say)
+    elif args.command == "heldout":
+        heldout_look(args.rule, say)
     return 0
 
 
