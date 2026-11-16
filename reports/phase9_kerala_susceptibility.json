@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-11-16T19:30:42Z",
+  "created_utc": "2026-11-16T19:32:22Z",
   "spec": "docs/superpowers/specs/2026-11-17-aetherguard-kerala-susceptibility.md",
   "inventory": {
     "source": "Hao et al. 2020, ESSD 12, 2899-2918; van Westen 2020, DANS doi:10.17026/dans-x6c-y7x2",
@@ -289,7 +289,7 @@
     }
   },
   "table_sha256": "afc4cb926fa1fc1ac09a1648a2aae2a186455d36f6be3f8513914b1bb69a975a",
-  "seconds": 32.33662670000194,
+  "seconds": 30.834831599997415,
   "within_district": [
     {
       "district": "Ernakulam",

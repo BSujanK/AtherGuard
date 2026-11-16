@@ -154,13 +154,13 @@ def cell_inputs(cell_ids, terrain: pd.DataFrame, static: pd.DataFrame, rain: np.
 
 
 def rain_totals(cell_ids, store) -> tuple[np.ndarray, int]:
-    """IMERG rain summed over the inventory's window at each cell's pixel, and how many window days the store lacks
-    (a missing day would bias the total, so the caller refuses any)."""
+    """IMERG rain summed over the inventory's window at each cell's pixel, and how many pixel-days of the window the store
+    lacks (a missing one would bias a total, so the caller refuses any)."""
     from ..ingest.imerg import imerg_pixel
     rows, cols = imerg_pixel(np.asarray(cell_ids, dtype=np.int64))
     length = (WINDOW[1] - WINDOW[0]).days + 1
     values = store.gather(rows, cols, WINDOW[0], length)
-    missing = int(np.isnan(values).all(axis=0).sum())
+    missing = int(np.isnan(values).sum())
     return np.nansum(values, axis=1).astype(np.float64), missing
 
 
@@ -288,31 +288,6 @@ def cell_table(cells: pd.DataFrame, values: np.ndarray) -> pd.DataFrame:
                          "susc_kerala_wg": np.where(ghats, values, np.nan)})
 
 
-def susc_table(path: Path | None = None) -> pd.DataFrame:
-    path = Path(path or table_path())
-    if not path.is_file():
-        raise FileNotFoundError(f"{path} not found; build it first (python -m aetherguard.features.susc_kerala)")
-    table = pd.read_parquet(path)
-    if list(table.columns) != ["cell_id", *SURFACE_COLUMNS] or table["cell_id"].duplicated().any():
-        raise ValueError(f"{path.name} is not the Kerala surface table (one row per cell, {SURFACE_COLUMNS})")
-    return table
-
-
-def join_surface(frame: pd.DataFrame, table: pd.DataFrame, columns) -> pd.DataFrame:
-    """`frame` with `columns` of the surface table at each row's terrain cell (`terrain_cell_id`, else `cell_id`), as
-    `static_w5.join_static` joins the static columns. Row order and count are unchanged; a missing cell is NaN."""
-    columns = list(columns)
-    clash = sorted(set(columns) & set(frame.columns))
-    if clash:
-        raise ValueError(f"the frame already has the surface columns {clash}")
-    key = frame["cell_id"].to_numpy(dtype=np.float64)
-    if "terrain_cell_id" in frame.columns:
-        terrain = frame["terrain_cell_id"].astype("Float64").to_numpy(dtype=np.float64, na_value=np.nan)
-        key = np.where(np.isfinite(terrain), terrain, key)
-    picked = table.set_index("cell_id").reindex(key.astype(np.int64))[columns]
-    return pd.concat([frame.reset_index(drop=True), picked.reset_index(drop=True)], axis=1)
-
-
 # -------------------------------------------------------------------------------------------------- build
 
 def _spearman(a, b) -> float:
@@ -339,7 +314,7 @@ def build(force: bool = False, say=print) -> dict:
     labels = cell_labels(points, kerala["cell_id"].to_numpy())
     rain, missing = rain_totals(labels["cell_id"].to_numpy(), ImergStore(root / "processed" / "rain", "late"))
     if missing:
-        raise ValueError(f"the IMERG Late store lacks {missing} days of the inventory window; the rain totals would be biased")
+        raise ValueError(f"the IMERG Late store lacks {missing} pixel-days of the inventory window; the rain totals would be biased")
     x = cell_inputs(labels["cell_id"], terrain, static, rain)
     y, groups = labels["label"].to_numpy(), kerala["district"].to_numpy()
     rain_ref = float(np.median(rain))
