@@ -1,3 +1,4 @@
 # W7 leads v5: progress ledger (agent leads-v4, branch sota-leads-v5 from sota-leads-v4 at 5863500)
 
 2026-11-17 00:43 IST: branch created. Task (lead, user's yes 2026-11-16 22:55): a next D+1..D+3 candidate keeping a's Emergency gains without losing tolerant Warning+; selection on development data only; fresh held-out (JJAS 2025) if its forecasts and events exist.
+2026-11-17 00:47 IST: 2025 feasibility (counts only): GFS + both ECMWF copies hold JJAS 2025; IMERG Late 2025 present; W1 2025 = 3 records (Jun 1, Aug 2, reported); v2 adds 151 BIPAD JJAS records. Spec docs/superpowers/specs/2026-11-17-aetherguard-leads-v5.md written before any held-out number: candidate (s) v4-static at leads 1-3; deciding look JJAS 2025 (12-row rule), 2021-2024 beside as already looked at; disclosure that the v4 look's pattern suggested the design; power statement and options for the user.
