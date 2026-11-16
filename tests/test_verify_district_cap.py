@@ -66,3 +66,8 @@ def test_the_ladder_has_one_cap_per_step_for_every_level():
     assert set(C.LADDERS) == {1, 2, 3} and len({len(v) for v in C.LADDERS.values()}) == 1
     assert all(list(v) == sorted(v, reverse=True) for v in C.LADDERS.values())
     assert FL.SEASON_NAMES == ("monsoon", "post_monsoon", "rest")
+
+
+def test_the_within_one_day_mask_spreads_each_alert_to_its_neighbouring_days():
+    alerted = np.array([[False, False, True, False, False]])
+    assert C.within_1_day(alerted).tolist() == [[False, True, True, True, False]]
