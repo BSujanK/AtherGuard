@@ -1,0 +1,31 @@
+{
+ "rule": "veto when NET_ALL >= T_ALL or NET_CE >= T_CE (lost minus gained slides)",
+ "n_slides": 3,
+ "qs": [
+  0.1,
+  0.25,
+  0.4
+ ],
+ "pass_target_equal": 0.8,
+ "T_ALL": 13,
+ "T_CE": 4,
+ "pass_probability_equal_p0.5": {
+  "independent q=0.1": 0.99945,
+  "independent q=0.25": 0.9905,
+  "independent q=0.4": 0.96805,
+  "shared q=0.1": 0.99275,
+  "shared q=0.25": 0.962825,
+  "shared q=0.4": 0.920875
+ },
+ "block_probability_worse_p0.35": {
+  "independent q=0.1": 0.001525,
+  "independent q=0.25": 0.028125,
+  "independent q=0.4": 0.102,
+  "shared q=0.1": 0.011375,
+  "shared q=0.25": 0.062375,
+  "shared q=0.4": 0.137275
+ },
+ "seed": 20261117,
+ "draws": 40000,
+ "models": "independent rows and fully shared rows bound the truth"
+}

@@ -92,3 +92,33 @@ without reading any model output on a held-out day:
 * Conclusion: adding 2026 does not give materially more power under this rule, and today it adds no licence-clean record.
   The deciding set stays June-September 2025 (section 3). The look stays held until the lead and the user choose
   between (i) and (iii) of section 3; that choice, if (iii), is committed as a further amendment before the look.
+
+## 7. Amendment 2 (2026-11-17, before any held-out number and before E1 of the candidate): option (iii)
+
+The lead and the user chose option (iii), with a lead-specific development gate and a pooled veto in place of the
+12-row rule. This replaces the criterion of section 3; nothing of (s) has been computed on any held-out or E1 day.
+
+**(a) Development gate (no event read).** E1 as in the leads-v4 spec section 4 (`reports/phase8_leads_v4_e1.json`
+method): June-September issue days of 2022, 2023 and 2024 with archived forecast rain, the seeded random 2,536 candidate
+cells (seed 20261115), reference = the published v4 lead-0 level of the target day from observed features. The incumbent
+(c, v3 leads) and the candidate (s) are computed in the same run on the same rows. The gate passes when, at every lead 1, 2
+and 3, both hold:
+* burden: the candidate's Watch, Warning and Emergency shares are each within 20% of the reference's (|share / reference
+  share - 1| <= 0.20);
+* Warning+ recall of the reference: the candidate's is not lower than the incumbent's.
+Command: `python -m aetherguard.live.leads_v5_heldout gate` (heavy; resumable per issue day; result
+`reports/phase8_leads_v5_e1.json`, with the gate's verdict).
+
+**(b) 2025 no-harm veto (W1, June-September 2025, the panels the preflight froze).** Per deciding row (leads 1-3,
+tolerant and cell-exact, Warning+ and Emergency) take incumbent minus candidate independent-slide detections, which is the
+slides the incumbent catches and the candidate misses minus the reverse. Pool them: NET_ALL over the 12 rows, NET_CE over
+the three cell-exact Emergency rows. The veto triggers when **NET_ALL >= 13 or NET_CE >= 4**. The thresholds come from
+`tools/leads_v5_veto.py` (`reports/phase8_leads_v5_veto.json`; seeded simulation, no data): the smallest pair, in the
+order the tool declares, for which an equal candidate (p = 0.5) passes with probability at least 0.8 at 3 slides under
+both bounding dependence models (independent rows; fully shared rows) and discordance q = 0.1, 0.25, 0.4. An equal
+candidate then passes with probability 0.92-1.00. A clearly worse one (p = 0.35) is blocked with probability 0.002-0.14.
+With 3 slides the veto stops only a gross loss.
+
+**(c) Adoption** = gate passed AND veto not triggered. If the gate fails, no look is taken and the incumbent stays.
+2021-2024 W1 are scored beside the decision only, labelled "already looked at: second look on the same events". Assembly v2
+2025 is reported beside it, all records including the unlicensed BIPAD register, which is local-only, and decides nothing.
