@@ -2,7 +2,7 @@
 
 Spec: docs/superpowers/specs/2026-11-17-aetherguard-leads-v5.md (written before any held-out number). Research prototype, not validated for issuing real public warnings. The preflight joins no event with a level.
 
-Candidate **s** (v4-static at leads 1-3). Deciding season: 2025 June-September (fresh). Beside only: 2021, 2022, 2023, 2024. Generated 2026-11-17T01:15:01+00:00.
+Candidate **s** (v4-static at leads 1-3). Deciding season: 2025 June-September (fresh). Beside only: 2021, 2022, 2023, 2024. Generated 2026-11-17T02:35:45+00:00.
 
 ## Frozen inputs
 
@@ -17,6 +17,23 @@ Candidate **s** (v4-static at leads 1-3). Deciding season: 2025 June-September (
 | v4-static card.json | `536230304ada22fdb2608b21198b792e91fc0f164f33d5e5e7da9bb5b9161db6` |
 | v4-static calibrator.json | `0e9016c7e0fb0d7e2c8e6bfcf8afee7618de942289107d6717eb1afc7287cb31` |
 | v4-static calibrator_regions.json | `8a67b526a251184e804496b001c9e9910405c39a66e867a0b58dec778ce9c5fb` |
+
+## Development gate: E1 (amendment 2 a; no event read)
+
+Years 2022, 2023, 2024, 2536 cells (seed 20261115). Reference: published v4 lead-0 level of the target day from observed features (Late lag-1 intensity, static).
+
+| lead | candidate | days | agreement | Warning+ recall | Emergency recall | Watch / Warning / Emergency share | reference shares |
+|---|---|---|---|---|---|---|---|
+| 1 | c | 366 | 0.6555 | 0.7529 | 0.5688 | 32.68% / 13.02% / 8.47% | 29.77% / 9.62% / 3.94% |
+| 1 | s | 366 | 0.8026 | 0.7699 | 0.5701 | 30.53% / 11.07% / 4.05% | 29.77% / 9.62% / 3.94% |
+| 2 | c | 366 | 0.6425 | 0.7436 | 0.5477 | 33.24% / 13.41% / 8.33% | 29.84% / 9.63% / 3.94% |
+| 2 | s | 366 | 0.7881 | 0.7582 | 0.5493 | 31.35% / 11.17% / 3.95% | 29.84% / 9.63% / 3.94% |
+| 3 | c | 366 | 0.6455 | 0.6778 | 0.5056 | 32.05% / 11.68% / 8.30% | 29.91% / 9.65% / 3.94% |
+| 3 | s | 366 | 0.7739 | 0.6949 | 0.5086 | 29.84% / 10.06% / 4.01% | 29.91% / 9.65% / 3.94% |
+
+Gate: **PASSED**. Rule: every lead: burden within 20% of the reference at Watch, Warning, Emergency; Warning+ recall >= incumbent's.
+
+Preflight froze the gate verdict (passed = True) and the gate file (sha256 `597057e713fe172b9beca287d945f8c87bb9f00d64005dd75d6f001263687376`). Decision rule: amendment 2: adoption = development gate passed AND 2025 veto not triggered (NET_ALL >= 13 or NET_CE >= 4 over the 12 W1 rows, incumbent minus candidate slides).
 
 ## Deciding season: burden matching and events (W1)
 
@@ -52,4 +69,4 @@ Candidate **s** (v4-static at leads 1-3). Deciding season: 2025 June-September (
 
 ## Power
 
-The deciding season holds 3 independent W1 slide(s) per lead. With the incumbent leads alerting on about a fifth of the cell-days at Warning+, the tolerant rows will most likely tie; a tie in every row keeps the incumbent. The look can catch a gross loss, not show a gain (spec section 3).
+The deciding season holds 3 independent W1 slide(s) per lead, so the 2025 look can only veto a gross loss (spec amendment 2: reports/phase8_leads_v5_veto.json gives the pass and block probabilities).
