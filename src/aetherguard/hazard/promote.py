@@ -6,7 +6,12 @@ Copies the challenger's model files from `data/processed/hazard/<study output_di
 `data/processed/hazard/<name>/` (never over an existing directory), writes its development record as `cv_results.json`,
 writes `configs/hazard_<name>.yaml` (the model directory and the study's committed report, the two files the freeze
 covers besides the model) and freezes the directory with `hazard.freeze`. The live run then scores lead 0 with it when
-`configs/live_run.yaml` names that file as `lead0_model_config`. Refuses unless the study's `heldout.json` adopted it.
+`configs/live_run.yaml` names that file as `lead0_model_config`. Refuses unless the study's `heldout.json` adopted it, or,
+for a challenger adopted by another study's look (W7b: v4-static adopted for the forecast leads by `live.leads_v5_heldout`),
+unless the record `--heldout` names adopted it; `--report-stem` then names that look's committed report.
+
+    python -m aetherguard.hazard.promote --study configs/hazard_v4_static.yaml --name model_v4_static_live \
+        --heldout data/processed/lead_intensity/heldout_v5/heldout_result.json --report-stem phase8_leads_v5_heldout
 """
 from __future__ import annotations
 
@@ -29,19 +34,22 @@ class NotAdoptedError(RuntimeError):
     """The study's own held-out look did not adopt the challenger (or was not taken)."""
 
 
-def promote(study: dict, name: str, configs_dir: Path | None = None) -> Path:
-    """The frozen live directory of the study's adopted challenger; see the module doc."""
+def promote(study: dict, name: str, configs_dir: Path | None = None, heldout: Path | None = None,
+            report_stem: str | None = None) -> Path:
+    """The frozen live directory of the study's adopted challenger; see the module doc. `heldout` is the adoption record when
+    it is not the study's own `heldout.json`, `report_stem` the committed report of that look."""
     if Path(name).name != name or not name.startswith("model_"):
         raise ValueError(f"name must be a plain directory name starting with model_, got {name!r}")
     out = study_runner.output_dir(study)
-    heldout = out / study_runner.HELDOUT
+    heldout = Path(heldout) if heldout is not None else out / study_runner.HELDOUT
+    stem = report_stem or study["report_stem"]
     if not heldout.is_file() or json.loads(heldout.read_text(encoding="utf-8"))["decision"]["adopt"] is not True:
         raise NotAdoptedError(f"{hm.display_path(heldout)} does not adopt {study['challenger']}: nothing is promoted")
     source = out / study_runner.MODEL_SUBDIR / study["challenger"]
     target = data_root() / "processed" / "hazard" / name
     if target.exists():
         raise FileExistsError(f"{target} exists; a live model directory is never overwritten")
-    report = PROJECT_ROOT / "reports" / f"{study['report_stem']}.json"
+    report = PROJECT_ROOT / "reports" / f"{stem}.json"
     if not report.is_file():
         raise FileNotFoundError(f"{report} not found: write and commit the study's report first")
     config = Path(configs_dir or PROJECT_ROOT / "configs") / f"hazard_{name}.yaml"
@@ -59,7 +67,7 @@ def promote(study: dict, name: str, configs_dir: Path | None = None) -> Path:
     config.write_text(f"# The live copy of {study['challenger']}, adopted on its held-out look ({report.name}); written by\n"
                       f"# python -m aetherguard.hazard.promote. The live run reads only model_dir; the freeze also covers\n"
                       f"# this file and the report named by cv_report_stem.\n"
-                      f"model_dir: {name}\ncv_report_stem: {study['report_stem']}\n", encoding="utf-8")
+                      f"model_dir: {name}\ncv_report_stem: {stem}\n", encoding="utf-8")
     write_freeze(target, default_external_files(config))
     return target
 
@@ -68,8 +76,10 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--study", type=Path, required=True, help="the study configuration (e.g. configs/hazard_v4_int.yaml)")
     parser.add_argument("--name", required=True, help="the live directory under data/processed/hazard, e.g. model_v4_int_live")
+    parser.add_argument("--heldout", type=Path, default=None, help="the adoption record when it is not the study's heldout.json")
+    parser.add_argument("--report-stem", default=None, help="the committed report of that look (reports/<stem>.json)")
     args = parser.parse_args(argv)
-    target = promote(study_runner.load_study(args.study), args.name)
+    target = promote(study_runner.load_study(args.study), args.name, heldout=args.heldout, report_stem=args.report_stem)
     print(f"promoted and frozen: {hm.display_path(target)}; configuration configs/hazard_{args.name}.yaml")
     return 0
 

@@ -277,3 +277,19 @@ def test_the_dashboard_reads_a_forecast_leads_thresholds_from_the_model_that_mad
     assert dash_api.cell_thresholds(tmp_path, "2026-08-12", "himalaya", lead=2)[0]["watch"] == 4e-6
     (tmp_path / "2026-08-12" / "run.json").write_text(json.dumps({"model": {"thresholds": v4}}))
     assert dash_api.cell_thresholds(tmp_path, "2026-08-12", "himalaya", lead=2)[0]["watch"] == 1e-6      # one model for all leads
+
+
+def test_a_challenger_adopted_by_another_studys_look_is_promoted_from_that_record(tmp_path, isolated_data_root):
+    from aetherguard.hazard import freeze, promote
+    from aetherguard.hazard.model import hazard_config
+    study = promotable(tmp_path, adopt=False)                       # its own look did not adopt it
+    record = tmp_path / "leads_look.json"
+    record.write_text('{"decision": {"adopt": false}}', encoding="utf-8")
+    with pytest.raises(promote.NotAdoptedError):
+        promote.promote(study, "model_test_live", configs_dir=tmp_path, heldout=record, report_stem="phase8_leads_v5_heldout")
+    record.write_text('{"decision": {"adopt": true}}', encoding="utf-8")
+    target = promote.promote(study, "model_test_live", configs_dir=tmp_path, heldout=record, report_stem="phase8_leads_v5_heldout")
+    config = tmp_path / "hazard_model_test_live.yaml"
+    assert hazard_config(config)["cv_report_stem"] == "phase8_leads_v5_heldout"
+    assert freeze.verify_freeze(target, freeze.default_external_files(config))["external_files"]
+    assert "leads_look.json" in (target / "cv_results.json").read_text(encoding="utf-8")
