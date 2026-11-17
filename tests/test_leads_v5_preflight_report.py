@@ -21,3 +21,10 @@ def test_render():
     text = report.render(pre)
     assert "ALREADY LOOKED AT" in text and "| 1 | 122 | 10 | 122 | 50.0000% / 20.0000% / 8.0000%" in text
     assert "holds 3 independent W1 slide(s) per lead" in text
+    m = {"days": 366, "agreement": 0.8, "warning_plus_recall": 0.75, "emergency_recall": 0.6,
+         "burden_forecast": {"watch": 0.2, "warning": 0.1, "emergency": 0.04}, "burden_reference": {"watch": 0.2, "warning": 0.1, "emergency": 0.04}}
+    e1 = {"years": [2022], "cells": 2536, "seed": 1, "reference": "ref", "results": {"1": {"c": {"vs_v4_reference": m}, "s": {"vs_v4_reference": m}}},
+          "gate": {"passed": False, "failures": ["lead 1 x"], "rule": "r"}}
+    text = report.render({**pre, "gate": {"passed": False}, "gate_sha256": "h", "rule": "rule text"}, e1)
+    assert "Gate: **FAILED**" in text and "- lead 1 x" in text and "| 1 | s | 366 | 0.8000 | 0.7500 |" in text
+    assert "Decision rule: rule text" in text
