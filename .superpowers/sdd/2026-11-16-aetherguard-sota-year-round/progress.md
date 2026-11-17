@@ -19,3 +19,7 @@ Data junction `data` -> the main tree's data (remove with `cmd /c rmdir data` be
   Warning+/Emergency unchanged, 1 cell-exact Watch+ slide lost, 0 tolerant); Jan-May today's levels (every cutting
   candidate loses more than 2 slides). Report reports/phase8_year_round.{json,md} with the declared held-out criterion
   committed before preflight and before any held-out number.
+- 2026-11-17 05:55: preflight passed (data/processed/alerts/year_round/preflight.json: 8 held-out Jun-Dec panels, sha256
+  recorded; treatment sha256 matches the committed criterion; no event read). JOB year-round-suite (runner, light,
+  attempts 1, with the data junction): cwd C:\Users\sujan\AetherGuard-Project\worktrees\AtherGuard-wt-year; env PYTHONPATH=C:\Users\sujan\AetherGuard-Project\worktrees\AtherGuard-wt-year\src, AETHERGUARD_DATA_DIR=<repo>\data;
+  cmd: "C:\Users\sujan\AetherGuard-Project\AtherGuard\.venv\Scripts\python.exe" -m pytest -q -W error -p no:cacheprovider --deselect tests/test_splits_freeze.py::test_manifest_events_path_is_project_relative_when_inside_the_project --deselect tests/test_serve_dash_api.py::test_display_path_hides_the_machine_location ; log ops\jobs\logs\year-round-suite.log.
