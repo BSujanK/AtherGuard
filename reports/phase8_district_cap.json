@@ -10875,7 +10875,258 @@
     "declared": "python -m aetherguard.verify.district_cap heldout --rule declared",
     "alternative": "python -m aetherguard.verify.district_cap heldout --rule alternative"
   },
-  "heldout_look": null,
+  "heldout_look": {
+    "declared": {
+      "which": "alternative",
+      "rule": "F1_stratum",
+      "rule_file": "data/processed/alerts/district_cap/rule_alternative.json",
+      "burden": {
+        "himalaya|monsoon|1": 0.5008056680301936,
+        "himalaya|monsoon|2": 0.2503086088913939,
+        "himalaya|monsoon|3": 0.09952593524918656,
+        "himalaya|post_monsoon|1": 0.3106526783012206,
+        "himalaya|post_monsoon|2": 0.1304600020175527,
+        "himalaya|post_monsoon|3": 0.05096154727951359,
+        "western_ghats|monsoon|1": 0.5000060093264747,
+        "western_ghats|monsoon|2": 0.24980169222633528,
+        "western_ghats|monsoon|3": 0.10048194798327004,
+        "western_ghats|post_monsoon|1": 0.3460410557184751,
+        "western_ghats|post_monsoon|2": 0.15125749075608824,
+        "western_ghats|post_monsoon|3": 0.07564866760168303
+      },
+      "burden_factor": 1.5,
+      "loss": {
+        "same_day|1": {
+          "share": 0.07352941176470588,
+          "margin_slides": 4.868957527525199
+        },
+        "same_day|2": {
+          "share": 0.18529411764705883,
+          "margin_slides": 7.248044719035262
+        },
+        "same_day|3": {
+          "share": 0.37058823529411766,
+          "margin_slides": 9.009545111390855
+        },
+        "within_1_day|1": {
+          "share": 0.051470588235294115,
+          "margin_slides": 4.121872831631078
+        },
+        "within_1_day|2": {
+          "share": 0.11764705882352941,
+          "margin_slides": 6.010371658562259
+        },
+        "within_1_day|3": {
+          "share": 0.2985294117647059,
+          "margin_slides": 8.536658686072165
+        }
+      },
+      "slides": 87,
+      "development_events": 680,
+      "text": "confirmed when every held-out share of district-days at a level (region x season x level, June-December 2018-2025) is at most 1.5 x its development value, and at every level and reading the independent slides the rule leaves uncovered compared with R0 on the same days are at most q x 87 + 2.0 x sqrt(87 q (1 - q))"
+    },
+    "look": {
+      "burden": {
+        "himalaya|monsoon|1": 0.48341637822829103,
+        "himalaya|monsoon|2": 0.24315117340534784,
+        "himalaya|monsoon|3": 0.10006751359780913,
+        "himalaya|post_monsoon|1": 0.3328709775042873,
+        "himalaya|post_monsoon|2": 0.14551283667910825,
+        "himalaya|post_monsoon|3": 0.06014198527186523,
+        "western_ghats|monsoon|1": 0.5108160364886304,
+        "western_ghats|monsoon|2": 0.2636832363828662,
+        "western_ghats|monsoon|3": 0.11546470121628769,
+        "western_ghats|post_monsoon|1": 0.38384247896213186,
+        "western_ghats|post_monsoon|2": 0.17817540322580644,
+        "western_ghats|post_monsoon|3": 0.09001358695652174
+      },
+      "coverage": {
+        "same_day|1": {
+          "hits": 76,
+          "of": 87
+        },
+        "same_day|2": {
+          "hits": 64,
+          "of": 87
+        },
+        "same_day|3": {
+          "hits": 44,
+          "of": 87
+        },
+        "within_1_day|1": {
+          "hits": 78,
+          "of": 87
+        },
+        "within_1_day|2": {
+          "hits": 69,
+          "of": 87
+        },
+        "within_1_day|3": {
+          "hits": 53,
+          "of": 87
+        }
+      },
+      "base_coverage": {
+        "same_day|1": {
+          "hits": 86,
+          "of": 87
+        },
+        "same_day|2": {
+          "hits": 80,
+          "of": 87
+        },
+        "same_day|3": {
+          "hits": 71,
+          "of": 87
+        },
+        "within_1_day|1": {
+          "hits": 86,
+          "of": 87
+        },
+        "within_1_day|2": {
+          "hits": 81,
+          "of": 87
+        },
+        "within_1_day|3": {
+          "hits": 75,
+          "of": 87
+        }
+      }
+    },
+    "events_outside_panel_days": 1,
+    "decision": {
+      "confirmed": true,
+      "conditions": [
+        {
+          "condition": "burden himalaya|monsoon|1",
+          "development": 0.5008056680301936,
+          "heldout": 0.48341637822829103,
+          "limit": 0.7512085020452903,
+          "passed": true
+        },
+        {
+          "condition": "burden himalaya|monsoon|2",
+          "development": 0.2503086088913939,
+          "heldout": 0.24315117340534784,
+          "limit": 0.3754629133370908,
+          "passed": true
+        },
+        {
+          "condition": "burden himalaya|monsoon|3",
+          "development": 0.09952593524918656,
+          "heldout": 0.10006751359780913,
+          "limit": 0.14928890287377983,
+          "passed": true
+        },
+        {
+          "condition": "burden himalaya|post_monsoon|1",
+          "development": 0.3106526783012206,
+          "heldout": 0.3328709775042873,
+          "limit": 0.4659790174518309,
+          "passed": true
+        },
+        {
+          "condition": "burden himalaya|post_monsoon|2",
+          "development": 0.1304600020175527,
+          "heldout": 0.14551283667910825,
+          "limit": 0.19569000302632905,
+          "passed": true
+        },
+        {
+          "condition": "burden himalaya|post_monsoon|3",
+          "development": 0.05096154727951359,
+          "heldout": 0.06014198527186523,
+          "limit": 0.07644232091927039,
+          "passed": true
+        },
+        {
+          "condition": "burden western_ghats|monsoon|1",
+          "development": 0.5000060093264747,
+          "heldout": 0.5108160364886304,
+          "limit": 0.750009013989712,
+          "passed": true
+        },
+        {
+          "condition": "burden western_ghats|monsoon|2",
+          "development": 0.24980169222633528,
+          "heldout": 0.2636832363828662,
+          "limit": 0.3747025383395029,
+          "passed": true
+        },
+        {
+          "condition": "burden western_ghats|monsoon|3",
+          "development": 0.10048194798327004,
+          "heldout": 0.11546470121628769,
+          "limit": 0.15072292197490506,
+          "passed": true
+        },
+        {
+          "condition": "burden western_ghats|post_monsoon|1",
+          "development": 0.3460410557184751,
+          "heldout": 0.38384247896213186,
+          "limit": 0.5190615835777126,
+          "passed": true
+        },
+        {
+          "condition": "burden western_ghats|post_monsoon|2",
+          "development": 0.15125749075608824,
+          "heldout": 0.17817540322580644,
+          "limit": 0.22688623613413236,
+          "passed": true
+        },
+        {
+          "condition": "burden western_ghats|post_monsoon|3",
+          "development": 0.07564866760168303,
+          "heldout": 0.09001358695652174,
+          "limit": 0.11347300140252453,
+          "passed": true
+        },
+        {
+          "condition": "coverage lost against R0 same_day|1",
+          "development_loss_share": 0.07352941176470588,
+          "heldout_lost": 10,
+          "allowed": 11.26601635105461,
+          "passed": true
+        },
+        {
+          "condition": "coverage lost against R0 same_day|2",
+          "development_loss_share": 0.18529411764705883,
+          "heldout_lost": 16,
+          "allowed": 23.368632954329378,
+          "passed": true
+        },
+        {
+          "condition": "coverage lost against R0 same_day|3",
+          "development_loss_share": 0.37058823529411766,
+          "heldout_lost": 27,
+          "allowed": 41.25072158197909,
+          "passed": true
+        },
+        {
+          "condition": "coverage lost against R0 within_1_day|1",
+          "development_loss_share": 0.051470588235294115,
+          "heldout_lost": 8,
+          "allowed": 8.599814008101667,
+          "passed": true
+        },
+        {
+          "condition": "coverage lost against R0 within_1_day|2",
+          "development_loss_share": 0.11764705882352941,
+          "heldout_lost": 12,
+          "allowed": 16.245665776209318,
+          "passed": true
+        },
+        {
+          "condition": "coverage lost against R0 within_1_day|3",
+          "development_loss_share": 0.2985294117647059,
+          "heldout_lost": 22,
+          "allowed": 34.50871750960158,
+          "passed": true
+        }
+      ],
+      "failed": []
+    }
+  },
   "caveats": [
     "Development data only (2007-2017, out of fold, every scored cell); the curve's shares are fitted leave-one-year-out. No held-out number is in the development tables.",
     "The district levels aggregate today's published cell levels (option A: the card's thresholds and the whole live chain except the blind-escalation rule).",
@@ -10885,5 +11136,5 @@
     "January-May has no held-out panels, so its rows can only ever be development numbers.",
     "District boundaries: ODbL 1.0; contains information from geoBoundaries (gbOpen) and OpenStreetMap contributors. Nepal uses the 75 districts of 2006, Bhutan its 20 dzongkhags."
   ],
-  "created_utc": "2026-11-16T19:30:58Z"
+  "created_utc": "2026-11-17T01:18:28Z"
 }

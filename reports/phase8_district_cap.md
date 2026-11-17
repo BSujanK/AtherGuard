@@ -2,8 +2,6 @@
 
 Today a district would take the highest level of any of its cells (R0). A district holds a median of 49 scored cells, so that puts districts on alert most days. This report caps how often a district may be at each level and shows what the cap costs in covered slides. Every number comes from `data/processed/alerts/district_cap/fit.json`: development years 2007-2017, out of fold, today's published cell levels (option A), district shares fitted leave-one-year-out. Nothing is wired.
 
-No held-out number is in this report.
-
 ## The rules side by side
 
 | rule | Watch+ cap | Warning+ cap | Emergency cap |
@@ -611,6 +609,29 @@ Command (in this worktree, PYTHONPATH=src): `python -m aetherguard.verify.distri
 | coverage lost against R0 within_1_day / 1 | 5.1% of events | 4.5 + 4.1 slides |
 | coverage lost against R0 within_1_day / 2 | 11.8% of events | 10.2 + 6.0 slides |
 | coverage lost against R0 within_1_day / 3 | 29.9% of events | 26.0 + 8.5 slides |
+
+## The held-out look (alternative): CONFIRMED
+
+| condition | held-out | limit | result |
+|---|---|---|---|
+| burden himalaya / monsoon / 1 | 48.34% | 75.12% | pass |
+| burden himalaya / monsoon / 2 | 24.32% | 37.55% | pass |
+| burden himalaya / monsoon / 3 | 10.01% | 14.93% | pass |
+| burden himalaya / post_monsoon / 1 | 33.29% | 46.60% | pass |
+| burden himalaya / post_monsoon / 2 | 14.55% | 19.57% | pass |
+| burden himalaya / post_monsoon / 3 | 6.01% | 7.64% | pass |
+| burden western_ghats / monsoon / 1 | 51.08% | 75.00% | pass |
+| burden western_ghats / monsoon / 2 | 26.37% | 37.47% | pass |
+| burden western_ghats / monsoon / 3 | 11.55% | 15.07% | pass |
+| burden western_ghats / post_monsoon / 1 | 38.38% | 51.91% | pass |
+| burden western_ghats / post_monsoon / 2 | 17.82% | 22.69% | pass |
+| burden western_ghats / post_monsoon / 3 | 9.00% | 11.35% | pass |
+| coverage lost against R0 same_day / 1 | 10 slides lost | 11.3 | pass |
+| coverage lost against R0 same_day / 2 | 16 slides lost | 23.4 | pass |
+| coverage lost against R0 same_day / 3 | 27 slides lost | 41.3 | pass |
+| coverage lost against R0 within_1_day / 1 | 8 slides lost | 8.6 | pass |
+| coverage lost against R0 within_1_day / 2 | 12 slides lost | 16.2 | pass |
+| coverage lost against R0 within_1_day / 3 | 22 slides lost | 34.5 | pass |
 
 ## Caveats
 
