@@ -205,3 +205,33 @@ def test_a_static_only_lead_model_needs_no_intensity_window(tmp_path):
     features = pd.read_parquet(live_run.live_root(cfg) / H.DAY.isoformat() / "features_D2.parquet")
     assert set(STATIC) <= set(features.columns) and not set(IINT) & set(features.columns)
     assert summary["audit"]["total_violations"] == 0, summary["audit"]
+
+
+def frozen_config(tmp_path, model, name: str):
+    """`model` saved and frozen as data/processed/hazard/<name> of the (isolated) data root; its config in tmp_path."""
+    from aetherguard.config import data_root
+    from aetherguard.hazard import freeze
+    target = data_root() / "processed" / "hazard" / name
+    model.save(target)
+    (target / "cv_results.json").write_text('{"selected": {"name": "test"}}', encoding="utf-8")
+    config = tmp_path / f"hazard_{name}.yaml"
+    config.write_text(f"model_dir: {name}\ncv_report_stem: phase8_leads_v5_heldout\n", encoding="utf-8")
+    freeze.write_freeze(target, freeze.default_external_files(config))
+    return config
+
+
+def test_the_live_run_scores_the_leads_with_the_model_lead_model_config_names(tmp_path, isolated_data_root):
+    from test_live_run_intensity import STATIC, static_table
+    incumbent = frozen_config(tmp_path, H.tiny_model(), "model_test_v3")
+    leads = frozen_config(tmp_path, static_only_model(), "model_test_static")
+    cfg = H.make_cfg(tmp_path, model_config=str(incumbent), lead_model_config=str(leads))
+    deps = H.make_deps(model=None, static_table=static_table(), forecast_thresholds=H.THRESHOLDS,
+                       incumbent_thresholds=H.THRESHOLDS)      # the tiny cards carry no thresholds; the models come from the configs
+    summary = live_run.run_day(H.DAY, cfg, deps=deps)
+    assert summary["model"]["dir"].endswith("model_test_v3") and summary["model"]["n_columns"] == len(H.MODEL_COLUMNS)
+    assert summary["forecast_model"]["dir"].endswith("model_test_static")
+    assert summary["forecast_model"]["n_columns"] == len(H.MODEL_COLUMNS) + len(STATIC)
+    assert summary["lead_intensity"]["used"] is True
+    features = pd.read_parquet(live_run.live_root(cfg) / H.DAY.isoformat() / "features_D3.parquet")
+    assert set(STATIC) <= set(features.columns)
+    assert summary["audit"]["total_violations"] == 0, summary["audit"]

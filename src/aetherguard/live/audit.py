@@ -520,7 +520,8 @@ def context_from_config(cfg: dict, rescore: bool = False, model=None, alert_conf
                         model_loader=lambda: live_run.load_live_model({**cfg, "model_config": cfg[live_run.lead0_key(cfg)]}),
                         forecast_model=forecast_model,
                         forecast_columns=tuple(forecast_model.columns) if forecast_model is not None else None,
-                        forecast_loader=(lambda: live_run.load_live_model(cfg)) if live_run.split_configured(cfg) else None)
+                        forecast_loader=(lambda: live_run.load_live_model({**cfg, "model_config": cfg[live_run.lead_model_key(cfg)]}))
+                        if cfg[live_run.lead_model_key(cfg)] != cfg[live_run.lead0_key(cfg)] else None)
 
 
 def _read(run_dir: Path, name: str) -> pd.DataFrame | None:

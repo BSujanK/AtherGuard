@@ -7,21 +7,19 @@ live_dir: data/live                  # <live_dir>/<YYYY-MM-DD>/{raw/, freshness.
 report_dir: reports/live             # <report_dir>/<YYYY-MM-DD>.md, the bulletin
 replay_dir: data/processed/alerts/replay   # the replay store that gets the set `replay_set`
 replay_set: live
-model_config: configs/hazard_v3.yaml       # the model of the forecast leads D+1..D+3 (and of every study); it must be frozen
+model_config: configs/hazard_v3.yaml       # the incumbent: every lead's fallback while an input is missing, and the model of
+                                           # every study; it must be frozen
 lead0_model_config: configs/hazard_model_v4_live.yaml   # today's alerts (lead 0): v4, adopted on its held-out look
                                            # (reports/phase7_static_susceptibility.md). It reads yesterday's half-hourly rain
                                            # and the static table, which no forecast lead has; without them lead 0 falls
                                            # back to model_config for that run. Remove this line to go back to v3 everywhere.
-# lead_model_config: configs/hazard_model_v4_live.yaml   # W7 (docs/superpowers/specs/2026-11-14-aetherguard-leads-v4.md): the
-#                                          # model of the forecast leads; absent = the incumbent, `model_config`. A model
-#                                          # with intensity / static inputs needs `lead_intensity`; while a day of a lead's
-#                                          # window is missing every lead falls back to `model_config`. Changes lead LEVELS:
-#                                          # a model change, wired only after the held-out look and the user's yes.
-# lead_intensity:
-#   maps_file: data/processed/lead_intensity/intensity_maps.json   # leads_v4_study fit (GFS JJAS 2021, Early JJAS 2016-2017)
-#   late_root: data/processed/imerg_intensity                       # complete Late days (default: the intensity store)
-#   early_root: data/processed/imerg_intensity                      # Early live window of day D (<root>/early_live/)
-#   expected_risk: false                                            # true: candidate b (expectation over the ensemble)
+lead_model_config: configs/hazard_model_v4_static_live.yaml   # the forecast leads D+1..D+3: v4-static (v3's inputs plus the
+                                           # nine static inputs, no rain intensity), adopted for the leads by the 2025 look
+                                           # (reports/phase8_leads_v5_heldout.md, spec 2026-11-17-aetherguard-leads-v5.md
+                                           # amendment 2). It joins the static table at every lead and reads no intensity
+                                           # window. Remove this line to go back to v3 on the leads (`model_config`).
+                                           # A model WITH intensity inputs would also need a `lead_intensity` block
+                                           # (maps_file, late_root, early_root, expected_risk; live/lead_intensity.py).
 alert_config: data/processed/alerts/alert_config_v3.json   # v3 development parameters (reports/phase6_alert_burden.md); the v2 config stays untouched
 post_rules: data/processed/alerts/post_rules_v3.json       # post-model rules (rain trigger, ensemble agreement, blind-hold limit; reports/phase6_accuracy_hardening.md)
 terrain_table: data/processed/terrain/cell_terrain.parquet
