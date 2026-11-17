@@ -1,0 +1,15 @@
+{
+ "issue_days": 122,
+ "gfs_all_hours": 122,
+ "ecmwf_ens_all_steps": 122,
+ "ecmwf_hres_all_steps": 122,
+ "gfs_missing": [],
+ "ecmwf_ens_missing": [],
+ "imerg_late_daily_present": {
+  "2026-03-01": true,
+  "2026-05-31": true,
+  "2026-06-01": true,
+  "2026-09-30": true,
+  "2026-10-03": true
+ }
+}

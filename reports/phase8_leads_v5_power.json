@@ -1,0 +1,187 @@
+{
+ "model": "each of the 12 rows is independent; in a row each of n independent slides is discordant (one\nmodel detects it, the other does not) with probability q, and a discordant slide favours the candidate with probability p\n(p = 0.5: no difference). Rule (i): every row has candidate >= incumbent and at least one row has candidate > incumbent.\nRule (iii), no-harm: every row has candidate >= incumbent. Independence of the rows makes passing (iii) and failing (i) by a\nsingle lower row look rarer than it is, since the real rows share slides.",
+ "seed": 20261117,
+ "draws": 20000,
+ "results": {
+  "n=3": {
+   "q=0.1": {
+    "p=0.5": {
+     "rule_i_adopt": 0.1626,
+     "rule_iii_pass": 0.1914,
+     "all_rows_tied": 0.0288
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.2956,
+     "rule_iii_pass": 0.32315,
+     "all_rows_tied": 0.02755
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.51885,
+     "rule_iii_pass": 0.5455,
+     "all_rows_tied": 0.02665
+    }
+   },
+   "q=0.25": {
+    "p=0.5": {
+     "rule_i_adopt": 0.0295,
+     "rule_iii_pass": 0.0296,
+     "all_rows_tied": 0.0001
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.10645,
+     "rule_iii_pass": 0.1066,
+     "all_rows_tied": 0.00015
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.31435,
+     "rule_iii_pass": 0.3144,
+     "all_rows_tied": 5e-05
+    }
+   }
+  },
+  "n=6": {
+   "q=0.1": {
+    "p=0.5": {
+     "rule_i_adopt": 0.05735,
+     "rule_iii_pass": 0.0582,
+     "all_rows_tied": 0.00085
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.16055,
+     "rule_iii_pass": 0.1622,
+     "all_rows_tied": 0.00165
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.3789,
+     "rule_iii_pass": 0.3798,
+     "all_rows_tied": 0.0009
+    }
+   },
+   "q=0.25": {
+    "p=0.5": {
+     "rule_i_adopt": 0.0077,
+     "rule_iii_pass": 0.0077,
+     "all_rows_tied": 0.0
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.06555,
+     "rule_iii_pass": 0.06555,
+     "all_rows_tied": 0.0
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.2932,
+     "rule_iii_pass": 0.2932,
+     "all_rows_tied": 0.0
+    }
+   }
+  },
+  "n=10": {
+   "q=0.1": {
+    "p=0.5": {
+     "rule_i_adopt": 0.02325,
+     "rule_iii_pass": 0.02335,
+     "all_rows_tied": 0.0001
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.09715,
+     "rule_iii_pass": 0.0972,
+     "all_rows_tied": 5e-05
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.31655,
+     "rule_iii_pass": 0.31655,
+     "all_rows_tied": 0.0
+    }
+   },
+   "q=0.25": {
+    "p=0.5": {
+     "rule_i_adopt": 0.0035,
+     "rule_iii_pass": 0.0035,
+     "all_rows_tied": 0.0
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.06615,
+     "rule_iii_pass": 0.06615,
+     "all_rows_tied": 0.0
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.3568,
+     "rule_iii_pass": 0.3568,
+     "all_rows_tied": 0.0
+    }
+   }
+  },
+  "n=15": {
+   "q=0.1": {
+    "p=0.5": {
+     "rule_i_adopt": 0.0091,
+     "rule_iii_pass": 0.0091,
+     "all_rows_tied": 0.0
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.06945,
+     "rule_iii_pass": 0.06945,
+     "all_rows_tied": 0.0
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.3028,
+     "rule_iii_pass": 0.3028,
+     "all_rows_tied": 0.0
+    }
+   },
+   "q=0.25": {
+    "p=0.5": {
+     "rule_i_adopt": 0.0027,
+     "rule_iii_pass": 0.0027,
+     "all_rows_tied": 0.0
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.0737,
+     "rule_iii_pass": 0.0737,
+     "all_rows_tied": 0.0
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.4653,
+     "rule_iii_pass": 0.4653,
+     "all_rows_tied": 0.0
+    }
+   }
+  },
+  "n=25": {
+   "q=0.1": {
+    "p=0.5": {
+     "rule_i_adopt": 0.00485,
+     "rule_iii_pass": 0.00485,
+     "all_rows_tied": 0.0
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.06505,
+     "rule_iii_pass": 0.06505,
+     "all_rows_tied": 0.0
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.35645,
+     "rule_iii_pass": 0.35645,
+     "all_rows_tied": 0.0
+    }
+   },
+   "q=0.25": {
+    "p=0.5": {
+     "rule_i_adopt": 0.0011,
+     "rule_iii_pass": 0.0011,
+     "all_rows_tied": 0.0
+    },
+    "p=0.65": {
+     "rule_i_adopt": 0.10925,
+     "rule_iii_pass": 0.10925,
+     "all_rows_tied": 0.0
+    },
+    "p=0.8": {
+     "rule_i_adopt": 0.66055,
+     "rule_iii_pass": 0.66055,
+     "all_rows_tied": 0.0
+    }
+   }
+  }
+ }
+}

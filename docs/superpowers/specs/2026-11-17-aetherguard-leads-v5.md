@@ -72,3 +72,23 @@ made and committed before the look; this spec declares (i).
 v4-static is not frozen or promoted. If adopted, `hazard.promote` copies it to a frozen live directory and
 `lead_model_config` names it (a model with static but no intensity inputs needs no intensity window; the lead inputs
 are then the static table only). Anything that changes published lead levels is a model change and waits for the user's yes.
+
+## 6. Amendment 1 (2026-11-17, before any held-out number): 2026 checked, not added; the look is HELD
+
+The lead chose option (ii) (hold) and asked whether JJAS 2026 would give a materially stronger deciding set. Checked
+without reading any model output on a held-out day:
+* Forecasts: all 122 June-September 2026 issue days have every GFS hour and every ECMWF ensemble and HRES step the
+  leads use in the public archives, and IMERG Late daily covers March-October 2026
+  (`reports/phase8_leads_v5_2026_availability.json`; availability by HEAD request, nothing fetched).
+* Events: no assembly holds any 2026 record (W1 0, assembly v2 0). The merged harvester (`verify.harvest`, GDELT DOC
+  2.0, keyless) returns articles for monsoon days (2026-07-15: 8, 2025-07-15: 11 India "landslide" articles), but every
+  candidate needs a person to confirm it against the article. The 2025 news rows show the yield
+  (`data/raw/manual/reported_events/inventory_report.json`): 45 raw rows, 30 ungeocodable, 6 over 10 km, 5 report-dated,
+  1 QA-excluded, 3 admitted.
+* Power (`tools/leads_v5_power.py`, `reports/phase8_leads_v5_power.json`; an illustrative model with stated
+  assumptions, not fitted): under the 12-row rule a real gain (discordant slides favouring the candidate 65:35) is adopted
+  with probability at most 0.30 at 3 slides and at most 0.16 from 6 to 25 slides. The rule needs all 12 rows not lower,
+  and a larger set gives each row more chances to go the wrong way. Row independence makes these numbers pessimistic.
+* Conclusion: adding 2026 does not give materially more power under this rule, and today it adds no licence-clean record.
+  The deciding set stays June-September 2025 (section 3). The look stays held until the lead and the user choose
+  between (i) and (iii) of section 3; that choice, if (iii), is committed as a further amendment before the look.
