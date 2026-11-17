@@ -1,0 +1,274 @@
+{
+ "generated_utc": "2026-11-17T01:15:01+00:00",
+ "candidate": "s",
+ "deciding_years": [
+  2025
+ ],
+ "beside_years": [
+  2021,
+  2022,
+  2023,
+  2024
+ ],
+ "panels_sha256": {
+  "2025": "101c79ec0a7b812732136f8fe0d46ffdb670433c07f14742d3b4328a79066037",
+  "2021": "470be4dda2e8990c6afb61ad3485b33a3de9b2958a6a869b6069b41fdfb76a96",
+  "2022": "cf01cca9e0aa45b76b2a4b9e5c089bec66c8ccc8f4d0c28994934965d4e2dbea",
+  "2023": "6a3e1857faa8de2d66b987400b7ed80ea58cbcbc58fe82d898531481bf3301ce",
+  "2024": "86779ba15d1858c405dadd9fdba719c4f28a9502be735ed5b52782adb6bcb41d"
+ },
+ "model_sha256": {
+  "model.txt": "d2344a1d1df28077e5d57b9721ef711e84626ab7e85987a769968375eb697817",
+  "card.json": "536230304ada22fdb2608b21198b792e91fc0f164f33d5e5e7da9bb5b9161db6",
+  "calibrator.json": "0e9016c7e0fb0d7e2c8e6bfcf8afee7618de942289107d6717eb1afc7287cb31",
+  "calibrator_regions.json": "8a67b526a251184e804496b001c9e9910405c39a66e867a0b58dec778ce9c5fb"
+ },
+ "leads": {
+  "1": {
+   "days": 122,
+   "scored_cell_days": 4488557,
+   "seasons": {
+    "2025": {
+     "scored_cell_days": 4488557,
+     "issue_days_scored": 122,
+     "target": [
+      0.5785075248014006,
+      0.22813411971820788,
+      0.08283129745261117
+     ],
+     "realised": [
+      0.5785075248014006,
+      0.22813411971820788,
+      0.08283129745261117
+     ],
+     "cuts": {
+      "1": {
+       "cell_days_taken": 2596664,
+       "cut_risk": 1.1321716339106983e-06,
+       "cut_raw": 0.005184945119506958,
+       "tied_cell_days": 1,
+       "tied_taken": 1,
+       "straddle": 0,
+       "risk_tied_cell_days": 403069
+      },
+      "2": {
+       "cell_days_taken": 1023993,
+       "cut_risk": 9.684640648121037e-06,
+       "cut_raw": 0.0521100883682437,
+       "tied_cell_days": 1,
+       "tied_taken": 1,
+       "straddle": 0,
+       "risk_tied_cell_days": 178703
+      },
+      "3": {
+       "cell_days_taken": 371793,
+       "cut_risk": 2.7104596637016448e-05,
+       "cut_raw": 0.15436325824924213,
+       "tied_cell_days": 3,
+       "tied_taken": 2,
+       "straddle": 1,
+       "risk_tied_cell_days": 14845
+      }
+     }
+    }
+   },
+   "events_on_days": 3,
+   "events_outside_days": 0,
+   "independent_slides_on_days": 3
+  },
+  "2": {
+   "days": 122,
+   "scored_cell_days": 4488624,
+   "seasons": {
+    "2025": {
+     "scored_cell_days": 4488624,
+     "issue_days_scored": 122,
+     "target": [
+      0.5967664032451816,
+      0.24146486762981262,
+      0.08326493820823486
+     ],
+     "realised": [
+      0.5967664032451816,
+      0.24146486762981262,
+      0.08326493820823486
+     ],
+     "cuts": {
+      "1": {
+       "cell_days_taken": 2678660,
+       "cut_risk": 1.1321716339106983e-06,
+       "cut_raw": 0.005002578012878543,
+       "tied_cell_days": 1,
+       "tied_taken": 1,
+       "straddle": 0,
+       "risk_tied_cell_days": 399596
+      },
+      "2": {
+       "cell_days_taken": 1083845,
+       "cut_risk": 9.050048263994089e-06,
+       "cut_raw": 0.04947823346338715,
+       "tied_cell_days": 1,
+       "tied_taken": 1,
+       "straddle": 0,
+       "risk_tied_cell_days": 39448
+      },
+      "3": {
+       "cell_days_taken": 373745,
+       "cut_risk": 2.7104596637016448e-05,
+       "cut_raw": 0.15250932575009932,
+       "tied_cell_days": 3,
+       "tied_taken": 2,
+       "straddle": 1,
+       "risk_tied_cell_days": 14957
+      }
+     }
+    }
+   },
+   "events_on_days": 3,
+   "events_outside_days": 0,
+   "independent_slides_on_days": 3
+  },
+  "3": {
+   "days": 122,
+   "scored_cell_days": 4488624,
+   "seasons": {
+    "2025": {
+     "scored_cell_days": 4488624,
+     "issue_days_scored": 122,
+     "target": [
+      0.5413826152513554,
+      0.20574100214230465,
+      0.0822608443032876
+     ],
+     "realised": [
+      0.5413826152513554,
+      0.20574100214230465,
+      0.0822608443032876
+     ],
+     "cuts": {
+      "1": {
+       "cell_days_taken": 2430063,
+       "cut_risk": 1.1321716339106983e-06,
+       "cut_raw": 0.0058481160201614875,
+       "tied_cell_days": 2,
+       "tied_taken": 2,
+       "straddle": 0,
+       "risk_tied_cell_days": 407539
+      },
+      "2": {
+       "cell_days_taken": 923494,
+       "cut_risk": 9.684640648121037e-06,
+       "cut_raw": 0.05123453092632344,
+       "tied_cell_days": 1,
+       "tied_taken": 1,
+       "straddle": 0,
+       "risk_tied_cell_days": 168999
+      },
+      "3": {
+       "cell_days_taken": 369238,
+       "cut_risk": 2.5781157439091467e-05,
+       "cut_raw": 0.13439825708030914,
+       "tied_cell_days": 1,
+       "tied_taken": 1,
+       "straddle": 0,
+       "risk_tied_cell_days": 33733
+      }
+     }
+    }
+   },
+   "events_on_days": 3,
+   "events_outside_days": 0,
+   "independent_slides_on_days": 3
+  }
+ },
+ "beside_event_counts": {
+  "w1_2021_2024_already_looked_at": {
+   "1": {
+    "events_on_days": 22,
+    "events_outside_days": 2,
+    "independent_slides_on_days": 22
+   },
+   "2": {
+    "events_on_days": 22,
+    "events_outside_days": 2,
+    "independent_slides_on_days": 22
+   },
+   "3": {
+    "events_on_days": 22,
+    "events_outside_days": 2,
+    "independent_slides_on_days": 22
+   }
+  },
+  "v2_all_2025": {
+   "1": {
+    "events_on_days": 154,
+    "events_outside_days": 62,
+    "independent_slides_on_days": 142
+   },
+   "2": {
+    "events_on_days": 154,
+    "events_outside_days": 62,
+    "independent_slides_on_days": 142
+   },
+   "3": {
+    "events_on_days": 153,
+    "events_outside_days": 63,
+    "independent_slides_on_days": 141
+   }
+  },
+  "v2_without_bipad_2025": {
+   "1": {
+    "events_on_days": 3,
+    "events_outside_days": 0,
+    "independent_slides_on_days": 3
+   },
+   "2": {
+    "events_on_days": 3,
+    "events_outside_days": 0,
+    "independent_slides_on_days": 3
+   },
+   "3": {
+    "events_on_days": 3,
+    "events_outside_days": 0,
+    "independent_slides_on_days": 3
+   }
+  },
+  "v2_india_2025": {
+   "1": {
+    "events_on_days": 3,
+    "events_outside_days": 0,
+    "independent_slides_on_days": 3
+   },
+   "2": {
+    "events_on_days": 3,
+    "events_outside_days": 0,
+    "independent_slides_on_days": 3
+   },
+   "3": {
+    "events_on_days": 3,
+    "events_outside_days": 0,
+    "independent_slides_on_days": 3
+   }
+  }
+ },
+ "checks": [
+  {
+   "check": "lead 1: burden matched within tolerance every season",
+   "passed": true
+  },
+  {
+   "check": "lead 2: burden matched within tolerance every season",
+   "passed": true
+  },
+  {
+   "check": "lead 3: burden matched within tolerance every season",
+   "passed": true
+  },
+  {
+   "check": "every panel scored with the v4-static files on disk",
+   "passed": true
+  }
+ ],
+ "rule": "on June-September 2025, for leads 1-3, tolerant and cell-exact, Warning+ and Emergency independent-slide detection of the candidate not lower than the incumbent's in any of the 12 rows and higher in at least one",
+ "note": "no event was joined with a level; event counts are of the dates only"
+}

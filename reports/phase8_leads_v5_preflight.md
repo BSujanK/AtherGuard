@@ -1,0 +1,55 @@
+# Forecast leads on v4-static (leads v5): preflight of the held-out look (no outcome computed)
+
+Spec: docs/superpowers/specs/2026-11-17-aetherguard-leads-v5.md (written before any held-out number). Research prototype, not validated for issuing real public warnings. The preflight joins no event with a level.
+
+Candidate **s** (v4-static at leads 1-3). Deciding season: 2025 June-September (fresh). Beside only: 2021, 2022, 2023, 2024. Generated 2026-11-17T01:15:01+00:00.
+
+## Frozen inputs
+
+| file | sha256 |
+|---|---|
+| panel 2025 | `101c79ec0a7b812732136f8fe0d46ffdb670433c07f14742d3b4328a79066037` |
+| panel 2021 | `470be4dda2e8990c6afb61ad3485b33a3de9b2958a6a869b6069b41fdfb76a96` |
+| panel 2022 | `cf01cca9e0aa45b76b2a4b9e5c089bec66c8ccc8f4d0c28994934965d4e2dbea` |
+| panel 2023 | `6a3e1857faa8de2d66b987400b7ed80ea58cbcbc58fe82d898531481bf3301ce` |
+| panel 2024 | `86779ba15d1858c405dadd9fdba719c4f28a9502be735ed5b52782adb6bcb41d` |
+| v4-static model.txt | `d2344a1d1df28077e5d57b9721ef711e84626ab7e85987a769968375eb697817` |
+| v4-static card.json | `536230304ada22fdb2608b21198b792e91fc0f164f33d5e5e7da9bb5b9161db6` |
+| v4-static calibrator.json | `0e9016c7e0fb0d7e2c8e6bfcf8afee7618de942289107d6717eb1afc7287cb31` |
+| v4-static calibrator_regions.json | `8a67b526a251184e804496b001c9e9910405c39a66e867a0b58dec778ce9c5fb` |
+
+## Deciding season: burden matching and events (W1)
+
+| lead | target days | scored cell-days | issue days scored | target W+ / Wa+ / E | realised W+ / Wa+ / E | straddle | W1 events on days | outside | independent slides |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 122 | 4,488,557 | 122 | 57.8508% / 22.8134% / 8.2831% | 57.8508% / 22.8134% / 8.2831% | 0, 0, 1 | 3 | 0 | 3 |
+| 2 | 122 | 4,488,624 | 122 | 59.6766% / 24.1465% / 8.3265% | 59.6766% / 24.1465% / 8.3265% | 0, 0, 1 | 3 | 0 | 3 |
+| 3 | 122 | 4,488,624 | 122 | 54.1383% / 20.5741% / 8.2261% | 54.1383% / 20.5741% / 8.2261% | 0, 0, 0 | 3 | 0 | 3 |
+
+## Beside, deciding nothing (dates only)
+
+| set | lead | events on days | outside | independent slides |
+|---|---|---|---|---|
+| W1 2021-2024 (ALREADY LOOKED AT by the v4-leads look: a second look, beside only) | 1 | 22 | 2 | 22 |
+| W1 2021-2024 (ALREADY LOOKED AT by the v4-leads look: a second look, beside only) | 2 | 22 | 2 | 22 |
+| W1 2021-2024 (ALREADY LOOKED AT by the v4-leads look: a second look, beside only) | 3 | 22 | 2 | 22 |
+| assembly v2 2025, all records (includes the BIPAD Nepal register: no stated licence, rows local only) | 1 | 154 | 62 | 142 |
+| assembly v2 2025, all records (includes the BIPAD Nepal register: no stated licence, rows local only) | 2 | 154 | 62 | 142 |
+| assembly v2 2025, all records (includes the BIPAD Nepal register: no stated licence, rows local only) | 3 | 153 | 63 | 141 |
+| assembly v2 2025 without the BIPAD register | 1 | 3 | 0 | 3 |
+| assembly v2 2025 without the BIPAD register | 2 | 3 | 0 | 3 |
+| assembly v2 2025 without the BIPAD register | 3 | 3 | 0 | 3 |
+| assembly v2 2025, India only | 1 | 3 | 0 | 3 |
+| assembly v2 2025, India only | 2 | 3 | 0 | 3 |
+| assembly v2 2025, India only | 3 | 3 | 0 | 3 |
+
+## Checks
+
+- lead 1: burden matched within tolerance every season: passed
+- lead 2: burden matched within tolerance every season: passed
+- lead 3: burden matched within tolerance every season: passed
+- every panel scored with the v4-static files on disk: passed
+
+## Power
+
+The deciding season holds 3 independent W1 slide(s) per lead. With the incumbent leads alerting on about a fifth of the cell-days at Warning+, the tolerant rows will most likely tie; a tie in every row keeps the incumbent. The look can catch a gross loss, not show a gain (spec section 3).
