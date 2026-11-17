@@ -14,3 +14,8 @@ Data junction `data` -> the main tree's data (remove with `cmd /c rmdir data` be
   cwd C:\Users\sujan\AetherGuard-Project\worktrees\AtherGuard-wt-year; env PYTHONPATH=C:\Users\sujan\AetherGuard-Project\worktrees\AtherGuard-wt-year\src, AETHERGUARD_DATA_DIR=C:\Users\sujan\AetherGuard-Project\AtherGuard\data;
   cmd "C:\Users\sujan\AetherGuard-Project\AtherGuard\.venv\Scripts\python.exe -m aetherguard.verify.year_round panels"; log ops\jobs\logs\year-round-panels.log;
   output data\processed\alerts\year_round\year_<window>_<year>.json (22 files, about 50 s each).
+- 2026-11-17 05:50: year-round-panels done (exit 0, 01:39-02:20, 22 files). summarise + report run in the foreground
+  (6 s). Selection by the declared rule: Oct-Dec `m1.00_uoff` (uncertain_high off out of season; LOYO Watch+ -26%,
+  Warning+/Emergency unchanged, 1 cell-exact Watch+ slide lost, 0 tolerant); Jan-May today's levels (every cutting
+  candidate loses more than 2 slides). Report reports/phase8_year_round.{json,md} with the declared held-out criterion
+  committed before preflight and before any held-out number.

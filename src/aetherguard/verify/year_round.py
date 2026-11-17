@@ -71,7 +71,7 @@ ELEVATION_EDGES = (1000.0, 2000.0, 3000.0, 4000.0)      # metres; bands <1000, 1
 # in its season, at every level and tolerance: max(LOSS_MIN, floor(LOSS_SHARE x the season's slides))
 LOSS_MIN, LOSS_SHARE = 1, 0.03
 # the declared held-out look (spec section 6)
-BURDEN_KEEP = 0.5                    # the held-out burden reduction must reach this share of the development (LOYO) one
+BURDEN_KEEP = 0.5                    # the held-out burden reduction must reach this share of the development one
 BURDEN_MIN_DEV = 0.10                # ... at every region and level whose development reduction is at least this
 LOOK_SEASON = "post_monsoon"         # the only out-of-season months with held-out panels (alerts/v4_seasons)
 
@@ -830,6 +830,44 @@ def findings(summary: dict) -> list[str]:
                        f"{_p(row['Emergency']['published_share'])} (monsoon {_p(mon['Watch+']['published_share'])} and "
                        f"{_p(mon['Emergency']['published_share'])}); hits per 100k alert cell-days {', '.join(parts)}; "
                        f"E/O at Watch+ {_f(eo[0], 2)} (monsoon {_f(eo[1], 2)}).")
+    out = ["Development (v4 out of fold, today's chain): outside June-September the levels fire less often but each "
+           "alert cell-day verifies less often than in the monsoon, at every level and in both regions:"] + out
+    live = pd.DataFrame(summary["live_days"])
+    if not live.empty:
+        v3 = live[live["model"] == "model_v3_live"]
+        v4 = live[live["model"] == "model_v4_live"].sort_values("day")
+        first = v4["day"].min() if len(v4) else None
+        line = (f"Live: {v3['day'].nunique()} of the {live['day'].nunique()} published days outside the monsoon were "
+                f"scored by v3 (Emergency on {_p((v3['Emergency_published'] * v3['cells']).sum() / v3['cells'].sum())} "
+                f"of the cell-days).")
+        if first:
+            day1 = v4[v4["day"] == first]
+            held = int(day1["emergency_held"].sum())
+            n = int(round((day1["Emergency_published"] * day1["cells"]).sum()))
+            line += (f" On the first v4 day ({first}) {held} of the {n} Emergency cells were held by the hysteresis "
+                     f"from the v3 day before.")
+        if summary.get("live_replays"):
+            reps = summary["live_replays"]
+            line += (" Replayed with v4 at lead 0, the days " + ", ".join(sorted(reps)) + " give " +
+                     ", ".join(str(reps[d]["v4"]["Emergency"]) for d in sorted(reps)) + " Emergency cells against " +
+                     ", ".join(str(reps[d]["v3"]["Emergency"]) for d in sorted(reps)) + " with v3.")
+        out.append(line)
+    for season in OUT_SEASONS:
+        sel, lo = summary["selection"][season], summary["loyo"][season]
+        chosen = sel["chosen"]
+        if chosen == TODAY_KEY:
+            out.append(f"{SEASON_TEXT[season]}: every candidate that cuts the burden loses more than the declared "
+                       f"{sel['allowed_loss']} slide(s) at some level and tolerance; today's levels stay.")
+        else:
+            red = " / ".join(_p(x, 0) for x in lo["reduction"])
+            out.append(f"{SEASON_TEXT[season]}: the declared rule chose `{chosen}`; leave one year out it cuts "
+                       f"Watch+ / Warning+ / Emergency published cell-days by {red} and loses at most "
+                       f"{max(lo['lost'].values())} slide(s) at any level and tolerance.")
+    p = summary["power"]
+    out.append("Held-out ground truth out of season (W1, licence-clean): " + ", ".join(
+        f"{p[s]['heldout_w1_slides']} slide(s) in {SEASON_TEXT[s]}" for s in OUT_SEASONS) +
+        ". No held-out test of detection can decide anything with these; the look below decides burden only and "
+        "carries a detection veto.")
     return out
 
 
