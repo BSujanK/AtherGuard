@@ -170,6 +170,21 @@ Command: `python -m aetherguard.verify.year_round heldout`. Season: post-monsoon
 
 Adopt only if 1-3 pass. Adoption still changes published levels (a model change): it needs a reviewed wiring step and the user's yes. January-May has no held-out panels and stays development-only.
 
+## The held-out look: ADOPT by the declared rule
+
+| condition | held-out | required | passed |
+|---|---|---|---|
+| burden himalaya|Watch+ | 26% | 13% | True |
+| burden western_ghats|Watch+ | 25% | 13% | True |
+| June-September identical | 0 differing | 0 | True |
+| detection veto (W1) | lost {'tolerant|1': 0, 'tolerant|2': 0, 'tolerant|3': 0, 'cell_exact|1': 0, 'cell_exact|2': 0, 'cell_exact|3': 0} | none lost | True |
+
+heldout_w1: 3 slide(s); today {'tolerant|1': 3, 'tolerant|2': 3, 'tolerant|3': 2, 'cell_exact|1': 3, 'cell_exact|2': 2, 'cell_exact|3': 0}, treatment {'tolerant|1': 3, 'tolerant|2': 3, 'tolerant|3': 2, 'cell_exact|1': 3, 'cell_exact|2': 2, 'cell_exact|3': 0}.
+
+heldout_v2_all_unlicensed_included: 83 slide(s); today {'tolerant|1': 73, 'tolerant|2': 71, 'tolerant|3': 66, 'cell_exact|1': 71, 'cell_exact|2': 67, 'cell_exact|3': 61}, treatment {'tolerant|1': 73, 'tolerant|2': 71, 'tolerant|3': 66, 'cell_exact|1': 71, 'cell_exact|2': 67, 'cell_exact|3': 61}.
+
+heldout_v2_licence_clean: 3 slide(s); today {'tolerant|1': 3, 'tolerant|2': 3, 'tolerant|3': 2, 'cell_exact|1': 3, 'cell_exact|2': 2, 'cell_exact|3': 0}, treatment {'tolerant|1': 3, 'tolerant|2': 3, 'tolerant|3': 2, 'cell_exact|1': 3, 'cell_exact|2': 2, 'cell_exact|3': 0}.
+
 ## Caveats
 
 - Detection counts what the catalogues recorded. They miss most landslides and report them where people live and when people look; out-of-season slides may be reported less often than monsoon slides, which would make the out-of-season precision and E/O look worse than they are. The catalogues cannot separate this from a model that over-predicts out of season.
